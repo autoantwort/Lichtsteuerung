@@ -3,12 +3,29 @@
 
 #include <QString>
 #include "id.h"
+
+/**
+ * @brief The Channel class give us information about a channel in a devicePrototype
+ * Eine Klasse die die jeweiligen ChannelInformationen für ein deviecPrototype hält
+ */
 class Channel
 {
 private:
+    /**
+     * @brief id Die id zum referenzieren in Dateien
+     */
     ID id;
+    /**
+     * @brief index Der DMX Index (Offset) von der späteren tatsächlichen start Adresse eines bestimmten Geräts
+     */
     int index;
+    /**
+     * @brief name Der Name des Channels, zb Red, Green, Blue, Speed, Programm, ...
+     */
     QString name;
+    /**
+     * @brief description Eine Beschreibung des Channels, zb um deutlich zu machen, was er macht
+     */
     QString description;
 
     friend class DevicePrototype;

@@ -13,7 +13,13 @@ class DevicePrototype
 {
 private:
     ID id;
+    /**
+     * @brief name Der Name des DevicePrototypen, zb Scanner, Licht, Laser, ...
+     */
     QString name;
+    /**
+     * @brief channels Ein vector die die einzelnen Channel Informationen hält
+     */
     std::vector<Channel> channels;
 public:
     DevicePrototype(QString name):name(name){}
