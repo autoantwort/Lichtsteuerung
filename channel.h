@@ -30,6 +30,7 @@ private:
 
     friend class DevicePrototype;
 public:
+    Channel(const QJsonObject &o);
     Channel(int index, QString name = "Unknown", QString description=""):Channel(ID::generateNew(),index,name,description){}
     explicit Channel(ID id, int index, QString name = "Unknown", QString description=""):id(id),index(index),name(name),description(description){}
 
@@ -42,6 +43,8 @@ public:
 
     bool operator ==(const ID id)const{return this->id==id;}
     bool operator ==(const int id)const{return this->id.value()==id;}
+
+    void writeJsonObject(QJsonObject &o)const;
 };
 
 #endif // CHANNEL_H

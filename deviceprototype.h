@@ -22,6 +22,7 @@ private:
      */
     std::vector<Channel> channels;
 public:
+    DevicePrototype(const QJsonObject &o);
     DevicePrototype(QString name):name(name){}
     int getNumberOfChannels()const{return channels.size()+1;}
     /**
@@ -40,6 +41,10 @@ public:
     const Channel * getChannelByName(const QString &name)const;
     const Channel * getChannelById(const int id)const;
     const Channel * getChannelByIndex(const int channelIndex)const;
+
+    void writeJsonObject(QJsonObject &o)const;
+
+    const ID& getID()const{return id;}
 };
 
 #endif // DEVICEPROTOTYPE_H

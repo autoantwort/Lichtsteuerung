@@ -2,6 +2,7 @@
 #define IDGENERATOR_H
 
 #include <QDateTime>
+#include <QJsonObject>
 
 
 
@@ -28,6 +29,9 @@ public:
     long value()const{return id;}
     bool operator !=(const ID other)const{return other.id!=id;}
     bool operator ==(const ID other)const{return other.id!=id;}
+public:
+    ID(const QJsonObject &o);
+    void writeJsonObject(QJsonObject &o)const;
 };
 
 

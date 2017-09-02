@@ -33,7 +33,9 @@ protected:
      */
     int startDMXChannel;
 public:
-    Device();
+    Device(const QJsonObject &o);
+
+    void writeJsonObject(QJsonObject &o)const;
 };
 
 #endif // DEVICE_H
