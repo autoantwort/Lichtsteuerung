@@ -48,7 +48,7 @@ const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelInd
     return &channels[channelIndex];
 }
 
-DevicePrototype::DevicePrototype(const QJsonObject &o):id(o){
+DevicePrototype::DevicePrototype(const QJsonObject &o):IDBase(o){
     auto array = o["channels"].toArray();
     for(const auto c : array){
         channels.push_back(Channel(c.toObject()));
@@ -56,7 +56,7 @@ DevicePrototype::DevicePrototype(const QJsonObject &o):id(o){
 }
 
 void DevicePrototype::writeJsonObject(QJsonObject &o) const{
-    id.writeJsonObject(o);
+    IDBase::writeJsonObject(o);
     o.insert("name",name);
     QJsonArray channels;
     for(const auto c : this->channels){
