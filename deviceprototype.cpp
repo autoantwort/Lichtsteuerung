@@ -1,4 +1,5 @@
 #include "deviceprototype.h"
+#include <QJsonArray>
 
 void DevicePrototype::removeChannels(int newMaxIndex){
     if (newMaxIndex<0||newMaxIndex>getNumberOfChannels()) {
@@ -45,4 +46,23 @@ const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelInd
         return nullptr;
     }
     return &channels[channelIndex];
+}
+
+DevicePrototype::DevicePrototype(const QJsonObject &o):id(o){
+    auto array = o["channels"].toArray();
+    for(const auto c : array){
+        channels.push_back(Channel(c.toObject()));
+    }
+}
+
+void DevicePrototype::writeJsonObject(QJsonObject &o) const{
+    id.writeJsonObject(o);
+    o.insert("name",name);
+    QJsonArray channels;
+    for(const auto c : this->channels){
+        QJsonObject o;
+        c.writeJsonObject(o);
+        channels.append(o);
+    }
+    o.insert("channels",channels);
 }

@@ -27,6 +27,7 @@ private:
     friend class DevicePrototype;
 public:
     Channel(int index, QString name = "Unknown", QString description=""):index(index),name(name),description(description){}
+    Channel(const QJsonObject &o);
 
     int getIndex()const{return index;}
     QString getName()const{return name;}
@@ -34,6 +35,8 @@ public:
     void setDescription(const QString &newDescription){name = newDescription;}
     QString getDescription()const{return description;}
 
+
+    void writeJsonObject(QJsonObject &o)const;
 };
 
 #endif // CHANNEL_H
