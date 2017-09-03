@@ -3,15 +3,15 @@
 
 #include "deviceprototype.h"
 #include "QPoint"
+#include "idbase.h"
 
 
 /**
  * @brief The Device class Ein "echtes" Gerät, zb der Laser oben rechts über der Bier Theke
  */
-class Device
+class Device : public IDBase<Device>
 {
 protected:
-    ID id;
     /**
      * @brief prototype Ein Pointer auf den Typ/Prototype, von dem das Gerät ist. (Ist es eine Lamp, ein Laser, .. ?)
      */

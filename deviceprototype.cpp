@@ -23,25 +23,25 @@ void DevicePrototype::addChannel(int channel, QString name, QString description)
 }
 
 const Channel * DevicePrototype::getChannelById(const int id) const{
-    for(const auto channel : channels){
-        if (channel == id) {
-            return &channel;
+    for(auto c = channels.cbegin();c!=channels.cend();++c){
+        if (c->getID().value() == id) {
+            return &(*c);
         }
     }
     return nullptr;
 }
 
 const Channel * DevicePrototype::getChannelByName(const QString &name) const{
-    for(const auto channel : channels){
-        if (channel.name == name) {
-            return &channel;
+    for(auto c = channels.cbegin();c!=channels.cend();++c){
+        if (c->name == name) {
+            return &(*c);
         }
     }
     return nullptr;
 }
 
-const Channel * DevicePrototype::getChannelByIndex(const int channelIndex) const{
-    if (channelIndex<0||channelIndex>=channels.size()) {
+const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelIndex) const{
+    if (channelIndex>=channels.size()) {
         return nullptr;
     }
     return &channels[channelIndex];
