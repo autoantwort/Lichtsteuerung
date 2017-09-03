@@ -5,14 +5,14 @@
 #include <vector>
 #include <QVector>
 #include "channel.h"
+#include "idbase.h"
 
 /** Jedes Gerät(Scanner/Laser/Lampe/...) bekommt ein Device Prototype, wo festgelegt wird, auf welchem Channel welche Daten anliegen
  * @brief The DevicePrototype class
  */
-class DevicePrototype
+class DevicePrototype : public IDBase<DevicePrototype>
 {
 private:
-    ID id;
     /**
      * @brief name Der Name des DevicePrototypen, zb Scanner, Licht, Laser, ...
      */
@@ -40,11 +40,10 @@ public:
 
     const Channel * getChannelByName(const QString &name)const;
     const Channel * getChannelById(const int id)const;
-    const Channel * getChannelByIndex(const int channelIndex)const;
+    const Channel * getChannelByIndex(const unsigned int channelIndex)const;
 
     void writeJsonObject(QJsonObject &o)const;
 
-    const ID& getID()const{return id;}
 };
 
 #endif // DEVICEPROTOTYPE_H

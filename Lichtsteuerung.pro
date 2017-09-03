@@ -30,4 +30,5 @@ HEADERS += \
     deviceprototype.h \
     channel.h \
     id.h \
-    device.h
+    device.h \
+    idbase.h
