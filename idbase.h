@@ -26,6 +26,11 @@
             assert(getIDBaseObjectByID(id)==nullptr);
             addIDBaseObject(this);
         }
+        IDBase(const QJsonObject &o):id(o){
+            assert(getIDBaseObjectByID(id)==nullptr);
+            addIDBaseObject(this);
+        }
+        void writeJsonObject(QJsonObject &o)const{id.writeJsonObject(o);}
         virtual ~IDBase(){
             qDebug()<<"Call Destructor from : "<<getID().value()<<'\n';
             removeIDBaseObject(this);
@@ -63,7 +68,7 @@
          * @param id The Id to search for
          * @return A Pointer to the Object with the ID, or a nullptr. Maybe an Pointer to the Stack, be careful.
          */
-        static Subclass * getIDBaseObjectByID(int id){
+        static Subclass * getIDBaseObjectByID(long id){
             char storage[sizeof(IDBase)]; // get storage to hold a IDBase
             auto g = (IDBase*)(storage); // interpret storage as GameObjetc
             auto address = (char*)&g->id-(char*)&storage; // get the alignment of the id member
