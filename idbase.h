@@ -11,7 +11,10 @@
     namespace detail{
         template<typename Subclass>
         struct IDBaseComperator{
+            typedef std::true_type is_transparent;
             bool operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r);
+            bool operator()(const long l,const IDBase<Subclass> *r);
+            bool operator()(const IDBase<Subclass> *l,const long r);
         };
     }
     /**
@@ -71,12 +74,7 @@
          */
         static Subclass * getIDBaseObjectByID(long id){
             static_assert(std::is_base_of<IDBase<Subclass>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
-            char storage[sizeof(IDBase)]; // get storage to hold a IDBase
-            auto g = (IDBase*)(storage); // interpret storage as GameObjetc
-            auto address = (char*)&g->id-(char*)&storage; // get the alignment of the id member
-            auto intPointer = (int*)&storage[address]; // get int pointer to the id member
-            *intPointer = id; // set the id in the IDBase
-            auto found = idBaseObjectsByID.find(static_cast<Subclass*>(g));
+            auto found = idBaseObjectsByID.find(id);
             if (found!=idBaseObjectsByID.cend()) {
                 return static_cast<Subclass*>(*found);
             }
@@ -90,6 +88,16 @@
         template<typename Subclass>
         bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r){
             return l->getID().value()<r->getID().value();
+        }
+
+        template<typename Subclass>
+        bool IDBaseComperator<Subclass>::operator()(const long l,const IDBase<Subclass> *r){
+            return l<r->getID().value();
+        }
+
+        template<typename Subclass>
+        bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const long r){
+            return l->getID().value()<r;
         }
     }
     template<typename Subclass>
