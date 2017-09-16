@@ -8,6 +8,6 @@ int main(int argc, char *argv[])
     ID id;
 
 
-    qDebug() << "Hello ich bin cooler \n"<<id.value();
+    qDebug() << "Hello ich bin cooler \n"<<id.value()<<' '<<IDBase<Device>::getIDBaseObjectByID(0)<<'\n';
     return a.exec();
 }

@@ -36,6 +36,8 @@ public:
     Device(const QJsonObject &o);
 
     void writeJsonObject(QJsonObject &o)const;
+
+    int getStartDMXChannel()const{return startDMXChannel;}
 };
 
 #endif // DEVICE_H

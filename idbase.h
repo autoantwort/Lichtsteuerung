@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <QDebug>
 #include "id.h"
+#include <type_traits>
 
     template<typename Subclass>
     class IDBase;
@@ -69,6 +70,7 @@
          * @return A Pointer to the Object with the ID, or a nullptr. Maybe an Pointer to the Stack, be careful.
          */
         static Subclass * getIDBaseObjectByID(long id){
+            static_assert(std::is_base_of<IDBase<Subclass>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
             char storage[sizeof(IDBase)]; // get storage to hold a IDBase
             auto g = (IDBase*)(storage); // interpret storage as GameObjetc
             auto address = (char*)&g->id-(char*)&storage; // get the alignment of the id member
@@ -78,6 +80,7 @@
             if (found!=idBaseObjectsByID.cend()) {
                 return static_cast<Subclass*>(*found);
             }
+            qDebug() << "Dont find IDBase Object with id "<<id << "and type "<<typeid(Subclass).name()<<'\n';
             return nullptr;
         }
         static const IDBaseSet& getAllIDBases(){return idBaseObjectsByID;}
