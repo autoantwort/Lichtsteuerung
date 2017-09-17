@@ -86,15 +86,18 @@ void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     o.insert("programm",array);
 }
 
-ProgrammPrototype::TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["value"].toInt()),easingCurveToNextPoint(o["type"].toInt()){
-    if(auto a = o.find("amplitude") != o.end()) easingCurveToNextPoint.setAmplitude(a->toDouble());
-    if(auto a = o.find("overshoot") != o.end()) easingCurveToNextPoint.setOvershoot(a->toDouble());
-    if(auto a = o.find("period")    != o.end()) easingCurveToNextPoint.setPeriod(a->toDouble());
+ProgrammPrototype::TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["value"].toInt()),easingCurveToNextPoint(QEasingCurve::Type(o["type"].toInt())){
+    const auto a = o.find("amplitude");
+    if(a != o.end()) easingCurveToNextPoint.setAmplitude(a->toDouble());
+    const auto b = o.find("overshoot");
+    if(b != o.end()) easingCurveToNextPoint.setOvershoot(b->toDouble());
+    const auto c = o.find("period");
+    if(c != o.end()) easingCurveToNextPoint.setPeriod(c->toDouble());
 }
 
-ProgrammPrototype::ChannelProgramm::ChannelProgramm(const QJsonObject &o):IDBase<Channel>::getIDBaseObjectByID(o["channel"]),repeatPolicy(o["repeatPolicy"].toInt()){
+ProgrammPrototype::ChannelProgramm::ChannelProgramm(const QJsonObject &o):channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])),repeatPolicy(ProgrammPrototype::RepeatPolicy(o["repeatPolicy"].toInt())){
     for(const auto p : o["timeline"].toArray()){
-        timeline.emplace_back(p.toObject());
+        timeline.insert(p.toObject());
     }
 }
 
