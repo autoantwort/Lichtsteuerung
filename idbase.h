@@ -5,6 +5,7 @@
 #include <QDebug>
 #include "id.h"
 #include <type_traits>
+#include <QJsonObject>
 
     template<typename Subclass>
     class IDBase;
@@ -66,6 +67,10 @@
          */
         static Subclass * getIDBaseObjectByID(const ID &id){
             return getIDBaseObjectByID(id.value());
+        }
+
+        static Subclass * getIDBaseObjectByID(const QJsonValue &o){
+            getIDBaseObjectByID(o.toString().toLong());
         }
         /**
          * @brief getIDBaseObjectByID Get an Object by its id
