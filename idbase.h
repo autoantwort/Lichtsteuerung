@@ -6,6 +6,7 @@
 #include "id.h"
 #include <type_traits>
 #include <QJsonObject>
+#include <iostream>
 
     template<typename Subclass>
     class IDBase;
@@ -20,18 +21,35 @@
     }
     /**
      * Eine Basis Klasse für Klassen, die eine Eindeutige ID benitzen sollen und bei denen mit der ID nach Objecten gesucht werden kann.
+     * Objekte die auf dem Heap erzeugt werden, werden automatisch gelöscht, sollten sie nicht vom Programmierer gelöscht werden.
      * Subclass ist der größte gemeinsame Nenner, in den die Klasse eingeteilt werden soll.
      */
     template<typename Subclass>
     class IDBase{
         ID id;
+        class Deleter{
+        public:
+            ~Deleter(){
+                //qDebug() << IDBase<Subclass>::getAllIDBases().size() << " Objects have to be deleted from Type "<< typeid(Subclass).name() <<"\n";
+                while (!IDBase<Subclass>::getAllIDBases().empty()) {
+                    delete *IDBase<Subclass>::getAllIDBases().crbegin();
+                }
+            }
+            // Wir brauchen ein Dummy funktion, um so zu tun, als würden wir das object benutzten, da es sonst nicht erzeugt wird
+            void dummy(){}
+        };
+        static Deleter deleter;
     public:
         typedef std::set<Subclass*,detail::IDBaseComperator<Subclass>> IDBaseSet;
         IDBase(){
+            // wir müssen so tun, als würden wir das object benutzten, da es sonst nicht erzeugt wird.
+            deleter.dummy();
             assert(getIDBaseObjectByID(id)==nullptr);
             addIDBaseObject(this);
         }
         IDBase(const QJsonObject &o):id(o){
+            // wir müssen so tun, als würden wir das object benutzten, da es sonst nicht erzeugt wird.
+            deleter.dummy();
             assert(getIDBaseObjectByID(id)==nullptr);
             addIDBaseObject(this);
         }
@@ -70,7 +88,7 @@
         }
 
         static Subclass * getIDBaseObjectByID(const QJsonValue &o){
-            getIDBaseObjectByID(o.toString().toLong());
+            return getIDBaseObjectByID(o.toString().toLong());
         }
         /**
          * @brief getIDBaseObjectByID Get an Object by its id
@@ -107,5 +125,9 @@
     }
     template<typename Subclass>
     typename IDBase<Subclass>::IDBaseSet IDBase<Subclass>::idBaseObjectsByID;
+
+
+    template<typename Subclass>
+    typename IDBase<Subclass>::Deleter IDBase<Subclass>::deleter;
 
 #endif // IDBASE_H
