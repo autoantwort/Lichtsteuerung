@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     id.cpp \
     device.cpp \
     programmprototype.cpp \
-    programm.cpp
+    programm.cpp \
+    applicationdata.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -35,4 +36,5 @@ HEADERS += \
     device.h \
     idbase.h \
     programmprototype.h \
-    programm.h
+    programm.h \
+    applicationdata.h

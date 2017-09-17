@@ -1,11 +1,16 @@
 #ifndef APPLICATIONDATA_H
 #define APPLICATIONDATA_H
 
+#include <QFile>
 
-class ApplicationData
-{
-public:
-    ApplicationData();
-};
+namespace ApplicationData{
+
+bool saveData(QFile file);
+void loadData(QFile file);
+QByteArray saveData();
+void loadData(QByteArray data);
+
+
+}
 
 #endif // APPLICATIONDATA_H
