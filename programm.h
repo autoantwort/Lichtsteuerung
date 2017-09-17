@@ -14,15 +14,16 @@ class Programm : public IDBase<Programm>
         double offset;
         Device * device;
         ProgrammPrototype * programmPrototype;
-
+        DeviceProgramm(double offset,Device * device,ProgrammPrototype * programmPrototype):offset(offset),device(device),programmPrototype(programmPrototype){}
     };
     std::vector<DeviceProgramm> programms;
 public:
-    Programm();
+    Programm(const QJsonObject &o);
     void run(){isRunning_ = true;}
     void stop(){isRunning_ = false;}
     bool isRunning(){return isRunning_;}
     static void fill(unsigned char * data, size_t length, double time);
+    void writeJsonObject(QJsonObject &o)const;
 };
 
 #endif // PROGRAMM_H
