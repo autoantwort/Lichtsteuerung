@@ -5,8 +5,8 @@
 
 namespace ApplicationData{
 
-bool saveData(QFile file);
-void loadData(QFile file);
+bool saveData(QFile &file);
+bool loadData(QFile &file);
 QByteArray saveData();
 void loadData(QByteArray data);
 
