@@ -1,11 +1,10 @@
 #include "channel.h"
 
-Channel::Channel(const QJsonObject &o):IDBase(o),index(o["index"].toInt()),name(o["name"].toString()),description(o["description"].toString()){}
+Channel::Channel(const QJsonObject &o):NamedObject(o),IDBase<Channel>(o),index(o["index"].toInt()){}
 
 
 void Channel::writeJsonObject(QJsonObject &o) const{
-    IDBase::writeJsonObject(o);
+    NamedObject::writeJsonObject(o);
+    IDBase<Channel>::writeJsonObject(o);
     o.insert("index",index);
-    o.insert("name",name);
-    o.insert("description",description);
 }

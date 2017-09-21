@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     device.cpp \
     programmprototype.cpp \
     programm.cpp \
-    applicationdata.cpp
+    applicationdata.cpp \
+    namedobject.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -37,4 +38,5 @@ HEADERS += \
     idbase.h \
     programmprototype.h \
     programm.h \
-    applicationdata.h
+    applicationdata.h \
+    namedobject.h

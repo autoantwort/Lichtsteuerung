@@ -2,6 +2,11 @@
 #include <cmath>
 #include <QJsonArray>
 
+ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description),devicePrototype(devicePrototype){
+    for(const auto channel : devicePrototype->getChannels()){
+        programm.push_back(ChannelProgramm(channel));
+    }
+}
 
 
 unsigned char ProgrammPrototype::ChannelProgramm::getValueForTime(double t)const{
@@ -51,7 +56,7 @@ void ProgrammPrototype::ChannelProgramm::changeTimeOfTimePoint(double time, doub
     }
 }
 
-void ProgrammPrototype::TimePoint::writeJsonObject(QJsonObject &o) const{
+void TimePoint::writeJsonObject(QJsonObject &o) const{
     o.insert("time",time);
     o.insert("value",value);
     o.insert("type",easingCurveToNextPoint.type());
@@ -74,9 +79,8 @@ void ProgrammPrototype::ChannelProgramm::writeJsonObject(QJsonObject &o) const{
 
 void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     IDBase<ProgrammPrototype>::writeJsonObject(o);
+    NamedObject::writeJsonObject(o);
     o.insert("devicePrototype",QString::number(devicePrototype->getID().value()));
-    o.insert("name",name);
-    o.insert("description",description);
     QJsonArray array;
     for(const auto p : programm){
         QJsonObject o;
@@ -86,7 +90,7 @@ void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     o.insert("programm",array);
 }
 
-ProgrammPrototype::TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["value"].toInt()),easingCurveToNextPoint(QEasingCurve::Type(o["type"].toInt())){
+TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["value"].toInt()),easingCurveToNextPoint(QEasingCurve::Type(o["type"].toInt())){
     const auto a = o.find("amplitude");
     if(a != o.end()) easingCurveToNextPoint.setAmplitude(a->toDouble());
     const auto b = o.find("overshoot");
@@ -101,11 +105,24 @@ ProgrammPrototype::ChannelProgramm::ChannelProgramm(const QJsonObject &o):channe
     }
 }
 
-ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):IDBase(o),
-    devicePrototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["devicePrototype"])),
-    name(o["name"].toString()),
-    description(o["description"].toString()){
+ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o),IDBase<ProgrammPrototype>(o),
+    devicePrototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["devicePrototype"])){
     for(const auto p : o["programm"].toArray()){
         programm.emplace_back(p.toObject());
     }
+}
+
+ProgrammPrototype::ChannelProgramm * ProgrammPrototype::getChannelProgramm(const Channel * channel){
+    for(auto p = programm.begin() ; p != programm.end() ;++p){
+        if(p->channel == channel)
+            return &*p;
+    }
+    return nullptr;
+}
+ProgrammPrototype::ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
+    for(auto p = programm.begin() ; p != programm.end() ;++p){
+        if(p->channel->getIndex() == index)
+            return &*p;
+    }
+    return nullptr;
 }

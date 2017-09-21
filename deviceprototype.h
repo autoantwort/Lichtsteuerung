@@ -10,21 +10,19 @@
 /** Jedes Gerät(Scanner/Laser/Lampe/...) bekommt ein Device Prototype, wo festgelegt wird, auf welchem Channel welche Daten anliegen
  * @brief The DevicePrototype class
  */
-class DevicePrototype : public IDBase<DevicePrototype>
+class DevicePrototype : public NamedObject, public IDBase<DevicePrototype>
 {
+    Q_OBJECT
+    Q_PROPERTY(int numberOfChannels READ getNumberOfChannels NOTIFY numberOfChannelsChanged)
 private:
-    /**
-     * @brief name Der Name des DevicePrototypen, zb Scanner, Licht, Laser, ...
-     */
-    QString name;
     /**
      * @brief channels Ein vector die die einzelnen Channel Informationen hält
      */
-    std::vector<Channel> channels;
+    std::vector<Channel*> channels;
 public:
     DevicePrototype(const QJsonObject &o);
-    DevicePrototype(QString name):name(name){}
-    int getNumberOfChannels()const{return channels.size()+1;}
+    DevicePrototype(QString name):NamedObject(name){}
+    int getNumberOfChannels()const{return channels.size();}
     /**
      * @brief removeChannels Entfernt Channel bis zu einem bestimmten Index
      * @param newMaxIndex Der neue Maximale Index (Inclusiv)
@@ -42,7 +40,11 @@ public:
     const Channel * getChannelById(const int id)const;
     const Channel * getChannelByIndex(const unsigned int channelIndex)const;
 
+    const std::vector<Channel*> & getChannels()const{return channels;};
+
     void writeJsonObject(QJsonObject &o)const;
+signals:
+    void numberOfChannelsChanged();
 
 };
 

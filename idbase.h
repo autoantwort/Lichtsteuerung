@@ -61,7 +61,7 @@
     private:
         static IDBaseSet idBaseObjectsByID;
         void removeIDBaseObject(IDBase * c)const{
-            idBaseObjectsByID.erase(idBaseObjectsByID.find(static_cast<Subclass*>(c)));
+            idBaseObjectsByID.erase(static_cast<Subclass*>(c));
         }
         void addIDBaseObject(IDBase * c)const{
             idBaseObjectsByID.insert(static_cast<Subclass*>(c));
