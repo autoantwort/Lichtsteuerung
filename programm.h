@@ -96,8 +96,9 @@ class Programm : public NamedObject, public IDBase<Programm>
     std::vector<DeviceProgramm*> programms;
     TimeDistortion timeDistortion;
 public:
+    static QString syncServiceClassName;
     Programm(const QJsonObject &o);
-    Programm(QString name,QString description = ""):NamedObject(name,description){}
+    Programm(QString name,QString description = ""):NamedObject(name,description,&syncServiceClassName){}
     Q_SLOT void setRunning(bool run){if(run != isRunning_)emit runningChanged(run);isRunning_ = run;SyncService::addUpdateMessage("Programm",getID(),"running",run?"true":"false");}
     // Für jedes Programm für jedes Device für jeden Channel
     std::map<Programm*,std::map<Device*,std::vector<Channel*>>> run();

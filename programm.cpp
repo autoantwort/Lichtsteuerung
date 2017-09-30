@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 
-Programm::Programm(const QJsonObject &o):NamedObject(o),IDBase<Programm>(o)
+Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Programm>(o)
 {
     auto array = o["programms"].toArray();
     for(const auto r : array){

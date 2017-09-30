@@ -18,6 +18,7 @@ class Device : public NamedObject, public IDBase<Device>
     Q_PROPERTY(unsigned int startDMXChannel READ getStartDMXChannel WRITE setStartDMXChannel NOTIFY startDMXChannelChanged)
     Q_PROPERTY(QPoint position READ getPosition WRITE setPosition NOTIFY positionChanged)
 public:
+    static QString syncServiceClassName;
     /**
      * @brief prototype Ein Pointer auf den Typ/Prototype, von dem das Gerät ist. (Ist es eine Lamp, ein Laser, .. ?)
      */
@@ -42,7 +43,7 @@ private slots:
 public:
     Device(const QJsonObject &o);
 
-    Device(DevicePrototype * prototype, int startDMXChannel, QString name, QString desciption="",QPoint position = QPoint(-1,-1)):NamedObject(name,desciption),prototype(prototype),startDMXChannel(startDMXChannel),position(position){
+    Device(DevicePrototype * prototype, int startDMXChannel, QString name, QString desciption="",QPoint position = QPoint(-1,-1)):NamedObject(name,desciption,&syncServiceClassName),prototype(prototype),startDMXChannel(startDMXChannel),position(position){
         connect(prototype,&DevicePrototype::channelAdded,this,&Device::channelAdded);
     }
 

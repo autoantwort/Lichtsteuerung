@@ -20,8 +20,9 @@ private:
      */
     std::vector<Channel*> channels;
 public:
+    static QString syncServiceClassName;
     DevicePrototype(const QJsonObject &o);
-    DevicePrototype(QString name):NamedObject(name){}
+    DevicePrototype(QString name):NamedObject(name,&syncServiceClassName){}
     int getNumberOfChannels()const{return channels.size();}
     /**
      * @brief removeChannels Entfernt Channel bis zu einem bestimmten Index

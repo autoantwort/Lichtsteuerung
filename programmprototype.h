@@ -42,6 +42,7 @@ class ProgrammPrototype : public NamedObject, public IDBase<ProgrammPrototype>
     Q_OBJECT
     Q_PROPERTY(DevicePrototype* devicePrototype READ getDevicePrototype CONSTANT)
 public:
+    static QString syncServiceClassName;
     /**
      * @brief devicePrototype Für diesen Typ soll das Programm sein.
      */
