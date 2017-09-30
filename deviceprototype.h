@@ -43,8 +43,39 @@ public:
     const std::vector<Channel*> & getChannels()const{return channels;};
 
     void writeJsonObject(QJsonObject &o)const;
+public:
+    static void update (const ID &id, const QString &name,const QString &value){
+        auto d = IDBase<DevicePrototype>::getIDBaseObjectByID(id);
+        if(d){
+            auto s = name.toLatin1();
+            d->setProperty(s.data(),QVariant(value));
+        }
+    }
+    static void create (const QJsonObject &o){new DevicePrototype(o);}
+    static void remove (const ID &id){
+        auto d = IDBase<DevicePrototype>::getIDBaseObjectByID(id);
+        if(d){
+            delete d;
+        }
+    }
+    static void createMember (const ID &id,const QString &name,const QJsonObject &o){
+        auto d = IDBase<DevicePrototype>::getIDBaseObjectByID(id);
+        if(d&&name=="channels")d->addChannel(o["index"].toInt(),o["name"].toString(),o["description"].toString());
+    }
+    static void removeMember (const ID &pid,const QString &name,const ID &id){
+        auto d = IDBase<DevicePrototype>::getIDBaseObjectByID(pid);
+        if(d&&name=="channels"){
+            auto c = IDBase<Channel>::getIDBaseObjectByID(id);
+            if(c){
+                d->removeChannels(c->getIndex());
+            }
+        }
+    }
+
 signals:
     void numberOfChannelsChanged();
+    void channelAdded(Channel*);
+    void channelRemoved(Channel*);
 
 };
 

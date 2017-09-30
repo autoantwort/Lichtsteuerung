@@ -2,6 +2,7 @@
 #define CHANNEL_H
 
 #include <QString>
+#include "idbase.h"
 #include "namedobject.h"
 
 /**
@@ -19,7 +20,8 @@ private:
     int index;
     friend class DevicePrototype;
 public:
-    Channel(int index, QString name = "Unknown", QString description=""):NamedObject(name,description),index(index){}
+    static QString syncServiceClassName;
+    Channel(int index, QString name = "Unknown", QString description=""):NamedObject(name,description,&syncClassName),index(index){}
     Channel(const QJsonObject &o);
 
     int getIndex()const{return index;}

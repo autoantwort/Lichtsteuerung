@@ -2,14 +2,44 @@
 #include <cmath>
 #include <QJsonArray>
 
-ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description),devicePrototype(devicePrototype){
+ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description,&syncServiceClassName),devicePrototype(devicePrototype){
+    setParent(devicePrototype);
+    connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
+    connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
     for(const auto channel : devicePrototype->getChannels()){
-        programm.push_back(ChannelProgramm(channel));
+        programm.push_back(new ChannelProgramm(channel));
+        emit channelProgrammAdded(programm.back());
+    }
+}
+
+void ProgrammPrototype::channelProgrammDestroyed(ChannelProgramm * c){
+    for(auto i = programm.cbegin();i!=programm.cend();++i){
+        if(*i==c){
+            programm.erase(i);
+            break;
+        }
+    }
+    emit channelProgrammRemoved(c);
+}
+
+void ProgrammPrototype::channelAdded(Channel *c){
+    programm.push_back(new ChannelProgramm(c));
+    emit channelProgrammAdded(programm.back());
+}
+void ProgrammPrototype::channelRemoved(Channel *c){
+    for(auto i = programm.cbegin();i!=programm.cend();++i){
+        if((**i).getChannel()==c){
+            auto cp = *i;
+            programm.erase(i);
+            emit channelProgrammRemoved(cp);
+            delete cp;
+            return;
+        }
     }
 }
 
 
-unsigned char ProgrammPrototype::ChannelProgramm::getValueForTime(double t)const{
+unsigned char ChannelProgramm::getValueForTime(double t)const{
     // Kein Punkt in der Timeline, 0 wird zurück gegeben
     if (timeline.empty()) {
         return 0;
@@ -46,7 +76,7 @@ unsigned char ProgrammPrototype::ChannelProgramm::getValueForTime(double t)const
     return left->value + left->easingCurveToNextPoint.valueForProgress(progress) * (rightValue-left->value);
 }
 
-void ProgrammPrototype::ChannelProgramm::changeTimeOfTimePoint(double time, double newTime){
+void ChannelProgramm::changeTimeOfTimePoint(double time, double newTime){
     auto i = timeline.find(time);
     if(i!=timeline.end()){
         auto curve = i->easingCurveToNextPoint;
@@ -65,7 +95,7 @@ void TimePoint::writeJsonObject(QJsonObject &o) const{
     o.insert("period",easingCurveToNextPoint.period());
 }
 
-void ProgrammPrototype::ChannelProgramm::writeJsonObject(QJsonObject &o) const{
+void ChannelProgramm::writeJsonObject(QJsonObject &o) const{
     o.insert("channel",QString::number(channel->getID().value()));
     o.insert("repeatPolicy",repeatPolicy);
     QJsonArray array;
@@ -84,7 +114,7 @@ void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     QJsonArray array;
     for(const auto p : programm){
         QJsonObject o;
-        p.writeJsonObject(o);
+        p->writeJsonObject(o);
         array.append(o);
     }
     o.insert("programm",array);
@@ -99,30 +129,35 @@ TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["v
     if(c != o.end()) easingCurveToNextPoint.setPeriod(c->toDouble());
 }
 
-ProgrammPrototype::ChannelProgramm::ChannelProgramm(const QJsonObject &o):channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])),repeatPolicy(ProgrammPrototype::RepeatPolicy(o["repeatPolicy"].toInt())){
+ChannelProgramm::ChannelProgramm(const QJsonObject &o):channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])),repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())){
+    setParent(getChannel());
     for(const auto p : o["timeline"].toArray()){
         timeline.insert(p.toObject());
     }
 }
 
-ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o),IDBase<ProgrammPrototype>(o),
+ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<ProgrammPrototype>(o),
     devicePrototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["devicePrototype"])){
+    setParent(getDevicePrototype());
+    connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
+    connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
     for(const auto p : o["programm"].toArray()){
-        programm.emplace_back(p.toObject());
+        programm.push_back(new ChannelProgramm(p.toObject()));
+        emit channelProgrammAdded(programm.back());
     }
 }
 
-ProgrammPrototype::ChannelProgramm * ProgrammPrototype::getChannelProgramm(const Channel * channel){
+ChannelProgramm * ProgrammPrototype::getChannelProgramm(const Channel * channel){
     for(auto p = programm.begin() ; p != programm.end() ;++p){
-        if(p->channel == channel)
-            return &*p;
+        if((**p).channel == channel)
+            return *p;
     }
     return nullptr;
 }
-ProgrammPrototype::ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
+ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
     for(auto p = programm.begin() ; p != programm.end() ;++p){
-        if(p->channel->getIndex() == index)
-            return &*p;
+        if((**p).channel->getIndex() == index)
+            return *p;
     }
     return nullptr;
 }
