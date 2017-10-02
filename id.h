@@ -11,6 +11,7 @@
  * @brief Eine ID Klasse, die eindeutige IDs erstellt
  */
 class ID{
+    friend class SyncService;
 private:
     static long lastID;
 public:

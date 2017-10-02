@@ -6,6 +6,9 @@
 #include <QJsonObject>
 #include <map>
 #include <tuple>
+#include <vector>
+
+
 
 class SyncService {
 public:
