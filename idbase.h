@@ -158,7 +158,7 @@
         virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
         virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const {
             if(std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::value && std::is_base_of<NamedObject,IDBaseWithNamedObject>::value){
-                if(index.row()>=0 && index.row()<IDBase<IDBaseWithNamedObject>::getAllIDBases().size()){
+                if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
                     if(role==Qt::DisplayRole){
                         return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getName();
                     }else if(role==Qt::ToolTipRole){

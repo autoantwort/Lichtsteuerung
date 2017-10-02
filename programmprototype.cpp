@@ -2,6 +2,8 @@
 #include <cmath>
 #include <QJsonArray>
 
+QString ProgrammPrototype::syncServiceClassName;
+
 ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description,&syncServiceClassName),devicePrototype(devicePrototype){
     setParent(devicePrototype);
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
@@ -129,7 +131,7 @@ TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["v
     if(c != o.end()) easingCurveToNextPoint.setPeriod(c->toDouble());
 }
 
-ChannelProgramm::ChannelProgramm(const QJsonObject &o):channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])),repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())){
+ChannelProgramm::ChannelProgramm(const QJsonObject &o):repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())),channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])){
     setParent(getChannel());
     for(const auto p : o["timeline"].toArray()){
         timeline.insert(p.toObject());

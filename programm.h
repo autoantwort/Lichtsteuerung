@@ -5,6 +5,7 @@
 #include "device.h"
 #include "idbase.h"
 #include <map>
+#include <cmath>
 
 class DeviceProgramm : public QObject , public IDBase<DeviceProgramm>{
     Q_OBJECT
@@ -56,7 +57,7 @@ signals:
     void programmPrototypeChanged();
 };
 
-class TimeDistortion : QObject{
+class TimeDistortion : public QObject{
     Q_OBJECT
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled NOTIFY enabledChanged)
     Q_PROPERTY(QEasingCurve distortionCurve READ getDistortionCurve WRITE setDistortionCurve NOTIFY distortionCurveChanged)
@@ -74,9 +75,9 @@ public:
     bool getIntervall()const{return intervall;}
 public:
     double distort(double time){
-        double diff = std::fmodf(time,interval);
+        double diff = std::fmodf(time,intervall);
         double offset = time-diff;
-        diff = curve.valueForProgress(diff/interval)*interval;
+        diff = distortionCurve.valueForProgress(diff/intervall)*intervall;
         return offset+diff;
     }
 signals:
@@ -90,7 +91,7 @@ class Programm : public NamedObject, public IDBase<Programm>
     Q_OBJECT
     Q_PROPERTY(bool running READ isRunning WRITE setRunning NOTIFY runningChanged RESET stop)
     Q_PROPERTY(double speed READ getSpeed WRITE setSpeed NOTIFY speedChanged)
-    Q_PROPERTY(TimeDistortion timeDistortion READ getTimeDistortion CONSTANT)
+    Q_PROPERTY(TimeDistortion * timeDistortion READ getTimeDistortion CONSTANT)
     bool isRunning_ = false;
     double speed=1.0;
     std::vector<DeviceProgramm*> programms;
@@ -110,7 +111,7 @@ public:
     void writeJsonObject(QJsonObject &o)const;
     const std::vector<DeviceProgramm*>& getDeviceProgramms()const{return programms;}
     bool addDeviceProgramm(Device * device, ProgrammPrototype * programmPrototype, double offset = 0);
-    TimeDistortion * getTimeDistortion()const{return &timeDistortion;}
+    TimeDistortion * getTimeDistortion(){return &timeDistortion;}
 private:
     void addDeviceProgramm(const QJsonObject &o);
 private slots:

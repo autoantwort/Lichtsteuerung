@@ -2,6 +2,7 @@
 #include <QJsonArray>
 #include <unordered_set>
 
+QString Programm::syncServiceClassName;
 
 Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Programm>(o)
 {

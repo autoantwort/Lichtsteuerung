@@ -1,6 +1,8 @@
 #include "deviceprototype.h"
 #include <QJsonArray>
 
+QString DevicePrototype::syncServiceClassName;
+
 void DevicePrototype::removeChannels(int newMaxIndex){
     if (newMaxIndex<0||newMaxIndex>getNumberOfChannels()) {
         return;

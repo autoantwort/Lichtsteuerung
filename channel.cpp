@@ -1,5 +1,7 @@
 #include "channel.h"
 
+QString Channel::syncServiceClassName;
+
 Channel::Channel(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Channel>(o),index(o["index"].toInt()){}
 
 

@@ -1,5 +1,7 @@
 #include "device.h"
 
+QString Device::syncServiceClassName;
+
 Device::Device(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Device>(o),
     prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"].toString().toLong())),
     startDMXChannel(o["startDMXChannel"].toInt()),
