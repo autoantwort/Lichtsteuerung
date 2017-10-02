@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     applicationdata.cpp \
     namedobject.cpp \
     dmxchannelfilter.cpp \
-    syncservice.cpp
+    syncservice.cpp \
+    usermanagment.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -43,4 +44,5 @@ HEADERS += \
     applicationdata.h \
     namedobject.h \
     syncservice.h \
-    dmxchannelfilter.h
+    dmxchannelfilter.h \
+    usermanagment.h

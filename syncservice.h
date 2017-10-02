@@ -31,6 +31,7 @@ protected:
 public:
     enum Operation{UPDATE,CREATE,REMOVE,UPDATE_MEMBER,CREATE_MEMBER,REMOVE_MEMBER};
     enum Access{READ,WRITE};
+    static bool areSyncServicesActive(){return !syncServices.empty();}
     static void addCreateMessage(const QString &className, const QJsonObject &o);
     static void addCreateMemberMessage(const QString &className,const ID &,const QString &memberName, const QJsonObject &o);
     static void addUpdateMessage(const QString &className, const ID &id, const QString &varName,const QString &varValue);
