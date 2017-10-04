@@ -10,7 +10,7 @@
 #include <QAbstractListModel>
 #include "namedobject.h"
 
-    template<typename Subclass>
+    template<typename Subclass, typename enableDataModel = std::true_type>
     class IDBase;
     namespace detail{
         template<typename Subclass>
@@ -26,7 +26,7 @@
      * Objekte die auf dem Heap erzeugt werden, werden automatisch gelöscht, sollten sie nicht vom Programmierer gelöscht werden.
      * Subclass ist der größte gemeinsame Nenner, in den die Klasse eingeteilt werden soll.
      */
-    template<typename Subclass>
+    template<typename Subclass, typename enableDataModel>
     class IDBase{
         ID id;
         class Deleter{
@@ -62,12 +62,12 @@
         }
     private:
         static IDBaseSet idBaseObjectsByID;
-        void removeIDBaseObject(IDBase * c)const{
+        void removeIDBaseObject(IDBase * c)const;/*{
             idBaseObjectsByID.erase(static_cast<Subclass*>(c));
-        }
-        void addIDBaseObject(IDBase * c)const{
+        }*/
+        void addIDBaseObject(IDBase * c)const;/*{
             idBaseObjectsByID.insert(static_cast<Subclass*>(c));
-        }
+        }*/
     public:
         /*
         static void deleteIDBase(int id){
@@ -98,7 +98,7 @@
          * @return A Pointer to the Object with the ID, or a nullptr. Maybe an Pointer to the Stack, be careful.
          */
         static Subclass * getIDBaseObjectByID(long id){
-            static_assert(std::is_base_of<IDBase<Subclass>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
+            static_assert(std::is_base_of<IDBase<Subclass,enableDataModel>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
             auto found = idBaseObjectsByID.find(id);
             if (found!=idBaseObjectsByID.cend()) {
                 return static_cast<Subclass*>(*found);
@@ -125,12 +125,12 @@
             return l->getID().value()<r;
         }
     }
-    template<typename Subclass>
-    typename IDBase<Subclass>::IDBaseSet IDBase<Subclass>::idBaseObjectsByID;
+    template<typename Subclass, typename enableDataModel>
+    typename IDBase<Subclass,enableDataModel>::IDBaseSet IDBase<Subclass,enableDataModel>::idBaseObjectsByID;
 
 
-    template<typename Subclass>
-    typename IDBase<Subclass>::Deleter IDBase<Subclass>::deleter;
+    template<typename Subclass, typename enableDataModel>
+    typename IDBase<Subclass,enableDataModel>::Deleter IDBase<Subclass,enableDataModel>::deleter;
 
 
     template<typename IDBaseWithNamedObject>
@@ -139,34 +139,39 @@
         IDBaseDataModel(){}
         static bool existDataModel;
         friend class IDBase<IDBaseWithNamedObject>;
-        static void addIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
-            if(existDataModel){
+        static void beginAddIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
                 const auto pos = std::distance(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),c);
                 singletone()->beginInsertRows(QModelIndex(),pos,pos);
-                singletone()->endInsertRows();
-            }
         }
-        static void removeIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
-            if(existDataModel){
+        static void endAddIDBaseObject(){
+            singletone()->endInsertRows();
+        }
+        static void beginRemoveIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
                 const auto pos = std::distance(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),c);
-                singletone()->beginInsertRows(QModelIndex(),pos+1,pos+1);
-                singletone()->endInsertRows();
+                singletone()->beginRemoveRows(QModelIndex(),pos+1,pos+1);
+        }
+        static void endRemoveIDBaseObject(){
+                singletone()->endRemoveRows();
+        }
+        QVariant dataCheck(const QModelIndex &index, int role, std::true_type,std::true_type)const{
+            if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
+                if(role==Qt::DisplayRole){
+                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getName();
+                }else if(role==Qt::ToolTipRole){
+                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getDescription();
+                }
             }
+            return QVariant();
+        }
+        template<typename T, typename U>
+        QVariant dataCheck(const QModelIndex &, int, T,U)const{
+            return QVariant();
         }
     public:
         static IDBaseDataModel * singletone(){static IDBaseDataModel s;existDataModel = true;return &s;}
         virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
         virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const {
-            if(std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::value && std::is_base_of<NamedObject,IDBaseWithNamedObject>::value){
-                if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
-                    if(role==Qt::DisplayRole){
-                        return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getName();
-                    }else if(role==Qt::ToolTipRole){
-                        return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getDescription();
-                    }
-                }
-            }
-            return QVariant();
+            return dataCheck(index,role,std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::value , std::is_base_of<NamedObject,IDBaseWithNamedObject>::value);
         }
     };
 
@@ -174,5 +179,30 @@
     template<typename IDBaseWithNamedObject>
     bool IDBaseDataModel<IDBaseWithNamedObject>::existDataModel = false;
 
+
+
+    template<typename Subclass,typename enable>
+    void IDBase<Subclass,enable>::removeIDBaseObject(IDBase<Subclass,enable> * c)const{
+        if(std::is_same<enable,std::true_type>::value && IDBaseDataModel<Subclass>::existDataModel){
+            const auto iter = idBaseObjectsByID.find(static_cast<Subclass*>(c));
+            IDBaseDataModel<Subclass>::beginRemoveIDBaseObject(iter);
+            idBaseObjectsByID.erase(iter);
+            IDBaseDataModel<Subclass>::endRemoveIDBaseObject();
+        }else{
+            idBaseObjectsByID.erase(static_cast<Subclass*>(c));
+        }
+    }
+
+    template<typename Subclass,typename enable>
+    void IDBase<Subclass,enable>::addIDBaseObject(IDBase<Subclass,enable> * c)const{
+        if(std::is_same<enable,std::true_type>::value && IDBaseDataModel<Subclass>::existDataModel){
+            const auto iter = idBaseObjectsByID.lower_bound(static_cast<Subclass*>(c));
+            IDBaseDataModel<Subclass>::beginAddIDBaseObject(iter);
+            idBaseObjectsByID.insert(iter,static_cast<Subclass*>(c));
+            IDBaseDataModel<Subclass>::endAddIDBaseObject();
+        }else{
+            idBaseObjectsByID.insert(static_cast<Subclass*>(c));
+        }
+    }
 
 #endif // IDBASE_H
