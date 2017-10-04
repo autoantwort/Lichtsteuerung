@@ -8,6 +8,9 @@
 
 class User;
 
+/**
+ * @brief The UserManagment class handles user, their permissions and passwords
+ */
 class UserManagment : public QObject
 {
     Q_OBJECT
@@ -20,13 +23,14 @@ public:
     UserManagment(const QJsonObject &o);
     void load(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
-    void addUser(User * user);
+    void addUser(User * user);    
     Q_INVOKABLE void addUser(const QString & name, const QString & password);
     Q_INVOKABLE bool removeUser(User * user,const QString &password);
     Q_INVOKABLE bool changeUserName(User * user, const QString &newName,const QString &password);
     Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
     Q_INVOKABLE bool changeUserPasswort(User * user,const QString &password,const QString &newPassword);
     const std::vector<User*>& getUser()const{return user;}
+    User* getUserByName(const QString & name)const;
 };
 
 

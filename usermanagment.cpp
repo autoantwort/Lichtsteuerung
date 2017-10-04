@@ -85,14 +85,23 @@ bool UserManagment::changeUserPasswort(User *user, const QString &password, cons
     return false;
 }
 
-User::User(const QJsonObject &o):username(o["username"].toString()),password(o["password"].toString().toUtf8()),permission(static_cast<UserManagment::Permission>(o["permission"].toInt())){
+User::User(const QJsonObject &o):username(o["username"].toString()),password(o["password"].toString().toLatin1()),permission(static_cast<UserManagment::Permission>(o["permission"].toInt())){
 
 }
 
 void User::writeJsonObject(QJsonObject &o) const{
     o.insert("username",username);
-    o.insert("password",QString(password));
+    o.insert("password",QString::fromLatin1(password.constData()));
     o.insert("permission",permission);
+}
+
+User * UserManagment::getUserByName(const QString &name) const{
+    for(auto u = user.cbegin();u!=user.cend();++u){
+        if((**u).getUsername()==name){
+            return *u;
+        }
+    }
+    return nullptr;
 }
 
 
