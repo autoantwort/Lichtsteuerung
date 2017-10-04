@@ -8,6 +8,7 @@
 #include "device.h"
 #include "programmprototype.h"
 #include "programm.h"
+#include "usermanagment.h"
 
 namespace ApplicationData{
 
@@ -36,6 +37,12 @@ QByteArray saveData(){
     saveIDBaseObjects<Device>(o,"Devices");
     saveIDBaseObjects<ProgrammPrototype>(o,"ProgrammPrototypes");
     saveIDBaseObjects<Programm>(o,"Programms");
+    saveIDBaseObjects<Programm>(o,"Programms");
+    {
+        QJsonObject u;
+        UserManagment::get()->writeJsonObject(u);
+        o.insert("usermanagment",u);
+    }
     return QJsonDocument(o).toJson();
 }
 
@@ -61,6 +68,7 @@ void loadData(QByteArray data){
     loadIDBaseObjects<Device>(o,"Devices");
     loadIDBaseObjects<ProgrammPrototype>(o,"ProgrammPrototypes");
     loadIDBaseObjects<Programm>(o,"Programms");
+    UserManagment::get()->load(o["usermanagment"].toObject());
 }
 
 

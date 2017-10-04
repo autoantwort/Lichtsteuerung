@@ -3,6 +3,10 @@
 #include <QJsonArray>
 
 UserManagment::UserManagment(const QJsonObject &o){
+    load(o);
+}
+
+void UserManagment::load(const QJsonObject &o){
     for(const auto o : o["user"].toArray()){
         user.push_back(new User(o.toObject()));
     }

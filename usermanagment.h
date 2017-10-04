@@ -18,6 +18,7 @@ public:
     enum Permission{Admin, Read, Write};
     UserManagment();
     UserManagment(const QJsonObject &o);
+    void load(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
     void addUser(User * user);
     Q_INVOKABLE void addUser(const QString & name, const QString & password);
@@ -25,7 +26,7 @@ public:
     Q_INVOKABLE bool changeUserName(User * user, const QString &newName,const QString &password);
     Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
     Q_INVOKABLE bool changeUserPasswort(User * user,const QString &password,const QString &newPassword);
-    const std::vector<User*>& getUser()const{return user;};
+    const std::vector<User*>& getUser()const{return user;}
 };
 
 
