@@ -59,6 +59,7 @@ public:
 
     const std::vector<std::pair<Channel*,DMXChannelFilter*>> & getChannelFilter()const{return filter;}
 
+    // static methods for the sync service:
     static void update (const ID &id, const QString &name,const QString &value){
         auto d = IDBase<Device>::getIDBaseObjectByID(id);
         if(d){

@@ -3,9 +3,20 @@
 
 #include <QObject>
 
+/**
+ * @brief The DMXChannelFilter class filter channel values
+ * Die Klasse kann einen Default value, einen Override value (überschreibt den value vom Programmen)
+ * einen min und einen max value festlegen und methoden angeben, wie mit den beiden werten umgegangen
+ * werden soll
+ */
 class DMXChannelFilter : QObject{
     Q_OBJECT
 public:
+    /**
+     * @brief The Operation enum legt die Operationen für den min und max value fest
+     * CUT : Scheident die werte einfach ab
+     * REMAP : die werte werden auf den neuen bereich skaliert
+     */
     enum Operation{CUT, REMAP};
     Q_ENUM(Operation)
 private:
@@ -36,7 +47,17 @@ public:
     void initValue(unsigned char * value);
     void filterValue(unsigned char * value);
 public:
+    /**
+     * @brief initValues sets the default values for every channel
+     * @param values the values
+     * @param numberOfChannels the number of channels
+     */
     static void initValues(unsigned char *values, unsigned int numberOfChannels);
+    /**
+     * @brief filterValues filters the values that are generated from the programms
+     * @param values
+     * @param numberOfChannels
+     */
     static void filterValues(unsigned char *values, unsigned int numberOfChannels);
 signals:
     void maxOperationChanged(Operation);

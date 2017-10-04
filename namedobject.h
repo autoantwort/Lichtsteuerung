@@ -11,6 +11,9 @@ class NamedObject : public QObject
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
 private:
+    /**
+     * @brief syncClassName ein hässlicher trick um den SyncService benutzten zu können
+     */
     QString * syncClassName;
     /**
      * @brief name Der Name des Objects

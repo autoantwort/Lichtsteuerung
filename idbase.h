@@ -29,6 +29,9 @@
     template<typename Subclass, typename enableDataModel>
     class IDBase{
         ID id;
+        /**
+         * @brief The Deleter class deletes all Objects that are on the heap when the deleter gets destroyed
+         */
         class Deleter{
         public:
             ~Deleter(){
@@ -133,6 +136,10 @@
     typename IDBase<Subclass,enableDataModel>::Deleter IDBase<Subclass,enableDataModel>::deleter;
 
 
+    /**
+     *  Ein IDBase data model um alle IDBases einer bestimmten Gruppe zb in einer Liste anzeigen zu lassen.
+     *  Aktualisiert sich komplett vollständig
+     */
     template<typename IDBaseWithNamedObject>
     class IDBaseDataModel : public QAbstractListModel{
     private:
@@ -153,6 +160,12 @@
         static void endRemoveIDBaseObject(){
                 singletone()->endRemoveRows();
         }
+        /**
+         * @brief dataCheck returns the data if the subclass has NamedObject as parent class
+         * @param index
+         * @param role
+         * @return
+         */
         QVariant dataCheck(const QModelIndex &index, int role, std::true_type,std::true_type)const{
             if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
                 if(role==Qt::DisplayRole){
@@ -168,6 +181,10 @@
             return QVariant();
         }
     public:
+        /**
+         * @brief singletone gibt das dataModel zurück
+         * @return
+         */
         static IDBaseDataModel * singletone(){static IDBaseDataModel s;existDataModel = true;return &s;}
         virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
         virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const {
@@ -183,6 +200,7 @@
 
     template<typename Subclass,typename enable>
     void IDBase<Subclass,enable>::removeIDBaseObject(IDBase<Subclass,enable> * c)const{
+        // checken ob das dataModel enabled ist und ob es exestiert
         if(std::is_same<enable,std::true_type>::value && IDBaseDataModel<Subclass>::existDataModel){
             const auto iter = idBaseObjectsByID.find(static_cast<Subclass*>(c));
             IDBaseDataModel<Subclass>::beginRemoveIDBaseObject(iter);
@@ -195,6 +213,7 @@
 
     template<typename Subclass,typename enable>
     void IDBase<Subclass,enable>::addIDBaseObject(IDBase<Subclass,enable> * c)const{
+        // checken ob das dataModel enabled ist und ob es exestiert
         if(std::is_same<enable,std::true_type>::value && IDBaseDataModel<Subclass>::existDataModel){
             const auto iter = idBaseObjectsByID.lower_bound(static_cast<Subclass*>(c));
             IDBaseDataModel<Subclass>::beginAddIDBaseObject(iter);

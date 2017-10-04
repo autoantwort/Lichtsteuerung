@@ -45,6 +45,7 @@ public:
 
     void writeJsonObject(QJsonObject &o)const;
 public:
+    //static methods for the syncService:
     static void update (const ID &id, const QString &name,const QString &value){
         auto d = IDBase<DevicePrototype>::getIDBaseObjectByID(id);
         if(d){

@@ -4,6 +4,9 @@
 #include "deviceprototype.h"
 #include <QEasingCurve>
 
+/**
+ * @brief The TimePoint class holds a time and a corresponding value and a QEasingCurve that describe how to interpolate to the next timepoint
+ */
 class TimePoint{
 public:
     TimePoint(const QJsonObject &o);
@@ -17,7 +20,13 @@ public:
     void writeJsonObject(QJsonObject &o)const;
 };
 
+/**
+ * @brief The RepeatPolicy enum describe what happens, when the time reach the end of the timeline
+ */
 enum RepeatPolicy{Continue, Oscillate};
+/**
+ * @brief The ChannelProgramm class holds a channel, the repeatPolicy and the Timeline
+ */
 class ChannelProgramm : public QObject{
     Q_OBJECT
     Q_ENUM(RepeatPolicy)
@@ -37,6 +46,9 @@ signals:
     void repeatPolicyChanged();
 };
 
+/**
+ * @brief The ProgrammPrototype class describe for a DevicePrototype for each Channel a ChannelProgramm
+ */
 class ProgrammPrototype : public NamedObject, public IDBase<ProgrammPrototype>
 {    
     Q_OBJECT
