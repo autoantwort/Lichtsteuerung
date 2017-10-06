@@ -7,8 +7,8 @@ UserManagment::UserManagment(const QJsonObject &o){
 }
 
 void UserManagment::load(const QJsonObject &o){
-    for(const auto o : o["user"].toArray()){
-        user.push_back(new User(o.toObject()));
+    for(const auto u : o["user"].toArray()){
+        user.push_back(new User(u.toObject()));
     }
 }
 
