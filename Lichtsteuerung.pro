@@ -1,13 +1,18 @@
-QT += core
-QT -= gui
+QT += qml quick
 
 CONFIG += c++14
 
 TARGET = Lichtsteuerung
-CONFIG += console
-CONFIG -= app_bundle
 
 TEMPLATE = app
+
+RESOURCES += qml.qrc
+
+# Additional import path used to resolve QML modules in Qt Creator's code model
+QML_IMPORT_PATH =
+
+# Additional import path used to resolve QML modules just for Qt Quick Designer
+QML_DESIGNER_IMPORT_PATH =
 
 SOURCES += main.cpp \
     deviceprototype.cpp \
@@ -46,3 +51,11 @@ HEADERS += \
     syncservice.h \
     dmxchannelfilter.h \
     usermanagment.h
+
+
+# Default rules for deployment.
+qnx: target.path = /tmp/$${TARGET}/bin
+else: unix:!android: target.path = /opt/$${TARGET}/bin
+!isEmpty(target.path): INSTALLS += target
+
+

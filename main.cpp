@@ -5,32 +5,45 @@
 #include "channel.h"
 #include "applicationdata.h"
 #include "programm.h"
+#include <QMetaProperty>
+#include "dmxchannelfilter.h"
+#include <chrono>
+#include <QEasingCurve>
+#include <cmath>
+#include <QCryptographicHash>
+#include "usermanagment.h"
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 int main(int argc, char *argv[])
 {
+
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication app(argc, argv);
 
     const auto filename = "QTJSONFile.json";
     QFile file(filename);
 
+    auto model = IDBaseDataModel<Channel>::singletone();
+
     ApplicationData::loadData(file);
-    //ProgrammPrototype p(*IDBase<DevicePrototype>::getAllIDBases().begin(), "Test","Mein erstes Programm");
-    Programm p("Mein erstes Programm");
-    p.addDeviceProgramm(*IDBase<Device>::getAllIDBases().begin(),*IDBase<ProgrammPrototype>::getAllIDBases().begin(),0.5);
-    //DevicePrototype c("Scanner");
-    //c.addChannel(0,"Speed");
-    //c.addChannel(1,"RED");
-    //c.addChannel(2,"GREEN");
-    //c.addChannel(3,"BLUE");
-    new Channel(1);
-    new Channel(3);
-    delete new Channel(2);
-    QCoreApplication a(argc, argv);
-    ID id;
+
+
+
+    qDebug() << model->rowCount()<<'\n';
+    for(int i = 0 ; i < model->rowCount();++i){
+        qDebug() << model->data(model->index(i))<<'\n';
+    }
+
+
 
     ApplicationData::saveData(file);
 
-    //IDBase<Device>::deleter.hello();
-    //IDBase<Channel>::deleter.hello();
-    qDebug() << "Hello ich bin cooler \n"<<id.value()<<' '<<IDBase<Device>::getIDBaseObjectByID(0)<<'\n';
-    //return a.exec();
-    return 0;
+
+
+
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QLatin1String("qrc:/Test.qml")));
+
+
+    return app.exec();
 }
