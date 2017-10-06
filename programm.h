@@ -89,7 +89,7 @@ public:
     bool getIntervall()const{return intervall;}
 public:
     double distort(double time){
-        double diff = std::fmodf(time,intervall); // wie weit sind wir in aktuellen intervall
+        double diff = std::fmod(time,intervall); // wie weit sind wir in aktuellen intervall
         double offset = time-diff; // offset zum intervall start
         diff = distortionCurve.valueForProgress(diff/intervall)*intervall;// die verzerrung für den Aktuellen fortchritt im intervall mal die intervall größe
         return offset+diff; // den offset plus der verzerrte Fortschritt im intervall
