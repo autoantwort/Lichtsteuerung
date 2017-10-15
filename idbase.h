@@ -60,7 +60,7 @@
         }
         void writeJsonObject(QJsonObject &o)const{id.writeJsonObject(o);}
         virtual ~IDBase(){
-            qDebug()<<"Call Destructor from : "<<getID().value()<<'\n';
+            //qDebug()<<"Call Destructor from : "<<getID().value()<<'\n';
             removeIDBaseObject(this);
         }
     private:
@@ -106,7 +106,7 @@
             if (found!=idBaseObjectsByID.cend()) {
                 return static_cast<Subclass*>(*found);
             }
-            qDebug() << "Dont find IDBase Object with id "<<id << "and type "<<typeid(Subclass).name()<<'\n';
+            //qDebug() << "Dont find IDBase Object with id "<<id << "and type "<<typeid(Subclass).name()<<'\n';
             return nullptr;
         }
         static const IDBaseSet& getAllIDBases(){return idBaseObjectsByID;}
@@ -136,11 +136,14 @@
     typename IDBase<Subclass,enableDataModel>::Deleter IDBase<Subclass,enableDataModel>::deleter;
 
 
+
+
+
     /**
      *  Ein IDBase data model um alle IDBases einer bestimmten Gruppe zb in einer Liste anzeigen zu lassen.
      *  Aktualisiert sich komplett vollständig
      */
-    template<typename IDBaseWithNamedObject>
+    template<typename IDBaseWithNamedObject,typename first=typename std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::type,typename second=typename std::is_base_of<NamedObject,IDBaseWithNamedObject>::type>
     class IDBaseDataModel : public QAbstractListModel{
     private:
         IDBaseDataModel(){}
@@ -161,27 +164,63 @@
         static void endRemoveIDBaseObject(){
                 singletone()->endRemoveRows();
         }
+    public:
+        enum NamedObjectRoles{
+            NameRole = Qt::UserRole + 1,DescriptionRole
+        };
         /**
-         * @brief dataCheck returns the data if the subclass has NamedObject as parent class
-         * @param index
-         * @param role
+         * @brief singletone gibt das dataModel zurück
          * @return
          */
-        QVariant dataCheck(const QModelIndex &index, int role, std::true_type,std::true_type)const{
-            if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
-                if(role==Qt::DisplayRole){
-                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getName();
-                }else if(role==Qt::ToolTipRole){
-                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getDescription();
-                }
-            }
+        static IDBaseDataModel * singletone(){if(!staticModel){staticModel = new IDBaseDataModel();existDataModel = true;}return staticModel;}
+        virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
+        virtual QVariant data(const QModelIndex &, int role = Qt::DisplayRole)const {
+            Q_UNUSED(role)
             return QVariant();
         }
-        template<typename T, typename U>
-        QVariant dataCheck(const QModelIndex &, int, T,U)const{
-            return QVariant();
+    };
+
+
+    template<typename IDBaseWithNamedObject,typename f, typename s>
+    bool IDBaseDataModel<IDBaseWithNamedObject,f,s>::existDataModel = false;
+
+    template<typename IDBaseWithNamedObject,typename f, typename s>
+    IDBaseDataModel<IDBaseWithNamedObject,f,s> * IDBaseDataModel<IDBaseWithNamedObject,f,s>::staticModel = nullptr;
+
+
+
+
+// the model for NamedObjects:
+
+    /**
+     *  Ein IDBase data model um alle IDBases einer bestimmten Gruppe zb in einer Liste anzeigen zu lassen.
+     *  Aktualisiert sich komplett vollständig
+     */
+    template<typename IDBaseWithNamedObject>
+    class IDBaseDataModel<IDBaseWithNamedObject,std::true_type,std::true_type>: public QAbstractListModel{
+    private:
+        IDBaseDataModel(){}
+        static IDBaseDataModel * staticModel;
+        static bool existDataModel;
+        friend class IDBase<IDBaseWithNamedObject>;
+        static void beginAddIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
+                const auto pos = std::distance(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),c);
+                singletone()->beginInsertRows(QModelIndex(),pos,pos);
+        }
+        static void endAddIDBaseObject(){
+            singletone()->endInsertRows();
+        }
+        static void beginRemoveIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
+                const auto pos = std::distance(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),c);
+                singletone()->beginRemoveRows(QModelIndex(),pos+1,pos+1);
+        }
+        static void endRemoveIDBaseObject(){
+                singletone()->endRemoveRows();
         }
     public:
+        enum NamedObjectRoles{
+            NameRole = Qt::UserRole + 1,DescriptionRole
+        };
         /**
          * @brief singletone gibt das dataModel zurück
          * @return
@@ -189,16 +228,50 @@
         static IDBaseDataModel * singletone(){if(!staticModel){staticModel = new IDBaseDataModel();existDataModel = true;}return staticModel;}
         virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
         virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const {
-            return dataCheck(index,role,std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::value , std::is_base_of<NamedObject,IDBaseWithNamedObject>::value);
+            qDebug() << "role"<<role<<" : "<<index.row()<<'\n';
+            if(index.row()>=0 && index.row()<static_cast<decltype(index.row())>(IDBase<IDBaseWithNamedObject>::getAllIDBases().size())){
+                if(role==Qt::DisplayRole||role==NameRole){
+                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getName();
+                }else if(role==Qt::ToolTipRole||role==DescriptionRole){
+                    return (**std::next(IDBase<IDBaseWithNamedObject>::getAllIDBases().cbegin(),index.row())).getDescription();
+                }
+            }else{
+                qDebug()<<"index out of range\n";
+            }
+            return QVariant();
+        }
+
+        QHash<int,QByteArray> roleNames() const override{
+            QHash<int,QByteArray> r;
+            r[NameRole] = "name";
+            r[DescriptionRole] = "description";
+            return r;
         }
     };
 
 
     template<typename IDBaseWithNamedObject>
-    bool IDBaseDataModel<IDBaseWithNamedObject>::existDataModel = false;
+    bool IDBaseDataModel<IDBaseWithNamedObject,std::true_type,std::true_type>::existDataModel = false;
 
     template<typename IDBaseWithNamedObject>
-    IDBaseDataModel<IDBaseWithNamedObject> * IDBaseDataModel<IDBaseWithNamedObject>::staticModel = nullptr;
+    IDBaseDataModel<IDBaseWithNamedObject,std::true_type,std::true_type> * IDBaseDataModel<IDBaseWithNamedObject,std::true_type,std::true_type>::staticModel = nullptr;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

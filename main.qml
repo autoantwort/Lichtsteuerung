@@ -33,8 +33,22 @@ ApplicationWindow {
         id: swipeView
         anchors.fill: parent
         currentIndex: tabBar.currentIndex
-        DeviceView{
-        }
+
+            ListView{
+                id:devs
+                model: deviceModel
+                delegate: ItemDelegate{
+                    id: dele
+                    width: parent.width
+                    text: name +"("+description+")"
+                    onClicked: devs.currentIndex = index
+                }
+                highlight: Rectangle{
+                    color: "blue"
+                    opacity: 0.5
+                }
+            }
+
         Page{
             title: "test"
 
