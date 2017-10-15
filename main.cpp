@@ -14,19 +14,22 @@
 #include "usermanagment.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
+#include "device.h"
+#include <QQmlContext>
+#include <QFileInfo>
 int main(int argc, char *argv[])
 {
 
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
-
     const auto filename = "QTJSONFile.json";
     QFile file(filename);
+    qDebug()<< QFileInfo(file).absoluteFilePath() <<'\n';
 
     auto model = IDBaseDataModel<Channel>::singletone();
 
     ApplicationData::loadData(file);
 
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication app(argc, argv);
 
 
     qDebug() << model->rowCount()<<'\n';
@@ -42,7 +45,9 @@ int main(int argc, char *argv[])
 
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("qrc:/Test.qml")));
+    engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<DevicePrototype>::singletone());
+    qDebug() << "Number of Elements : "<<IDBaseDataModel<DevicePrototype>::singletone()->rowCount()<<'\n';
+    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
 
     return app.exec();
