@@ -144,6 +144,7 @@
     class IDBaseDataModel : public QAbstractListModel{
     private:
         IDBaseDataModel(){}
+        static IDBaseDataModel * staticModel;
         static bool existDataModel;
         friend class IDBase<IDBaseWithNamedObject>;
         static void beginAddIDBaseObject(typename IDBase<IDBaseWithNamedObject>::IDBaseSet::const_iterator c){
@@ -185,7 +186,7 @@
          * @brief singletone gibt das dataModel zurück
          * @return
          */
-        static IDBaseDataModel * singletone(){static IDBaseDataModel s;existDataModel = true;return &s;}
+        static IDBaseDataModel * singletone(){if(!staticModel){staticModel = new IDBaseDataModel();existDataModel = true;}return staticModel;}
         virtual int rowCount(const QModelIndex &parent = QModelIndex())const override {Q_UNUSED(parent)return IDBase<IDBaseWithNamedObject>::getAllIDBases().size();}
         virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const {
             return dataCheck(index,role,std::is_base_of<IDBase<IDBaseWithNamedObject>,IDBaseWithNamedObject>::value , std::is_base_of<NamedObject,IDBaseWithNamedObject>::value);
@@ -195,6 +196,9 @@
 
     template<typename IDBaseWithNamedObject>
     bool IDBaseDataModel<IDBaseWithNamedObject>::existDataModel = false;
+
+    template<typename IDBaseWithNamedObject>
+    IDBaseDataModel<IDBaseWithNamedObject> * IDBaseDataModel<IDBaseWithNamedObject>::staticModel = nullptr;
 
 
 
