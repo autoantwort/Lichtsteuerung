@@ -4,5 +4,10 @@
         <file>qtquickcontrols2.conf</file>
         <file>main.qml</file>
         <file>DeviceView.qml</file>
+        <file>TextInputField.qml</file>
+        <file>DevicePrototypeView.qml</file>
+        <file>ProgrammView.qml</file>
+        <file>ProgrammPrototypeView.qml</file>
+        <file>ModelView.qml</file>
     </qresource>
 </RCC>

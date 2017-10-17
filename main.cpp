@@ -39,13 +39,16 @@ int main(int argc, char *argv[])
 
 
 
-    ApplicationData::saveData(file);
 
 
+    app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){ApplicationData::saveData(file);});
 
 
     QQmlApplicationEngine engine;
-    engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<DevicePrototype>::singletone());
+    engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
+    engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
+    engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
+    engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());
     qDebug() << "Number of Elements : "<<IDBaseDataModel<DevicePrototype>::singletone()->rowCount()<<'\n';
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 

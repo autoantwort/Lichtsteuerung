@@ -30,48 +30,16 @@ ApplicationWindow {
     }
 
     SwipeView {
+        clip:true
         id: swipeView
         anchors.fill: parent
-        currentIndex: tabBar.currentIndex
+        currentIndex: tabBar.currentIndex        
+        DeviceView{}
 
-            ListView{
-                id:devs
-                model: deviceModel
-                delegate: ItemDelegate{
-                    id: dele
-                    width: parent.width
-                    text: name +"("+description+")"
-                    onClicked: devs.currentIndex = index
-                }
-                highlight: Rectangle{
-                    color: "blue"
-                    opacity: 0.5
-                }
-            }
+        DevicePrototypeView{}
 
-        Page{
-            title: "test"
+        ProgrammPrototypeView{}
 
-        Rectangle{
-            height: 100
-            width: 100
-            anchors.centerIn: parent
-            color: "red"
-        }
-        }
-
-        Page {
-            Label {
-                text: qsTr("Second page")
-                anchors.centerIn: parent
-            }
-            Button{
-                contentItem: Text {
-                    id: testwe
-                    text: qsTr("text");
-                    rotation: 90
-                }
-            }
-        }
+        ProgrammView{}
     }
 }
