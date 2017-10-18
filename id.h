@@ -13,7 +13,7 @@
 class ID{
     friend class SyncService;
 private:
-    static long lastID;
+    static long long lastID;
 public:
     /**
      * @brief generateNew Erstellt eine neue ID
@@ -23,8 +23,8 @@ public:
         return ++lastID;
     }
 private:
-    const long id;
-    ID(const long id):id(id){}
+    const long long id;
+    ID(const long long id):id(id){}
 public:
     ID():id(++lastID){}
     long value()const{return id;}
