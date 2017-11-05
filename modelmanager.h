@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include "device.h"
+#include "programmprototype.h"
 
 class ModelManager : public QObject{
     Q_OBJECT
@@ -19,6 +20,19 @@ public:
             return true;
         }
         return false;
+    }
+    Q_INVOKABLE bool addDevicePrototype(QString name, QString description=""){
+        new DevicePrototype(name,description);
+        return true;
+    }
+    Q_INVOKABLE bool addProgrammPrototype(int row/*DevicePrototype*/,QString name, QString description=""){
+        DevicePrototype * prototype = IDBaseDataModel<DevicePrototype>::singletone()->data(row);
+        if(prototype){
+            new ProgrammPrototype(prototype,name,description);
+            return true;
+        }
+        return false;
+
     }
 };
 

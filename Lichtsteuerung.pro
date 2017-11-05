@@ -26,7 +26,8 @@ SOURCES += main.cpp \
     dmxchannelfilter.cpp \
     syncservice.cpp \
     usermanagment.cpp \
-    channelprogrammeditor.cpp
+    channelprogrammeditor.cpp \
+    modelmanager.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -52,12 +53,15 @@ HEADERS += \
     syncservice.h \
     dmxchannelfilter.h \
     usermanagment.h \
-    channelprogrammeditor.h
+    channelprogrammeditor.h \
+    modelmanager.h
 
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+DISTFILES +=
 
 

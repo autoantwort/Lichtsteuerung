@@ -8,18 +8,22 @@ GridLayout{
     rowSpacing: 5
     columns: 4
     rows: 4
+    signal addClicked()
     property alias model : listView.model
     property alias currentItem : listView.currentItem
+    property Button addButton: buttonAdd
+    property alias listView : listView
+
     ListView{
         Layout.fillHeight: true
-        Layout.preferredWidth: 300
+        Layout.preferredWidth: Math.max(300,implicitWidth)
         Layout.columnSpan: 2
         Layout.rowSpan: parent.rows-1
         id:listView
         delegate: ItemDelegate{
-            property var data: modelData
+            property var data: itemData
             width: parent.width
-            text: modelData.name +"("+modelData.description+")"
+            text: itemData.name +"("+itemData.description+")"
             onClicked: listView.currentIndex = index
 
         }
@@ -32,18 +36,20 @@ GridLayout{
     Button{
         Layout.row: parent.rows-1
         Layout.column: 0
-        Layout.preferredWidth: 150
+        Layout.preferredWidth: listView.width/2
         id: buttonAdd
         text:"+"
         font.pixelSize: 15
+        onClicked: addClicked(3)
     }
     Button{
         Layout.row: parent.rows-1
         Layout.column: 1
-        Layout.preferredWidth: 150
+        Layout.preferredWidth: listView.width/2
         id: buttonRemove
         text:"-"
         font.pixelSize: 15
+        onClicked: ModelManager.remove(listView.currentItem.data)
     }
 
 

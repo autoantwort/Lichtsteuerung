@@ -12,7 +12,7 @@ class CurrentTimePointWrapper : public QObject{
     Q_PROPERTY(unsigned char value READ getValue WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(bool hasCurrent READ hasCurrent NOTIFY hasCurrentChanged)
     Q_PROPERTY(double time READ getTime WRITE setTime NOTIFY timeChanged)
-    Q_PROPERTY(QEasingCurve curveToNext READ getCurve WRITE setCurve NOTIFY curveChanged)
+    Q_PROPERTY(QEasingCurve::Type curveToNext READ getCurve WRITE setCurve NOTIFY curveChanged)
     ChannelProgrammEditor * editor;
 public:
     CurrentTimePointWrapper(ChannelProgrammEditor * editor);
@@ -21,8 +21,8 @@ public:
     bool hasCurrent();
     void setTime(double time);
     double getTime()const;
-    void setCurve(const QEasingCurve &c);
-    QEasingCurve getCurve()const;
+    void setCurve(const QEasingCurve::Type &c);
+    QEasingCurve::Type getCurve()const;
 signals:
     void valueChanged();
     void hasCurrentChanged();
@@ -42,18 +42,42 @@ class ChannelProgrammEditor : public QQuickItem
     Q_PROPERTY(QString tooltipText READ getTooltipText CONSTANT)
     Q_PROPERTY(ChannelProgramm* channelProgramm READ getChannelProgramm WRITE setChannelProgramm NOTIFY channelProgrammChanged)
 private:
+    friend class CurrentTimePointWrapper;
     CurrentTimePointWrapper currentTimePointWrapper;
     ChannelProgramm * channelProgramm = nullptr;
     QQuickItem * backgroundItem = nullptr;
     QQuickItem * valueChangeItem = nullptr;
     decltype(ChannelProgramm::timeline)::iterator currentTimePoint;
     int clickRadius=4;
-    double xScale = 1.0;
+    double xScale = 4.;
+    double totalXOffset = 0;
+    double xDiff = 0 ;
     QColor graphColor = QColor(0,0,0);
-    enum Modifier{X_PRESSED,Y_PRESSED,N_PRESSED,T_PRESSED,V_PRESSED,D_PRESSED};
+    enum Modifier{X_PRESSED=0x1,Y_PRESSED=0x2,N_PRESSED=0x4,T_PRESSED=0x8,V_PRESSED=0x10,D_PRESSED=0x20};
     QFlags<Modifier> modifier;
+#define INVALID_POS QPoint(std::numeric_limits<int>::max(),std::numeric_limits<int>::max())
+    QPoint lastMousePosition = INVALID_POS;
     decltype(ChannelProgramm::timeline)::iterator getTimePointForPosition(int x, int y);
-    double getScaledX(int x){return x * 1/xScale;}
+    /**
+     * @brief mapToVisualX maps from values/mouse Position to the visual Position of the graph
+     * eg: mouse/value = 100
+     * xScale = 2
+     * totalXOffset = 100
+     * result = x*xScale+totalXOffset = 300
+     * @param x the x coordinate
+     * @return x * xScale + totalXOffset
+     */
+    double mapToVisualX(double x){return x * xScale + totalXOffset;}
+    /**
+     * @brief mapFromVisualX maps from the visual Position of the graph to real values
+     * @param xthe x coordinate
+     * eg: visual value = 300
+     * xScale = 2
+     * totalXOffset = 100
+     * result = (x-totalXOffset)*(1/xScale) = 100
+     * @return
+     */
+    double mapFromVisualX(double x){return (x-totalXOffset) * (1/xScale);}
     int getScaledY(int y){return 255 - int(y / height() * 255);}
 public:
     ChannelProgrammEditor();
@@ -70,12 +94,17 @@ public:
     CurrentTimePointWrapper * getCurrentTimePointWrapper(){return &currentTimePointWrapper;}
 protected:
     virtual void updatePolish()override;
+    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)override;
     virtual QSGNode* updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
     virtual void mouseMoveEvent(QMouseEvent *event)override;
     virtual void mousePressEvent(QMouseEvent *event)override;
     virtual void mouseReleaseEvent(QMouseEvent *event)override;
+    virtual void hoverEnterEvent(QHoverEvent*e)override{lastMousePosition=e->pos();e->accept();forceActiveFocus(Qt::MouseFocusReason);}
+    virtual void hoverMoveEvent(QHoverEvent*e)override;
+    virtual void hoverLeaveEvent(QHoverEvent*e)override{lastMousePosition=INVALID_POS;update();e->accept();}
     virtual void keyPressEvent(QKeyEvent *event)override;
     virtual void keyReleaseEvent(QKeyEvent *event)override;
+    virtual void wheelEvent(QWheelEvent *event)override;
 signals:
     void backgroundItemChanged();
     void valueChangeItemChanged();

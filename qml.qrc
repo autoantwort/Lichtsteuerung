@@ -9,5 +9,6 @@
         <file>ProgrammView.qml</file>
         <file>ProgrammPrototypeView.qml</file>
         <file>ModelView.qml</file>
+        <file>TextUnderline.qml</file>
     </qresource>
 </RCC>

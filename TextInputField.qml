@@ -6,6 +6,8 @@ TextInput{
     selectByMouse: true
     font.pixelSize: 15
     selectionColor: "lightgreen"
+    property alias underlineColor : underline.color
+    property alias underline: underline
     cursorDelegate: Rectangle{
         color: "lightgreen"
         x:parent.cursorRectangle.x
@@ -17,16 +19,9 @@ TextInput{
             NumberAnimation { easing.type: Easing.OutCubic; easing.amplitude: 9; easing.period: 50.0; duration: 500 }
         }
     }
-    Rectangle{
-        anchors.top:parent.bottom
-        anchors.left:parent.left
-        width: parent.contentWidth+10
-        height: 2
-        radius: 1
-        color: "lightgreen"
-        Behavior on width {
-            NumberAnimation { easing.type: Easing.OutExpo; easing.amplitude: 5.0; easing.period: 2.0; duration: 800 }
-        }
-
+    //onCursorRectangleChanged: underline.clickX = cursorRectangle.x
+    TextUnderline{
+        id:underline
+        //hasFocus: parent.focus
     }
 }
