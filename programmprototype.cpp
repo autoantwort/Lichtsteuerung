@@ -8,14 +8,16 @@ ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString n
     setParent(devicePrototype);
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
     connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
+    programm.beginPushBack(devicePrototype->getChannels().size());
     for(const auto channel : devicePrototype->getChannels()){
-        programm.push_back(new ChannelProgramm(channel));
-        emit channelProgrammAdded(programm.back());
+        programm.getChannelProgramms().push_back(new ChannelProgramm(channel));
+        emit channelProgrammAdded(programm.getChannelProgramms().back());
     }
+    programm.endPushBack();
 }
 
 void ProgrammPrototype::channelProgrammDestroyed(ChannelProgramm * c){
-    for(auto i = programm.cbegin();i!=programm.cend();++i){
+    for(auto i = programm.getChannelProgramms().cbegin();i!=programm.getChannelProgramms().cend();++i){
         if(*i==c){
             programm.erase(i);
             break;
@@ -25,11 +27,13 @@ void ProgrammPrototype::channelProgrammDestroyed(ChannelProgramm * c){
 }
 
 void ProgrammPrototype::channelAdded(Channel *c){
-    programm.push_back(new ChannelProgramm(c));
-    emit channelProgrammAdded(programm.back());
+    programm.beginPushBack(1);
+    programm.getChannelProgramms().push_back(new ChannelProgramm(c));
+    programm.endPushBack();
+    emit channelProgrammAdded(programm.getChannelProgramms().back());
 }
 void ProgrammPrototype::channelRemoved(Channel *c){
-    for(auto i = programm.cbegin();i!=programm.cend();++i){
+    for(auto i = programm.getChannelProgramms().cbegin();i!=programm.getChannelProgramms().cend();++i){
         if((**i).getChannel()==c){
             auto cp = *i;
             programm.erase(i);
@@ -65,13 +69,14 @@ unsigned char ChannelProgramm::getValueForTime(double t)const{
     auto iter = timeline.upper_bound(t);
     const auto rightValue = iter->value;
     const auto rightTime = iter->time;
-    --iter;
+
     const TimePoint * left;
     double progress;
-    if(iter == timeline.cend()){
+    if(iter == timeline.cbegin()){
         left = &*timeline.crbegin();
         progress = t / rightTime;
     }else{
+        --iter;
         left = &*iter;
         progress = (t - left->time) / (rightTime - left->time);
     }
@@ -114,7 +119,7 @@ void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     NamedObject::writeJsonObject(o);
     o.insert("devicePrototype",QString::number(devicePrototype->getID().value()));
     QJsonArray array;
-    for(const auto p : programm){
+    for(const auto p : programm.getChannelProgramms()){
         QJsonObject o;
         p->writeJsonObject(o);
         array.append(o);
@@ -144,20 +149,20 @@ ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o,&syncSe
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
     connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
     for(const auto p : o["programm"].toArray()){
-        programm.push_back(new ChannelProgramm(p.toObject()));
-        emit channelProgrammAdded(programm.back());
+        programm.getChannelProgramms().push_back(new ChannelProgramm(p.toObject()));
+        emit channelProgrammAdded(programm.getChannelProgramms().back());
     }
 }
 
 ChannelProgramm * ProgrammPrototype::getChannelProgramm(const Channel * channel){
-    for(auto p = programm.begin() ; p != programm.end() ;++p){
+    for(auto p = programm.getChannelProgramms().begin() ; p != programm.getChannelProgramms().end() ;++p){
         if((**p).channel == channel)
             return *p;
     }
     return nullptr;
 }
 ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
-    for(auto p = programm.begin() ; p != programm.end() ;++p){
+    for(auto p = programm.getChannelProgramms().begin() ; p != programm.getChannelProgramms().end() ;++p){
         if((**p).channel->getIndex() == index)
             return *p;
     }
