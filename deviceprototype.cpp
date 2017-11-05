@@ -3,43 +3,61 @@
 
 QString DevicePrototype::syncServiceClassName;
 
+void ChannelVector::beginPushBack(int length){
+    beginInsertRows(QModelIndex(),channels.size(),channels.size()+length);
+}
+
+void ChannelVector::endPushBack(){
+    endInsertRows();
+}
+
+void ChannelVector::pop_back(){
+    const auto pos = channels.size()-1;
+    beginRemoveRows(QModelIndex(),pos,pos);
+    channels.pop_back();
+    endRemoveRows();
+}
+
 void DevicePrototype::removeChannels(int newMaxIndex){
     if (newMaxIndex<0||newMaxIndex>getNumberOfChannels()) {
         return;
     }
     // Elemente ganz hinten löschen
     for (int i = 0; i < getNumberOfChannels() - newMaxIndex; ++i) {
-        channelRemoved(channels.back());
-        SyncService::addRemoveMemberMessage("DevicePrototype",getID(),"channels",channels.back()->getID());
-        delete channels.back();
+        channelRemoved(channels.getChannel().back());
+        SyncService::addRemoveMemberMessage("DevicePrototype",getID(),"channels",channels.getChannel().back()->getID());
+        delete channels.getChannel().back();
         channels.pop_back();
     }
 }
 
+
 void DevicePrototype::addChannel(int channel, QString name, QString description){
     // dummy Channels einfügen
     if (channel>=getNumberOfChannels()) {
+        channels.beginPushBack(getNumberOfChannels()-channel);
         for (int i = getNumberOfChannels(); i < channel; ++i) {
-            channels.push_back(new Channel(i));
-            emit channelAdded(channels.back());
+            channels.getChannel().push_back(new Channel(i));
+            emit channelAdded(channels.getChannel().back());
             QJsonObject o;
-            channels.back()->writeJsonObject(o);
+            channels.getChannel().back()->writeJsonObject(o);
             SyncService::addCreateMemberMessage("DevicePrototype",getID(),"channels",o);
         }        
-        channels.push_back(new Channel(channel,name,description));
-        emit channelAdded(channels.back());
+        channels.getChannel().push_back(new Channel(channel,name,description));
+        channels.endPushBack();
+        emit channelAdded(channels.getChannel().back());
         QJsonObject o;
-        channels.back()->writeJsonObject(o);
+        channels.getChannel().back()->writeJsonObject(o);
         SyncService::addCreateMemberMessage("DevicePrototype",getID(),"channels",o);
     }else{
         // eigenschaften setzten
-        channels[channel]->setName(name);
-        channels[channel]->setDescription(description);
+        channels.getChannel()[channel]->setName(name);
+        channels.getChannel()[channel]->setDescription(description);
     }
 }
 
 const Channel * DevicePrototype::getChannelById(const int id) const{
-    for(auto c = channels.cbegin();c!=channels.cend();++c){
+    for(auto c = channels.getChannel().cbegin();c!=channels.getChannel().cend();++c){
         if ((**c).getID().value() == id) {
             return *c;
         }
@@ -48,7 +66,7 @@ const Channel * DevicePrototype::getChannelById(const int id) const{
 }
 
 const Channel * DevicePrototype::getChannelByName(const QString &name) const{
-    for(auto c = channels.cbegin();c!=channels.cend();++c){
+    for(auto c = channels.getChannel().cbegin();c!=channels.getChannel().cend();++c){
         if ((**c).getName() == name) {
             return *c;
         }
@@ -57,16 +75,16 @@ const Channel * DevicePrototype::getChannelByName(const QString &name) const{
 }
 
 const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelIndex) const{
-    if (channelIndex>=channels.size()) {
+    if (channelIndex>=channels.getChannel().size()) {
         return nullptr;
     }
-    return channels[channelIndex];
+    return channels.getChannel()[channelIndex];
 }
 
 DevicePrototype::DevicePrototype(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase(o){
     auto array = o["channels"].toArray();
     for(const auto c : array){
-        channels.push_back(new Channel(c.toObject()));
+        channels.getChannel().push_back(new Channel(c.toObject()));
     }
 }
 
@@ -74,7 +92,7 @@ void DevicePrototype::writeJsonObject(QJsonObject &o) const{
     NamedObject::writeJsonObject(o);
     IDBase::writeJsonObject(o);
     QJsonArray channels;
-    for(const auto c : this->channels){
+    for(const auto c : this->channels.getChannel()){
         QJsonObject o;
         c->writeJsonObject(o);
         channels.append(o);
