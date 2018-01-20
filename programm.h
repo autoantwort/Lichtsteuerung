@@ -6,6 +6,7 @@
 #include "idbase.h"
 #include <map>
 #include <cmath>
+#include "modelvector.h"
 
 /**
  * @brief The DeviceProgramm class saves a Device in combination with a ProgrammPrototype and an offset
@@ -73,20 +74,23 @@ class TimeDistortion : public QObject{
     Q_PROPERTY(QEasingCurve distortionCurve READ getDistortionCurve WRITE setDistortionCurve NOTIFY distortionCurveChanged)
     Q_PROPERTY(double intervall READ getIntervall WRITE setIntervall NOTIFY intervallChanged)
 private:
-    bool enabled;
+    bool enabled=false;
     QEasingCurve distortionCurve;
-    double intervall;
+    double intervall=0;
 public:
+    TimeDistortion()=default;
+    TimeDistortion(const QJsonObject &o);
     Q_SLOT void setEnabled(bool e){if(e==enabled)return;enabled=e;emit enabledChanged(enabled);}
     bool isEnabled()const{return enabled;}
     Q_SLOT void setDistortionCurve(QEasingCurve d){if(d==distortionCurve)return;distortionCurve=d;emit distortionCurveChanged(distortionCurve);}
+    void writeJsonObject(QJsonObject &o)const;
     QEasingCurve getDistortionCurve()const{return distortionCurve;}
     /**
      * @brief setIntervall setzt das Intervall in dem die distortion Curve arbeitet, zu dem Zeitpunkten intervall * int ist die Zeit wieder "normal"
      * @param i das intervall
      */
-    Q_SLOT void setIntervall(double i){if(i==intervall)return;intervall=i;emit intervallChanged(intervall);}
-    bool getIntervall()const{return intervall;}
+    Q_SLOT void setIntervall(double i);
+    double getIntervall()const{return intervall;}
 public:
     double distort(double time){
         double diff = std::fmod(time,intervall); // wie weit sind wir in aktuellen intervall
@@ -100,6 +104,10 @@ signals:
     void intervallChanged(double);
 };
 
+class DeviceProgrammVector : public ModelVector<DeviceProgramm>{
+    Q_OBJECT
+};
+
 /**
  * @brief Ein Programm ist das am meinsten bündelnde object. Ein Programm besteht aus verschiedenen Device Programmen, die jeweils aus einem Device und einen ProgrammPrototype für eine bestimmte DevicePrototype Gruppe.
  * Ein Programm besitzt eine TimeDistortion einheit, die bestimmte bereiche des Programms schneller oder langsamer machen kann, außerdem besitzt ein Programm eine ganz normale geschwindigkeit, genau so wie die Darunter liegenden DeviveProgramme.
@@ -110,9 +118,10 @@ class Programm : public NamedObject, public IDBase<Programm>
     Q_PROPERTY(bool running READ isRunning WRITE setRunning NOTIFY runningChanged RESET stop)
     Q_PROPERTY(double speed READ getSpeed WRITE setSpeed NOTIFY speedChanged)
     Q_PROPERTY(TimeDistortion * timeDistortion READ getTimeDistortion CONSTANT)
+    Q_PROPERTY(DeviceProgrammVector * programs READ getProgramms CONSTANT)
     bool isRunning_ = false;
     double speed=1.0;
-    std::vector<DeviceProgramm*> programms;
+    DeviceProgrammVector programms;
     TimeDistortion timeDistortion;
 public:
     static QString syncServiceClassName;
@@ -137,7 +146,8 @@ public:
      */
     static void fill(unsigned char * data, size_t length, double time);
     void writeJsonObject(QJsonObject &o)const;
-    const std::vector<DeviceProgramm*>& getDeviceProgramms()const{return programms;}
+    const std::vector<DeviceProgramm*>& getDeviceProgramms()const{return programms.getVector();}
+    DeviceProgrammVector*getProgramms(){return &programms;}
     /**
      * @brief addDeviceProgramm fügt ein Device Programm dem Programm an
      * @param device Das Gerät
@@ -145,7 +155,8 @@ public:
      * @param offset Die Verzögerung des Programms start zur normalen zeit
      * @return true wenn erfolgreich, sonst false
      */
-    bool addDeviceProgramm(Device * device, ProgrammPrototype * programmPrototype, double offset = 0);
+    Q_INVOKABLE bool addDeviceProgramm(Device * device, ProgrammPrototype * programmPrototype, double offset = 0);
+    Q_INVOKABLE void removeDeviceProgramm(int index);
     TimeDistortion * getTimeDistortion(){return &timeDistortion;}
 private:
     void addDeviceProgramm(const QJsonObject &o);

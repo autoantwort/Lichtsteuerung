@@ -4,7 +4,34 @@
 
 QString Programm::syncServiceClassName;
 
-Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Programm>(o)
+TimeDistortion::TimeDistortion(const QJsonObject &o):enabled(o["enable"].toBool()),intervall(o["intervall"].toDouble()),distortionCurve(QEasingCurve::Type(o["type"].toInt())){
+
+    const auto a = o.find("amplitude");
+    if(a != o.end()) distortionCurve.setAmplitude(a->toDouble());
+    const auto b = o.find("overshoot");
+    if(b != o.end()) distortionCurve.setOvershoot(b->toDouble());
+    const auto c = o.find("period");
+    if(c != o.end()) distortionCurve.setPeriod(c->toDouble());
+}
+
+void TimeDistortion::writeJsonObject(QJsonObject &o) const{
+    o.insert("enable",enabled);
+    o.insert("intervall",intervall);
+    o.insert("type",distortionCurve.type());
+    o.insert("type",distortionCurve.type());
+    o.insert("amplitude",distortionCurve.amplitude());
+    o.insert("overshoot",distortionCurve.overshoot());
+    o.insert("period",distortionCurve.period());
+}
+
+void TimeDistortion::setIntervall(double i){
+    if(i==intervall)
+        return;
+    intervall=i;
+    emit intervallChanged(i);
+}
+
+Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Programm>(o),speed(o["speed"].toDouble()),timeDistortion(o["timeDistortion"].toObject())
 {
     auto array = o["programms"].toArray();
     for(const auto r : array){
@@ -15,7 +42,7 @@ Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),ID
 
 void Programm::addDeviceProgramm(const QJsonObject &o){
     programms.push_back(new DeviceProgramm(IDBase<Device>::getIDBaseObjectByID(o["device"].toString().toLong()),
-            IDBase<ProgrammPrototype>::getIDBaseObjectByID(o["programmPrototype"].toString().toLong()),
+                        IDBase<ProgrammPrototype>::getIDBaseObjectByID(o["programmPrototype"].toString().toLong()),
             o["offset"].toDouble()));
     emit deviceProgrammAdded(programms.back());
     connect(programms.back(),&DeviceProgramm::destroyed,this,&Programm::deviceProgrammDeleted);
@@ -33,6 +60,10 @@ void Programm::writeJsonObject(QJsonObject &o) const{
         array.append(o);
     }
     o.insert("programms",array);
+    o.insert("speed",speed);
+    QJsonObject td;
+    timeDistortion.writeJsonObject(td);
+    o.insert("timeDistortion",td);
 }
 
 std::map<Programm*,std::map<Device*,std::vector<Channel*>>> Programm::run(){
@@ -87,6 +118,8 @@ void Programm::fill(unsigned char *data, size_t length, double time){
 }
 
 bool Programm::addDeviceProgramm(Device * device, ProgrammPrototype * programmPrototype, double offset){
+    if(!device||!programmPrototype)
+        return false;
     if(device->prototype != programmPrototype->devicePrototype){
         return false;
     }
@@ -100,6 +133,11 @@ bool Programm::addDeviceProgramm(Device * device, ProgrammPrototype * programmPr
     emit deviceProgrammAdded(newDeviceProgramm);
     connect(newDeviceProgramm,&DeviceProgramm::destroyed,this,&Programm::deviceProgrammDeleted);
     return true;
+}
+
+void Programm::removeDeviceProgramm(int index){
+    if(static_cast<unsigned int>(index)<programms.size())
+        programms.erase(programms.cbegin()+index);
 }
 
 void Programm::deviceProgrammDeleted(QObject *d){
