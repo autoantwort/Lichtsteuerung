@@ -6,9 +6,9 @@
 namespace ApplicationData{
 
 bool saveData(QFile &file);
-bool loadData(QFile &file);
+std::function<void()> loadData(QFile &file);
 QByteArray saveData();
-void loadData(QByteArray data);
+std::function<void()> loadData(QByteArray data);
 
 
 }
