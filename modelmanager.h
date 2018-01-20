@@ -4,6 +4,7 @@
 #include <QObject>
 #include "device.h"
 #include "programmprototype.h"
+#include "programm.h"
 
 class ModelManager : public QObject{
     Q_OBJECT
@@ -34,6 +35,11 @@ public:
         return false;
 
     }
+    Q_INVOKABLE bool addProgramm(QString name, QString description=""){
+        new Programm(name,description);
+        return true;
+    }
+
 };
 
 #endif // MODELMANAGER_H
