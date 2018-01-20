@@ -45,6 +45,9 @@ public:
 
     Device(DevicePrototype * prototype, int startDMXChannel, QString name, QString desciption="",QPoint position = QPoint(-1,-1)):NamedObject(name,desciption,&syncServiceClassName),prototype(prototype),startDMXChannel(startDMXChannel),position(position){
         connect(prototype,&DevicePrototype::channelAdded,this,&Device::channelAdded);
+        for(auto i = prototype->getChannels().cbegin();i != prototype->getChannels().cend();++i){
+            filter.emplace_back(*i,new DMXChannelFilter);
+        }
     }
 
     void writeJsonObject(QJsonObject &o)const;
@@ -59,6 +62,8 @@ public:
 
     const std::vector<std::pair<Channel*,DMXChannelFilter*>> & getChannelFilter()const{return filter;}
 
+    DMXChannelFilter * getFilterForChannel( Channel * c);
+    DMXChannelFilter * getFilterForChannelindex(int intdex);
     // static methods for the sync service:
     static void update (const ID &id, const QString &name,const QString &value){
         auto d = IDBase<Device>::getIDBaseObjectByID(id);
