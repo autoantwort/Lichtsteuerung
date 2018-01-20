@@ -2,6 +2,28 @@
 #include "programm.h"
 #include "device.h"
 
+DMXChannelFilter::DMXChannelFilter(const QJsonObject &o):
+    maxOperation(static_cast<Operation>(o["maxOperation"].toInt())),
+    minOperation(static_cast<Operation>(o["minOperation"].toInt())),
+    maxValue(    o["maxValue"].toInt()),
+    minValue(    o["minValue"].toInt()),
+    value(       o["value"].toInt()),
+    shouldOverrideValue_(o["shouldOverride"].toBool())
+{
+
+}
+
+
+void DMXChannelFilter::writeJsonData(QJsonObject &o){
+
+        o.insert("maxOperation",maxOperation);
+        o.insert("minOperation",minOperation);
+        o.insert("maxValue",maxValue);
+        o.insert("minValue",minValue);
+        o.insert("value",value);
+        o.insert("shouldOverride",shouldOverrideValue_);
+
+}
 
 void DMXChannelFilter::filterValue(unsigned char *value){
     if (shouldOverrideValue_) {

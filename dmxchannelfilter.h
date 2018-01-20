@@ -9,7 +9,7 @@
  * einen min und einen max value festlegen und methoden angeben, wie mit den beiden werten umgegangen
  * werden soll
  */
-class DMXChannelFilter : QObject{
+class DMXChannelFilter : public QObject{
     Q_OBJECT
 public:
     /**
@@ -19,6 +19,7 @@ public:
      */
     enum Operation{CUT, REMAP};
     Q_ENUM(Operation)
+
 private:
     Operation maxOperation = CUT;
     Operation minOperation = CUT;
@@ -27,6 +28,12 @@ private:
     unsigned char value = 0;
     bool shouldOverrideValue_;
 public:
+    DMXChannelFilter() = default;
+    DMXChannelFilter(const QJsonObject &o);
+
+
+    void writeJsonData(QJsonObject & o);
+
     Q_SLOT void setMaxOperation(Operation o){if(o==maxOperation)return;maxOperation=o;emit maxOperationChanged(o);}
     Operation getMaxOperation()const{return maxOperation;}
     Q_SLOT void setMinOperation(Operation o){if(o==minOperation)return;minOperation=o;emit minOperationChanged(o);}
@@ -40,8 +47,8 @@ public:
     Q_SLOT void setValue(unsigned char o){if(o==value)return;value=o;emit valueChanged(o);}
     unsigned char getValue()const{return value;}
 
-    Q_SLOT void shouldOverrideValue(unsigned char o){if(o==shouldOverrideValue_)return;shouldOverrideValue_=o;emit shouldOverrideValueChanged(o);}
-    unsigned char shouldOverrideValue()const{return shouldOverrideValue_;}
+    Q_SLOT void shouldOverrideValue(bool o){if(o==shouldOverrideValue_)return;shouldOverrideValue_=o;emit shouldOverrideValueChanged(o);}
+    bool shouldOverrideValue()const{return shouldOverrideValue_;}
 
 public:
     void initValue(unsigned char * value);
@@ -65,7 +72,7 @@ signals:
     void maxValueChanged(unsigned char);
     void minValueChanged(unsigned char);
     void valueChanged(unsigned char);
-    void shouldOverrideValueChanged(unsigned char);
+    void shouldOverrideValueChanged(bool);
 };
 
 #endif // DMXCHANNEL_H
