@@ -10,5 +10,30 @@
         <file>ProgrammPrototypeView.qml</file>
         <file>ModelView.qml</file>
         <file>TextUnderline.qml</file>
+        <file>ControlView.qml</file>
+        <file>ControlItem.qml</file>
+        <file>icons/down.svg</file>
+        <file>icons/pause.svg</file>
+        <file>icons/play.svg</file>
+        <file>icons/right.svg</file>
+        <file>icons/stop.svg</file>
+        <file>icons/ic_settings_black_24px.svg</file>
+        <file>icons/settings.svg</file>
+        <file>icons/ic_settings_black_36px.svg</file>
+        <file>icons/ic_settings_black_48px.svg</file>
+        <file>icons/ic_stop_black_48px.svg</file>
+        <file>icons/ic_play_arrow_black_48px.svg</file>
+        <file>icons/ic_pause_black_48px.svg</file>
+        <file>icons/ic_pause_black_36px.svg</file>
+        <file>icons/ic_play_arrow_black_36px.svg</file>
+        <file>icons/ic_stop_black_36px.svg</file>
+        <file>icons/ic_stop_black_24px.svg</file>
+        <file>icons/ic_pause_black_24px.svg</file>
+        <file>icons/ic_play_arrow_black_24px.svg</file>
+        <file>ControlItemBlock.qml</file>
+        <file>ProgrammControl.qml</file>
+        <file>SwitchGroupControl.qml</file>
+        <file>DimmerGroupControl.qml</file>
+        <file>LoginView.qml</file>
     </qresource>
 </RCC>

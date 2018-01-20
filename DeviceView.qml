@@ -2,12 +2,20 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.2
+import custom.licht 1.0
 
 ModelView{
     id: deviceModelView
     model:deviceModel
     rows: 7
     onAddClicked:dialog.visible = true
+    addButtonEnabled: UserManagment.currentUser.havePermission(Permission.ADD_DEVICE)
+    removeButtonEnabled: UserManagment.currentUser.havePermission(Permission.REMOVE_DEVICE)
+    nameInputEnabled: UserManagment.currentUser.havePermission(Permission.CHANGE_NAME)
+    descriptionInputEnabled: UserManagment.currentUser.havePermission(Permission.CHANGE_NAME)
+    addButton.text: "Add Device"
+    removeButton.text: "Remove Device"
+
     Text{
         Layout.row: 2
         Layout.column: 2
@@ -18,6 +26,7 @@ ModelView{
     TextInputField{
         Layout.row: 2
         Layout.column: 3
+        enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DEVICE_DMX_CHANNEL);
         text: parent.currentItem.data.startDMXChannel
         validator: IntValidator{
             bottom: 0
@@ -57,6 +66,7 @@ ModelView{
             font.pixelSize: 15
         }
         TextInputField{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 50
             text:deviceModelView.currentItem.data.position.x
             validator: IntValidator{}
@@ -68,6 +78,7 @@ ModelView{
             font.pixelSize: 15
         }
         TextInputField{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             text:deviceModelView.currentItem.data.position.y
             validator: IntValidator{}
             onTextChanged: deviceModelView.currentItem.data.position.y = text.length?text:0

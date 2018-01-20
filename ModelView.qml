@@ -11,12 +11,18 @@ GridLayout{
     signal addClicked()
     property alias model : listView.model
     property alias currentItem : listView.currentItem
-    property Button addButton: buttonAdd
+    property alias addButton: buttonAdd
+    property alias removeButton: buttonRemove
+    property alias addButtonEnabled: buttonAdd.enabled
+    property alias removeButtonEnabled: buttonRemove.enabled
+    property alias nameInputEnabled: textName.enabled
+    property alias descriptionInputEnabled: textDescription.enabled
     property alias listView : listView
+
 
     ListView{
         Layout.fillHeight: true
-        Layout.preferredWidth: Math.max(300,implicitWidth)
+        Layout.preferredWidth: Math.max(350,implicitWidth)
         Layout.columnSpan: 2
         Layout.rowSpan: parent.rows-1
         id:listView
@@ -31,6 +37,7 @@ GridLayout{
             color: "blue"
             opacity: 0.7
         }
+
     }
 
     Button{
@@ -38,43 +45,40 @@ GridLayout{
         Layout.column: 0
         Layout.preferredWidth: listView.width/2
         id: buttonAdd
-        text:"+"
+        text:"Add"
         font.pixelSize: 15
-        onClicked: addClicked(3)
+        onClicked: addClicked()
     }
     Button{
         Layout.row: parent.rows-1
         Layout.column: 1
         Layout.preferredWidth: listView.width/2
         id: buttonRemove
-        text:"-"
+        text:"Remove"
         font.pixelSize: 15
         onClicked: ModelManager.remove(listView.currentItem.data)
     }
 
 
-    Text{
+    Label{
         Layout.row: 0
         Layout.column: 2
         id:labelName
         text:"Name:"
-        Layout.rightMargin: 20
-        font.pixelSize: 15
     }
     TextInputField{
         Layout.row: 0
         Layout.column: 3
         Layout.fillWidth: true
         id:textName
-        text: listView.currentItem.data.name
+        text: listView.currentItem?listView.currentItem.data.name:""
         onTextChanged: listView.currentItem.data.name = text
     }
-    Text{
+    Label{
         Layout.row: 1
         Layout.column: 2
         id:labelDescription
         text:"Description:"
-        font.pixelSize: 15
 
     }
     TextInputField{
@@ -82,7 +86,7 @@ GridLayout{
         Layout.column: 3
         Layout.fillWidth: true
         id:textDescription
-        text: listView.currentItem.data.description
+        text: listView.currentItem?listView.currentItem.data.description:""
         onTextChanged: listView.currentItem.data.description = text
     }
 

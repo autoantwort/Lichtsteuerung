@@ -27,7 +27,16 @@ SOURCES += main.cpp \
     syncservice.cpp \
     usermanagment.cpp \
     channelprogrammeditor.cpp \
-    modelmanager.cpp
+    modelmanager.cpp \
+    mapview.cpp \
+    polygon.cpp \
+    mapeditor.cpp \
+    gridbackground.cpp \
+    modelvector.cpp \
+    controlpanel.cpp \
+    controlitem.cpp \
+    controlitemdata.cpp \
+    dmxinterface.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -54,7 +63,16 @@ HEADERS += \
     dmxchannelfilter.h \
     usermanagment.h \
     channelprogrammeditor.h \
-    modelmanager.h
+    modelmanager.h \
+    mapview.h \
+    polygon.h \
+    mapeditor.h \
+    gridbackground.h \
+    modelvector.h \
+    controlpanel.h \
+    controlitem.h \
+    controlitemdata.h \
+    HardwareInterface.h
 
 
 # Default rules for deployment.

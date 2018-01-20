@@ -9,7 +9,7 @@ Rectangle{
     width: parent.contentWidth+extendetWidth
     height: 2
     radius: 1
-    color: "lightgreen"
+    color: parent.enabled?"lightgreen":"lightgrey"
     //property bool hasFocus
     Behavior on width {
         NumberAnimation { easing.type: Easing.OutExpo; easing.amplitude: 5.0; easing.period: 2.0; duration: 800 }

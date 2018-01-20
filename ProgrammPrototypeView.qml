@@ -1,5 +1,5 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.0
 import QtQuick.Dialogs 1.2
 import custom.licht 1.0
@@ -8,6 +8,8 @@ ModelView{
     model:programmPrototypeModel
     id:modelView
 
+    addButton.text: "Add Prototype"
+    removeButton.text: "Remove Prototype"
 
     ListView{
         clip:true
@@ -24,6 +26,7 @@ ModelView{
         spacing: 50
         delegate:
             ChannelProgrammEditor{
+            layer.samples: 4
             clickRadius: 50
             antialiasing: true
             id:editor
