@@ -2,6 +2,7 @@ import QtQuick 2.7
 import QtQuick.Controls 2.2
 import QtQuick.Layouts 1.0
 import QtGraphicalEffects 1.0
+import QtQuick.Dialogs 1.2
 import custom.licht 1.0
 
 
@@ -14,6 +15,7 @@ ControlPanel{
     menuWidth: width-programm.x
     RoundButton{
 
+        onClicked: selectProgrammDialog.visible=true
         visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
         id:programm
         text: "+"
@@ -106,4 +108,45 @@ ControlPanel{
         }
         onClicked: addDimmerGroupControl()
     }
+
+    Dialog{
+        modality: Qt.WindowModal
+        id:selectProgrammDialog
+        title: "Select Programm"
+        width:300
+        contentItem: RowLayout {
+            Pane{
+                Layout.fillWidth: true
+                ColumnLayout{
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    spacing: 10
+                    ComboBox{
+                        Layout.fillWidth: true
+                        id:programmSelect
+                        model: programmModel
+                        textRole: "display"
+                    }
+                    RowLayout{
+                        Button{
+                            Layout.fillWidth: true
+                            text:"Abbrechen"
+                            onClicked: dialog.visible = false
+                        }
+                        Button{
+                            Layout.fillWidth: true
+                            text:"Hinzufügen"
+                            onClicked: {
+                                    selectProgrammDialog.visible = false;
+                                    addProgrammControl(programmModel.data(programmModel.index(programmSelect.currentIndex,0),-1));
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
 }
