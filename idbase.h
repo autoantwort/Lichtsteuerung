@@ -9,6 +9,7 @@
 #include <iostream>
 #include <QAbstractListModel>
 #include "namedobject.h"
+#include <QQmlEngine>
 
 template<typename Subclass>
 class IDBase;
@@ -48,7 +49,7 @@ class IDBase{
         ~Deleter(){
             //qDebug() << IDBase<Subclass>::getAllIDBases().size() << " Objects have to be deleted from Type "<< typeid(Subclass).name() <<"\n";
             while (!IDBase<Subclass>::getAllIDBases().empty()) {
-                delete *IDBase<Subclass>::getAllIDBases().crbegin();
+                delete *IDBase<Subclass>::getAllIDBases().cbegin();
             }
         }
         // Wir brauchen ein Dummy funktion, um so zu tun, als würden wir das object benutzten, da es sonst nicht erzeugt wird
@@ -71,7 +72,7 @@ public:
     }
     void writeJsonObject(QJsonObject &o)const{id.writeJsonObject(o);}
     virtual ~IDBase(){
-        //qDebug()<<"Call Destructor from : "<<getID().value()<<'\n';
+        //qDebug()<<"Call Destructor from : "<<getID().value()<<':'<< typeid(Subclass).name()<<'\n';
         removeIDBaseObject(this);
     }
 private:
@@ -106,14 +107,17 @@ public:
     }
 
     static Subclass * getIDBaseObjectByID(const QJsonValue &o){
-        return getIDBaseObjectByID(o.toString().toLong());
+        return getIDBaseObjectByID(o.toString().toLongLong());
+    }
+    static int getIDBaseIndexByID(const QJsonValue &o){
+        return getIDBaseIndexByID(o.toString().toLongLong());
     }
     /**
          * @brief getIDBaseObjectByID Get an Object by its id
          * @param id The Id to search for
          * @return A Pointer to the Object with the ID, or a nullptr. Maybe an Pointer to the Stack, be careful.
          */
-    static Subclass * getIDBaseObjectByID(long id){
+    static Subclass * getIDBaseObjectByID(ID::value_type id){
         static_assert(std::is_base_of<IDBase<Subclass>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
         auto found = idBaseObjectsByID.find(id);
         if (found!=idBaseObjectsByID.cend()) {
@@ -121,6 +125,14 @@ public:
         }
         //qDebug() << "Dont find IDBase Object with id "<<id << "and type "<<typeid(Subclass).name()<<'\n';
         return nullptr;
+    }
+    static int getIDBaseIndexByID(ID::value_type id){
+        static_assert(std::is_base_of<IDBase<Subclass>,Subclass>::value,"The Subclass Template Parameter Type is not a Subclass of IDBase");
+        auto found = idBaseObjectsByID.find(id);
+        if (found!=idBaseObjectsByID.cend()) {
+            return std::distance(idBaseObjectsByID.cbegin(),found);
+        }
+        return -1;
     }
     static const IDBaseSet& getAllIDBases(){return idBaseObjectsByID;}
     const ID & getID()const{return id;}
@@ -211,6 +223,7 @@ public:
                 return pointer->property("name");
             }
             //qDebug()<<"return pointer";
+            QQmlEngine::setObjectOwnership(pointer,QQmlEngine::CppOwnership);
             return QVariant::fromValue(pointer);
         }else{
             qDebug()<<"index out of range row x colum : "<<index.row()<<' '<<index.column();
