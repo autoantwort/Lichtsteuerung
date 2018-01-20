@@ -1,6 +1,6 @@
 #include "id.h"
 
-long long ID::lastID = QDateTime::currentMSecsSinceEpoch();
+ID::value_type ID::lastID = QDateTime::currentMSecsSinceEpoch();
 
 ID::ID(const QJsonObject &o):id(o["id"].toString().toLongLong()){
 

@@ -12,8 +12,10 @@
  */
 class ID{
     friend class SyncService;
+public:
+    typedef long long value_type;
 private:
-    static long long lastID;
+    static qint64 lastID;
 public:
     /**
      * @brief generateNew Erstellt eine neue ID
@@ -27,9 +29,11 @@ private:
     ID(const long long id):id(id){}
 public:
     ID():id(++lastID){}
-    long value()const{return id;}
+    value_type value()const{return id;}
     bool operator !=(const ID other)const{return other.id!=id;}
-    bool operator ==(const ID other)const{return other.id!=id;}
+    bool operator ==(const ID other)const{return other.id==id;}
+    bool operator !=(const value_type other)const{return other!=id;}
+    bool operator ==(const value_type other)const{return other==id;}
 public:
     ID(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
