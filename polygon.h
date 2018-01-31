@@ -117,12 +117,15 @@ protected:
     TriangleContainer triangles;
     ArcContainer arcs;
     QColor polygonColor;
+    QString name;
 public:
-    Polygon();
+    Polygon(QString name);
     Polygon(const QJsonObject &o);
      void writeJsonObject(QJsonObject &o)const;
-    void setColor(QColor c){polygonColor=c;update();}
-    QColor getColor()const{return polygonColor;}
+     void setColor(QColor c){polygonColor=c;update();}
+     QColor getColor()const{return polygonColor;}
+     void setName(QString c){name=c;}
+     QString getName()const{return name;}
     const PointContainer & getPoints()const{return points;}
     TriangleContainer & getTriangles(){return triangles;}
     const TriangleContainer & getTriangles()const{return triangles;}

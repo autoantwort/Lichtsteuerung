@@ -7,12 +7,16 @@
 class MapView : public GridBackground
 {
     Q_OBJECT
+    static MapView * lastCreated;
 protected:
-    Polygon * stonework = new Polygon();
-    Polygon * surfaces = new Polygon();
+    std::vector<Polygon *> polygons;
+    Polygon * stonework;
+    Polygon * surfaces;
 public:
     MapView();
-
+    static MapView * getLastCreated(){return lastCreated;}
+    void loadFromJsonObject(const QJsonObject &o);
+    void writeJsonObject(QJsonObject &o)const;
 signals:
 
 public slots:

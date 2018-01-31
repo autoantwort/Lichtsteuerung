@@ -62,7 +62,7 @@ ApplicationWindow {
             id:controlPane
         }
 
-        MapEditor{
+        MapView{
             width:400
             height: 400
         }

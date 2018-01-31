@@ -10,6 +10,7 @@
 #include "programm.h"
 #include "usermanagment.h"
 #include "controlpanel.h"
+#include "mapview.h"
 #include <QCryptographicHash>
 
 namespace ApplicationData{
@@ -49,6 +50,10 @@ QByteArray saveData(){
         QJsonObject u;
         ControlPanel::getLastCreated()->writeJsonObject(u);
         o.insert("ControlPanel",u);
+    }{
+        QJsonObject u;
+        MapView::getLastCreated()->writeJsonObject(u);
+        o.insert("MapView",u);
     }
     return QJsonDocument(o).toJson();
 }
@@ -89,7 +94,10 @@ std::function<void()> loadData(QByteArray data){
         qDebug()<<"hash     : "<<QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
     }
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
-    return [=](){ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());};
+    return [=](){
+        ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
+        MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
+    };
 
 }
 

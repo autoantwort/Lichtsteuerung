@@ -7,12 +7,30 @@
 #include <cstring>
 
 
-Polygon::Polygon()
+Polygon::Polygon(QString name):name(name)
 {
     setFlag(ItemHasContents);
 }
 
-Polygon::Polygon(const QJsonObject &o):Polygon(){
+
+Polygon::Polygon(const QJsonObject &o):Polygon(o["name"].toString()){
+
+    auto colorString = o["color"].toString();
+    if(colorString.startsWith('#')){
+        while(colorString.length()<9){
+            colorString.append('f');
+        }
+        //       012345678
+        //Have : #RRGGBBAA //css like
+        //Need : AARRGGBB  //Qt like
+        colorString.remove(0,1);
+        colorString.prepend(colorString.at(7));
+        colorString.prepend(colorString.at(7));
+        colorString.remove(8,2);
+        polygonColor.setRgba(colorString.toUInt(nullptr,16));
+    }else{
+        polygonColor = QColor(colorString);
+    }
     {
         auto array = o["points"].toArray();
         for(const auto p_ : array){
@@ -62,6 +80,15 @@ void Polygon::writeJsonObject(QJsonObject &o) const{
         }
         o.insert("arcs",a);
     }
+    o.insert("name",name);
+    QString n;
+    polygonColor.rgb();
+    n.setNum((polygonColor.rgb()<<8)|polygonColor.alpha(),16);
+    while(n.length()<8){
+        n.prepend('0');
+    }
+    n.prepend('#');
+    o.insert("color",n);
 }
 
 void Polygon::removePoint(Triangle::index_type index){

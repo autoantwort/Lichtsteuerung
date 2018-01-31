@@ -1,11 +1,17 @@
 #include "mapview.h"
+#include <QJsonArray>
+
+
+MapView * MapView::lastCreated = nullptr;
 
 MapView::MapView()
 {
-    stonework = new Polygon();
+    lastCreated = this;
+    /*
+    stonework = new Polygon("stonework");
     stonework->setParentItem(this);
 
-    surfaces = new Polygon();
+    surfaces = new Polygon("surfaces");
     surfaces->setParentItem(this);
     surfaces->setColor(QColor(255, 153, 0));
     surfaces->addRectangle(200,250,10,40);
@@ -22,5 +28,23 @@ MapView::MapView()
 
     stonework->addArc(200,170,200,200,230,200);
     stonework->addArc(230,200,200,200,200,230);
-    //stonework->addArc(70,200,100,200,100,170);
+    //stonework->addArc(70,200,100,200,100,170);*/
+}
+
+void MapView::loadFromJsonObject(const QJsonObject &o){
+    auto a = o["polygons"].toArray();
+    for(const auto &p_ : a){
+        auto poly = new Polygon(p_.toObject());
+        poly->setParentItem(this);
+        polygons.push_back(poly);
+    }
+}
+void MapView::writeJsonObject(QJsonObject &o) const{
+    QJsonArray a;
+    for(const auto & p : polygons){
+        QJsonObject o ;
+        p->writeJsonObject(o);
+        a.append(o);
+    }
+    o.insert("polygons",a);
 }
