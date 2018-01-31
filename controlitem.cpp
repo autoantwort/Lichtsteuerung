@@ -106,14 +106,14 @@ void ControlItem::itemChange(ItemChange change, const ItemChangeData &value){
 
 void ControlItem::hoverEnterEvent(QHoverEvent *event){
     event->accept();
-    auto newManLength = std::sqrt(std::powf(width() - event->posF().x(),2) + std::powf(event->posF().y(),2));
+    auto newManLength = std::sqrt(std::pow(width() - event->posF().x(),2) + std::pow(event->posF().y(),2));
     if(newManLength<40)
         emit settingVisibleChange(true);
 }
 void ControlItem::hoverMoveEvent(QHoverEvent *event){
     event->accept();
     auto oldManLength = std::sqrt(std::pow(width() - event->oldPosF().x(),2) + std::pow(event->oldPosF().y(),2));
-    auto newManLength = std::sqrt(std::powf(width() - event->posF().x(),2) + std::powf(event->posF().y(),2));
+    auto newManLength = std::sqrt(std::pow(width() - event->posF().x(),2) + std::pow(event->posF().y(),2));
     if(oldManLength<40&&newManLength>=40)
         emit settingVisibleChange(false);
     else if(oldManLength>40&&newManLength<=40)

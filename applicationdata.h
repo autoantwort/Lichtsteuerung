@@ -2,6 +2,7 @@
 #define APPLICATIONDATA_H
 
 #include <QFile>
+#include <functional>
 
 namespace ApplicationData{
 

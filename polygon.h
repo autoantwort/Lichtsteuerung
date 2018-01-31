@@ -6,6 +6,9 @@
 #include <cmath>
 #include <QJsonObject>
 
+namespace Primitives {
+
+
 template<typename type>
 class Point{
     static_assert(std::is_integral<type>::value||std::is_floating_point<type>::value,"Type must be an number");
@@ -25,6 +28,7 @@ public:
 
 template<typename Indextype>
 class Triangle{
+public:
   Indextype first, second, third;
 public:
   typedef Indextype index_type;
@@ -47,6 +51,7 @@ public:
 
 template<typename Indextype>
 class Arc{
+public:
   Indextype left, mid, right;
 public:
   friend class Polygon;
@@ -94,13 +99,14 @@ public:
   }
 };
 
+}
 
 class Polygon : public QQuickItem
 {
 public:
-    typedef Point<float> Point;
-    typedef Triangle<unsigned short> Triangle;
-    typedef Arc<unsigned short> Arc;
+    typedef Primitives::Point<float> Point;
+    typedef Primitives::Triangle<unsigned short> Triangle;
+    typedef Primitives::Arc<unsigned short> Arc;
     typedef std::vector<Point> PointContainer;
     typedef std::vector<Triangle> TriangleContainer;
     typedef std::vector<Arc> ArcContainer;

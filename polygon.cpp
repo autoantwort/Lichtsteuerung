@@ -4,6 +4,7 @@
 #include <QSGFlatColorMaterial>
 #include <algorithm>
 #include <QJsonArray>
+#include <cstring>
 
 
 Polygon::Polygon()
