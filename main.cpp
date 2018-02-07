@@ -27,12 +27,35 @@
 #include <QQuickView>
 int main(int argc, char *argv[])
 {
+    class CatchingErrorApplication : public QGuiApplication{
+    public:
+        CatchingErrorApplication(int &argc, char **argv):QGuiApplication(argc,argv){}
+        virtual ~CatchingErrorApplication(){}
+        virtual bool notify(QObject* receiver, QEvent* event)
+        {
+            try {
+                return QGuiApplication::notify(receiver, event);
+            } catch (std::exception &e) {
+                qCritical("Error %s sending event %s to object %s (%s)",
+                    e.what(), typeid(*event).name(), qPrintable(receiver->objectName()),
+                    receiver->metaObject()->className());
+            } catch (...) {
+                qCritical("Error <unknown> sending event %s to object %s (%s)",
+                    typeid(*event).name(), qPrintable(receiver->objectName()),
+                    receiver->metaObject()->className());
+            }
+
+            return false;
+        }
+    };
+
+
 
 //    auto defaultFormat = QSurfaceFormat::defaultFormat();
 //    defaultFormat.setSamples(8);
 //    QSurfaceFormat::setDefaultFormat(defaultFormat);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QGuiApplication app(argc, argv);
+    CatchingErrorApplication app(argc, argv);
     QQmlApplicationEngine engine;
     ControlPanel::setQmlEngine(&engine);
     //qmlRegisterType<const ChannelVector*>("my.models",1,0,"ChannelVector");
@@ -80,6 +103,5 @@ int main(int argc, char *argv[])
     // laden erst nach dem laden des qml ausführen
     after();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
-
     return app.exec();
 }
