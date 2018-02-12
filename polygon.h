@@ -101,6 +101,9 @@ public:
 
 }
 
+/**
+ * @brief The Polygon class holds an Polygon. Its contains multiple Points that con be combined to Triangles and Arcs
+ */
 class Polygon : public QQuickItem
 {
 public:
@@ -121,31 +124,96 @@ protected:
 public:
     Polygon(QString name);
     Polygon(const QJsonObject &o);
-     void writeJsonObject(QJsonObject &o)const;
-     void setColor(QColor c){polygonColor=c;update();}
-     QColor getColor()const{return polygonColor;}
-     void setName(QString c){name=c;}
-     QString getName()const{return name;}
+    void writeJsonObject(QJsonObject &o)const;
+    /**
+     * @brief setColor Sets the Color with that the Polygon will be rendered
+     * @param c The new Color of the Polygon
+     */
+    void setColor(QColor c){polygonColor=c;update();}
+    /**
+     * @brief getColor return the current color of the Polygon
+     * @return The current polygon color
+     */
+    QColor getColor()const{return polygonColor;}
+    /**
+     * @brief setName Sets the Name of the Polygon, so that the User nows, for what this polygon stands for, eg stonework
+     * @param c The new name of the polygon
+     */
+    void setName(QString c){name=c;}
+    QString getName()const{return name;}
     const PointContainer & getPoints()const{return points;}
     TriangleContainer & getTriangles(){return triangles;}
     const TriangleContainer & getTriangles()const{return triangles;}
     const ArcContainer & getArcs()const{return arcs;}
+    /**
+     * @brief addPoint Adds a Point to the Polygon
+     * @param p The new Point
+     */
     void addPoint(Point &&p){
         points.push_back(p);
     }
+    /**
+     * @brief addPoint Adds a Point to the Polygon
+     * @param p The new Point
+     */
     void addPoint(const Point &p){
         points.push_back(p);
     }
+    /**
+     * @brief removePoint Removes the point at the given index, all Points after this Point decreses there index by one
+     * @param index The Index of the Point in the PointContainer to remove
+     */
     void removePoint(Triangle::index_type index);
+    /**
+     * @brief removePoint Removes the Point at the given index, all Points after this Point decreses there index by one
+     * @param index An iterator position to the Point to remove
+     */
     void removePoint(PointContainer::const_iterator index);
+    /**
+     * @brief addTriangle Adds a triangle with 3 given Points
+     * @param first The first edge point of the triangle
+     * @param second The second edge point of the triangle
+     * @param third The third edge point of the triangle
+     */
     void addTriangle(Triangle::index_type first, Triangle::index_type second, Triangle::index_type third);
+    /**
+     * @brief addArc Adds a Arc with the 3 given points
+     * @param left The Left Point where the Arc starts
+     * @param mid The midpoint of the Arc
+     * @param right The Right Point where the Arc ends
+     */
     void addArc(Arc::index_type left, Arc::index_type mid, Arc::index_type right);
 protected:
+    /**
+     * @brief createPoint Adds a point if the Point does not exists and return the new index, or returns the index of the existins Point
+     * @return the index of the Point in the Container
+     */
     Triangle::index_type createPoint(Point );
+    /**
+     * @brief addRectangle Adds a Rectangle with 4 edge points
+     */
     void addRectangle(Point,Point,Point,Point);
+    /**
+     * @brief addRectangle Adds a Rectangle with 4 edge Points
+     * @param x1 The x coordinate of the first point
+     * @param y1 The y coordinate of the first point
+     * @param x2 The x coordinate of the second point
+     * @param y2 The y coordinate of the second point
+     * @param x3 The x coordinate of the third point
+     * @param y3 The y coordinate of the third point
+     * @param x4 The x coordinate of the fourth point
+     * @param y4 The y coordinate of the fourth point
+     */
     void addRectangle(Point::number_type x1,Point::number_type y1,Point::number_type x2,Point::number_type y2,Point::number_type x3,Point::number_type y3,Point::number_type x4,Point::number_type y4){
         addRectangle(Point(x1,y1),Point(x2,y2),Point(x3,y3),Point(x4,y4));
     }
+    /**
+     * @brief addRectangle adds a Rectanle given by the Left/Right x-Axies and the Top/Bottom y-xies
+     * @param leftX The Left x
+     * @param rightX The Right x
+     * @param topY The top y
+     * @param bottomY the bottom y
+     */
     void addRectangle(Point::number_type leftX,Point::number_type rightX,Point::number_type topY,Point::number_type bottomY){
         addRectangle(Point(leftX,topY),Point(rightX,topY),Point(leftX,bottomY),Point(rightX,bottomY));
     }

@@ -36,7 +36,9 @@ SOURCES += main.cpp \
     controlpanel.cpp \
     controlitem.cpp \
     controlitemdata.cpp \
-    dmxinterface.cpp
+    dmxinterface.cpp \
+    errornotifier.cpp \
+    settings.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -72,7 +74,9 @@ HEADERS += \
     controlpanel.h \
     controlitem.h \
     controlitemdata.h \
-    HardwareInterface.h
+    HardwareInterface.h \
+    errornotifier.h \
+    settings.h
 
 
 # Default rules for deployment.

@@ -24,9 +24,15 @@
 #include "mapeditor.h"
 #include "controlitem.h"
 #include "controlpanel.h"
+#include "errornotifier.h"
 #include <QQuickView>
+#include <QLibrary>
+#include "HardwareInterface.h"
+#include "settings.h"
 int main(int argc, char *argv[])
 {
+
+
     class CatchingErrorApplication : public QGuiApplication{
     public:
         CatchingErrorApplication(int &argc, char **argv):QGuiApplication(argc,argv){}
@@ -39,10 +45,14 @@ int main(int argc, char *argv[])
                 qCritical("Error %s sending event %s to object %s (%s)",
                     e.what(), typeid(*event).name(), qPrintable(receiver->objectName()),
                     receiver->metaObject()->className());
+                QString error = QString("Error ") +e.what()+"sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
+                ErrorNotifier::get()->newError(error);
             } catch (...) {
                 qCritical("Error <unknown> sending event %s to object %s (%s)",
                     typeid(*event).name(), qPrintable(receiver->objectName()),
                     receiver->metaObject()->className());
+                QString error = QString("Error ") + "<unknown> sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
+                ErrorNotifier::get()->newError(error);
             }
 
             return false;
@@ -63,15 +73,16 @@ int main(int argc, char *argv[])
     qmlRegisterType<MapView>("custom.licht",1,0,"MapView");
     qmlRegisterType<MapEditor>("custom.licht",1,0,"MapEditor");
     qmlRegisterType<ControlPanel>("custom.licht",1,0,"ControlPanel");
+    //qmlRegisterType<ErrorNotifier>("custom.licht",1,0,"ErrorNotifier");
     qmlRegisterType<ControlItem>("custom.licht.template",1,0,"ControlItemTemplate");
     qmlRegisterType<DimmerGroupControlItemData>("custom.licht",1,0,"DimmerGroupControlItemData");
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterType<UserManagment>("custom.licht",1,0,"Permission");
     qRegisterMetaType<UserManagment::Permission>("Permission");
-    const auto filename = "QTJSONFile.json";
-    QFile file(filename);
-    QFile saveFile ("QTJSONFile.json");
+    Settings settings;
+    settings.setJsonSettingsFilePath("QTJSONFile.json");
+    QFile file(settings.getJsonSettingsFilePath());
 
 
 #warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
@@ -86,22 +97,49 @@ int main(int argc, char *argv[])
         dataList.append(metaEnum.key(i));
     }
 
-    app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){ApplicationData::saveData(saveFile);});
+    app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){
+        QFile savePath(settings.getJsonSettingsFilePath());
+        ApplicationData::saveData(savePath);
+    });
 
 
     engine.rootContext()->setContextProperty("ModelManager",new ModelManager());
     engine.rootContext()->setContextProperty("easingModel",dataList);
+    engine.rootContext()->setContextProperty("ErrorNotifier",ErrorNotifier::get());
+    engine.setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
     engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
     engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
     engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());
     engine.rootContext()->setContextProperty("userModel",IDBaseDataModel<User>::singletone());
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
-
+    engine.rootContext()->setContextProperty("Settings",&settings);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+
 
     // laden erst nach dem laden des qml ausführen
     after();
+
+
+    // Treiber laden
+#if defined(_WIN32) || defined(_WIN64) || defined(WIN32) || defined(WIN64)
+    typedef HardwareInterface * (*getDriverFunc)();
+    getDriverFunc getDriver =  static_cast<getDriverFunc>(QLibrary::resolve("testFile","getDriver"));
+    HardwareInterface * inter = getDriver();
+    if(inter != nullptr){
+        inter->setErrorCallback([](QString s){qDebug()<<s;ErrorNotifier.newError(s);});
+        inter->setSetValuesCallback([](unsigned char* values, int length, double time){
+            DMXChannelFilter::initValues(values,size);
+            Programm::fill(values,size,time);
+            DMXChannelFilter::filterValues(values,size);
+        });
+    }
+    inter->init();
+    inter->start();
+#endif
+
+
+
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();
 }

@@ -20,33 +20,97 @@ private:
     User * readUser;
     User * currentUser;
 public:
+    UserManagment();
+
     Q_INVOKABLE User * getDefaultUser()const{return readUser;}
+    /**
+     * @brief get Return the Singletone of the UserManagment
+     * @return
+     */
     static UserManagment * get(){static UserManagment m;return &m;}
+    /**
+     * @brief The Permission enum contains all Permissions a User can have
+     */
     enum Permission{
         Admin, Read, Write,
         ADD_DEVICE,REMOVE_DEVICE,CHANGE_POSITION, CHANGE_NAME,CHANGE_DEVICE_DMX_CHANNEL,
         DEVICE_TAB,DEVICE_PROTOTYPE_TAB,PROGRAMM_PROTOTYPE_TAY,PROGRAMM_TAB,
-        MOVE_CONTROL_ITEM, ADD_CONTROL_ITEM, CHANGE_GROUP_NAME, CHANGE_GROUP_DEVICES, CHANGE_MIN_MAX_MAPPING, CHANGE_TIMEOUTS,
+        MOVE_CONTROL_ITEM, ADD_CONTROL_ITEM, CHANGE_GROUP_NAME, CHANGE_GROUP_DEVICES, CHANGE_MIN_MAX_MAPPING, CHANGE_TIMEOUTS, REMOVE_CONTROL_ITEM,
 
         LAST_PERMISSION
     };
     Q_ENUM(Permission)
+    /**
+     * @brief metaEnum Is used to get the names of the entries in qml as string
+     */
     const QMetaEnum metaEnum = QMetaEnum::fromType<Permission>();
-    UserManagment();
+
+    /**
+      * @brief adds a user to the Usermanagment
+      * @param name The Username of the new user
+      * @param password The password of the new User
+      */
     Q_INVOKABLE void addUser(const QString & name, const QString & password);
+
+
+    /**
+     * @brief removeUser Removes an user
+     * @param user the user to remove
+     * @param password from the admin
+     * @return  true for success, false for failure
+     */
     Q_INVOKABLE bool removeUser(User * user,const QString &password);
+    /**
+     * @brief changeUserName change the username of a user
+     * @param user the User where to change the username
+     * @param newName the new Username
+     * @param password the password from the user or from an admin
+     * @return  true for success, false for failure
+     */
     Q_INVOKABLE bool changeUserName(User * user, const QString &newName,const QString &password);
-    Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
+    //Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
+    /**
+     * @brief changeUserPasswort change the passwort of a user
+     * @param user the user where the password should be changed
+     * @param password the current passwort of the user or of an admin
+     * @param newPassword the new password of the user
+     * @return true for success, false for failure
+     */
     Q_INVOKABLE bool changeUserPasswort(User * user,const QString &password,const QString &newPassword);
+    /**
+     * @brief login logins a user and make this user the current user
+     * @param user the user to login
+     * @param passwort the password of the user
+     * @return true for success, false for failure
+     */
     Q_INVOKABLE bool login(User * user, const QString &passwort);
+    /**
+     * @brief logout logout the current User
+     */
     Q_INVOKABLE void logout();
+    /**
+     * @brief logout logouts the user user, if the user user is not logind, nothiing happens
+     * @param user The user to logout
+     */
     void logout(User * user);
+    /**
+     * @brief getUserByName Gets the first user with the given name
+     * @param name The name to search for
+     * @return An user with the given username or a nullptr if none found
+     */
     User* getUserByName(const QString & name)const;
+    /**
+     * @brief getCurrentUser gets the current user that is log in
+     * @return The currently logined user
+     */
     User * getCurrentUser()const{return currentUser;}
 signals:
     void currentUserChanged();
 };
 
+/**
+ * @brief The UserPermissionModel class provides an QAbstractListModel implementation and lists all Permissions that exists and to every permission an bool that is true if the user have the spezific permission
+ */
 class UserPermissionModel : public QAbstractListModel{
     Q_OBJECT
     User* user;
@@ -73,6 +137,9 @@ public:
     }
 };
 
+/**
+ * @brief The User class represents a user. A user have a name and a password and have permissions
+ */
 class User : public QObject, public IDBase<User>{
     Q_OBJECT
     Q_PROPERTY(QString name READ getUsername NOTIFY usernameChanged)
@@ -91,9 +158,18 @@ private:
 public:
     static void createUser(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
-    ~User(){UserManagment::get()->logout(this);}
+    ~User(){UserManagment::get()->logout(this);}    
     QString getUsername()const{return username;}
+    /**
+     * @brief getPermissions Returns an set that contains all Permission that this user has
+     * @return A set containing all Permission that this user has
+     */
     std::set<UserManagment::Permission> getPermissions()const{return permissions;}
+    /**
+     * @brief havePermission check if a user have a spezific permission
+     * @param p the permission to check
+     * @return true is the user have the permission
+     */
     Q_INVOKABLE bool havePermission(UserManagment::Permission p){return permissions.find(p)!=permissions.cend();}
     UserPermissionModel * getPermissionModel(){return &permissionModel;}
 signals:

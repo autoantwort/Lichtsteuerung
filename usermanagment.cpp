@@ -48,6 +48,7 @@ bool UserManagment::changeUserName(User *user, const QString &newName, const QSt
     return false;
 }
 
+/*
 bool UserManagment::changeUserPermission(User *user, Permission newPermission, const QString &password){
     const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
     for(const auto u : IDBase<User>::getAllIDBases()){
@@ -58,6 +59,7 @@ bool UserManagment::changeUserPermission(User *user, Permission newPermission, c
     }
     return false;
 }
+*/
 
 bool UserManagment::changeUserPasswort(User *user, const QString &password, const QString &newPassword){
     const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);

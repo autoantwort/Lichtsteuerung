@@ -30,6 +30,10 @@ public:
      */
     Q_SLOT void setOffset(double o){if(o==offset)return;offset=o;emit offsetChanged();SyncService::addUpdateMessage("DeviceProgramm",getID(),"offset",QString::number(offset));}
     double getOffset()const{return offset;}
+    /**
+      * @brief setSpeed Sets the Speed of the Device Programm
+      * @param s the new speed
+      */
     Q_SLOT void setSpeed(double s){if(s==speed)return;speed=s;emit speedChanged(speed);}
     double getSpeed()const{return speed;}
     DeviceProgramm(Device * device,ProgrammPrototype * programmPrototype,double offset):QObject(device),programmPrototype(programmPrototype),offset(offset),device(device){connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);}
@@ -66,7 +70,7 @@ signals:
 };
 
 /**
- * @brief The TimeDistortion class distort the time for a Programm
+ * @brief The TimeDistortion class distort the time for a Programm, eg first the Programm runs slower and at the end faster
  */
 class TimeDistortion : public QObject{
     Q_OBJECT
@@ -134,6 +138,10 @@ public:
      * @return Ein Container mit allen auftretenden Konflikten
      */
     std::map<Programm*,std::map<Device*,std::vector<Channel*>>> run();
+    /**
+     * @brief setSpeed Sets the Speed of this Programm
+     * @param s The new speed
+     */
     Q_SLOT void setSpeed(double s){if(s==speed)return;speed=s;emit speedChanged(speed);}
     double getSpeed()const{return speed;}
     void stop(){setRunning(false);}

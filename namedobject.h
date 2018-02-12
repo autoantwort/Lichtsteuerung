@@ -5,6 +5,9 @@
 #include <QJsonObject>
 #include "syncservice.h"
 
+/**
+ * @brief The NamedObject class superclass for Every class that will have a name and a description
+ */
 class NamedObject : public QObject
 {
     Q_OBJECT

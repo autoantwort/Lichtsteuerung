@@ -3,11 +3,13 @@ import QtQuick 2.7
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
+import QtQuick.Dialogs 1.2
 ApplicationWindow {
     visible: true
     width: 900
     height: 480
     title: qsTr("Lichtsteuerung")
+
 
 
     header:TabBar {
@@ -67,5 +69,15 @@ ApplicationWindow {
             height: 400
         }
         LoginView{}
+    }
+
+    MessageDialog{
+        text: ErrorNotifier.errorMessage
+        modality: "WindowModal"
+        icon: "Critical"
+        title: "Error"
+        standardButtons: "Ok"
+        onTextChanged: visible = true;
+
     }
 }

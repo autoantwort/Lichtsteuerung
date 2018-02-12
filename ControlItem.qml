@@ -104,6 +104,7 @@ ControlItemTemplate{
             }
         }
         MenuItem{
+            enabled: UserManagment.currentUser.havePermission(Permission.REMOVE_CONTROL_ITEM);
             text: "Delete"
             onClicked: {
                 item.parent=null;

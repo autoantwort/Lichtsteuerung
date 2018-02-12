@@ -4,6 +4,9 @@
 #include <QQuickItem>
 #include "controlitemdata.h"
 
+/**
+ * @brief The ControlItem class is the base for ControlItems like the SwitchControlItem or the DimmerControlItem
+ */
 class ControlItem : public QQuickItem
 {
     Q_OBJECT
@@ -13,6 +16,9 @@ class ControlItem : public QQuickItem
     Q_PROPERTY(ControlItemData * controlData READ getControlData WRITE setControlData NOTIFY controlDataChanged)
     Q_PROPERTY(bool moveable READ isMoveable WRITE setMoveable NOTIFY moveableChanged)
 private:
+    /**
+     * @brief data The Data that a spezific ControlItem needs are saved here
+     */
     ControlItemData * data = nullptr;
     int blockWidth= 0;
     int blockHeight= 0;
@@ -44,7 +50,16 @@ signals:
     void rasterSizeChanged();
     void blockWidthChanged();
     void blockHeightChanged();
+    /**
+     * @brief settingVisibleChange when the mouse enter/leaves the upper right corner of the Item, this signal is shot
+     * @param visible true if the Settings symbol should be visible
+     */
     void settingVisibleChange(bool visible);
+    /**
+     * @brief openPopup this signal is given, when the user rightclick on the Item
+     * @param x the x position of the Mouse
+     * @param y the y position of the Mouse
+     */
     void openPopup(int x, int y);
     void controlDataChanged();
     void moveableChanged();
