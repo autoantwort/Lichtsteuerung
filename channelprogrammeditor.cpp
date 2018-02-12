@@ -526,9 +526,13 @@ void ChannelProgrammEditor::keyPressEvent(QKeyEvent *event){
 }
 
 void ChannelProgrammEditor::wheelEvent(QWheelEvent *event){
+#ifdef Q_OS_WIN
+    xDiff = event->angleDelta().y();
+#else
     xDiff = event->pixelDelta().x();
+#endif
     event->accept();
-    qDebug()<<"wheel : "<<event->pixelDelta().x()<<'\n';
+    qDebug()<<"wheel : "<<event->pixelDelta()<<' '<<event->angleDelta()<<' '<<event->delta()<<'\n';
     update();
 }
 
