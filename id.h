@@ -15,7 +15,8 @@ class ID{
 public:
     typedef long long value_type;
 private:
-    static qint64 lastID;
+    static value_type lastID;
+    static_assert(sizeof(qint64) == sizeof(long long),"Falsche Groesse!");
 public:
     /**
      * @brief generateNew Erstellt eine neue ID
@@ -25,8 +26,8 @@ public:
         return ++lastID;
     }
 private:
-    const long long id;
-    ID(const long long id):id(id){}
+    const value_type id;
+    ID(const value_type id):id(id){}
 public:
     ID():id(++lastID){}
     value_type value()const{return id;}

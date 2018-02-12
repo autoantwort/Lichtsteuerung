@@ -3,9 +3,17 @@
 QString Device::syncServiceClassName;
 
 Device::Device(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Device>(o),
-    prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"].toString().toLong())),
+    prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"])),
     startDMXChannel(o["startDMXChannel"].toInt()),
     position(o["position"].toObject()["x"].toInt(),o["position"].toObject()["y"].toInt()){
+    if(prototype==nullptr){
+        std::cerr << "Availible Device Prototypes : ";
+        for(const auto & r : IDBase<DevicePrototype>::getAllIDBases()){
+            std::cerr << r->getID().value()<<' ';
+        }
+        std::cerr << "Search for Device Prototype with ID : " << o["prototype"].toString().toLongLong();
+        throw std::runtime_error("Dont find DevicePrototype with id : " + o["prototype"].toString().toStdString());
+    }
     const auto filter = o["filter"].toArray();
     for(const auto f_:filter){
         const auto f = f_.toObject();

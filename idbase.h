@@ -18,8 +18,8 @@ template<typename Subclass>
 struct IDBaseComperator{
     typedef std::true_type is_transparent;
     bool operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r);
-    bool operator()(const long l,const IDBase<Subclass> *r);
-    bool operator()(const IDBase<Subclass> *l,const long r);
+    bool operator()(const ID::value_type l,const IDBase<Subclass> *r);
+    bool operator()(const IDBase<Subclass> *l,const ID::value_type r);
 };
 
 template<typename Subclass>
@@ -144,12 +144,12 @@ bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const IDBa
 }
 
 template<typename Subclass>
-bool IDBaseComperator<Subclass>::operator()(const long l,const IDBase<Subclass> *r){
+bool IDBaseComperator<Subclass>::operator()(const ID::value_type l,const IDBase<Subclass> *r){
     return l<r->getID().value();
 }
 
 template<typename Subclass>
-bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const long r){
+bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const ID::value_type r){
     return l->getID().value()<r;
 }
 
