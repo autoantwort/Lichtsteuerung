@@ -3,6 +3,8 @@
 #include <thread>
 #include <atomic>
 #include <QString>
+#include <mutex>
+#include <condition_variable>
 
 /**
  * @brief The DMXInterface class soll eine Standard schnittstelle für Treiber bereitstellen

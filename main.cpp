@@ -29,6 +29,8 @@
 #include <QLibrary>
 #include "HardwareInterface.h"
 #include "settings.h"
+#include <QDir>
+
 int main(int argc, char *argv[])
 {
 
@@ -122,21 +124,37 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
-#if defined(_WIN32) || defined(_WIN64) || defined(WIN32) || defined(WIN64)
+
+#if defined(Q_OS_WIN)
+    QString driverFilepath = "USBDMXDriver";
     typedef HardwareInterface * (*getDriverFunc)();
-    getDriverFunc getDriver =  static_cast<getDriverFunc>(QLibrary::resolve("testFile","getDriver"));
-    HardwareInterface * inter = getDriver();
-    if(inter != nullptr){
-        inter->setErrorCallback([](QString s){qDebug()<<s;ErrorNotifier.newError(s);});
-        inter->setSetValuesCallback([](unsigned char* values, int length, double time){
-            DMXChannelFilter::initValues(values,size);
-            Programm::fill(values,size,time);
-            DMXChannelFilter::filterValues(values,size);
-        });
+    getDriverFunc getDriver =  reinterpret_cast<getDriverFunc>(QLibrary::resolve(driverFilepath,"getDriver"));
+    if(getDriver!=nullptr){
+        HardwareInterface * inter = getDriver();
+        if(inter != nullptr){
+            inter->setErrorCallback([](QString s){
+                qDebug()<<s;
+                ErrorNotifier::get()->newError(s);
+            });
+            inter->setSetValuesCallback([](unsigned char* values, int size, double time){
+                DMXChannelFilter::initValues(values,size);
+                Programm::fill(values,size,time);
+                DMXChannelFilter::filterValues(values,size);
+                qDebug()<<"Hi";
+            });
+        }
+        inter->init();
+        inter->start();
+    }else{
+        if(!QFile::exists(driverFilepath)){
+            ErrorNotifier::get()->newError("Driver File not existing : " + driverFilepath + '\n' + "Home dir is : " + QDir::currentPath());
+        }else{
+            ErrorNotifier::get()->newError("Can not resolve Function getDriver in Library at Location "+driverFilepath);
+        }
     }
-    inter->init();
-    inter->start();
+
 #endif
+
 
 
 
