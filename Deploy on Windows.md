@@ -1,0 +1,10 @@
+Deploy on Windows
+=================
+
+1. Build for release
+2. Goto the release Folder
+3. Delete everything except the Lichtsteuerung.exe file
+4. Open the command line and run 'C:\Qt\<your qt version>\mingw53_32\bin\windeployqt.exe --qmldir C:\Qt\<your qt version>\mingw53_32\qml' <path to the Lichtsteuerung file>
+5. Copy the Driver and the the Properties json file to the release folder
+6. Copy 'libgcc_s_dw2-1.dll', 'libstdc++-6.dll' and 'libwinpthread-1.dll' from C:\Qt\<your qt version>\mingw53_32\bin\ to the release folder
+7. Finished, you can now distribute the application
