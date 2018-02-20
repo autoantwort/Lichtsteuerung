@@ -40,6 +40,7 @@ ControlItem{
                 anchors.horizontalCenter: parent.horizontalCenter
 
             }
+            onValueChanged: controlData.value = value
         }
     }
 

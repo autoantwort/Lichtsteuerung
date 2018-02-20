@@ -52,20 +52,23 @@ private:
                 time += sleepTime.count()/1000.;
             }
             time = 0;
-            wait.wait(lock);
+            if(stopThread.load()==false){
+                wait.wait(lock);
+            }
         }
     }
 protected:
     virtual void setValuesDeviceDriver() = 0;    
     double time = 0;
 public:
-    AbstractHardwareInterface():thread([this]{loop();}){}
+    AbstractHardwareInterface():thread([this]{loop();}),run(false),stopThread(false),sleepTime(33){}
     virtual ~AbstractHardwareInterface(){
+        run = false;
+        stopThread = true;
         wait.notify_all();
-        stopThread = false;
         thread.join();
     }
-    virtual void start()final override{wait.notify_all();}
+    virtual void start()final override{run=true;wait.notify_all();}
     virtual void stop()final override{run = false;}
     virtual void setWaitTime(std::chrono::milliseconds m) override{sleepTime = m;}
     virtual std::chrono::milliseconds getWaitTime()const override{return sleepTime;}

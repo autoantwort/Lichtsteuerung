@@ -129,9 +129,24 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
+#define USE_DUMMY_DRIVER
+#ifndef USE_DUMMY_DRIVER
     if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
     }
+#else
+#include "test/DriverDummy.h"
+
+    DriverDummy driver;
+    driver.setSetValuesCallback([](unsigned char* values, int size, double time){
+        DMXChannelFilter::initValues(values,size);
+        Programm::fill(values,size,time);
+        DMXChannelFilter::filterValues(values,size);
+    });
+    driver.setWaitTime(std::chrono::seconds(5));
+    driver.init();
+    driver.start();
+#endif
 
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
