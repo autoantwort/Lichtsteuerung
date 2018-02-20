@@ -44,6 +44,10 @@ ApplicationWindow {
             text: qsTr("Login")
             Component.onCompleted: tabBar.currentIndex = 6
         }
+        TabButton {
+            text: qsTr("Settings")
+            enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
+        }
     }
 
     SwipeView {
@@ -69,6 +73,8 @@ ApplicationWindow {
             height: 400
         }
         LoginView{}
+
+        SettingsView{}
     }
 
     MessageDialog{

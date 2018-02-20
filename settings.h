@@ -10,12 +10,16 @@ class Settings : public QObject
     Q_OBJECT
     QSettings settings;
     Q_PROPERTY(QString jsonSettingsFilePath READ getJsonSettingsFilePath WRITE setJsonSettingsFilePath NOTIFY jsonSettingsFilePathChanged)
+    Q_PROPERTY(QString driverFilePath READ getDriverFilePath WRITE setDriverFilePath NOTIFY driverFilePathChanged)
 public:
-    explicit Settings(QObject *parent = nullptr);    
+    explicit Settings(QObject *parent = nullptr);
     void setJsonSettingsFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("jsonSettingsFilePath",file);emit jsonSettingsFilePathChanged();}
     QString getJsonSettingsFilePath()const{return settings.value("jsonSettingsFilePath").toString();}
+    void setDriverFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("driverFilePath",file);emit driverFilePathChanged();}
+    QString getDriverFilePath()const{return settings.value("driverFilePath").toString();}
 signals:
     void jsonSettingsFilePathChanged();
+    void driverFilePathChanged();
 public slots:
 };
 

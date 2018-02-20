@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     // Treiber laden
 
 #if defined(Q_OS_WIN)
-    QString driverFilepath = "USBDMXDriver";
+    QString driverFilepath = settings.getDriverFilePath();
     typedef HardwareInterface * (*getDriverFunc)();
     getDriverFunc getDriver =  reinterpret_cast<getDriverFunc>(QLibrary::resolve(driverFilepath,"getDriver"));
     if(getDriver!=nullptr){
