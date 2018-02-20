@@ -30,6 +30,7 @@
 #include "HardwareInterface.h"
 #include "settings.h"
 #include <QDir>
+#include "driver.h"
 
 int main(int argc, char *argv[])
 {
@@ -102,6 +103,10 @@ int main(int argc, char *argv[])
     app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){
         QFile savePath(settings.getJsonSettingsFilePath());
         ApplicationData::saveData(savePath);
+        Driver::stopAndUnloadDriver();
+    });
+    settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
+        Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
 
 
@@ -124,38 +129,9 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
-
-#if defined(Q_OS_WIN)
-    QString driverFilepath = settings.getDriverFilePath();
-    typedef HardwareInterface * (*getDriverFunc)();
-    getDriverFunc getDriver =  reinterpret_cast<getDriverFunc>(QLibrary::resolve(driverFilepath,"getDriver"));
-    if(getDriver!=nullptr){
-        HardwareInterface * inter = getDriver();
-        if(inter != nullptr){
-            inter->setErrorCallback([](QString s){
-                qDebug()<<s;
-                ErrorNotifier::get()->newError(s);
-            });
-            inter->setSetValuesCallback([](unsigned char* values, int size, double time){
-                DMXChannelFilter::initValues(values,size);
-                Programm::fill(values,size,time);
-                DMXChannelFilter::filterValues(values,size);
-                qDebug()<<"Hi";
-            });
-        }
-        inter->init();
-        inter->start();
-    }else{
-        if(!QFile::exists(driverFilepath)){
-            ErrorNotifier::get()->newError("Driver File not existing : " + driverFilepath + '\n' + "Home dir is : " + QDir::currentPath());
-        }else{
-            ErrorNotifier::get()->newError("Can not resolve Function getDriver in Library at Location "+driverFilepath);
-        }
+    if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
+        ErrorNotifier::showError("Cant start driver.");
     }
-
-#endif
-
-
 
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();

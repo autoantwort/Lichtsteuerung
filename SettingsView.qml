@@ -1,6 +1,6 @@
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 
 Pane{
@@ -18,9 +18,12 @@ Pane{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    fileDialog.folder = Settings.jsonSettingsFilePath;
+                    //fileDialog.folder = Settings.jsonSettingsFilePath;
                     fileDialog.open();
-                    fileDialog.addSelection(Settings.jsonSettingsFilePath);
+                    /*fileDialog.addSelection(Settings.jsonSettingsFilePath);
+                    fileDialog.callback = function(file){
+                        Settings.jsonSettingsFilePath = file;
+                    };*/
                 }
             }
         }
@@ -38,15 +41,25 @@ Pane{
                     fileDialog.folder = Settings.driverFilePath;
                     fileDialog.open();
                     fileDialog.addSelection(Settings.driverFilePath);
+                    fileDialog.callback = function(file){
+                        console.log(file);
+                        Settings.driverFilePath = file;
+                    };
                 }
             }
         }
     }
     FileDialog{
+        property var callback;
         id: fileDialog
-              title: "Please choose a file"
-              onAccepted: {
-
+        title: "Please choose a file"
+        onAccepted: {
+                  console.log("fftey:"+callback);
+                  if(callback)callback(fileDialog.fileUrl.toString().substring(8));
               }
+        onSelectionAccepted: console.log("3")
+        onVisibleChanged: console.info("this")
+        onRejected: console.log("rej")
+        Component.onCompleted: console.log("comp")
     }
 }

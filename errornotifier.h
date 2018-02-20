@@ -26,8 +26,12 @@ public:
      * @param errorMessage The Message to show
      */
     void newError(QString errorMessage){
-        this->errorMessage = errorMessage;
+        this->errorMessage += errorMessage;
+        this->errorMessage += ". \n";
         emit errorMessageChanged();
+    }
+    static void showError(QString errorMessage){
+        get()->newError(errorMessage);
     }
 signals:
     void errorMessageChanged();
