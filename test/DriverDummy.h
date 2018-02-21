@@ -12,7 +12,7 @@ class DriverDummy : public AbstractHardwareInterface
 public:
     DriverDummy () {}
 
-    virtual bool init(){qDebug()<<"initDriver";}
+    virtual bool init(){qDebug()<<"initDriver";return true;}
     virtual bool isFunctioning(){return true;}
 
 protected:

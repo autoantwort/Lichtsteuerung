@@ -78,10 +78,11 @@ int main(int argc, char *argv[])
     qmlRegisterType<ControlPanel>("custom.licht",1,0,"ControlPanel");
     //qmlRegisterType<ErrorNotifier>("custom.licht",1,0,"ErrorNotifier");
     qmlRegisterType<ControlItem>("custom.licht.template",1,0,"ControlItemTemplate");
+    qmlRegisterType<ControlItemData>("custom.licht.template",1,0,"ControlItemData");
     qmlRegisterType<DimmerGroupControlItemData>("custom.licht",1,0,"DimmerGroupControlItemData");
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
-    qmlRegisterType<UserManagment>("custom.licht",1,0,"Permission");
+    qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");
@@ -139,6 +140,7 @@ int main(int argc, char *argv[])
     if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
     }
+    Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(15));
 #else
 #include "test/DriverDummy.h"
 

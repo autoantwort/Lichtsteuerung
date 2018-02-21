@@ -18,6 +18,7 @@ public:
 private:
     Type type;
 public:
+    ControlItemData(){}
     explicit ControlItemData(Type t, QObject *parent = nullptr);
     ControlItemData(const QJsonObject &o);
     virtual void writeJsonObject(QJsonObject &o);

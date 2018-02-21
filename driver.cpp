@@ -40,7 +40,6 @@ namespace Driver {
                 DMXChannelFilter::initValues(values,size);
                 Programm::fill(values,size,time);
                 DMXChannelFilter::filterValues(values,size);
-                qDebug()<<"Hi";
             });
 
             if(driver){
