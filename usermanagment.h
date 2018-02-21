@@ -19,8 +19,9 @@ class UserManagment : public QObject
 private:
     User * readUser;
     User * currentUser;
-public:
     UserManagment();
+public:
+    ~UserManagment();
 
     Q_INVOKABLE User * getDefaultUser()const{return readUser;}
     /**

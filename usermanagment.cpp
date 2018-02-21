@@ -11,6 +11,12 @@ UserManagment::UserManagment():readUser(new User("Default","")),currentUser(read
     }*/
 }
 
+UserManagment::~UserManagment(){
+    while (!IDBase<User>::getAllIDBases().empty()) {
+        delete *IDBase<User>::getAllIDBases().cbegin();
+    }
+}
+
 
 
 void UserManagment::addUser(const QString &name, const QString &password){
