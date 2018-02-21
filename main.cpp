@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");
     QFile file(settings.getJsonSettingsFilePath());
-
+    file.copy(settings.getJsonSettingsFilePath()+"_"+QDateTime::currentDateTime().toString("dd.MM.YYYY HH:mm:ss"));
 
 #warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
@@ -107,6 +107,11 @@ int main(int argc, char *argv[])
     });
     settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
+    });
+    settings.connect(&settings,&Settings::updatePauseInMsChanged,[&](){
+        if(Driver::getCurrentDriver()){
+            Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
+        }
     });
 
 
@@ -129,7 +134,7 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
-#define USE_DUMMY_DRIVER
+//#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
     if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");

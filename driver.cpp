@@ -5,6 +5,7 @@
 #include "programm.h"
 #include "dmxchannelfilter.h"
 #include <QDir>
+#include <cstring>
 
 HardwareInterface * driver = nullptr;
 
@@ -35,6 +36,7 @@ namespace Driver {
                 ErrorNotifier::get()->newError(s);
             });
             inter->setSetValuesCallback([](unsigned char* values, int size, double time){
+                std::memset(values,0,size);
                 DMXChannelFilter::initValues(values,size);
                 Programm::fill(values,size,time);
                 DMXChannelFilter::filterValues(values,size);

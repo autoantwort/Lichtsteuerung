@@ -48,6 +48,17 @@ Pane{
                 }
             }
         }
+        Label{
+            text: "Update pause for dmx in ms:"
+        }
+        TextInputField{
+            validator: IntValidator{
+                bottom: 10
+                top: 10000
+            }
+            text: Settings.updatePauseInMs;
+            onAccepted: Settings.updatePauseInMs = text;
+        }
     }
     FileDialog{
         property var callback;
