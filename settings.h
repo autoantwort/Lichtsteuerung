@@ -18,8 +18,8 @@ public:
     QString getJsonSettingsFilePath()const{return settings.value("jsonSettingsFilePath").toString();}
     void setDriverFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("driverFilePath",file);emit driverFilePathChanged();}
     QString getDriverFilePath()const{return settings.value("driverFilePath").toString();}
-    void setUpdatePauseInMs(unsigned int pause){settings.setValue("driverFilePath",pause);emit updatePauseInMsChanged();}
-    unsigned int getUpdatePauseInMs()const{return settings.value("driverFilePath").toUInt();}
+    void setUpdatePauseInMs(unsigned int pause){settings.setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}
+    unsigned int getUpdatePauseInMs()const{return settings.value("updatePauseInMs").toUInt();}
 signals:
     void jsonSettingsFilePathChanged();
     void driverFilePathChanged();
