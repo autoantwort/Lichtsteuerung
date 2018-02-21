@@ -36,7 +36,13 @@ public:
       */
     Q_SLOT void setSpeed(double s){if(s==speed)return;speed=s;emit speedChanged(speed);}
     double getSpeed()const{return speed;}
-    DeviceProgramm(Device * device,ProgrammPrototype * programmPrototype,double offset):QObject(device),programmPrototype(programmPrototype),offset(offset),device(device){connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);}
+    DeviceProgramm(Device * device,ProgrammPrototype * programmPrototype,double offset):QObject(device),programmPrototype(programmPrototype),offset(offset),device(device){
+        if(!device)
+            throw new std::runtime_error("Nullpointer Exception: device is nullptr");
+        if(!programmPrototype)
+            throw new std::runtime_error("Nullpointer Exception: programmPrototype is nullptr");
+        connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);
+    }
     bool setProgrammPrototype(ProgrammPrototype * p){
         if(p->devicePrototype!=device->prototype){
             return false;

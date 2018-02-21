@@ -41,8 +41,8 @@ Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),ID
 }
 
 void Programm::addDeviceProgramm(const QJsonObject &o){
-    programms.push_back(new DeviceProgramm(IDBase<Device>::getIDBaseObjectByID(o["device"].toString().toLong()),
-                        IDBase<ProgrammPrototype>::getIDBaseObjectByID(o["programmPrototype"].toString().toLong()),
+    programms.push_back(new DeviceProgramm(IDBase<Device>::getIDBaseObjectByID(o["device"]),
+                        IDBase<ProgrammPrototype>::getIDBaseObjectByID(o["programmPrototype"]),
             o["offset"].toDouble()));
     emit deviceProgrammAdded(programms.back());
     connect(programms.back(),&DeviceProgramm::destroyed,this,&Programm::deviceProgrammDeleted);
