@@ -8,12 +8,12 @@ ControlItem{
     id:item
     blockWidth: 3
     blockHeight: 1
-    pressed: controlData.programm.running
+    pressed: controlData?!controlData.programm.running:false
     onPressedChanged: {
         if(controlData.programm.running){
-            play.opacity = 0;
-        }else{
             play.opacity = 1;
+        }else{
+            play.opacity = 0;
         }
     }
     ControlItemBlock{
@@ -49,7 +49,7 @@ ControlItem{
             anchors.fill: parent
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            text: controlData.programm.name
+            text: controlData?controlData.programm.name:"null"
         }
     }
 
@@ -63,7 +63,7 @@ ControlItem{
                     id:speedSlider
                     from: 0.1
                     to:10
-                    value: controlData.programm.speed
+                    value: controlData?controlData.programm.speed:1
                     onValueChanged: if(controlData)controlData.programm.speed = value;
                     Text {
                         id: sliderSpeed

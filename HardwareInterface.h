@@ -44,6 +44,7 @@ class AbstractHardwareInterface : public HardwareInterface{
     std::chrono::milliseconds sleepTime;    
 private:
     void loop(){
+        std::this_thread::yield();
         while (!stopThread.load()&&isFunctioning()) {
             auto lock = std::unique_lock<std::mutex>(mutex);
             while (run.load()&&isFunctioning()) {

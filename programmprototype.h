@@ -33,7 +33,7 @@ class ChannelProgramm : public QObject{
     Q_PROPERTY(RepeatPolicy repeatPolicy MEMBER repeatPolicy NOTIFY repeatPolicyChanged)
     Q_PROPERTY(Channel* channel READ getChannel CONSTANT)
 private:
-    RepeatPolicy repeatPolicy;
+    RepeatPolicy repeatPolicy=Continue;
 public:
     ChannelProgramm(const QJsonObject &o);
     ChannelProgramm(const Channel * channel):channel(channel){setParent(getChannel());}

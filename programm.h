@@ -86,7 +86,7 @@ class TimeDistortion : public QObject{
 private:
     bool enabled=false;
     QEasingCurve distortionCurve;
-    double intervall=0;
+    double intervall=10;
 public:
     TimeDistortion()=default;
     TimeDistortion(const QJsonObject &o);
@@ -103,10 +103,14 @@ public:
     double getIntervall()const{return intervall;}
 public:
     double distort(double time){
+        if (intervall>0,05) { // sonst division durch 0
         double diff = std::fmod(time,intervall); // wie weit sind wir in aktuellen intervall
         double offset = time-diff; // offset zum intervall start
         diff = distortionCurve.valueForProgress(diff/intervall)*intervall;// die verzerrung für den Aktuellen fortchritt im intervall mal die intervall größe
         return offset+diff; // den offset plus der verzerrte Fortschritt im intervall
+        }else{
+            return time;
+        }
     }
 signals:
     void enabledChanged(bool);
