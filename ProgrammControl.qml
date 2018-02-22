@@ -8,14 +8,6 @@ ControlItem{
     id:item
     blockWidth: 3
     blockHeight: 1
-    pressed: controlData?!controlData.programm.running:false
-    onPressedChanged: {
-        if(controlData.programm.running){
-            play.opacity = 1;
-        }else{
-            play.opacity = 0;
-        }
-    }
     ControlItemBlock{
         Image {
             anchors.margins: 1
@@ -38,7 +30,11 @@ ControlItem{
         MouseArea{
             anchors.fill:parent
 
-            onClicked: {controlData.programm.running=!controlData.programm.running;}
+            onClicked: {
+                controlData.programm.running = !controlData.programm.running;
+                item.pressed = controlData.programm.running;
+                play.opacity = !controlData.programm.running;
+            }
 
         }
     }
