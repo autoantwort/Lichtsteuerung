@@ -58,7 +58,7 @@ protected:
 public:
     GroupModel(DataModel * deviceModel = DataModel::singletone());
     enum GroupModelRoles{
-        EnableDataRole = IDBaseDataModel<Programm*>::ItemDataRole + 1
+        EnableDataRole = IDBaseDataModel<Programm>::ItemDataRole + 1
     };
     const std::vector<bool>& getEnabledVector()const{return enabled;}
     void setEnabled(int index, bool enabled = true){

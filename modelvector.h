@@ -21,7 +21,7 @@ public:
     const std::vector<Type*>& getVector()const{return model;}
     std::vector<Type*>& getVector(){return model;}
     typename std::vector<Type*>::size_type size()const{return model.size();}
-    virtual int rowCount(const QModelIndex &) const override{return model.size();}
+    virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(model.size());}
     /**
      * @brief data Return always, if the index is valid, a QVarient that contains the data at the vector
      * @param index the Index in the vector

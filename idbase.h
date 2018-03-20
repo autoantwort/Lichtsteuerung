@@ -17,9 +17,9 @@ namespace detail{
 template<typename Subclass>
 struct IDBaseComperator{
     typedef std::true_type is_transparent;
-    bool operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r);
-    bool operator()(const ID::value_type l,const IDBase<Subclass> *r);
-    bool operator()(const IDBase<Subclass> *l,const ID::value_type r);
+    inline bool operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r)const;
+    inline bool operator()(const ID::value_type l,const IDBase<Subclass> *r)const;
+    inline bool operator()(const IDBase<Subclass> *l,const ID::value_type r)const;
 };
 
 template<typename Subclass>
@@ -139,17 +139,17 @@ public:
 };
 namespace detail{
 template<typename Subclass>
-bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r){
+bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const IDBase<Subclass> *r)const{
     return l->getID().value()<r->getID().value();
 }
 
 template<typename Subclass>
-bool IDBaseComperator<Subclass>::operator()(const ID::value_type l,const IDBase<Subclass> *r){
+bool IDBaseComperator<Subclass>::operator()(const ID::value_type l,const IDBase<Subclass> *r)const{
     return l<r->getID().value();
 }
 
 template<typename Subclass>
-bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const ID::value_type r){
+bool IDBaseComperator<Subclass>::operator()(const IDBase<Subclass> *l,const ID::value_type r)const{
     return l->getID().value()<r;
 }
 

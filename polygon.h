@@ -5,6 +5,9 @@
 #include <QQuickItem>
 #include <cmath>
 #include <QJsonObject>
+#ifdef _MSC_VER
+#include <corecrt_math_defines.h>
+#endif
 
 namespace Primitives {
 

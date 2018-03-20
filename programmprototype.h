@@ -55,7 +55,7 @@ public:
     };
     const std::vector<ChannelProgramm*>& getChannelProgramms()const{return channels;}
     std::vector<ChannelProgramm*>& getChannelProgramms(){return channels;}
-    virtual int rowCount(const QModelIndex &) const override{return channels.size();}
+    virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(channels.size());}
     virtual QVariant data(const QModelIndex &index, int role) const override{
         if(index.row()>=0&&index.row()<int(channels.size())){
             switch(role){

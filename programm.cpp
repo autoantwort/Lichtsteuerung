@@ -109,7 +109,7 @@ void Programm::fill(unsigned char *data, size_t length, double time){
                 for(const auto cp : dp->getProgrammPrototyp()->getChannelProgramms()){
                     const auto channelNummer = dp->device->getStartDMXChannel() + cp->channel->getIndex();
                     if(channelNummer<length){
-#warning Fix distorstion:
+//#warning Fix distorstion:
                         // original : cause NAN : cp->getValueForTime(p->getTimeDistortion()->distort(time * p->getSpeed()) * dp->getSpeed()+ dp->getOffset())
                         data[channelNummer] = cp->getValueForTime((time * p->getSpeed()) * dp->getSpeed()+ dp->getOffset());
                     }

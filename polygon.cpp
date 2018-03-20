@@ -5,7 +5,9 @@
 #include <algorithm>
 #include <QJsonArray>
 #include <cstring>
-
+#ifdef _MSC_VER
+#include <corecrt_math_defines.h>
+#endif
 
 Polygon::Polygon(QString name):name(name)
 {
@@ -129,7 +131,7 @@ QSGNode* Polygon::updatePaintNode(QSGNode *oldNode , UpdatePaintNodeData *){
     QSGGeometry *geometry = nullptr;
 
 
-    constexpr auto fiveDegrees = 10/180.*M_PI;
+    const auto fiveDegrees = 10/180.*M_PI;
 
     int extraVertexCountForArcs = 0;
     for(const auto a : arcs){
@@ -187,7 +189,7 @@ QSGNode* Polygon::updatePaintNode(QSGNode *oldNode , UpdatePaintNodeData *){
             const auto startLength = std::sqrt(startVector.x*startVector.x+startVector.y*startVector.y);
             const auto endLength = std::sqrt(endVector.x*endVector.x+endVector.y*endVector.y);
             const auto lengthDiff = (endLength-startLength)/startLength;
-#warning Mögliche Division durch null
+//#warning Mögliche Division durch null
             const auto lengthXDiff = lengthDiff ;
             const auto lengthYDiff = lengthDiff ;
             const int needExtraVertices = angle / fiveDegrees;

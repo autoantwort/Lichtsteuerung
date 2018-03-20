@@ -15,7 +15,7 @@ public:
     };
     const std::vector<Channel*>& getChannel()const{return channels;}
     std::vector<Channel*>& getChannel(){return channels;}
-    virtual int rowCount(const QModelIndex &) const override{return channels.size();}
+    virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(channels.size());}
     virtual QVariant data(const QModelIndex &index, int role) const override{
         if(index.row()>=0&&index.row()<int(channels.size())){
             switch(role){
@@ -80,7 +80,7 @@ public:
     static QString syncServiceClassName;
     DevicePrototype(const QJsonObject &o);
     DevicePrototype(QString name, QString description=""):NamedObject(name,description,&syncServiceClassName){}
-    int getNumberOfChannels()const{return channels.getChannel().size();}
+    int getNumberOfChannels()const{return static_cast<int>(channels.getChannel().size());}
     /**
      * @brief removeChannels Entfernt Channel bis zu einem bestimmten Index
      * @param newMaxIndex Der neue Maximale Index (Inclusiv)

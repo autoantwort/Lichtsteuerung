@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     QFile file(settings.getJsonSettingsFilePath());
     file.copy(settings.getJsonSettingsFilePath()+"_"+QDateTime::currentDateTime().toString("dd.MM.YYYY HH:mm:ss"));
 
-#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
+//#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
     auto after = ApplicationData::loadData(file);
 
