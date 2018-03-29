@@ -57,6 +57,7 @@ private:
     QFlags<Modifier> modifier;
 #define INVALID_POS QPoint(std::numeric_limits<int>::max(),std::numeric_limits<int>::max())
     QPoint lastMousePosition = INVALID_POS;
+    ulong mousePressTimestamp;
     decltype(ChannelProgramm::timeline)::iterator getTimePointForPosition(int x, int y);
     /**
      * @brief mapToVisualX maps from values/mouse Position to the visual Position of the graph
@@ -113,6 +114,8 @@ signals:
     void clickRadiusChanged();
     void graphColorChanged();
     void channelProgrammChanged();
+    void click(int x, int y);
+    void rightClick(int x, int y);
 };
 
 #endif // CHANNELPROGRAMMEDITOR_H

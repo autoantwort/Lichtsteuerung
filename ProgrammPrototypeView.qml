@@ -87,6 +87,9 @@ ModelView{
                     }
                 }
             }
+            onRightClick:{
+                console.log(x + " "+y)
+            }
 
         }
 

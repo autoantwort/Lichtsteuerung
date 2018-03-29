@@ -385,6 +385,7 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event){
     lastMousePosition = event->pos();
     forceActiveFocus(Qt::MouseFocusReason);
     event->accept();
+    mousePressTimestamp = event->timestamp();
 
     if(!channelProgramm)
         return;
@@ -638,7 +639,13 @@ void ChannelProgrammEditor::mouseReleaseEvent(QMouseEvent *event){
     event->accept();
     lastMousePosition = INVALID_POS;
     qDebug()<<event->globalPos()<<'\n';
-
+    if(event->timestamp()-mousePressTimestamp < 300){
+        if(event->button()==Qt::LeftButton){
+            emit click(event->x(),event->y());
+        }else if(event->button()==Qt::RightButton){
+            emit rightClick(event->x(),event->y());
+        }
+    }
 }
 
 TimePoint * ChannelProgrammEditor::getCurrentTimePoint(){
