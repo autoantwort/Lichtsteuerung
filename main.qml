@@ -4,6 +4,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
+import Qt.labs.handlers 1.0
 ApplicationWindow {
     visible: true
     width: 900
@@ -68,9 +69,14 @@ ApplicationWindow {
             id:controlPane
         }
 
-        MapView{
-            width:400
-            height: 400
+        Item{
+            clip: true
+            MapView{
+                width:400
+                height: 400
+                DragHandler{}
+                PinchHandler{}
+            }
         }
         LoginView{}
 
