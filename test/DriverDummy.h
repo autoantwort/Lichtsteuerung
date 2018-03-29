@@ -11,19 +11,14 @@ class DriverDummy : public AbstractHardwareInterface
     unsigned char data[512];
 public:
     DriverDummy () {}
-
-    virtual bool init(){qDebug()<<"initDriver";return true;}
-    virtual bool isFunctioning(){return true;}
+virtual ~DriverDummy(){}
+    virtual bool init()override final {qDebug()<<"initDriver";return true;}
+    virtual bool isFunctioning()override final {return true;}
 
 protected:
 
-    virtual void setValuesDeviceDriver() {
-        qDebug()<<"set values";
+    virtual void setValuesDeviceDriver() override final{
         setValues(data,512,time);
-        auto out = qDebug();
-        for (int var = 0; var < 20; ++var) {
-            out << (int)*(data+var);
-        }
     }
 };
 
