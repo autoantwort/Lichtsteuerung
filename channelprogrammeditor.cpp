@@ -364,6 +364,21 @@ decltype(ChannelProgramm::timeline)::iterator ChannelProgrammEditor::getTimePoin
     return best;
 }
 
+QEasingCurve * ChannelProgrammEditor::getCurveForPoint(int x){
+    auto time = mapFromVisualX(x);
+    if(!channelProgramm)
+        return nullptr;
+    if(channelProgramm->timeline.empty())
+        return nullptr;
+    auto lowerBound = channelProgramm->timeline.lower_bound(x);
+    if(lowerBound==channelProgramm->timeline.cend()){
+        return &channelProgramm->timeline.crbegin()->easingCurveToNextPoint;
+    }else{
+        return &lowerBound->easingCurveToNextPoint;
+    }
+
+}
+
 
 void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event){
     update();

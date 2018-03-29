@@ -72,10 +72,18 @@ ModelView{
                 }
                 ComboBox{
                     model: easingModel
+                    property bool open: false
                     currentIndex: editor.currentTimePoint.curveToNext
                     visible: editor.currentTimePoint.hasCurrent
-                    onHighlightedIndexChanged: {editor.currentTimePoint.curveToNext = highlightedIndex
-                        console.log("selected")
+                    onDownChanged: {
+                        open|=down;
+                    }
+                    onHighlighted: {
+                        if(open)editor.currentTimePoint.curveToNext = index
+                    }
+                    onActivated: {
+                        editor.currentTimePoint.curveToNext = index
+                        open=false;
                     }
                 }
             }

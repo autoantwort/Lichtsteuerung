@@ -92,6 +92,7 @@ public:
     bool haveCurrentTimePoint()const{return channelProgramm?(currentTimePoint!=channelProgramm->timeline.cend()):false;}
     TimePoint * getCurrentTimePoint();
     CurrentTimePointWrapper * getCurrentTimePointWrapper(){return &currentTimePointWrapper;}
+    Q_INVOKABLE QEasingCurve * getCurveForPoint(int x);
 protected:
     virtual void updatePolish()override;
     virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)override;
