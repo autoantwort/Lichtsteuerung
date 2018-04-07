@@ -31,6 +31,7 @@
 #include "settings.h"
 #include <QDir>
 #include "driver.h"
+#include "test/testloopprogramm.h"
 
 int main(int argc, char *argv[])
 {
@@ -91,6 +92,8 @@ int main(int argc, char *argv[])
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
+    test();
+
     auto after = ApplicationData::loadData(file);
 
 
@@ -135,7 +138,7 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
-//#define USE_DUMMY_DRIVER
+#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
     if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
@@ -144,7 +147,7 @@ int main(int argc, char *argv[])
 #else
 #include "test/DriverDummy.h"
 
-    DriverDummy driver;
+    /*DriverDummy driver;
     driver.setSetValuesCallback([](unsigned char* values, int size, double time){
         DMXChannelFilter::initValues(values,size);
         Programm::fill(values,size,time);
@@ -152,7 +155,7 @@ int main(int argc, char *argv[])
     });
     driver.setWaitTime(std::chrono::seconds(5));
     driver.init();
-    driver.start();
+    driver.start();*/
 #endif
 
 

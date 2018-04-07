@@ -14,33 +14,41 @@ QML_IMPORT_PATH =
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-SOURCES += main.cpp \
-    deviceprototype.cpp \
-    channel.cpp \
-    id.cpp \
-    device.cpp \
-    programmprototype.cpp \
-    programm.cpp \
+SOURCES += \
     applicationdata.cpp \
-    namedobject.cpp \
-    dmxchannelfilter.cpp \
-    syncservice.cpp \
-    usermanagment.cpp \
+    channel.cpp \
     channelprogrammeditor.cpp \
-    modelmanager.cpp \
-    mapview.cpp \
-    polygon.cpp \
-    mapeditor.cpp \
-    gridbackground.cpp \
-    modelvector.cpp \
-    controlpanel.cpp \
+    colorplot.cpp \
     controlitem.cpp \
     controlitemdata.cpp \
+    controlpanel.cpp \
+    device.cpp \
+    deviceprototype.cpp \
+    dmxchannelfilter.cpp \
     dmxinterface.cpp \
-    errornotifier.cpp \
-    settings.cpp \
     driver.cpp \
-    test/DriverDummy.cpp
+    errornotifier.cpp \
+    graph.cpp \
+    gridbackground.cpp \
+    id.cpp \
+    main.cpp \
+    mapeditor.cpp \
+    mapview.cpp \
+    modelmanager.cpp \
+    modelvector.cpp \
+    namedobject.cpp \
+    oscillogram.cpp \
+    polygon.cpp \
+    programm.cpp \
+    programmprototype.cpp \
+    programms/dmxconsumer.cpp \
+    programms/loopprogramm.cpp \
+    programms/property.cpp \
+    test/testloopprogramm.cpp \
+    settings.cpp \
+    syncservice.cpp \
+    test/DriverDummy.cpp \
+    usermanagment.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -81,7 +89,18 @@ HEADERS += \
     errornotifier.h \
     settings.h \
     driver.h \
-    test/DriverDummy.h
+    test/DriverDummy.h \
+    colorplot.h \
+    graph.h \
+    oscillogram.h \
+    programms/programm.h \
+    programms/filter.h \
+    programms/types.h \
+    programms/property.h \
+    programms/loopprogramm.h \
+    programms/dmxconsumer.h \
+    programms/consumer.h \
+    test/testloopprogramm.h
 
 
 # Default rules for deployment.
