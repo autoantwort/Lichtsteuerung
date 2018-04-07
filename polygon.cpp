@@ -131,7 +131,7 @@ QSGNode* Polygon::updatePaintNode(QSGNode *oldNode , UpdatePaintNodeData *){
     QSGGeometry *geometry = nullptr;
 
 
-    const auto fiveDegrees = 10/180.*M_PI;
+    constexpr auto fiveDegrees = 10/180.*M_PI;
 
     int extraVertexCountForArcs = 0;
     for(const auto a : arcs){

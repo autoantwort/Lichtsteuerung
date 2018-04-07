@@ -49,6 +49,15 @@ ApplicationWindow {
             text: qsTr("Settings")
             enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
         }
+        TabButton {
+            text: qsTr("Graph")
+        }
+        TabButton {
+            text: qsTr("Oscillogram")
+        }
+        TabButton {
+            text: qsTr("Colorplot")
+        }
     }
 
     SwipeView {
@@ -81,6 +90,14 @@ ApplicationWindow {
         LoginView{}
 
         SettingsView{}
+
+        Graph{
+        }
+
+        Oscillogram{
+        }
+
+        Colorplot{}
     }
 
     MessageDialog{

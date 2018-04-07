@@ -40,7 +40,10 @@ SOURCES += main.cpp \
     errornotifier.cpp \
     settings.cpp \
     driver.cpp \
-    test/DriverDummy.cpp
+    test/DriverDummy.cpp \
+    graph.cpp \
+    oscillogram.cpp \
+    colorplot.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -81,7 +84,10 @@ HEADERS += \
     errornotifier.h \
     settings.h \
     driver.h \
-    test/DriverDummy.h
+    test/DriverDummy.h \
+    graph.h \
+    oscillogram.h \
+    colorplot.h
 
 
 # Default rules for deployment.
@@ -91,4 +97,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES +=
 
+win32-g++{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+}
 
+win32-msvc{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll/AudioFFT.dll'
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+}
