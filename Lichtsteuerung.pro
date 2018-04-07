@@ -100,7 +100,8 @@ HEADERS += \
     programms/loopprogramm.h \
     programms/dmxconsumer.h \
     programms/consumer.h \
-    test/testloopprogramm.h
+    test/testloopprogramm.h \
+    programms/coroutine.h
 
 
 # Default rules for deployment.
