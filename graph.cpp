@@ -1,6 +1,7 @@
 #include "graph.h"
 #include "QSGFlatColorMaterial"
 #include <QSGGeometryNode>
+#include <cmath>
 
 Graph::Graph():haveNewData(false)
 {

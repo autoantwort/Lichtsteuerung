@@ -209,7 +209,7 @@ int main(int argc, char *argv[])
         Driver::stopAndUnloadDriver();
         qDebug()<<"is captureAudioThread jionable : "<<captureAudioThread.joinable();
         if(captureAudioThread.joinable()){
-            done.store(true);
+            WIN_ONLY(done.store(true);)
             captureAudioThread.join();
         }
     });
