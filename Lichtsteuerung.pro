@@ -115,3 +115,8 @@ win32-g++{
     LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
     INCLUDEPATH += $$PWD/'boost'
 }
+
+unix{
+    #installed with brew install boost
+    LIBS += -L/usr/local/Cellar/boost/1.66.0/lib -lboost_coroutine -lboost_context-mt
+}
