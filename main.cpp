@@ -92,7 +92,8 @@ int main(int argc, char *argv[])
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
-    test();
+    std::thread t(test);
+    t.join();
 
     auto after = ApplicationData::loadData(file);
 

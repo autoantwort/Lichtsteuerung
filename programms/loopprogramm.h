@@ -3,8 +3,26 @@
 
 #include "programm.h"
 #include "types.h"
-#include "coroutine.h"
+#include "boost/coroutine2/all.hpp"
+#include <qdebug.h>
 
+#include <boost/config.hpp>
+
+#if defined(BOOST_NO_CXX11_AUTO_DECLARATIONS) || \
+     defined(BOOST_NO_CXX11_CONSTEXPR) || \
+     defined(BOOST_NO_CXX11_DEFAULTED_FUNCTIONS) || \
+     defined(BOOST_NO_CXX11_FINAL) || \
+     defined(BOOST_NO_CXX11_HDR_TUPLE) || \
+     defined(BOOST_NO_CXX11_NOEXCEPT) || \
+     defined(BOOST_NO_CXX11_NULLPTR) || \
+     defined(BOOST_NO_CXX11_RVALUE_REFERENCES) || \
+     defined(BOOST_NO_CXX11_TEMPLATE_ALIASES) || \
+     defined(BOOST_NO_CXX11_UNIFIED_INITIALISATION_SYNTAX) || \
+     defined(BOOST_NO_CXX11_VARIADIC_TEMPLATES) || \
+     defined(BOOST_NO_HDR_ATOMIC) || \
+     defined(BOOST_NO_HDR_TUPLE)
+#error "execution_context is prevented to be included in this compiler";
+#endif
 namespace Modules {
 
 template<typename BaseClass>
@@ -17,10 +35,11 @@ class LoopProgramm : public BaseClass
      *                   + Stacktop
      * Stacktop have smaller address then stackbuttom.
      */
-    coroutine::routine_t coro = coroutine::create([this](){
-        loopProgramm();
-        finished = true;
-    });
+    using Coro = boost::coroutines2::coroutine<void>;
+    Coro::pull_type coro;
+    Coro::push_type *yield;
+
+    bool first=true;
     bool finished = false;
     time_diff_t currentWaitTime = 0;
     time_diff_t timeToWait = 0;
@@ -29,19 +48,26 @@ protected:
     void wait(time_diff_t time){
         currentWaitTime = 0;
         timeToWait = time;
-        coroutine::yield();
+        (*yield)();
     }
     virtual void loopProgramm() = 0;
 public:
-    LoopProgramm() = default;
-    virtual ~LoopProgramm(){coroutine::destroy(coro);}
+    LoopProgramm():coro([this](Coro::push_type &y){
+        yield = &y;
+        y();
+        loopProgramm();
+        finished = true;}){}
+    virtual ~LoopProgramm(){}
     virtual bool doStep(time_diff_t t)override{
+        if(first){
+            first = false;
+        }
         if(finished)
             return true;
         currentWaitTime+=t;
         if(currentWaitTime>=timeToWait){
             currentWaitTime = 0;
-            coroutine::resume(coro);
+            coro();
             return finished;
         }
         return false;

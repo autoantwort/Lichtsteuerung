@@ -5,6 +5,7 @@
 #include "programms/programm.h"
 
 #include <iostream>
+#include <qdebug.h>
 void test();
 
 class TestLoopProgramm : public Modules::LoopProgramm<Modules::BrightnessProgramm>
@@ -14,10 +15,8 @@ protected:
         for(int i = 0; i< size;++i){
             values[i] = 255;
             show();
-            std::cout << i<<std::endl;
             wait(50);
         }
-        std::cout<<"finished\n";
     }
 public:
     TestLoopProgramm() = default;

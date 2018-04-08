@@ -2,6 +2,7 @@
 #define VARIABLE_H
 
 #include <string>
+#include <stdexcept>
 
 union ValueUnion{
     float floatValue;
@@ -52,7 +53,7 @@ public:
                 return static_cast<TypedProperty<asType>*>(this);
             }
         }
-        throw std::runtime_error("Bad Type.");
+        throw std::runtime_error ("Bad Type.");
     }
 };
 

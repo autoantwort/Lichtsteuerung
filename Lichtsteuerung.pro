@@ -100,8 +100,7 @@ HEADERS += \
     programms/loopprogramm.h \
     programms/dmxconsumer.h \
     programms/consumer.h \
-    test/testloopprogramm.h \
-    programms/coroutine.h
+    test/testloopprogramm.h
 
 
 # Default rules for deployment.
@@ -112,3 +111,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 DISTFILES +=
 
 
+win32-g++{
+    LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
+    INCLUDEPATH += $$PWD/'boost'
+}
