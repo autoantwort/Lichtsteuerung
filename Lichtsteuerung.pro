@@ -100,6 +100,7 @@ HEADERS += \
     programms/loopprogramm.h \
     programms/dmxconsumer.h \
     programms/consumer.h \
+    programms/module.h \
     test/testloopprogramm.h
 
 

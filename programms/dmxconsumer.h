@@ -4,7 +4,7 @@
 #include "consumer.h"
 #include <vector>
 
-class DMXConsumer : public Consumer
+class DMXConsumer : public Modules::Consumer
 {
     std::vector<short> channel;
 public:

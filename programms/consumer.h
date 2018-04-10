@@ -3,14 +3,16 @@
 
 #include "types.h"
 
-class Consumer{
+namespace Modules{
 
-public:
-    virtual ValueType getInputValueType()=0;
-    virtual void setInputSize(unsigned int)=0;
-    virtual void start()=0;
-    virtual void show(void * data) = 0;
-    virtual ~Consumer() = default;
-};
+    class Consumer{
 
+    public:
+        virtual ValueType getInputValueType()=0;
+        virtual void setInputSize(unsigned int)=0;
+        virtual void start()=0;
+        virtual void show(void * data) = 0;
+        virtual ~Consumer() = default;
+    };
+}
 #endif // COMSUMER_H
