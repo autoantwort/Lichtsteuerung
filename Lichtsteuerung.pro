@@ -48,7 +48,9 @@ SOURCES += \
     settings.cpp \
     syncservice.cpp \
     test/DriverDummy.cpp \
-    usermanagment.cpp
+    usermanagment.cpp \
+    programms/modulemanager.cpp \
+    programms/programblock.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -101,7 +103,9 @@ HEADERS += \
     programms/dmxconsumer.h \
     programms/consumer.h \
     programms/module.h \
-    test/testloopprogramm.h
+    test/testloopprogramm.h \
+    programms/modulemanager.h \
+    programms/programblock.h
 
 
 # Default rules for deployment.

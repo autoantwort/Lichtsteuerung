@@ -21,7 +21,7 @@
 
 #include <string>
 
-#define MODULE_LIBRARY
+
 
 #if defined(MODULE_LIBRARY)
 #  define MODULE_EXPORT __declspec(dllexport)
@@ -29,6 +29,7 @@
 #  define MODULE_EXPORT __declspec(dllimport)
 #endif
 
+extern "C" {
 enum MODUL_TYPE{Programm, LoopProgramm,Filter,Consumer};
 inline MODULE_EXPORT bool have(MODUL_TYPE t){
     switch (t) {
@@ -79,5 +80,7 @@ MODULE_EXPORT std::string getNameOfConsumer(unsigned int index);
 MODULE_EXPORT std::string getDescriptionOfConsumer(unsigned int index);
 MODULE_EXPORT Modules::Consumer * createConsumer(unsigned int index);
 #endif
+
+}
 
 #endif // MODULES_GLOBAL_H
