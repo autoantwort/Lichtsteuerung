@@ -3,15 +3,16 @@
 
 #include <vector>
 #include <functional>
-#include "programm.h"
-#include "filter.h"
-#include "consumer.h"
+#include "programm.hpp"
+#include "filter.hpp"
+#include "consumer.hpp"
 #include <cstring>
 
 #include <QString>
 #include <QFile>
 #include <QDir>
 #include <QLibrary>
+#include <iostream>
 
 namespace Modules {
 
@@ -47,6 +48,7 @@ namespace Modules {
         static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name);
     public:
         ModuleManager();
+        static ModuleManager * singletone(){static ModuleManager m;return &m;}
         void loadModule(QString name);
         void loadAllModulesInDir(QDir name);
         const ProgrammModulContainer & getProgrammModules(){return programms;}
@@ -67,15 +69,15 @@ namespace Modules {
     };
 
     typedef unsigned int (*GetNumberOfXXX)();
-    typedef std::string (*GetNameOfXXX)(unsigned int index);
-    typedef std::string (*GetDescriptionOfXXX)(unsigned int index);
+    typedef char const * (*GetNameOfXXX)(unsigned int index);
+    typedef char const * (*GetDescriptionOfXXX)(unsigned int index);
 
 
     template<typename Type, typename String >
     void ModuleManager::loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c , String Typename){
         const auto getNumberOfName = std::string("getNumberOf") + Typename;
         const auto getNameOfName = std::string("getNameOf") + Typename;
-        const auto getDescriptionOfName = std::string("getDescriptionO") + Typename;
+        const auto getDescriptionOfName = std::string("getDescriptionOf") + Typename;
         const auto createName = std::string("create") + Typename;
 
         GetNumberOfXXX getNumberOfProgramms = reinterpret_cast<GetNumberOfXXX>(lib.resolve(getNumberOfName.c_str()));
@@ -83,6 +85,7 @@ namespace Modules {
         GetDescriptionOfXXX getDescriptionOfProgramm  = reinterpret_cast<GetDescriptionOfXXX>(lib.resolve(getDescriptionOfName.c_str()));
         Type* (*createProgramm)(unsigned int) = reinterpret_cast<Type* (*)(unsigned int)>(lib.resolve(createName.c_str()));
         if(!getNumberOfProgramms || !getNameOfProgramm || !getDescriptionOfProgramm || !createProgramm){
+            std::cout << "Functions are missing : " << getNumberOfName <<" : " <<getNumberOfProgramms << " , " <<getNameOfName<<" : " <<getNameOfProgramm<<" , " <<getDescriptionOfName<<" : " <<getDescriptionOfProgramm<<" , " <<createName<<" : " <<createProgramm;
             return;
         }
         for(unsigned int i = 0 ; i < getNumberOfProgramms();++i){

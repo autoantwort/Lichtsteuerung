@@ -32,10 +32,13 @@
 #include <QDir>
 #include "driver.h"
 #include "test/testloopprogramm.h"
+#include "test/testmodulsystem.h"
 
 int main(int argc, char *argv[])
 {
-
+    Test::TestModulSystem testModulSystem;
+    testModulSystem.runTest();
+    return 0;
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -159,6 +162,9 @@ int main(int argc, char *argv[])
     driver.start();*/
 #endif
 
+    QLibrary l("/Users/leanderSchulten/Lichtsteuerung/programms/test");
+    qDebug() << "loaded : " << l.load();
+    qDebug() << l.isLibrary("/Users/leanderSchulten/Lichtsteuerung/programms/test");
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();

@@ -8,7 +8,7 @@ void test(){
     p.setOutputLength(10000);
     p.start();
     auto t1 = std::chrono::high_resolution_clock::now();
-    while (!p.doStep(2)) {
+    while (!p.doStep(2).finished) {
 
     }
     auto tdiff = std::chrono::high_resolution_clock::now()-t1;

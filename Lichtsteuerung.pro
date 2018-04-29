@@ -43,14 +43,15 @@ SOURCES += \
     programmprototype.cpp \
     programms/dmxconsumer.cpp \
     programms/loopprogramm.cpp \
-    programms/property.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     syncservice.cpp \
     test/DriverDummy.cpp \
     usermanagment.cpp \
     programms/modulemanager.cpp \
-    programms/programblock.cpp
+    programms/programblock.cpp \
+    programms/compiler.cpp \
+    test/testmodulsystem.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -95,17 +96,19 @@ HEADERS += \
     colorplot.h \
     graph.h \
     oscillogram.h \
-    programms/programm.h \
-    programms/filter.h \
     programms/types.h \
-    programms/property.h \
     programms/loopprogramm.h \
     programms/dmxconsumer.h \
-    programms/consumer.h \
     programms/module.h \
     test/testloopprogramm.h \
     programms/modulemanager.h \
-    programms/programblock.h
+    programms/programblock.h \
+    programms/property.hpp \
+    programms/programm.hpp \
+    programms/filter.hpp \
+    programms/consumer.hpp \
+    programms/compiler.h \
+    test/testmodulsystem.h
 
 
 # Default rules for deployment.

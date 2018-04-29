@@ -2,7 +2,7 @@
 #define TESTLOOPPROGRAMM_H
 
 #include "programms/loopprogramm.h"
-#include "programms/programm.h"
+#include "programms/programm.hpp"
 
 #include <iostream>
 #include <qdebug.h>
@@ -12,16 +12,16 @@ class TestLoopProgramm : public Modules::LoopProgramm<Modules::BrightnessProgram
 {
 protected:
     virtual void loopProgramm()override{
-        for(int i = 0; i< size;++i){
+        for(int i = 0; i< length;++i){
             values[i] = 255;
-            show();
+
             wait(50);
         }
     }
 public:
     TestLoopProgramm() = default;
 
-    virtual int getProgrammLengthInMS() override{return size*50;}
+    virtual int getProgrammLengthInMS() override{return length*50;}
     virtual void start() override{}
     virtual ~TestLoopProgramm()override = default ;
 };

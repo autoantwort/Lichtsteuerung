@@ -1,7 +1,7 @@
 #ifndef LOOPPROGRAMM_H
 #define LOOPPROGRAMM_H
 
-#include "programm.h"
+#include "programm.hpp"
 #include "types.h"
 #include "boost/coroutine2/all.hpp"
 #include <qdebug.h>
@@ -41,6 +41,7 @@ class LoopProgramm : public BaseClass
 
     bool first=true;
     bool finished = false;
+    bool show_=false;
     time_diff_t currentWaitTime = 0;
     time_diff_t timeToWait = 0;
     static_assert (std::is_base_of<Programm,BaseClass>::value,"BaseClass must be an Subclass of Programm or the clas Programm.");
@@ -58,19 +59,19 @@ public:
         loopProgramm();
         finished = true;}){}
     virtual ~LoopProgramm(){}
-    virtual bool doStep(time_diff_t t)override{
+    virtual ProgrammState doStep(time_diff_t t)override{
         if(first){
             first = false;
         }
         if(finished)
-            return true;
+            return {true,false};
         currentWaitTime+=t;
         if(currentWaitTime>=timeToWait){
             currentWaitTime = 0;
             coro();
-            return finished;
+            return {finished,true};
         }
-        return false;
+        return {false,false};
     }
 };
 

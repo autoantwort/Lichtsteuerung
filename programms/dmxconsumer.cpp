@@ -7,14 +7,15 @@ namespace Modules {
 
     }
 
-    void DMXConsumer::setInputSize(unsigned int size){
+    void DMXConsumer::setInputLength(unsigned int size){
         channel.resize(size,-1);
+        TypedConsumer::setInputLength(size);
     }
 
     void DMXConsumer::start(){}
 
-    void DMXConsumer::show(void * data){
-        brightness_t * b = static_cast<brightness_t*>(data);
+    void DMXConsumer::show(){
+        brightness_t * b = input;
         for(auto i = channel.cbegin();i!=channel.cend();++i,++b){
             if(*i>0){
                 //dmxData[*i] = *b;

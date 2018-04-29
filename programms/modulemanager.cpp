@@ -1,6 +1,7 @@
 #include "modulemanager.h"
 #include <QLibrary>
 #include "module.h"
+#include <QDebug>
 
 namespace Modules {
 
@@ -21,8 +22,10 @@ typedef Modules::Programm* (*CreateProgramm)(unsigned int index);
         QLibrary lib(name);
         if(lib.load()){
             Have_Func f = reinterpret_cast<Have_Func>(lib.resolve("have"));
-            if(!f)
+            if(!f){
+                qDebug()<<"have funktion is missing";
                 return;
+            }
             if(f(MODUL_TYPE::Programm)){
                 loadType(lib,programms,"Programm");
             }if(f(MODUL_TYPE::LoopProgramm)){
@@ -32,6 +35,8 @@ typedef Modules::Programm* (*CreateProgramm)(unsigned int index);
             }if(f(MODUL_TYPE::Consumer)){
                 loadType(lib,consumer,"Consumer");
             }
+        }else{
+            qDebug()<<"Cant load lib :" << name;
         }
     }
 
