@@ -4,6 +4,7 @@
 #include "property.hpp"
 #include <vector>
 #include <stdexcept>
+#include <assert.h>
 
 namespace Modules {
 
@@ -64,9 +65,9 @@ namespace Modules {
 
     class PropertyBase{
     protected:
-        std::vector<Property> properties;
+        std::vector<Property*> properties;
     public:
-        const std::vector<Property>& getProperties()const{return properties;}
+        const std::vector<Property*>& getProperties()const{return properties;}
     };
 
 
