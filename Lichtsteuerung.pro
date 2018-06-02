@@ -101,6 +101,11 @@ win32-g++{
     #AudioFFT
     LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
     INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+
+
+    #aubio
+    LIBS += -L$$PWD/'lib/aubio/dll' -laubio
+    INCLUDEPATH += $$PWD/'lib/aubio/include'
 }
 
 win32-msvc{

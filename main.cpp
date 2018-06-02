@@ -36,6 +36,8 @@
 #include "oscillogram.h"
 #include "colorplot.h"
 
+#include "aubio/aubio.h"
+
 #define WIN_ONLY(a)
 
 #ifdef Q_OS_WIN
@@ -275,6 +277,11 @@ int main(int argc, char *argv[])
     driver.init();
     driver.start();
 #endif
+
+    //aubio test
+    auto fft = new_aubio_fft(1<<8);
+    del_aubio_fft(fft);
+    //aubio test end
 
     QTimer timer;
     timer.setInterval(15);
