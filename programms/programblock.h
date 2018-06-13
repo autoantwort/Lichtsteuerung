@@ -21,8 +21,18 @@ namespace Modules {
                 unsigned int startIndex;
             };
             typedef unsigned int length_t;
+            const enum SourceType {Filter,Consumer} sourceType;
             std::shared_ptr<InputDataConsumer> source;
-            Connection(std::shared_ptr<InputDataConsumer> source):source(source){}
+            template<typename Type>
+            Connection(std::shared_ptr<Type> source):source(source){
+                static_assert (std::is_base_of<InputDataConsumer,Type>::value,"Der Typ ist keine Subklasse eines InputDataConsumer.");
+                static_assert (std::is_base_of<Modules::Filter,Type>::value||std::is_base_of<Modules::Consumer,Type>::value,"Der Typ ist Filter oder Consumer.");
+                if(std::is_base_of<Modules::Filter,Type>::value){
+                    *const_cast<SourceType*>(&sourceType) = Filter;
+                }else{
+                    *const_cast<SourceType*>(&sourceType) = Consumer;
+                }
+            }
             Connection(const QJsonObject &o);
             /**
              * @brief addTarget add a target for a range in the InputDataConsumer

@@ -7,6 +7,9 @@
 namespace Modules {
 
 
+    /**
+     * @brief The JsonLoadObject class is a wrapper around a QJsonObject that implements the LoadObject interface
+     */
     class JsonLoadObject : public LoadObject
     {
         const QJsonObject &o;
@@ -16,7 +19,7 @@ namespace Modules {
         virtual float loadFloat(const char*name) const override {return static_cast<float>(o[name].toDouble());}
         virtual double loadDouble(const char*name)  const override{return o[name].toDouble();}
         virtual bool loadBool(const char*name)  const override{return o[name].toBool();}
-        virtual long loadLong(const char*name)  const override{return static_cast<float>(o[name].toDouble());}
+        virtual long loadLong(const char*name)  const override{return static_cast<long>(o[name].toDouble());}
         virtual char* loadStringOwn(const char*name)  const override{
             const auto data = o[name].toString().toLatin1();
             char * d = new char[data.size()+1];
@@ -25,6 +28,9 @@ namespace Modules {
         }
     };
 
+    /**
+     * @brief The JsonSaveObject class is a wrapper around a QJsonObject that implements the SaveObject interface
+     */
     class JsonSaveObject : public SaveObject{
         QJsonObject &o;
     public:
@@ -33,7 +39,7 @@ namespace Modules {
             o[name] = i;
         }
         virtual void saveFloat(const char*name,float f)  override{
-            o[name] = f;
+            o[name] = static_cast<double>(f);
         }
         virtual void saveDouble(const char*name,double d)  override{
             o[name] = d;

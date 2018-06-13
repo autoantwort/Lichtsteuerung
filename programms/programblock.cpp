@@ -2,6 +2,7 @@
 #include <QJsonArray>
 #include <stdexcept>
 #include "modulemanager.h"
+#include "json_storage.h"
 
 
 namespace Modules {
@@ -31,6 +32,13 @@ namespace Modules {
 
     }
 
+    template<typename T>
+    void loadProperties(const QJsonObject &o, T*t){
+        const auto prop = o["properties"].toObject();
+        JsonLoadObject lo(prop);
+        t->load(lo);
+    }
+
     ProgramBlock::ProgramBlock(const QJsonObject& o){
         // Wir erstellen erstmal alle objecte mit passendem Typ und ID
         std::map<QString,std::shared_ptr<Programm>> programs;
@@ -46,6 +54,7 @@ namespace Modules {
                 if(!p){
                     throw std::runtime_error(std::string("Program with name '") + str + "' does not exist.");
                 }
+                loadProperties(obj,p.get());
                 programs.insert(std::make_pair(qstr,p));
             }
         }
@@ -59,6 +68,7 @@ namespace Modules {
                 if(!p){
                     throw std::runtime_error(std::string("Filter with name '") + str + "' does not exist.");
                 }
+                loadProperties(obj,p.get());
                 filter.insert(std::make_pair(qstr,p));
             }
         }
@@ -72,6 +82,7 @@ namespace Modules {
                 if(!p){
                     throw std::runtime_error(std::string("Consumer with name '") + str + "' does not exist.");
                 }
+                loadProperties(obj,p.get());
                 consumer.insert(std::make_pair(qstr,p));
             }
         }
@@ -140,6 +151,7 @@ namespace Modules {
                 throw std::runtime_error("one outputdataproducer is unknown");
             }
         }
+        assert(c.sourceType == detail::Connection::Filter);
         filter.emplace(layer,std::move(c));
     }
 
@@ -149,6 +161,7 @@ namespace Modules {
                 throw std::runtime_error("one outputdataproducer is unknown");
             }
         }
+        assert(c.sourceType == detail::Connection::Consumer);
         consumer.push_back(std::move(c));
     }
 
@@ -174,6 +187,13 @@ namespace Modules {
         return finished;
     }
 
+    template<typename Type>
+    void saveProperties(QJsonObject &o, Type * p){
+        QJsonObject prop;
+        JsonSaveObject jo(prop);
+        p->save(jo);
+        o["properties"] = prop;
+    }
 
     void ProgramBlock::writeJsonObject(QJsonObject &o){
         // Wir speichern zu jedem Programm/Filter/Consumer ein Object ab, das den Typnamen und eine ID, wir nehmen die Adresse im Arbeitsspeicher.
@@ -184,6 +204,7 @@ namespace Modules {
             QJsonObject p;
             p["typename"] = (*i)->getName();
             p["id"] = QString::number(reinterpret_cast<size_t>(i->get()));
+            saveProperties(p,i->get());
             static_assert (sizeof (size_t) == sizeof (Programm*), "Pointer must have same size as size_t");
             progs.push_back(p);
         }
@@ -199,6 +220,7 @@ namespace Modules {
             con["source"] = QString::number(reinterpret_cast<size_t>(i.second.source.get()));
             e["typename"] = reinterpret_cast<Named*>(i.second.source.get())->getName();
             e["id"] = QString::number(reinterpret_cast<size_t>(i.second.source.get()));
+            saveProperties(e,static_cast<Filter*>(i.second.source.get()));
             con["level"] = i.first;
             static_assert (sizeof (size_t) == sizeof (Filter*), "Pointer must have same size as size_t");
             filter.push_back(e);
@@ -225,11 +247,7 @@ namespace Modules {
                 con["source"] = QString::number(reinterpret_cast<size_t>(i.source.get()));
                 e["typename"] = reinterpret_cast<Named*>(i.source.get())->getName();
                 e["id"] = QString::number(reinterpret_cast<size_t>(i.source.get()));
-                {
-                    QJsonObject prop;
-                    // TODO save properties of object
-                    //e["properties"] =
-                }
+                saveProperties(e,static_cast<Consumer*>(i.source.get()));
                 static_assert (sizeof (size_t) == sizeof (Filter*), "Pointer must have same size as size_t");
                 consumer.push_back(e);
                 QJsonArray targets;

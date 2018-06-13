@@ -13,6 +13,9 @@ namespace Modules {
 
     class StringProperty;
 
+    /**
+     * @brief The Property class holds a property. A Property have a name and a description.
+     */
     class Property : public Serilerizeable
     {
     protected:
@@ -38,18 +41,9 @@ namespace Modules {
          return description;
         }
 
-        NumericProperty<int> * asInt(){
-            if(type == Int){
-                return reinterpret_cast<NumericProperty<int>*>(this);
-            }
-            return nullptr;
-        }
-        NumericProperty<float> * asFloat(){
-            if(type == Int){
-                return reinterpret_cast<NumericProperty<float>*>(this);
-            }
-            return nullptr;
-        }
+        template<typename T>
+        NumericProperty<T> * asNumeric();
+
         StringProperty * asString(){
             if(type == String){
                 return reinterpret_cast<StringProperty*>(this);
@@ -62,7 +56,7 @@ namespace Modules {
 
         template<typename t>
         Property::Type toEnum(){
-            static_assert (std::is_same<t,float>::value||std::is_same<t,int>::value||std::is_same<t,long>::value||std::is_same<t,double>::value||std::is_same<t,bool>::value,"Wrong Type. Con be only int or float");
+            static_assert (std::is_same<t,float>::value||std::is_same<t,int>::value||std::is_same<t,long>::value||std::is_same<t,double>::value||std::is_same<t,bool>::value,"Wrong Type. Con be only int float long double bool std::string");
             if(std::is_same<t,int>::value){
                 return Property::Int;
             }else if(std::is_same<t,long>::value){
@@ -71,15 +65,25 @@ namespace Modules {
                 return Property::Float;
             }else if(std::is_same<t,double>::value){
                 return Property::Double;
+            }else if(std::is_same<t,std::string>::value){
+                return Property::String;
             }else {
                 return Property::Bool;
             }
         }
     }
 
+    template<typename T>
+    NumericProperty<T> * Property::asNumeric(){
+        if(type == defail::toEnum<T>()){
+            return reinterpret_cast<NumericProperty<T>*>(this);
+        }
+        return nullptr;
+    }
+
     template<typename Type_t>
     class NumericProperty : public Property{
-        static_assert (std::is_same<Type_t,float>::value||std::is_same<Type_t,int>::value,"Wrong Type. Con be only int or float");
+        static_assert (std::is_same<Type_t,float>::value||std::is_same<Type_t,int>::value||std::is_same<Type_t,long>::value||std::is_same<Type_t,double>::value,"Wrong Type. Con only be signed numeric");
         Type_t min;
         Type_t max;
         Type_t value;
@@ -158,7 +162,29 @@ namespace Modules {
             this->value = value;
             return true;
         }
+        std::string getString()const{return value;}
         virtual ~StringProperty() = default;
+    };
+
+    class BoolProperty : public Property{
+    protected:
+        bool value;
+    public:
+        BoolProperty(bool value):Property(Property::Bool),value(value){}
+        void save(SaveObject &o)const override{
+            o.saveBool(name.c_str(),value);
+        }
+        void load(const LoadObject &l)override{
+            value = l.loadBool(name.c_str());
+        }
+
+        void setValue(bool value){
+            this->value = value;
+        }
+
+        bool getValue()const{
+            return  value;
+        }
     };
 
 }

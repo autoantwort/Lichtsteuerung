@@ -3,6 +3,9 @@
 
 namespace Modules {
 
+/**
+ * @brief The SaveObject interface defines Methods to save Primitive data
+ */
 class SaveObject
 {
 public:
@@ -14,6 +17,9 @@ public:
     virtual void saveString(const char*name,const char * c) = 0;
 };
 
+/**
+ * @brief The LoadObject interface defines methods to load Primitive data
+ */
 class LoadObject
 {
 public:
@@ -22,9 +28,17 @@ public:
     virtual double loadDouble(const char*name)  const = 0;
     virtual bool loadBool(const char*name)  const = 0;
     virtual long loadLong(const char*name)  const = 0;
+    /**
+     * @brief loadStringOwn loads a string, the caller own the string and have to delete it
+     * @param name the name of the property
+     * @return the string or a nullptr if the property does not exist
+     */
     virtual char* loadStringOwn(const char*name)  const = 0;
 };
 
+/**
+ * @brief A Superclass for objects that can be load and stored
+ */
 class Serilerizeable{
 public:
     virtual void save(SaveObject &s)const=0;

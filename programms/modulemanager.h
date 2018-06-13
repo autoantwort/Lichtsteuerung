@@ -35,6 +35,9 @@ namespace Modules {
         };
     }
 
+    /**
+     * @brief The ModuleManager class load Modules and register them. You con load a Programm/Filter/Consumer by Name from an loaded Module
+     */
     class ModuleManager
     {
         typedef std::vector<detail::Entry<Programm>> ProgrammModulContainer;

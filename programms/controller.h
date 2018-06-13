@@ -6,6 +6,9 @@
 
 namespace Modules {
 
+/**
+ * @brief The Controller class controlls the whole Module system. Its load and execute it
+ */
 class Controller
 {
     std::atomic_bool run_;

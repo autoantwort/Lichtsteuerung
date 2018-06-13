@@ -22,7 +22,17 @@ namespace Modules {
          * @return true if the output data changed
          */
         virtual bool doStep(time_diff_t){return false;}
-        virtual ~Filter() = default;
+        virtual void load(const LoadObject &l)override{
+            PropertyBase::load(l);
+            int length = l.loadInt("inputLength");
+            if(length>0)
+                setInputLength(static_cast<unsigned>(length));
+        }
+        virtual void save(SaveObject &s) const override{
+            PropertyBase::save(s);
+            s.saveInt("inputLength",static_cast<int>(getInputLength()));
+        }
+        virtual ~Filter() override = default;
     };
 
     template<typename InputType,typename OutputType>

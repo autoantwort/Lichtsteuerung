@@ -28,7 +28,17 @@ public:
     virtual void setOutputLength(unsigned int length)=0;
     virtual void start() = 0;
     virtual ProgrammState doStep(time_diff_t) = 0;
-    virtual ~Programm(){}
+    virtual ~Programm() override = default;
+    virtual void load(const LoadObject &l)override{
+        PropertyBase::load(l);
+        int length = l.loadInt("outputLength");
+        if(length>0)
+            setOutputLength(static_cast<unsigned>(length));
+    }
+    virtual void save(SaveObject &s) const override{
+        PropertyBase::save(s);
+        s.saveInt("outputLength",static_cast<int>(getOutputLength()));
+    }
 };
 
 template<typename value_type_t>

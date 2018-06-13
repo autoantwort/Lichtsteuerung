@@ -20,7 +20,17 @@ namespace Modules{
          */
         virtual void show() = 0;
         virtual void doStep(time_diff_t diff)=0;
-        virtual ~Consumer() = default;
+        virtual ~Consumer()override = default;
+        virtual void load(const LoadObject &l)override{
+            PropertyBase::load(l);
+            int length = l.loadInt("inputLength");
+            if(length>0)
+                setInputLength(static_cast<unsigned>(length));
+        }
+        virtual void save(SaveObject &s) const override{
+            PropertyBase::save(s);
+            s.saveInt("inputLength",static_cast<int>(getInputLength()));
+        }
     };
 
     template<typename Type>
