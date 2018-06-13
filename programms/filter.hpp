@@ -9,7 +9,7 @@ namespace Modules {
 /**
      * @brief The Filter class filters input data and write the filtered data in the outpur array
      */
-    class Filter : public PropertyBase, public OutputDataProducer, public InputDataConsumer{
+    class Filter : public PropertyBase, public OutputDataProducer, public InputDataConsumer, public Named{
     public:
         Filter(const ValueType inputDataType,const ValueType outputDataType):OutputDataProducer(outputDataType),InputDataConsumer(inputDataType){}
         virtual void setInputLength(unsigned int length) = 0;

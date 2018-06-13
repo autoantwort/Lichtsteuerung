@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QLibrary>
 #include <iostream>
+#include <memory>
 
 namespace Modules {
 
@@ -23,7 +24,7 @@ namespace Modules {
             CreateFunction createFunc;
         public:
             Entry(const std::string& name,const std::string& description):name(name),description(description){}
-            Entry(const std::string& name,const std::string& description,CreateFunction func):name(name),description(description),createFunc(func){}
+            Entry(const std::string& name,const std::string& description,CreateFunction func):createFunc(func),name(name),description(description){}
             const std::string name;
             const std::string description;
             T* create()const{
@@ -54,15 +55,15 @@ namespace Modules {
         const ProgrammModulContainer & getProgrammModules(){return programms;}
         const FilterModulContainer & getFilterModules(){return filter;}
         const ConsumerModulContainer & getConsumerModules(){return consumer;}
-        Programm * createProgramm(const std::string & name){return createByName(programms,name);}
-        Filter   * createFilter  (const std::string & name){return createByName(filter   ,name);}
-        Consumer * createConsumer(const std::string & name){return createByName(consumer ,name);}
+        std::shared_ptr<Programm> createProgramm(const std::string & name){return createByName(programms,name);}
+        std::shared_ptr<Filter>   createFilter  (const std::string & name){return createByName(filter   ,name);}
+        std::shared_ptr<Consumer> createConsumer(const std::string & name){return createByName(consumer ,name);}
     protected:
         template<typename T>
-        static T * createByName(const std::vector<detail::Entry<T>> & c, const std::string  &name){
+        static std::shared_ptr<T> createByName(const std::vector<detail::Entry<T>> & c, const std::string  &name){
             for(auto i = c.cbegin() ; i != c.cend();++i){
                 if(i->name == name)
-                    return i->create();
+                    return std::shared_ptr<T>(i->create());
             }
             return nullptr;
         }

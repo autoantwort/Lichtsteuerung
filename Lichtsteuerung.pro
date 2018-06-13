@@ -51,7 +51,11 @@ SOURCES += \
     programms/modulemanager.cpp \
     programms/programblock.cpp \
     programms/compiler.cpp \
-    test/testmodulsystem.cpp
+    test/testmodulsystem.cpp \
+    programms/controller.cpp \
+    programms/dmxprogram.cpp \
+    programms/dmxprogramblock.cpp \
+    programms/json_storage.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -108,7 +112,12 @@ HEADERS += \
     programms/filter.hpp \
     programms/consumer.hpp \
     programms/compiler.h \
-    test/testmodulsystem.h
+    test/testmodulsystem.h \
+    programms/controller.h \
+    programms/dmxprogram.h \
+    programms/dmxprogramblock.h \
+    programms/storage.hpp \
+    programms/json_storage.h
 
 
 # Default rules for deployment.
@@ -118,6 +127,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES +=
 
+QMAKE_CXXFLAGS += -fsanitize=address
+# QMAKE_CXXFLAGS += -fno-omit-frame-pointer
+QMAKE_CXXFLAGS += -Wshadow
+#QMAKE_CXXFLAGS += -lasan
+LIBS += -lasan
 
 win32-g++{
     LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context

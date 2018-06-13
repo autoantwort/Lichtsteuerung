@@ -10,7 +10,7 @@ namespace Modules{
      * @brief The Consumer class represents a Consumer like a driver for dmx or leds
      * Treiber erben von dieser Klasse und zeigen die Entsprechenden Daten an.
      */
-    class Consumer:public PropertyBase, public InputDataConsumer{
+    class Consumer:public PropertyBase, public InputDataConsumer, public Named{
     public:
         Consumer(const ValueType inputDataType):InputDataConsumer(inputDataType){}
         virtual void setInputLength(unsigned int)=0;

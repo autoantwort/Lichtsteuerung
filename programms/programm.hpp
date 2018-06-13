@@ -16,13 +16,13 @@ public:
 };
 
 struct ProgrammState{
-
     bool finished;
     bool outputDataChanged;
 };
 
-class Programm : public PropertyBase, public OutputDataProducer{
+class Programm : public PropertyBase, public OutputDataProducer, public Named{
 public:    
+    static const int INFINITE = 1 << 30;
     Programm(const ValueType valueType):OutputDataProducer(valueType){}
     virtual int getProgrammLengthInMS() = 0;
     virtual void setOutputLength(unsigned int length)=0;

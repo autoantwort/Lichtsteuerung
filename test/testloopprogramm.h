@@ -12,7 +12,7 @@ class TestLoopProgramm : public Modules::LoopProgramm<Modules::BrightnessProgram
 {
 protected:
     virtual void loopProgramm()override{
-        for(int i = 0; i< length;++i){
+        for(unsigned i = 0; i< length;++i){
             values[i] = 255;
 
             wait(50);
@@ -20,7 +20,7 @@ protected:
     }
 public:
     TestLoopProgramm() = default;
-
+    virtual const char * getName()const override{return "TestLoopProgramm";}
     virtual int getProgrammLengthInMS() override{return length*50;}
     virtual void start() override{}
     virtual ~TestLoopProgramm()override = default ;

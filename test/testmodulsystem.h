@@ -26,9 +26,9 @@ namespace Test{
             for(const auto& i:ModuleManager::singletone()->getFilterModules()){
                 std::cout <<i.name<< " , " << i.description;
             }
-            Filter * blurFilter = ModuleManager::singletone()->createFilter("Blur");
-            qDebug()<<blurFilter;
-            delete blurFilter;
+            auto blurFilter = ModuleManager::singletone()->createFilter("Blur");
+            qDebug()<<blurFilter.get();
+
             std::cout << "compile time : " << duration_cast<milliseconds>(t2-t1).count()<< " load time : "<< duration_cast<milliseconds>(t3-t2).count();
         }
     };

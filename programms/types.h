@@ -63,11 +63,21 @@ namespace Modules {
         assert(false && "Nicht im Enum");
     }
 
-    class PropertyBase{
+    class PropertyBase : public Serilerizeable{
     protected:
         std::vector<Property*> properties;
     public:
         const std::vector<Property*>& getProperties()const{return properties;}
+        void load(const LoadObject &l)override{
+            for(auto & p : properties){
+                p->load(l);
+            }
+        }
+        void save(SaveObject &s) const override{
+            for(auto & p : properties){
+                p->save(s);
+            }
+        }
     };
 
 
@@ -76,6 +86,7 @@ namespace Modules {
         const ValueType outputDataType;
     public:
         OutputDataProducer(const ValueType outputDataType):outputDataType(outputDataType){}
+        virtual ~OutputDataProducer() = default;
         inline ValueType getOutputType()const{return outputDataType;}        
         virtual unsigned int getOutputLength()const=0;
         /**
@@ -89,6 +100,7 @@ namespace Modules {
         const ValueType inputDataType;
     public:
         InputDataConsumer(const ValueType inputDataType):inputDataType(inputDataType){}
+        virtual ~InputDataConsumer() = default;
         /**
          * @brief getInputType gibt den Typ der Eingabedaten an.
          * @return brighness_t or rgb_t
@@ -146,6 +158,12 @@ namespace Modules {
         const Type& operator[](std::size_t idx) const { return idx<length?data[idx]:throw IndexOutOfBoundsException(0,length-1,idx); }
         Type& operator[](int i)       { if(i>=0 && i<length){return data[i];}else{throw IndexOutOfBoundsException(0,length-1,i);}}
         const Type& operator[](int i) const { if(i>=0 && i<length){return data[i];}else{throw IndexOutOfBoundsException(0,length-1,i);}}
+    };
+
+    class Named{
+    public:
+        virtual const char* getName()const = 0;
+        virtual ~Named() = default;
     };
 
 }
