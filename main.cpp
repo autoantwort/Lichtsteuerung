@@ -57,11 +57,25 @@ float fftOutput[fft_size/2];
 volatile float fftOutputV[fft_size/2];
 float data960[960*2];
 volatile float data960V[960*2];
-
+aubio_tempo_t * tempo = nullptr;
+aubio_onset_t * onset = nullptr;
+aubio_onset_t * onset2 = nullptr;
+#define AUDIO_FFT_SIZE 1024
 void init(int c){
     channel = c;
     Colorplot::getLast()->setBlockSize(300);
+    tempo = new_aubio_tempo("default",AUDIO_FFT_SIZE,480,48000);
+    onset = new_aubio_onset("energy",AUDIO_FFT_SIZE,480,48000);
+    onset2 = new_aubio_onset("hfc",AUDIO_FFT_SIZE,480,48000);
+    qDebug()<< "init tempo";
 }
+
+fvec_t * input_data = new_fvec(AUDIO_FFT_SIZE);
+fvec_t * output_data = new_fvec(1);
+fvec_t * onset_input_data = new_fvec(480);
+fvec_t * onset_output_data = new_fvec(1);
+fvec_t * onset_output_data2 = new_fvec(1);
+
 int counter480, counter960;
 void callback(float* data, unsigned int frames, bool*d){
     if(data){
@@ -102,11 +116,51 @@ void callback(float* data, unsigned int frames, bool*d){
             fftOutputV[i] = fftOutput[i];
         }
         if(Graph::getLast())
-            Graph::getLast()->showData(fftOutputV,960/2);
+            Graph::getLast()->showData(fftOutput,960/2);
+
+        if(tempo){
+            for (int i = 0;i<AUDIO_FFT_SIZE-960;++i) {
+                input_data->data[i] = input_data->data[i+480];
+            }
+            for (int i = 0; i< std::min(960,AUDIO_FFT_SIZE);++i) {
+                input_data->data[i+std::max(AUDIO_FFT_SIZE-960,0)] = data960[i*2];
+            }
+            for (int i = 0 ;i<480;++i) {
+                onset_input_data->data[i] = data960[(480+i)*2];
+            }
+
+            aubio_onset_do(onset,onset_input_data,onset_output_data);
+
+            aubio_onset_do(onset2,onset_input_data,onset_output_data2);
+            if(onset_output_data->data[0] > 0.001f){
+                qDebug() << "MMMMMMMMMMMMMMMMMMMMMMMMMMMMMM Onset with "<< onset_output_data->data[0] << "  MMMMMMMMMMMMMMMMMMMMMM";
+            }
+
+            aubio_tempo_do(tempo,input_data,output_data);
+            int beat = aubio_tempo_was_tatum(tempo);
+            qDebug()<<"Beat: "<< output_data->data[0] << ' '
+                   <<beat<< " BPM:"<<aubio_tempo_get_bpm(tempo);
+            if(beat == 1){
+                qDebug()<< " ---- Tantum ----";
+            }else if(output_data->data[0] > 0.2f){
+                qDebug()<< " ########### BEAT #########";
+            }
+        }
+
         if(Colorplot::getLast()){
             Colorplot::getLast()->startBlock();
-            for (int i = 0; i < 300; ++i) {
+            for (int i = 0; i < 285; ++i) {
                 Colorplot::getLast()->pushDataToBlock(fftOutputV[i]);
+            }
+            qDebug() << fftOutputV[30];
+            for(int i = 0 ; i< 5 ; ++i){
+                Colorplot::getLast()->pushDataToBlock(onset_output_data2->data[0]*5000);
+            }
+            for(int i = 0 ; i< 5 ; ++i){
+                Colorplot::getLast()->pushDataToBlock(onset_output_data->data[0]*5000);
+            }
+            for(int i = 0 ; i< 5 ; ++i){
+                Colorplot::getLast()->pushDataToBlock(output_data->data[0]*10000);
             }
             Colorplot::getLast()->endBlock();
         }
@@ -121,9 +175,9 @@ void callback(float* data, unsigned int frames, bool*d){
             }
             std::cout<<std::endl;*/
 
-        qDebug()<<"480 : "<<counter480 << "  960 : "<<counter960;
+        //qDebug()<<"480 : "<<counter480 << "  960 : "<<counter960;
     }
-    *d = done;
+    *d = done.load();
 }
 
 
@@ -214,6 +268,17 @@ int main(int argc, char *argv[])
             WIN_ONLY(done.store(true);)
             captureAudioThread.join();
         }
+        del_aubio_tempo(tempo);
+        tempo = nullptr;
+        del_fvec(input_data);
+        del_fvec(output_data);
+        del_aubio_onset(onset);
+        onset = nullptr;
+        del_aubio_onset(onset2);
+        onset2 = nullptr;
+        del_fvec(onset_input_data);
+        del_fvec(onset_output_data);
+        del_fvec(onset_output_data2);
     });
     settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
@@ -278,10 +343,6 @@ int main(int argc, char *argv[])
     driver.start();
 #endif
 
-    //aubio test
-    auto fft = new_aubio_fft(1<<8);
-    del_aubio_fft(fft);
-    //aubio test end
 
     QTimer timer;
     timer.setInterval(15);
