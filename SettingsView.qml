@@ -59,6 +59,45 @@ Pane{
             text: Settings.updatePauseInMs;
             onAccepted: Settings.updatePauseInMs = text;
         }
+        Label{
+            Layout.fillWidth: true
+            text: "Module Directory:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.moduleDirPath
+            onAccepted: Settings.moduleDirPath = text;
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    fileDialog.folder = Settings.moduleDirPath;
+                    fileDialog.open();
+                    fileDialog.addSelection(Settings.moduleDirPath);
+                    fileDialog.callback = function(file){
+                        console.log(file);
+                        Settings.moduleDirPath = file;
+                    };
+                }
+            }
+        }
+        Label{
+            Layout.fillWidth: true
+            text: "Compiler Flags:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.compilerFlags
+            onAccepted: Settings.compilerFlags = text;
+        }
+        Label{
+            Layout.fillWidth: true
+            text: "Compiler Library Flags:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.compilerLibraryFlags
+            onAccepted: Settings.compilerLibraryFlags = text;
+        }
     }
     FileDialog{
         property var callback;

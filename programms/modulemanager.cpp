@@ -42,7 +42,13 @@ typedef Modules::Programm* (*CreateProgramm)(unsigned int index);
 
     void ModuleManager::loadAllModulesInDir(QDir dir){
         for(auto s : dir.entryList(QDir::Files)){
+#ifdef Q_OS_WIN
+            if(s.endsWith(".dll"))
+#endif
             loadModule(s);
+        }
+        for(auto s : dir.entryList(QDir::Dirs)){
+            loadAllModulesInDir(s);
         }
     }
 

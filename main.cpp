@@ -36,9 +36,9 @@
 
 int main(int argc, char *argv[])
 {
-    Test::TestModulSystem testModulSystem;
+    /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
-    return 0;
+    return 0;*/
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -120,6 +120,9 @@ int main(int argc, char *argv[])
         if(Driver::getCurrentDriver()){
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
+    });
+    settings.connect(&settings,&Settings::moduleDirPathChanged,[&](){
+        Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     });
 
 

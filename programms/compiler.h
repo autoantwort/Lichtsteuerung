@@ -6,6 +6,7 @@ namespace Modules {
 
 class Compiler
 {
+public:
     static QString compilerCmd;
     static QString compilerLibraryFlags;
     static QString compilerFlags;
