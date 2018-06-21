@@ -70,6 +70,8 @@ Pane{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
+                    fileDialog.selectFolder = true;
+                    fileDialog.selectMultiple = false;
                     fileDialog.folder = Settings.moduleDirPath;
                     fileDialog.open();
                     fileDialog.addSelection(Settings.moduleDirPath);

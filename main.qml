@@ -48,6 +48,9 @@ ApplicationWindow {
             text: qsTr("Settings")
             enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
         }
+        TabButton {
+            text: qsTr("Modules")
+        }
     }
 
     SwipeView {
@@ -71,13 +74,14 @@ ApplicationWindow {
         Item{
             clip: true
             MapView{
-                width:400
-                height: 400
+                anchors.fill: parent
             }
         }
         LoginView{}
 
         SettingsView{}
+
+        ModuleView{}
     }
 
     MessageDialog{

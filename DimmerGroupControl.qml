@@ -60,8 +60,7 @@ ControlItem{
                 }
             }
             Rectangle{
-                anchors.left: parent.left
-                anchors.right: parent.right
+                Layout.fillWidth: true
                 height: 1
                 color: "black"
             }
@@ -136,8 +135,9 @@ ControlItem{
                 onCurrentIndexChanged: {
                                         if(controlData)controlData.override = (currentIndex===1)
                 }
-                anchors.left: parent.left
-                anchors.right: parent.right
+                Layout.fillWidth: true
+                //anchors.left: parent.left
+                //anchors.right: parent.right
             }
 
 

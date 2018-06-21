@@ -2,6 +2,7 @@
 #include <QLibrary>
 #include "module.h"
 #include <QDebug>
+#include "settings.h"
 
 namespace Modules {
 
@@ -36,18 +37,18 @@ typedef Modules::Programm* (*CreateProgramm)(unsigned int index);
                 loadType(lib,consumer,"Consumer");
             }
         }else{
-            qDebug()<<"Cant load lib :" << name;
+            qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString();
         }
     }
 
     void ModuleManager::loadAllModulesInDir(QDir dir){
         for(auto s : dir.entryList(QDir::Files)){
 #ifdef Q_OS_WIN
-            if(s.endsWith(".dll"))
+            if(s.suffix() == "dll")
 #endif
-            loadModule(s);
+            loadModule(s.absoluteFilePath());
         }
-        for(auto s : dir.entryList(QDir::Dirs)){
+        for(auto s : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
             loadAllModulesInDir(s);
         }
     }

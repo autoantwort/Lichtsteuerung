@@ -36,5 +36,6 @@
         <file>DimmerGroupControl.qml</file>
         <file>LoginView.qml</file>
         <file>SettingsView.qml</file>
+        <file>ModuleView.qml</file>
     </qresource>
 </RCC>

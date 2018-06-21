@@ -52,10 +52,14 @@ SOURCES += \
     programms/programblock.cpp \
     programms/compiler.cpp \
     test/testmodulsystem.cpp \
+<<<<<<< HEAD
     programms/controller.cpp \
     programms/dmxprogram.cpp \
     programms/dmxprogramblock.cpp \
     programms/json_storage.cpp
+=======
+    codeeditorhelper.cpp
+>>>>>>> Add Module View and make bug fixes
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -113,11 +117,15 @@ HEADERS += \
     programms/consumer.hpp \
     programms/compiler.h \
     test/testmodulsystem.h \
+<<<<<<< HEAD
     programms/controller.h \
     programms/dmxprogram.h \
     programms/dmxprogramblock.h \
     programms/storage.hpp \
     programms/json_storage.h
+=======
+    codeeditorhelper.h
+>>>>>>> Add Module View and make bug fixes
 
 
 # Default rules for deployment.

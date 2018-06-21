@@ -33,6 +33,7 @@
 #include "driver.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
+#include "codeeditorhelper.h"
 
 int main(int argc, char *argv[])
 {
@@ -85,6 +86,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ControlItemData>("custom.licht.template",1,0,"ControlItemData");
     qmlRegisterType<DimmerGroupControlItemData>("custom.licht",1,0,"DimmerGroupControlItemData");
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
+    qmlRegisterType<CodeEditorHelper>("custom.licht",1,0,"CodeEditorHelper");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
@@ -121,6 +123,7 @@ int main(int argc, char *argv[])
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
     });
+    Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     settings.connect(&settings,&Settings::moduleDirPathChanged,[&](){
         Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     });

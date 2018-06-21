@@ -37,6 +37,8 @@
 extern "C" {
 enum MODUL_TYPE{Programm, LoopProgramm,Filter,Consumer};
 
+#ifdef MODULE_LIBRARY
+
 MODULE_EXPORT bool have(MODUL_TYPE t){
     switch (t) {
     case Programm:
@@ -67,6 +69,8 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
     return false; // Vielleicht wird das enum in einer weiteren Version erweitert.
 }
 
+#endif
+
 #ifdef HAVE_PROGRAM
 MODULE_EXPORT unsigned int getNumberOfProgramms();
 MODULE_EXPORT char const * getNameOfProgramm(unsigned int index);
@@ -82,7 +86,7 @@ MODULE_EXPORT Modules::Filter * createFilter(unsigned int index);
 #endif
 
 #ifdef HAVE_CONSUMER
-MODULE_EXPORT unsigned int getNumberOfComsumer();
+MODULE_EXPORT unsigned int getNumberOfConsumer();
 MODULE_EXPORT char const * getNameOfConsumer(unsigned int index);
 MODULE_EXPORT char const * getDescriptionOfConsumer(unsigned int index);
 MODULE_EXPORT Modules::Consumer * createConsumer(unsigned int index);
