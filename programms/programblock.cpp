@@ -41,7 +41,7 @@ namespace Modules {
 
     ProgramBlock::ProgramBlock(const QJsonObject& o){
         // Wir erstellen erstmal alle objecte mit passendem Typ und ID
-        std::map<QString,std::shared_ptr<Programm>> programs;
+        std::map<QString,std::shared_ptr<Program>> programs;
         std::map<QString,std::shared_ptr<Filter>> filter;
         std::map<QString,std::shared_ptr<Consumer>> consumer;
         {
@@ -205,7 +205,7 @@ namespace Modules {
             p["typename"] = (*i)->getName();
             p["id"] = QString::number(reinterpret_cast<size_t>(i->get()));
             saveProperties(p,i->get());
-            static_assert (sizeof (size_t) == sizeof (Programm*), "Pointer must have same size as size_t");
+            static_assert (sizeof (size_t) == sizeof (Program*), "Pointer must have same size as size_t");
             progs.push_back(p);
         }
         o["programs"] = progs;

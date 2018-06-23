@@ -2,13 +2,13 @@
 #define TESTLOOPPROGRAMM_H
 
 #include "programms/loopprogramm.h"
-#include "programms/programm.hpp"
+#include "programms/program.hpp"
 
 #include <iostream>
 #include <qdebug.h>
 void test();
 
-class TestLoopProgramm : public Modules::LoopProgramm<Modules::BrightnessProgramm>
+class TestLoopProgramm : public Modules::LoopProgramm<Modules::TypedProgram<Modules::brightness_t>>
 {
 protected:
     virtual void loopProgramm()override{

@@ -15,20 +15,20 @@ public:
     virtual ~AbstractProgramm() = default;
 };
 
-struct ProgrammState{
+struct ProgramState{
     bool finished;
     bool outputDataChanged;
 };
 
-class Programm : public PropertyBase, public OutputDataProducer, public Named{
-public:    
-    static const int INFINITE = 1 << 30;
-    Programm(const ValueType valueType):OutputDataProducer(valueType){}
+class Program : public PropertyBase, public OutputDataProducer, public Named{
+public:
+    static const int Infinite = (1 << 30);
+    Program(const ValueType valueType):OutputDataProducer(valueType){}
     virtual int getProgrammLengthInMS() = 0;
     virtual void setOutputLength(unsigned int length)=0;
     virtual void start() = 0;
-    virtual ProgrammState doStep(time_diff_t) = 0;
-    virtual ~Programm() override = default;
+    virtual ProgramState doStep(time_diff_t) = 0;
+    virtual ~Program() override = default;
     virtual void load(const LoadObject &l)override{
         PropertyBase::load(l);
         int length = l.loadInt("outputLength");
@@ -42,12 +42,12 @@ public:
 };
 
 template<typename value_type_t>
-class ProgrammTemplate : public Programm{
+class TypedProgram : public Program{
 protected:
     value_type_t *values = nullptr;
     unsigned int length = 0;
 public:
-    ProgrammTemplate(const ValueType valueType):Programm(valueType){}
+    TypedProgram():Program(typeToEnum<value_type_t>()){}
     virtual void setOutputLength(unsigned int l) override{
         length = l;
         if(values)
@@ -58,18 +58,10 @@ public:
         return length;
     }
     virtual void* getOutputData()override{return values;}
-    virtual ~ProgrammTemplate()override{delete [] values;}
+    virtual ~TypedProgram()override{delete [] values;}
 };
 
-class RGBProgramm:public ProgrammTemplate<rgb_t>{
-public:
-    RGBProgramm():ProgrammTemplate(RGB){}
-};
 
-class BrightnessProgramm: public ProgrammTemplate<brightness_t>{
-public:
-    BrightnessProgramm():ProgrammTemplate(Brightness){}
-};
 
 }
 

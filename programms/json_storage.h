@@ -4,6 +4,7 @@
 #include "storage.hpp"
 #include <QJsonObject>
 #include <functional>
+#include <cstring>
 namespace Modules {
 
 

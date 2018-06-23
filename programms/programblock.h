@@ -1,7 +1,7 @@
 #ifndef PROGRAMBLOCK_H
 #define PROGRAMBLOCK_H
 
-#include "programm.hpp"
+#include "program.hpp"
 #include "filter.hpp"
 #include "consumer.hpp"
 #include <stdexcept>
@@ -24,7 +24,7 @@ namespace Modules {
             const enum SourceType {Filter,Consumer} sourceType;
             std::shared_ptr<InputDataConsumer> source;
             template<typename Type>
-            Connection(std::shared_ptr<Type> source):source(source){
+            Connection(std::shared_ptr<Type> source):source(source),sourceType(Filter){
                 static_assert (std::is_base_of<InputDataConsumer,Type>::value,"Der Typ ist keine Subklasse eines InputDataConsumer.");
                 static_assert (std::is_base_of<Modules::Filter,Type>::value||std::is_base_of<Modules::Consumer,Type>::value,"Der Typ ist Filter oder Consumer.");
                 if(std::is_base_of<Modules::Filter,Type>::value){
@@ -83,7 +83,7 @@ namespace Modules {
             load from json, get object from Module Manager throug name
         */
 
-        std::set<std::shared_ptr<Programm>> programs;
+        std::set<std::shared_ptr<Program>> programs;
         // verschiedene Ebenen von Filtern
         std::map<int,detail::Connection> filter;
         // a list of all consumer and their connections
@@ -134,7 +134,7 @@ namespace Modules {
         /**
          * @brief addProgramm adds a pointer to a programm. the pointer is owned
          */
-        void addProgramm(Programm *p){programs.insert(std::shared_ptr<Programm>(p));}
+        void addProgramm(Program *p){programs.insert(std::shared_ptr<Program>(p));}
         /**
          * @brief addFilter add filter. throw exeption if one datasource is unknown
          * @param c the connection

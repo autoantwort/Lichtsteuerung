@@ -52,14 +52,11 @@ SOURCES += \
     programms/programblock.cpp \
     programms/compiler.cpp \
     test/testmodulsystem.cpp \
-<<<<<<< HEAD
     programms/controller.cpp \
     programms/dmxprogram.cpp \
     programms/dmxprogramblock.cpp \
-    programms/json_storage.cpp
-=======
+    programms/json_storage.cpp \
     codeeditorhelper.cpp
->>>>>>> Add Module View and make bug fixes
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -112,20 +109,17 @@ HEADERS += \
     programms/modulemanager.h \
     programms/programblock.h \
     programms/property.hpp \
-    programms/programm.hpp \
     programms/filter.hpp \
     programms/consumer.hpp \
     programms/compiler.h \
     test/testmodulsystem.h \
-<<<<<<< HEAD
     programms/controller.h \
     programms/dmxprogram.h \
     programms/dmxprogramblock.h \
     programms/storage.hpp \
-    programms/json_storage.h
-=======
-    codeeditorhelper.h
->>>>>>> Add Module View and make bug fixes
+    programms/json_storage.h \
+    codeeditorhelper.h \
+    programms/program.hpp
 
 
 # Default rules for deployment.
@@ -135,11 +129,11 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES +=
 
-QMAKE_CXXFLAGS += -fsanitize=address
+# QMAKE_CXXFLAGS += -fsanitize=address
 # QMAKE_CXXFLAGS += -fno-omit-frame-pointer
-QMAKE_CXXFLAGS += -Wshadow
-#QMAKE_CXXFLAGS += -lasan
-LIBS += -lasan
+# QMAKE_CXXFLAGS += -Wshadow
+# QMAKE_CXXFLAGS += -lasan
+# LIBS += -lasan
 
 win32-g++{
     LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context

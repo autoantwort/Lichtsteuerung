@@ -1,6 +1,8 @@
 #include "codeeditorhelper.h"
 #include <QTextCursor>
 #include <QtQuick>
+#include "settings.h"
+#include "programms/compiler.h"
 
 CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (parent)
 {
@@ -58,6 +60,28 @@ CodeEditorHelper::CodeEditorHelper(){
 
 }
 
+QString generateProgrammCode(){
+    QString code = "int getProgrammLengthInMS(){\n\treturn Program::Infinite;\n}\n\n";
+    code += "void start(){\n\t\n}\n\n";
+    code += "ProgrammState doStep(time_diff_t diff_ms){\n\treturn {false/*finished*/,true/*output changed*/};\n}\n\n";
+    return code;
+}
+
+QString generateFilterCode(){
+    QString code = "unsigned int computeOutputLength(unsigned int inputLength){\n\treturn inputLength;\n}\n\n";
+    code += "void filter(){\n\t\n}\n\n";
+    code += "bool doStep(time_diff_t diff_ms){\n\treturn false/*output changed*/;\n}\n\n";
+    return code;
+}
+
+void CodeEditorHelper::typeChanged(){
+    if(module->getType()==Modules::Module::Program){
+        emit insertText(generateProgrammCode(),0);
+    }else if(module->getType()==Modules::Module::Filter){
+        emit insertText(generateFilterCode(),0);
+    }
+}
+
 int CodeEditorHelper::countTabs(int startPos){
     int counter = 0;
     while (startPos>=0 && document->characterAt(startPos) != QChar::ParagraphSeparator) {
@@ -85,6 +109,8 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
             emit insertText(newText,from + tabs+ 2);
         }else{
             int tabs = countTabs(from-1);
+            if(tabs==0)
+                return;
             QString newText;
             qDebug()<<"write2 : "<<tabs;
             for(int i = 0 ; i< tabs;++i)
@@ -143,5 +169,154 @@ void CodeHighlighter::highlightBlock(const QString &text)
         }
         setFormat(startIndex, commentLength, multiLineCommentFormat);
         startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
+    }
+}
+
+QString toName(Modules::Module::Type t){
+    switch (t) {
+        case Modules::Module::Filter:
+        return "Filter";
+        case Modules::Module::Program:
+        return "Program";
+        case Modules::Module::LoopProgram:
+        return "LoopProgram";
+        default:
+            return "wrong_type";
+    }
+}
+QString toName(Modules::ValueType t){
+    switch (t) {
+        case Modules::Brightness:
+        return "brightness_t";
+        case Modules::RGB:
+        return "rgb_t";
+        default:
+            return "wrong_type";
+    }
+}
+QString toName(Modules::Property::Type t){
+    switch (t) {
+    case Modules::Property::Bool:
+    return "bool";
+    case Modules::Property::Double:
+    return "double";
+    case Modules::Property::Float:
+    return "float";
+    case Modules::Property::Int:
+    return "int";
+    case Modules::Property::Long:
+    return "long";
+    case Modules::Property::String:
+    return "std::string";
+        default:
+            return "wrong_type";
+    }
+}
+
+
+QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyInformation *p){
+    using namespace Modules;
+    if(p->getType() == Property::Bool){
+        out << "BoolProperty _"<< p->getName()<< ';' << endl;
+    }else if(p->getType() == Property::String){
+        out << "StringProperty _"<< p->getName()<< " = \"\";" << endl;
+    }else{
+        out << "NumericProperty<"<< toName(p->getType())<<"> _"<<p->getName()<<";"<<endl;
+    }
+    return out;
+}
+QTextStream& writeConstructor(QTextStream& out, const Modules::detail::PropertyInformation *p){
+    using namespace Modules;
+    out << "properties.push_back(& _"<< p->getName()<< ");" << endl;
+    out << "_" << p->getName() << ".setName(\""<< p->getName() << "\");" << endl;
+    out << "_" << p->getName() << ".setDescription(\""<< p->getDescription() << "\");" << endl;
+    return out;
+}
+
+void CodeEditorHelper::compile(){
+    if(!module)
+        return;
+    Settings s;
+    QFile file( s.getModuleDirPath() + "/" + module->getName() + ".cpp" );
+    file.remove();
+    if ( file.open(QIODevice::ReadWrite) )
+    {
+        QString typeName = toName(module->getType());
+        QString valueName = toName(module->getValueType());
+        QTextStream stream( &file );
+        stream << "#define MODULE_LIBRARY" << endl;
+        switch (module->getType()) {
+            case Modules::Module::Filter:
+                stream << "#define HAVE_FILTER" << endl;
+                break;
+            case Modules::Module::Program:
+                stream << "#define HAVE_PROGRAM" << endl;
+                break;
+            case Modules::Module::LoopProgram:
+                stream << "#define HAVE_LOOP_PROGRAM" << endl;
+                break;
+            default:
+                return;
+        }
+        stream << "#include <programms/module.h>" << endl;
+        stream << "" << endl;
+        stream << "using namespace Modules;" << endl;
+        stream << "" << endl;
+        if(module->getType() == Modules::Module::Filter){
+            stream << "class Impl : public Typed" << typeName << "<"<<valueName<<","<<valueName<<">{"<< endl;
+        }else{
+            stream << "class Impl : public Typed" << typeName << "<"<<valueName<<">{"<< endl;
+        }
+        for(const auto &p : module->getProperties()){
+            writeDeclaration(stream,p);
+        }
+        stream << "public:" << endl;
+        stream << "Impl(){" << endl;
+        for(const auto &p : module->getProperties()){
+            writeConstructor(stream,p);
+        }
+        stream << "}" << endl;
+        stream << "const char* getName()const final override{" << endl;
+        stream <<   "return \"" << module->getName()<< "\";" << endl;
+        stream << "}" << endl;
+        stream << "" << endl;
+        stream << document->toPlainText();
+        stream << "" << endl;
+        stream << "};" << endl; // class end
+        stream << "" << endl;
+        stream << "" << endl;
+        stream << "unsigned int getNumberOf"<<typeName<<"(){" << endl;
+        stream << " return 1;" << endl;
+        stream << "}" << endl;
+        stream << "" << endl;
+        stream << "char const * getNameOf"<<typeName<<"(unsigned int index){" << endl;
+        stream <<   "switch (index) {" << endl;
+        stream <<       "case 0:" << endl;
+        stream <<           "return \""<<module->getName()<<"\";" << endl;
+        stream <<       "default:" << endl;
+        stream <<           "return \"Wrong index\";" << endl;
+        stream <<   "}" << endl;
+        stream << "}" << endl;
+        stream << "" << endl;
+        stream << "char const * getDescriptionOf"<<typeName<<"(unsigned int index){" << endl;
+        stream <<   "switch (index) {" << endl;
+        stream <<       "case 0:" << endl;
+        stream <<           "return \""<<module->getDescription()<<"\";" << endl;
+        stream <<       "default:" << endl;
+        stream <<           "return \"Wrong index\";" << endl;
+        stream <<   "}" << endl;
+        stream << "}" << endl;
+        stream << "" << endl;
+        stream << typeName << " * create(unsigned int index){ " << endl;
+        stream <<   "switch (index) {" << endl;
+        stream <<       "case 0:" << endl;
+        stream <<           "return new Impl;" << endl;
+        stream <<       "default:" << endl;
+        stream <<          "return nullptr;" << endl;
+        stream <<   "}" << endl;
+        stream << "}" << endl;
+        stream.flush();
+        file.close();
+        Modules::Compiler::compileToLibrary(file,module->getName()+".dll");
     }
 }

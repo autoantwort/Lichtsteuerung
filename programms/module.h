@@ -8,7 +8,7 @@
 //#define HAVE_CONSUMER
 
 #ifdef HAVE_PROGRAM
-#include "programm.hpp"
+#include "program.hpp"
 #endif
 
 #ifdef HAVE_FILTER
@@ -35,31 +35,31 @@
 #endif
 
 extern "C" {
-enum MODUL_TYPE{Programm, LoopProgramm,Filter,Consumer};
+enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer};
 
 #ifdef MODULE_LIBRARY
 
 MODULE_EXPORT bool have(MODUL_TYPE t){
     switch (t) {
-    case Programm:
+    case MODUL_TYPE::Program:
 #ifdef HAVE_PROGRAM
     return true;
 #else
     return false;
 #endif
-    case LoopProgramm:
+    case MODUL_TYPE::LoopProgram:
 #ifdef HAVE_LOOP_PROGRAMM
     return true;
 #else
     return false;
 #endif
-    case Filter:
+    case MODUL_TYPE::Filter:
 #ifdef HAVE_FILTER
     return true;
 #else
     return false;
 #endif
-    case Consumer:
+    case MODUL_TYPE::Consumer:
 #ifdef HAVE_CONSUMER
     return true;
 #else
@@ -72,10 +72,10 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
 #endif
 
 #ifdef HAVE_PROGRAM
-MODULE_EXPORT unsigned int getNumberOfProgramms();
-MODULE_EXPORT char const * getNameOfProgramm(unsigned int index);
-MODULE_EXPORT Modules::Programm * createProgramm(unsigned int index);
-MODULE_EXPORT char const * getDescriptionOfProgramm(unsigned int index);
+MODULE_EXPORT unsigned int getNumberOfPrograms();
+MODULE_EXPORT char const * getNameOfProgram(unsigned int index);
+MODULE_EXPORT Modules::Program * createProgram(unsigned int index);
+MODULE_EXPORT char const * getDescriptionOfProgram(unsigned int index);
 #endif
 
 #ifdef HAVE_FILTER

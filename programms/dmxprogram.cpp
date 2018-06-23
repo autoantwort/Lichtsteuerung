@@ -10,7 +10,7 @@ namespace Modules {
 
     }
 
-    ProgrammState DMXProgram::doStep(time_diff_t diff) {
+    ProgramState DMXProgram::doStep(time_diff_t diff) {
         time += diff;
         std::memset(values,0,getOutputLength());
         DMXChannelFilter::initValues(values,getOutputLength());

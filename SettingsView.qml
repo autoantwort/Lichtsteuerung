@@ -84,6 +84,34 @@ Pane{
         }
         Label{
             Layout.fillWidth: true
+            text: "Compiler File Path:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.compilerPath
+            onAccepted: Settings.compilerPath = text;
+            Button{
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: -5
+                anchors.bottomMargin: -5
+                anchors.bottom: parent.bottom
+                text: "File Chooser"
+                onClicked: {
+                    fileDialog.selectFolder = false;
+                    fileDialog.selectMultiple = false;
+                    fileDialog.folder = Settings.compilerPath;
+                    fileDialog.open();
+                    fileDialog.addSelection(Settings.compilerPath);
+                    fileDialog.callback = function(file){
+                        console.log(file);
+                        Settings.compilerPath = file;
+                    };
+                }
+            }
+        }
+        Label{
+            Layout.fillWidth: true
             text: "Compiler Flags:"
         }
         TextInputField{

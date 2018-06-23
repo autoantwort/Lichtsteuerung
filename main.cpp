@@ -41,6 +41,7 @@ int main(int argc, char *argv[])
     testModulSystem.runTest();
     return 0;*/
 
+
     class CatchingErrorApplication : public QGuiApplication{
     public:
         CatchingErrorApplication(int &argc, char **argv):QGuiApplication(argc,argv){}
@@ -109,6 +110,12 @@ int main(int argc, char *argv[])
     for (int i = 0; i < QEasingCurve::NCurveTypes - 1; ++i) {
         dataList.append(metaEnum.key(i));
     }
+    QStringList moduleTypeList;
+    const QMetaObject &_mom = Modules::Module::staticMetaObject;
+    QMetaEnum _metaEnum =_mom.enumerator(mo.indexOfEnumerator("Type"));
+    for (int i = 0; i < _metaEnum.keyCount(); ++i) {
+        moduleTypeList.append(_metaEnum.key(i));
+    }
 
     app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){
         QFile savePath(settings.getJsonSettingsFilePath());
@@ -134,6 +141,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("ErrorNotifier",ErrorNotifier::get());
     engine.setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
+    engine.rootContext()->setContextProperty("modulesModel",Modules::ModuleManager::singletone()->getModules());
+    engine.rootContext()->setContextProperty("moduleTypeModel",moduleTypeList);
     engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
     engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
     engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());

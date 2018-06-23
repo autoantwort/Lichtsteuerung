@@ -5,6 +5,7 @@
 #include "device.h"
 #include "programmprototype.h"
 #include "programm.h"
+#include "programms/modulemanager.h"
 
 class ModelManager : public QObject{
     Q_OBJECT
@@ -37,6 +38,11 @@ public:
     }
     Q_INVOKABLE bool addProgramm(QString name, QString description=""){
         new Programm(name,description);
+        return true;
+    }
+    Q_INVOKABLE bool addModule(){
+        Modules::ModuleManager::singletone()->getModules()->push_back(new Modules::Module());
+        qDebug() << "count : "<<Modules::ModuleManager::singletone()->getModules()->size();
         return true;
     }
 

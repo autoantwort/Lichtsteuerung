@@ -13,7 +13,7 @@ Item{
         width: 300
         //interactive: false
         id: swipeView
-        function switchTab(){
+        /*function switchTab(){
             if(tab1.x===0){
                 tab1.x = -width;
                 tab2.x = 0;
@@ -21,7 +21,7 @@ Item{
                 tab1.x = 0;
                 tab2.x = width;
             }
-        }
+        }*/
         Page{
 
             id:tab1
@@ -36,20 +36,25 @@ Item{
                 anchors.top: parent.top
                 anchors.left: parent.left
                 anchors.right:  parent.right
+                anchors.bottom: parent.bottom
                 id:listView
                 delegate: ItemDelegate{
+                    property var itemData : modelData
                     width: parent.width
-                    text: itemData.name +"("+itemData.description+")"
+                    height: 60
+                    text: modelData.name +  " (" + moduleTypeModel[modelData.type] + ')'
                     onClicked: {
                         listView.currentIndex = index;
-                        swipeView.switchTab();
+//                        for (var prop in moduleTypeModel) {
+//                                    print(prop += " (" + typeof(moduleTypeModel[prop]) + ") = " + moduleTypeModel[prop]);
+//                                }
                     }
                 }
                 highlight: Rectangle{
                     color: "blue"
                     opacity: 0.7
                 }
-                model: deviceModel
+                model: modulesModel
 
             }
             footer: RowLayout{
@@ -59,6 +64,7 @@ Item{
                     id: buttonAdd
                     text:"Add"
                     font.pixelSize: 15
+                    onClicked: {ModelManager.addModule(); console.log("test");}
                 }
                 Button{
                     Layout.preferredWidth: listView.width/2-10
@@ -69,7 +75,7 @@ Item{
                 }
             }
         }
-        Page{
+        /*Page{
             x: 9999 // far far away, nobody should see this Component at Lunch time
             id:tab2
             Behavior on x {
@@ -92,7 +98,7 @@ Item{
                 id:listView2
                 delegate: ItemDelegate{
                     width: parent.width
-                    text: itemData.name +"("+itemData.description+")"
+                    text:  " test : " + itemData.name +"("+itemData.description+")"
                     onClicked: listView.currentIndex = index
 
                 }
@@ -119,7 +125,7 @@ Item{
                     font.pixelSize: 15
                 }
             }
-        }
+        }*/
     }
 
     GridLayout{
@@ -135,6 +141,9 @@ Item{
         }
         TextInputField{
             Layout.fillWidth: true
+            enabled: listView.currentIndex !== -1
+            text: listView.currentItem ? listView.currentItem.itemData.name : "Select one Module"
+            onTextChanged: listView.currentItem.itemData.name = text;
         }
 
         Label{
@@ -142,14 +151,19 @@ Item{
         }
         TextInputField{
             Layout.fillWidth: true
+            enabled: listView.currentIndex !== -1
+            text: listView.currentItem ? listView.currentItem.itemData.description : "Select one Module"
+            onTextChanged: listView.currentItem.itemData.description = text;
         }
 
         Label{
             text: "Type:"
         }
         ComboBox{
-            model: ["Program", "Loopprogram", "Filter","Consumer"]
+            model: moduleTypeModel
             Layout.preferredWidth: 200
+            currentIndex: listView.currentItem.itemData.type
+            onCurrentIndexChanged: listView.currentItem.itemData.type = currentIndex
         }
 
         Label{
@@ -188,15 +202,22 @@ Item{
             Layout.columnSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
+            onHoveredChanged: if(!hovered)listView.currentItem.itemData.code = codeEditor.text
             TextArea{
                 font.family: "Liberation Mono"
                 font.pointSize: 10
                 tabStopDistance: 16
                 id: codeEditor
                 selectByMouse: true
+                text: listView.currentItem.itemData.code
+                //onTextChanged: listView.currentItem.itemData.code = text
+
                 CodeEditorHelper{
+                    id:codeEditorHelper
+                    module: listView.currentItem.itemData
                     document: codeEditor.textDocument
                     onInsertText: {
+                        console.log(newText)
                         codeEditor.insert(codeEditor.cursorPosition,newText);
                         // Hack to display all new text, sometimes new text disappear
                         codeEditor.selectAll();
@@ -210,6 +231,7 @@ Item{
             Layout.columnSpan: 2
             Layout.fillWidth: true
             text: "Compile, test and save"
+            onClicked: codeEditorHelper.compile()
         }
 
     }

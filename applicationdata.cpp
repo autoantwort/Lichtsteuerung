@@ -12,6 +12,7 @@
 #include "controlpanel.h"
 #include "mapview.h"
 #include <QCryptographicHash>
+#include "programms/modulemanager.h"
 
 namespace ApplicationData{
 
@@ -54,6 +55,10 @@ QByteArray saveData(){
         QJsonObject u;
         MapView::getLastCreated()->writeJsonObject(u);
         o.insert("MapView",u);
+    }{
+        QJsonObject u;
+        Modules::ModuleManager::singletone()->writeJsonObject(u);
+        o.insert("ModuleManager",u);
     }
     return QJsonDocument(o).toJson();
 }
@@ -92,6 +97,10 @@ std::function<void()> loadData(QByteArray data){
     }else{
         qDebug()<<"password : "<<password;
         qDebug()<<"hash     : "<<QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
+    }
+    {
+        QJsonObject ob = o["ModuleManager"].toObject();
+        Modules::ModuleManager::singletone()->loadModules(ob);
     }
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
     return [=](){

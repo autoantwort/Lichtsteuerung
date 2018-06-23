@@ -154,6 +154,7 @@ namespace Modules {
         size_t length;
         Type * data;
     public:
+        CheckedArray(Type* data, size_t length):data(data),length(length){}
         Type& operator[](std::size_t idx)       { return idx<length?data[idx]:throw IndexOutOfBoundsException(0,length-1,idx); }
         const Type& operator[](std::size_t idx) const { return idx<length?data[idx]:throw IndexOutOfBoundsException(0,length-1,idx); }
         Type& operator[](int i)       { if(i>=0 && i<length){return data[i];}else{throw IndexOutOfBoundsException(0,length-1,i);}}

@@ -27,7 +27,8 @@ public:
     unsigned int getUpdatePauseInMs()const{return settings.value("updatePauseInMs").toUInt();}
     void setModuleDirPath( const QString _moduleDirPath){
         if(!QFile::exists(_moduleDirPath))return;
-            settings.setValue("moduleDirPath",_moduleDirPath); emit moduleDirPathChanged();
+            settings.setValue("moduleDirPath",_moduleDirPath);
+            emit moduleDirPathChanged();
     }
 
     QString getModuleDirPath() const {
@@ -36,7 +37,9 @@ public:
 
     void setCompilerPath( const QString _compilerPath){
         if(_compilerPath != Modules::Compiler::compilerCmd){
-            Modules::Compiler::compilerCmd = _compilerPath; emit compilerPathChanged();
+            settings.setValue("compilerCmd",_compilerPath);
+            Modules::Compiler::compilerCmd = _compilerPath;
+            emit compilerPathChanged();
         }
     }
     QString getCompilerPath() const {
@@ -45,7 +48,9 @@ public:
 
     void setCompilerFlags( const QString _compilerFlags){
       if(_compilerFlags != Modules::Compiler::compilerFlags){
-        Modules::Compiler::compilerFlags = _compilerFlags; emit compilerFlagsChanged();
+          settings.setValue("compilerFlags",_compilerFlags);
+        Modules::Compiler::compilerFlags = _compilerFlags;
+        emit compilerFlagsChanged();
       }
     }
     QString getCompilerFlags() const {
@@ -54,6 +59,7 @@ public:
 
     void setCompilerLibraryFlags( const QString _compilerLibraryFlags){
         if(_compilerLibraryFlags != Modules::Compiler::compilerLibraryFlags){
+            settings.setValue("compilerLibraryFlags",_compilerLibraryFlags);
             Modules::Compiler::compilerLibraryFlags = _compilerLibraryFlags; emit compilerLibraryFlagsChanged();
         }
     }

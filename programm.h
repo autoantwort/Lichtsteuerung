@@ -118,7 +118,7 @@ signals:
     void intervallChanged(double);
 };
 
-class DeviceProgrammVector : public ModelVector<DeviceProgramm>{
+class DeviceProgrammVector : public ModelVector<DeviceProgramm*>{
     Q_OBJECT
 };
 

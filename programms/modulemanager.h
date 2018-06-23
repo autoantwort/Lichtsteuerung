@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <functional>
-#include "programm.hpp"
+#include "program.hpp"
 #include "filter.hpp"
 #include "consumer.hpp"
 #include <cstring>
+#include "property.hpp"
 
 #include <QString>
 #include <QFile>
@@ -14,8 +15,146 @@
 #include <QLibrary>
 #include <iostream>
 #include <memory>
+#include "modelvector.h"
 
 namespace Modules {
+
+namespace detail {
+    class PropertyInformation : public QObject{
+        Q_OBJECT
+        QString name = "No Name";
+        QString description;
+        typedef Property::Type Type;
+        Type type;
+    public:
+        Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
+        Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
+        Q_PROPERTY(Property::Type type READ getType WRITE setType NOTIFY typeChanged)
+        PropertyInformation(const QJsonObject &o);
+        void writeJsonObject(QJsonObject &o)const;
+        Q_ENUM(Type)
+        void setName( const QString _name){
+                if(_name != name){
+                        name = _name;
+                        emit nameChanged();
+                }
+        }
+        QString getName() const {
+                return name;
+        }
+        void setDescription( const QString _description){
+                if(_description != description){
+                        description = _description;
+                        emit descriptionChanged();
+                }
+        }
+        QString getDescription() const {
+                return description;
+        }
+        void setType( const Property::Type _type){
+                if(_type != type){
+                        type = _type;
+                        emit typeChanged();
+                }
+        }
+        Property::Type getType() const {
+                return type;
+        }
+    signals:
+        void nameChanged();
+        void descriptionChanged();
+        void typeChanged();
+    };
+    class PropertiesVector : public ModelVector<PropertyInformation*>{
+      //  Q_OBJECT
+    };
+}
+
+class Module : public QObject{
+
+    Q_OBJECT
+    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
+    Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
+    Q_PROPERTY(ValueType valueType READ getValueType WRITE setValueType NOTIFY valueTypeChanged)
+    Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
+    QString name = "No Name";
+    QString description;
+    detail::PropertiesVector  properties;
+    QString code;
+    ValueType valueType;
+    Q_ENUM(ValueType)
+
+    //Module(Module&)=delete;
+public:
+    enum Type{Program, LoopProgram, Filter};
+    Q_ENUM(Type)
+private:
+    Type type;
+public:
+    Module() = default;
+    Module(const QJsonObject &o);
+    void writeJsonObject(QJsonObject &o)const;
+
+    //Module() = default;
+    const detail::PropertiesVector& getProperties()const{
+        return properties;
+    }
+
+    void setName( const QString _name){
+        if(_name != name){
+            name = _name;
+            emit nameChanged();
+        }
+    }
+    QString getName() const {
+        return name;
+    }
+    void setDescription( const QString _description){
+        if(_description != description){
+            description = _description;
+            emit descriptionChanged();
+        }
+    }
+    QString getDescription() const {
+        return description;
+    }
+    void setType( const Type _type){
+        if(_type != type){
+            type = _type;
+            emit typeChanged();
+        }
+    }
+    Type getType() const {
+        return type;
+    }
+    void setValueType( const ValueType _valueType){
+            if(_valueType != valueType){
+                    valueType = _valueType;
+                    emit valueTypeChanged();
+            }
+    }
+    ValueType getValueType() const {
+            return valueType;
+    }
+    void setCode( const QString _code){
+        if(_code != code){
+                code = _code;
+                emit codeChanged();
+        }
+    }
+    QString getCode() const {
+            return code;
+    }
+
+signals:
+    void nameChanged();
+    void descriptionChanged();
+    void typeChanged();
+    void valueTypeChanged();
+    void codeChanged();
+};
+
 
     namespace detail {
         template<typename T>
@@ -40,9 +179,10 @@ namespace Modules {
      */
     class ModuleManager
     {
-        typedef std::vector<detail::Entry<Programm>> ProgrammModulContainer;
+        typedef std::vector<detail::Entry<Program>> ProgrammModulContainer;
         typedef std::vector<detail::Entry<Filter>> FilterModulContainer;
         typedef std::vector<detail::Entry<Consumer>> ConsumerModulContainer;
+        ModelVector<Module*> modules;
         ProgrammModulContainer programms;
         //std::vector<detail::Entry<Programm>> programms;
         FilterModulContainer filter;
@@ -52,13 +192,17 @@ namespace Modules {
         static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name);
     public:
         ModuleManager();
+        ~ModuleManager(){for(auto m : modules)delete m;}
+        void loadModules(const QJsonObject &o);
+        void writeJsonObject(QJsonObject &o);
         static ModuleManager * singletone(){static ModuleManager m;return &m;}
         void loadModule(QString name);
         void loadAllModulesInDir(QDir name);
+        ModelVector<Module*>* getModules(){return &modules;}
         const ProgrammModulContainer & getProgrammModules(){return programms;}
         const FilterModulContainer & getFilterModules(){return filter;}
         const ConsumerModulContainer & getConsumerModules(){return consumer;}
-        std::shared_ptr<Programm> createProgramm(const std::string & name){return createByName(programms,name);}
+        std::shared_ptr<Program> createProgramm(const std::string & name){return createByName(programms,name);}
         std::shared_ptr<Filter>   createFilter  (const std::string & name){return createByName(filter   ,name);}
         std::shared_ptr<Consumer> createConsumer(const std::string & name){return createByName(consumer ,name);}
     protected:
