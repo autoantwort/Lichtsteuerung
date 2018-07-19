@@ -21,7 +21,7 @@ namespace Modules {
                 unsigned int startIndex;
             };
             typedef unsigned int length_t;
-            const enum SourceType {Filter,Consumer} sourceType;
+            enum SourceType {Filter,Consumer} sourceType;
             std::shared_ptr<InputDataConsumer> source;
             template<typename Type>
             Connection(std::shared_ptr<Type> source):source(source),sourceType(Filter){
@@ -146,6 +146,10 @@ namespace Modules {
          * @param c
          */
         void addConsumer(detail::Connection c);
+        template<typename F>
+        void removeConsumer(F f){
+            std::remove_if(consumer.begin(),consumer.end(),f);
+        }
     public:
         ProgramBlock();
         ProgramBlock(const QJsonObject&);

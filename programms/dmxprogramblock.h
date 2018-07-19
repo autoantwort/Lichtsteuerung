@@ -3,15 +3,25 @@
 
 #include "programblock.h"
 #include "dmxprogram.h"
-#include "dmxconsumer.h"
+
 
 namespace Modules {
+
+    /**
+     * @brief Ein DMXProgramBlock der von Controller ausgeführt werden kann, damit DMXProgramm ausgeführt werden können.
+     */
     class DMXProgramBlock : public ProgramBlock
     {
         DMXProgram * prog = nullptr;
-        std::shared_ptr<DMXConsumer> consumer;
+        std::shared_ptr<Consumer> consumer;
     public:
-        DMXProgramBlock();
+        /**
+         * @brief isLoaded returns true, if a consumer is loaded so that the dmxouput can be shown
+         * @return true if a consumer exists
+         */
+        bool isLoaded(){return consumer.operator bool();}
+        void setDMXConsumer(std::shared_ptr<Consumer> consumer);
+        DMXProgramBlock(std::shared_ptr<Consumer> consumer);
         ~DMXProgramBlock(){}
     };
 }
