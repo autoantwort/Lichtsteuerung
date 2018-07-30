@@ -106,15 +106,15 @@ namespace Modules {
 
         void save(SaveObject &s)const override{
             if(std::is_same<Type_t,int>::value){
-                s.saveInt(name.c_str(),reinterpret_cast<int>(value));
+                s.saveInt(name.c_str(),static_cast<int>(value));
             }else if(std::is_same<Type_t,long>::value){
-                s.saveLong(name.c_str(),reinterpret_cast<long>(value));
+                s.saveLong(name.c_str(),static_cast<long>(value));
             }else if(std::is_same<Type_t,float>::value){
-                s.saveFloat(name.c_str(),reinterpret_cast<float>(value));
+                s.saveFloat(name.c_str(),static_cast<float>(value));
             }else if(std::is_same<Type_t,double>::value){
-                s.saveDouble(name.c_str(),reinterpret_cast<double>(value));
+                s.saveDouble(name.c_str(),static_cast<double>(value));
             }else {
-                s.saveBool(name.c_str(),reinterpret_cast<bool>(value));
+                s.saveBool(name.c_str(),static_cast<bool>(value));
             }
         }
 
