@@ -392,7 +392,7 @@ void CodeEditorHelper::compile(){
         stream <<   "}" << endl;
         stream << "}" << endl;
         stream << "" << endl;
-        stream << typeName << " * create(unsigned int index){ " << endl;
+        stream << typeName << " * create"<< typeName <<"(unsigned int index){ " << endl;
         stream << "  switch (index) {" << endl;
         stream << "    case 0:" << endl;
         stream << "      return new Impl;" << endl;

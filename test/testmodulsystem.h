@@ -24,7 +24,7 @@ namespace Test{
             ModuleManager::singletone()->loadModule("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
             auto t3 = high_resolution_clock::now();
             for(const auto& i:ModuleManager::singletone()->getFilterModules()){
-                std::cout <<i.name<< " , " << i.description;
+                std::cout <<i.name()<< " , " << i.description();
             }
             auto blurFilter = ModuleManager::singletone()->createFilter("Blur");
             qDebug()<<blurFilter.get();

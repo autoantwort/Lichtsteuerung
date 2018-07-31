@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <iostream>
 #include <QDir>
+#include "modelmanager.h"
 namespace Modules{
 
 
@@ -26,8 +27,11 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
     p.start("bash", QStringList() << "-c" << compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.fileName() + " -o " + newLibraryFile);
 #elif defined(Q_OS_WIN)
-    QString cmd = /*".\\" + */ compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1) + " -c \"" + file.absoluteFilePath() + "\" "+ compilerLibraryFlags + " " + compilerFlags + " -o \"" + file.absolutePath() + "/" + newLibraryFile+"\" -I\"" + QDir::currentPath() + "\" ";
+    QString tempName=newLibraryFile + ".o";
+    QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
+    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + file.absolutePath() + "/" + tempName+"\" -I\"" + QDir::currentPath() + "\" ";
     cmd = "\" " + cmd + " \"";
+    qDebug().noquote() << cmd;
     /*
      * Use .\ ans setWorkingDir
      * OR
@@ -46,6 +50,22 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
         qDebug() << p.errorString();
         qDebug() << p.error();
         qDebug().noquote() << cmd;
+    }else{
+#ifdef Q_OS_WIN
+        // we have to unload the existing lib first
+        ModuleManager::singletone()->singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
+        // we only have a .o ans need a .dll
+        // cmd: g++ -shared -o foo.dll foo.dll.o
+        QProcess oToDll;
+        oToDll.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
+        oToDll.start("cmd /c \" " + compilerCMD + " " + compilerLibraryFlags + " -o \"" + file.absolutePath() + "/" + newLibraryFile +"\"  \""+ file.absolutePath() + "/" + tempName +"\" \"");
+        oToDll.waitForFinished();
+        if(oToDll.exitCode() == 0){
+            ModuleManager::singletone()->singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
+        }
+        return{oToDll.exitCode(),oToDll.readAllStandardError()};
+
+#endif
     }
     return {p.exitCode(),QString(err)};
 }

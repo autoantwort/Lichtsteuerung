@@ -11,7 +11,8 @@ namespace Modules {
 namespace detail {
 
     PropertyInformation::PropertyInformation(const QJsonObject &o):name(o["name"].toString("no name")),
-        description(o["description"].toString()),type(static_cast<Type>(o["type"].toInt())){
+        description(o["description"].toString()),type(static_cast<Type>(o["type"].toInt())),max(o["maxValue"].toInt()),
+        min(o["minValue"].toInt()),defaultValue(o["defaultValue"].toInt()){
 
     }
 
@@ -19,6 +20,9 @@ namespace detail {
             o["type"] = type;
             o["name"] = name;
             o["description"] = description;
+            o["minValue"] = min;
+            o["maxValue"] = max;
+            o["defaultValue"] = defaultValue;
     }
 
 }
@@ -70,6 +74,43 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         }
     }
 
+    bool ModuleManager::unloadLibrary(QString filePath){
+        for(auto e = loadedLibraryMap.begin();e!=loadedLibraryMap.end();++e){
+            qDebug()<<e->first;
+            if(e->first == filePath){
+                filter.erase(std::remove_if(filter.begin(),filter.end(),[&](const auto &f){
+                    return f.libraryIdentifier == e->second;
+                }),filter.cend());
+                programms.erase(std::remove_if(programms.begin(),programms.end(),[&](const auto &f){
+                    return f.libraryIdentifier == e->second;
+                }),programms.cend());
+                consumer.erase(std::remove_if(consumer.begin(),consumer.end(),[&](const auto &f){
+                    return f.libraryIdentifier == e->second;
+                }),consumer.cend());
+                QLibrary lib(filePath);
+                bool suc = lib.unload();
+                if(suc){
+                   loadedLibraryMap.erase(e);
+                   QFile f(filePath);
+                   if(!f.remove()){
+                       return f.rename(f.fileName()+".old");
+                   }
+                   return true;
+                }
+                int counter = 0;
+                while (QFile::exists(filePath+ QString::number(counter)+".old")) {
+                    ++counter;
+                }
+                suc = QFile(filePath).rename(filePath+ QString::number(counter)+".old");
+                if(suc){
+                    loadedLibraryMap.erase(e);
+                }
+                return suc;
+            }
+        }
+        return true;
+    }
+
     void ModuleManager::writeJsonObject(QJsonObject &o){
         QJsonArray a ;
         for(const auto &m : modules){
@@ -89,18 +130,20 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 qDebug()<<"have funktion is missing";
                 return;
             }
+            lastLibraryIdentifier++;
+            loadedLibraryMap.emplace_back(lib.fileName(),lastLibraryIdentifier);
             if(f(MODUL_TYPE::Program)){
-                loadType(lib,programms,"Programm");
+                loadType(lib,programms,"Programm",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::LoopProgram)){
-                //loadType(lib,programms,"LoopProgramm");
+                //loadType(lib,programms,"LoopProgramm",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::Filter)){
-                loadType(lib,filter,"Filter");
+                loadType(lib,filter,"Filter",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::Consumer)){
                 qDebug()<< "Loading Consumer";
-                loadType(lib,consumer,"Consumer");
+                loadType(lib,consumer,"Consumer",lastLibraryIdentifier);
             }
         }else{
-            qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString();
+            qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString() ;
         }
     }
 
@@ -108,20 +151,24 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
          qDebug() << dir;
         for(auto s : dir.entryInfoList(QDir::Files)){
 #ifdef Q_OS_WIN
+            if(s.suffix() == "old"){
+                QFile::remove(s.filePath());
+            }
             if(s.suffix() == "dll")
 #endif
             loadModule(s.absoluteFilePath());
-            qDebug()<<"found : " << s;
+            //qDebug()<<"found : " << s;
         }
         for(auto s : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
             loadAllModulesInDir(s);
         }
         for(const auto & m : getProgrammModules())
-            qDebug() << m.name.c_str();
+            qDebug() << m.name().c_str();
         for(const auto & m : getFilterModules())
-            qDebug() << m.name.c_str();
+            qDebug() << m.name().c_str();
         for(const auto & m : getConsumerModules())
-            qDebug() << m.name.c_str();
+            qDebug() << m.name().c_str();
+
     }
 
 }

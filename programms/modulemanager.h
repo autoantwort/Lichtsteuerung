@@ -196,11 +196,14 @@ signals:
         class Entry{
             typedef std::function<T*(void)> CreateFunction;
             CreateFunction createFunc;
+            std::string name_;
+            std::string description_;
         public:
-            Entry(const std::string& name,const std::string& description):name(name),description(description){}
-            Entry(const std::string& name,const std::string& description,CreateFunction func):createFunc(func),name(name),description(description){}
-            const std::string name;
-            const std::string description;
+            int libraryIdentifier = -1;
+            Entry(const std::string& name,const std::string& description):name_(name),description_(description){}
+            Entry(const std::string& name,const std::string& description,CreateFunction func):createFunc(func),name_(name),description_(description){}
+            const std::string& name()const{return name_;}
+            const std::string& description()const{return description_;}
             T* create()const{
                 if(createFunc)
                     return createFunc();
@@ -217,6 +220,8 @@ signals:
         typedef std::vector<detail::Entry<Program>> ProgrammModulContainer;
         typedef std::vector<detail::Entry<Filter>> FilterModulContainer;
         typedef std::vector<detail::Entry<Consumer>> ConsumerModulContainer;
+        std::vector<std::pair<QString,int>> loadedLibraryMap;
+        int lastLibraryIdentifier = 0;
         ModelVector<Module*> modules;
         ProgrammModulContainer programms;
         //std::vector<detail::Entry<Programm>> programms;
@@ -224,13 +229,18 @@ signals:
         ConsumerModulContainer consumer;
     private:
         template<typename Type, typename String>
-        static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name);
+        static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name, int libraryIdentifier);
     public:
         ModuleManager();
         ~ModuleManager(){for(auto m : modules)delete m;}
         void loadModules(const QJsonObject &o);
+        bool unloadLibrary(QString filePath);
         void writeJsonObject(QJsonObject &o);
         static ModuleManager * singletone(){static ModuleManager m;return &m;}
+        /**
+         * @brief loadModule loads the shared library(module) given by the filePath
+         * @param name the filePath of the shared library that should be loaded
+         */
         void loadModule(QString name);
         void loadAllModulesInDir(QDir name);
         ModelVector<Module*>* getModules(){return &modules;}
@@ -244,7 +254,7 @@ signals:
         template<typename T>
         static std::shared_ptr<T> createByName(const std::vector<detail::Entry<T>> & c, const std::string  &name){
             for(auto i = c.cbegin() ; i != c.cend();++i){
-                if(i->name == name)
+                if(i->name() == name)
                     return std::shared_ptr<T>(i->create());
             }
             return nullptr;
@@ -257,7 +267,7 @@ signals:
 
 
     template<typename Type, typename String >
-    void ModuleManager::loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c , String Typename){
+    void ModuleManager::loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c , String Typename, int libraryIdentifier){
         const auto getNumberOfName = std::string("getNumberOf") + Typename;
         const auto getNameOfName = std::string("getNameOf") + Typename;
         const auto getDescriptionOfName = std::string("getDescriptionOf") + Typename;
@@ -276,6 +286,8 @@ signals:
             const auto desc = getDescriptionOfProgramm(i);
             const auto func = [=](){return createProgramm(i);};
             c.emplace_back(name,desc,func);
+            c.back().libraryIdentifier = libraryIdentifier;
+
         }
     }
 
