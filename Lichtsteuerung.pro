@@ -97,19 +97,10 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES +=
 
-<<<<<<< Updated upstream
-=======
-# QMAKE_CXXFLAGS += -fsanitize=address
-# QMAKE_CXXFLAGS += -fno-omit-frame-pointer
-# QMAKE_CXXFLAGS += -Wshadow
-# QMAKE_CXXFLAGS += -lasan
-# LIBS += -lasan
-
 win32-msvc{
     LIBS += -L$$PWD/lib/boost/
 }
 
->>>>>>> Stashed changes
 win32-g++{
     #AudioFFT
     LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
