@@ -20,37 +20,37 @@ Compiler::Compiler()
 }
 
 
-int Compiler::compileToLibrary(const QFile &file,const QString &newLibraryFile){
+std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QString &newLibraryFile){
     QProcess p;
 #ifdef Q_OS_MAC
     p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
     p.start("bash", QStringList() << "-c" << compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.fileName() + " -o " + newLibraryFile);
 #elif defined(Q_OS_WIN)
-    QString cmd = /*"cd " + compilerCmd.left(compilerCmd.lastIndexOf('/')) + " && " +*/ compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1) + " -c \"" + file.fileName() + "\" "+  compilerLibraryFlags + " " + compilerFlags + " -o \"" + newLibraryFile+"\" -I\"" + QDir::currentPath() + "\"";
-    p.setWorkingDirectory(compilerCmd.left(compilerCmd.lastIndexOf('/')));
-    //p.start("cmd",QStringList()<< "/c" << cmd);
-    p.start(cmd);
-    qDebug() << cmd;
-    std::cout << cmd.toStdString() << '\n';
-    qDebug() << compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
-    qDebug() << compilerCmd;
-
+    QString cmd = /*".\\" + */ compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1) + " -c \"" + file.absoluteFilePath() + "\" "+ compilerLibraryFlags + " " + compilerFlags + " -o \"" + file.absolutePath() + "/" + newLibraryFile+"\" -I\"" + QDir::currentPath() + "\" ";
+    cmd = "\" " + cmd + " \"";
+    /*
+     * Use .\ ans setWorkingDir
+     * OR
+     * setEnviroment
+     */
+    //p.setWorkingDirectory(compilerCmd.left(compilerCmd.lastIndexOf('/')));
+    p.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
+    p.start("cmd /c " + cmd);
 #endif
     p.waitForFinished();
     auto err = p.readAllStandardError();
     auto out = p.readAllStandardError();
-    qDebug() << err;
-    qDebug() << out;
-    std::cout << err.toStdString() << '\n';
-    std::cout << out.toStdString() << '\n';
-    qDebug() << p.errorString();
-    qDebug() << p.error();
-    qDebug() << p.exitStatus();
-    qDebug() << p.exitCode();
-    return p.exitCode();
+    if(err.length()>0)qDebug().noquote() <<"ERR : "<< QString(err);
+    if(out.length()>0)qDebug().noquote() <<"OuT : "<< QString(out);
+    if(p.exitStatus() == QProcess::CrashExit){
+        qDebug() << p.errorString();
+        qDebug() << p.error();
+        qDebug().noquote() << cmd;
+    }
+    return {p.exitCode(),QString(err)};
 }
 
-int Compiler::compileToLibrary(const QString &code, const QString &newLibraryFile){
+std::pair<int,QString> Compiler::compileToLibrary(const QString &code, const QString &newLibraryFile){
     QTemporaryFile file;
     file.open();
     {

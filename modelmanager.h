@@ -45,6 +45,12 @@ public:
         qDebug() << "count : "<<Modules::ModuleManager::singletone()->getModules()->size();
         return true;
     }
+    Q_INVOKABLE void removeModule(int index){
+        const auto vec = Modules::ModuleManager::singletone()->getModules();
+        if(index>=0 && index < vec->size()){
+            delete vec->erase(index);
+        }
+    }
 
 };
 

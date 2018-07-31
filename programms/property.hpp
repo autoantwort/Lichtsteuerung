@@ -12,6 +12,7 @@ namespace Modules {
     class NumericProperty;
 
     class StringProperty;
+    class BoolProperty;
 
     /**
      * @brief The Property class holds a property. A Property have a name and a description.
@@ -47,6 +48,13 @@ namespace Modules {
         StringProperty * asString(){
             if(type == String){
                 return reinterpret_cast<StringProperty*>(this);
+            }
+            return nullptr;
+        }
+
+        BoolProperty * asBool(){
+            if(type == Bool){
+                return reinterpret_cast<BoolProperty*>(this);
             }
             return nullptr;
         }

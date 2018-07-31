@@ -1,6 +1,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
-#include <QFile>
+#include <QFileInfo>
 
 namespace Modules {
 
@@ -14,8 +14,8 @@ public:
 public:
     Compiler();
     static void setCompilerCommand(QString s){compilerCmd = s;}
-    static int compileToLibrary(const QFile &file,const QString &newLibraryFile);
-    static int compileToLibrary(const QString &code,const QString &newLibraryFile);
+    static std::pair<int,QString> compileToLibrary(const QFileInfo &file,const QString &newLibraryFile);
+    static std::pair<int,QString> compileToLibrary(const QString &code,const QString &newLibraryFile);
 };
 
 

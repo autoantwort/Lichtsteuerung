@@ -21,7 +21,7 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"
-                    << "\\bauto\\b" << "\\bfor\\b"  << "\\bwhile\\b"  ;
+                    << "\\bauto\\b" << "\\bfor\\b"  << "\\bwhile\\b"  << "\\breturn\\b"  ;
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegularExpression(pattern);
         rule.format = keywordFormat;
@@ -63,7 +63,7 @@ CodeEditorHelper::CodeEditorHelper(){
 QString generateProgrammCode(){
     QString code = "int getProgrammLengthInMS(){\n\treturn Program::Infinite;\n}\n\n";
     code += "void start(){\n\t\n}\n\n";
-    code += "ProgrammState doStep(time_diff_t diff_ms){\n\treturn {false/*finished*/,true/*output changed*/};\n}\n\n";
+    code += "ProgramState doStep(time_diff_t diff_ms){\n\treturn {false/*finished*/,true/*output changed*/};\n}\n\n";
     return code;
 }
 
@@ -233,9 +233,92 @@ QTextStream& writeConstructor(QTextStream& out, const Modules::detail::PropertyI
     return out;
 }
 
+std::vector<int> findPropertyInsertionPoints(const QString &userCode){
+    std::vector<int> pos;
+    int lastIndex = 0;
+    while (lastIndex>=0) {
+        int index = userCode.indexOf("filter",lastIndex);
+        if(index<0)
+            index = userCode.indexOf("doStep",lastIndex);
+        if(index>=0){
+            lastIndex = index = userCode.indexOf("{",index) + 1;
+            pos.push_back(lastIndex);
+        }else{
+            lastIndex = -1;
+        }
+    }
+    return pos;
+}
+
+void writeLocalPropertiesAssigments(QTextStream& out, const Modules::PropertiesVector & vec){
+    for(const auto p : vec){
+        switch (p->getType()) {
+        case Modules::Property::Int:
+        case Modules::Property::Double:
+        case Modules::Property::Float:
+        case Modules::Property::Long:
+            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asNumeric<" << toName(p->getType()) << ">()->getValue();\n";
+            break;
+        case Modules::Property::Bool:
+            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asBool()->getValue();\n";
+            break;
+        case Modules::Property::String:
+            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asString()->getString();\n";
+            break;
+        }
+    }
+}
+
+QTextStream& writeUserCode(QTextStream& out, QString userCode, const Modules::PropertiesVector & vec){
+    using namespace Modules;
+    auto positions = findPropertyInsertionPoints(userCode);
+    if(positions.size()==0){
+        out << userCode;
+    }else if(positions.size()==1){
+        out << userCode.leftRef(positions[0]) << '\n';
+        writeLocalPropertiesAssigments(out,vec);
+        out << userCode.rightRef(userCode.length() - positions[0]);
+    }else{
+        positions.insert(positions.begin(),0);
+        for(unsigned int i = 1 ; i < positions.size(); ++i){
+            out << userCode.midRef(positions[i-1],positions[i]-positions[i-1]) << '\n';
+            writeLocalPropertiesAssigments(out,vec);
+        }
+        out << userCode.mid(positions.back());
+    }
+    return out;
+}
+QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
+    QString s = ":";
+    for(const auto p : vec){
+        switch (p->getType()) {
+        case Modules::Property::Int:
+        case Modules::Property::Double:
+        case Modules::Property::Float:
+        case Modules::Property::Long:
+            s += "_" + p->getName() + "("+ QString::number(p->getMinValue())+","+QString::number(p->getMaxValue())+","+QString::number(p->getDefaultValue()) +"),";
+            break;
+        case Modules::Property::Bool:
+            s += "_" + p->getName() + "("+ QString::number(p->getDefaultValue()) +"),";
+        }
+    }
+    if(s.length()==1)
+        return "";
+    return s.remove(s.length()-1,1);
+}
+
 void CodeEditorHelper::compile(){
     if(!module)
         return;
+    for(const auto p1 : module->getProperties()){
+        for(const auto p2 : module->getProperties()){
+            if(p1 != p2 && p1->getName() == p2->getName()){
+                emit information("Es gibt mehrere Properties mit dem Namen : " + p1->getName() +"\nBreche Compilieren ab.");
+                return;
+            }
+        }
+    }
+
     Settings s;
     QFile file( s.getModuleDirPath() + "/" + module->getName() + ".cpp" );
     file.remove();
@@ -259,8 +342,10 @@ void CodeEditorHelper::compile(){
                 return;
         }
         stream << "#include <programms/module.h>" << endl;
+        stream << "#include <cmath>"<<endl;
         stream << "" << endl;
         stream << "using namespace Modules;" << endl;
+        stream << "using namespace std;" << endl;
         stream << "" << endl;
         if(module->getType() == Modules::Module::Filter){
             stream << "class Impl : public Typed" << typeName << "<"<<valueName<<","<<valueName<<">{"<< endl;
@@ -271,7 +356,7 @@ void CodeEditorHelper::compile(){
             writeDeclaration(stream,p);
         }
         stream << "public:" << endl;
-        stream << "Impl(){" << endl;
+        stream << "Impl()" << getPropertiesNumericContructors(module->getProperties()) <<"{" << endl;
         for(const auto &p : module->getProperties()){
             writeConstructor(stream,p);
         }
@@ -280,7 +365,7 @@ void CodeEditorHelper::compile(){
         stream <<   "return \"" << module->getName()<< "\";" << endl;
         stream << "}" << endl;
         stream << "" << endl;
-        stream << document->toPlainText();
+        writeUserCode(stream,document->toPlainText(),module->getProperties()); // write Code from document
         stream << "" << endl;
         stream << "};" << endl; // class end
         stream << "" << endl;
@@ -308,15 +393,20 @@ void CodeEditorHelper::compile(){
         stream << "}" << endl;
         stream << "" << endl;
         stream << typeName << " * create(unsigned int index){ " << endl;
-        stream <<   "switch (index) {" << endl;
-        stream <<       "case 0:" << endl;
-        stream <<           "return new Impl;" << endl;
-        stream <<       "default:" << endl;
-        stream <<          "return nullptr;" << endl;
-        stream <<   "}" << endl;
+        stream << "  switch (index) {" << endl;
+        stream << "    case 0:" << endl;
+        stream << "      return new Impl;" << endl;
+        stream << "    default:" << endl;
+        stream << "      return nullptr;" << endl;
+        stream << "  }" << endl;
         stream << "}" << endl;
         stream.flush();
         file.close();
-        Modules::Compiler::compileToLibrary(file,module->getName()+".dll");
+        auto result = Modules::Compiler::compileToLibrary(file,module->getName()+".dll");
+        if(result.first){
+            QFileInfo finfo = file;
+            emit information(result.second.replace(finfo.absoluteFilePath(),""));
+        }else
+            emit information("Compilieren erfolgreich.");
     }
 }

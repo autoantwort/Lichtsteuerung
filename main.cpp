@@ -91,6 +91,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
+    qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
+    qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");
     QFile file(settings.getJsonSettingsFilePath());
@@ -116,6 +118,16 @@ int main(int argc, char *argv[])
     for (int i = 0; i < _metaEnum.keyCount(); ++i) {
         moduleTypeList.append(_metaEnum.key(i));
     }
+
+    QStringList modolePropertyTypeList;
+    modolePropertyTypeList << "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
+    // Does not work: do it manually
+    /*const QMetaObject &_momProp = Modules::detail::PropertyInformation::staticMetaObject;
+    qDebug() << "Enum count" <<_momProp.enumeratorCount();
+    QMetaEnum _metaEnumP =_momProp.enumerator(mo.indexOfEnumerator("Type"));
+    for (int i = 0; i < _metaEnumP.keyCount(); ++i) {
+        modolePropertyTypeList.append(_metaEnumP.key(i));
+    }*/
 
     app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){
         QFile savePath(settings.getJsonSettingsFilePath());
@@ -143,6 +155,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
     engine.rootContext()->setContextProperty("modulesModel",Modules::ModuleManager::singletone()->getModules());
     engine.rootContext()->setContextProperty("moduleTypeModel",moduleTypeList);
+    engine.rootContext()->setContextProperty("modolePropertyTypeList",modolePropertyTypeList);
     engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
     engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
     engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());

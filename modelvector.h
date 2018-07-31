@@ -54,10 +54,17 @@ public:
         r[ModelDataRole] = "modelData";
         return r;
     }
-    Type erase(typename std::vector<Type>::const_iterator i){
+    void erase(typename std::vector<Type>::const_iterator i){
         const auto pos = i-model.begin();
         beginRemoveRows(QModelIndex(),pos,pos);
         auto result = *model.erase(i);
+        endRemoveRows();
+    }
+    Type erase(int i){
+        Q_ASSERT(i>=0 && i < size());
+        beginRemoveRows(QModelIndex(),i,i);
+        auto result = model[i];
+        model.erase(model.cbegin() + i);
         endRemoveRows();
         return result;
     }

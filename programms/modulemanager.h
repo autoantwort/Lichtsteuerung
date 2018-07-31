@@ -22,23 +22,33 @@ namespace Modules {
 namespace detail {
     class PropertyInformation : public QObject{
         Q_OBJECT
-        QString name = "No Name";
+        QString name = "no_name";
         QString description;
+    public:
         typedef Property::Type Type;
+    private:
         Type type;
+        Q_ENUM(Type)
+        int max=1000,min=0,defaultValue=1;
     public:
         Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
         Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
-        Q_PROPERTY(Property::Type type READ getType WRITE setType NOTIFY typeChanged)
+        Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
+        Q_PROPERTY(int minValue MEMBER min)
+        Q_PROPERTY(int maxValue MEMBER max)
+        Q_PROPERTY(int defaultValue MEMBER defaultValue)
+        PropertyInformation() = default;
         PropertyInformation(const QJsonObject &o);
         void writeJsonObject(QJsonObject &o)const;
-        Q_ENUM(Type)
         void setName( const QString _name){
                 if(_name != name){
                         name = _name;
                         emit nameChanged();
                 }
         }
+        int getMinValue()const{return min;}
+        int getMaxValue()const{return max;}
+        int getDefaultValue()const{return defaultValue;}
         QString getName() const {
                 return name;
         }
@@ -65,10 +75,11 @@ namespace detail {
         void descriptionChanged();
         void typeChanged();
     };
-    class PropertiesVector : public ModelVector<PropertyInformation*>{
-      //  Q_OBJECT
-    };
 }
+
+class PropertiesVector : public ModelVector<detail::PropertyInformation*>{
+    Q_OBJECT
+};
 
 class Module : public QObject{
 
@@ -78,9 +89,10 @@ class Module : public QObject{
     Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(ValueType valueType READ getValueType WRITE setValueType NOTIFY valueTypeChanged)
     Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
+    Q_PROPERTY(PropertiesVector * properties READ getPropertiesP CONSTANT)
     QString name = "No Name";
     QString description;
-    detail::PropertiesVector  properties;
+    PropertiesVector  properties;
     QString code;
     ValueType valueType;
     Q_ENUM(ValueType)
@@ -96,9 +108,32 @@ public:
     Module(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
 
+    Q_INVOKABLE QVariant createNewProperty(){
+        auto p = new detail::PropertyInformation();
+        properties.push_back(p);
+        qDebug() <<"num elements : " << properties.size();
+        return QVariant::fromValue(p);
+    }
+
+    Q_INVOKABLE void removeProperty(QVariant v){
+        assert(v.canConvert(qMetaTypeId<detail::PropertyInformation*>()));
+        for(auto i = properties.cbegin();i!=properties.cend();++i){
+            if(*i == v.value<detail::PropertyInformation*>()){
+                properties.erase(i);
+                delete v.value<detail::PropertyInformation*>();
+                return;
+            }
+        }
+    }
+
     //Module() = default;
-    const detail::PropertiesVector& getProperties()const{
+    const PropertiesVector& getProperties()const{
         return properties;
+    }
+
+
+    PropertiesVector * getPropertiesP(){
+        return &properties;
     }
 
     void setName( const QString _name){
@@ -245,4 +280,6 @@ signals:
     }
 
 }
+Q_DECLARE_METATYPE(Modules::detail::PropertyInformation::Type)
+Q_DECLARE_METATYPE(Modules::PropertiesVector*)
 #endif // MODULEMANAGER_H

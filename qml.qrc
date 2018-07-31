@@ -37,5 +37,13 @@
         <file>LoginView.qml</file>
         <file>SettingsView.qml</file>
         <file>ModuleView.qml</file>
+        <file>icons/baseline-remove_circle_outline-24px.svg</file>
+        <file>icons/baseline-remove_circle-24px.svg</file>
+        <file>icons/baseline-add_circle_outline-24px.svg</file>
+        <file>icons/baseline-add_circle-24px.svg</file>
+        <file>icons/baseline-remove-24px.svg</file>
+        <file>icons/remove.svg</file>
+        <file>icons/add.svg</file>
+        <file>icons/baseline-add-24px.svg</file>
     </qresource>
 </RCC>

@@ -90,6 +90,7 @@ public:
         return documentWrapper;
    }
 signals:
+   void information(QString text);
    void moduleChanged();
    void documentChanged();
    void insertText(QString newText, int pos);
