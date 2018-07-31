@@ -135,6 +135,10 @@ DISTFILES +=
 # QMAKE_CXXFLAGS += -lasan
 # LIBS += -lasan
 
+win32-msvc{
+    LIBS += -L$$PWD/lib/boost/
+}
+
 win32-g++{
     LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
     INCLUDEPATH += $$PWD/'boost'
