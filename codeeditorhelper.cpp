@@ -342,6 +342,7 @@ void CodeEditorHelper::compile(){
                 return;
         }
         stream << "#include <programms/module.h>" << endl;
+        stream << "#define _USE_MATH_DEFINES"<<endl;
         stream << "#include <cmath>"<<endl;
         stream << "" << endl;
         stream << "using namespace Modules;" << endl;
@@ -370,7 +371,7 @@ void CodeEditorHelper::compile(){
         stream << "};" << endl; // class end
         stream << "" << endl;
         stream << "" << endl;
-        stream << "unsigned int getNumberOf"<<typeName<<"(){" << endl;
+        stream << "unsigned int getNumberOf"<<typeName<<"s(){" << endl;
         stream << " return 1;" << endl;
         stream << "}" << endl;
         stream << "" << endl;

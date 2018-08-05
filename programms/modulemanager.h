@@ -16,6 +16,7 @@
 #include <iostream>
 #include <memory>
 #include "modelvector.h"
+#include "controller.h"
 
 namespace Modules {
 
@@ -227,6 +228,7 @@ signals:
         //std::vector<detail::Entry<Programm>> programms;
         FilterModulContainer filter;
         ConsumerModulContainer consumer;
+        Controller controller_;
     private:
         template<typename Type, typename String>
         static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name, int libraryIdentifier);
@@ -236,6 +238,7 @@ signals:
         void loadModules(const QJsonObject &o);
         bool unloadLibrary(QString filePath);
         void writeJsonObject(QJsonObject &o);
+        Controller & controller(){return controller_;}
         static ModuleManager * singletone(){static ModuleManager m;return &m;}
         /**
          * @brief loadModule loads the shared library(module) given by the filePath
@@ -268,7 +271,7 @@ signals:
 
     template<typename Type, typename String >
     void ModuleManager::loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c , String Typename, int libraryIdentifier){
-        const auto getNumberOfName = std::string("getNumberOf") + Typename;
+        const auto getNumberOfName = std::string("getNumberOf") + Typename + "s";
         const auto getNameOfName = std::string("getNameOf") + Typename;
         const auto getDescriptionOfName = std::string("getDescriptionOf") + Typename;
         const auto createName = std::string("create") + Typename;

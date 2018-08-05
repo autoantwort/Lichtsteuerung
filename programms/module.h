@@ -79,14 +79,14 @@ MODULE_EXPORT char const * getDescriptionOfProgram(unsigned int index);
 #endif
 
 #ifdef HAVE_FILTER
-MODULE_EXPORT unsigned int getNumberOfFilter();
+MODULE_EXPORT unsigned int getNumberOfFilters();
 MODULE_EXPORT char const * getNameOfFilter(unsigned int index);
 MODULE_EXPORT char const * getDescriptionOfFilter(unsigned int index);
 MODULE_EXPORT Modules::Filter * createFilter(unsigned int index);
 #endif
 
 #ifdef HAVE_CONSUMER
-MODULE_EXPORT unsigned int getNumberOfConsumer();
+MODULE_EXPORT unsigned int getNumberOfConsumers();
 MODULE_EXPORT char const * getNameOfConsumer(unsigned int index);
 MODULE_EXPORT char const * getDescriptionOfConsumer(unsigned int index);
 MODULE_EXPORT Modules::Consumer * createConsumer(unsigned int index);

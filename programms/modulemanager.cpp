@@ -133,7 +133,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             lastLibraryIdentifier++;
             loadedLibraryMap.emplace_back(lib.fileName(),lastLibraryIdentifier);
             if(f(MODUL_TYPE::Program)){
-                loadType(lib,programms,"Programm",lastLibraryIdentifier);
+                loadType(lib,programms,"Program",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::LoopProgram)){
                 //loadType(lib,programms,"LoopProgramm",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::Filter)){

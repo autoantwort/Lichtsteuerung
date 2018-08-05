@@ -12,10 +12,10 @@ namespace Modules {
 
     ProgramState DMXProgram::doStep(time_diff_t diff) {
         time += diff;
-        std::memset(values,0,getOutputLength());
-        DMXChannelFilter::initValues(values,getOutputLength());
-        ::Programm::fill(values,getOutputLength(),time/1000.);
-        DMXChannelFilter::filterValues(values,getOutputLength());
+        std::memset(output,0,getOutputLength());
+        DMXChannelFilter::initValues(output,getOutputLength());
+        ::Programm::fill(output,getOutputLength(),time/1000.);
+        DMXChannelFilter::filterValues(output,getOutputLength());
         return {false,true};
     }
 }

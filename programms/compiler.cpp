@@ -38,7 +38,11 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
      * setEnviroment
      */
     //p.setWorkingDirectory(compilerCmd.left(compilerCmd.lastIndexOf('/')));
-    p.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+    env.insert("PATH", env.value("Path") + ";" +compilerCmd.left(compilerCmd.lastIndexOf('/')));
+    p.setProcessEnvironment(env);
+   // p.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
     p.start("cmd /c " + cmd);
 #endif
     p.waitForFinished();
@@ -46,7 +50,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     auto out = p.readAllStandardError();
     if(err.length()>0)qDebug().noquote() <<"ERR : "<< QString(err);
     if(out.length()>0)qDebug().noquote() <<"OuT : "<< QString(out);
-    if(p.exitStatus() == QProcess::CrashExit){
+    if(p.exitCode() != 0){
         qDebug() << p.errorString();
         qDebug() << p.error();
         qDebug().noquote() << cmd;

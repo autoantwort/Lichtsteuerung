@@ -167,6 +167,15 @@ namespace Modules {
 
 
     bool ProgramBlock::doStep(time_diff_t diff){
+        if(start){
+            start = false;
+            for(auto & p : programs){
+                p->start();
+            }
+            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+                static_cast<Consumer*>(i->source.get())->start();
+            }
+        }
         bool finished = false;
         for(auto & p : programs){
             const auto state = p->doStep(diff);
@@ -177,12 +186,13 @@ namespace Modules {
             if(doConnection(i->second)){
                 static_cast<Filter*>(i->second.source.get())->filter();
             }
-            dataChanged[i->second.source.get()] |= static_cast<Filter*>(i->second.source.get())->doStep(diff);
+            dataChanged[dynamic_cast<Named*>(i->second.source.get())] |= static_cast<Filter*>(i->second.source.get())->doStep(diff);
         }
         for(auto i = consumer.cbegin(); i != consumer.cend();++i){
             if(doConnection(*i)){
                 static_cast<Consumer*>(i->source.get())->show();
             }
+            static_cast<Consumer*>(i->source.get())->doStep(diff);
         }
         return finished;
     }

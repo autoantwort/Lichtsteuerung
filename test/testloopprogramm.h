@@ -12,8 +12,8 @@ class TestLoopProgramm : public Modules::LoopProgramm<Modules::TypedProgram<Modu
 {
 protected:
     virtual void loopProgramm()override{
-        for(unsigned i = 0; i< length;++i){
-            values[i] = 255;
+        for(unsigned i = 0; i< outputLength;++i){
+            output[i] = 255;
 
             wait(50);
         }
@@ -21,7 +21,7 @@ protected:
 public:
     TestLoopProgramm() = default;
     virtual const char * getName()const override{return "TestLoopProgramm";}
-    virtual int getProgrammLengthInMS() override{return length*50;}
+    virtual int getProgrammLengthInMS() override{return outputLength*50;}
     virtual void start() override{}
     virtual ~TestLoopProgramm()override = default ;
 };

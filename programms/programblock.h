@@ -24,7 +24,11 @@ namespace Modules {
             enum SourceType {Filter,Consumer} sourceType;
             std::shared_ptr<InputDataConsumer> source;
             template<typename Type>
-            Connection(std::shared_ptr<Type> source):source(source),sourceType(Filter){
+            /**
+             * @brief Connection Verbindet den Input eines InputDataConsumers mit dem Output von OutputDataProducern
+             * @param source Der InputConsumer
+             */
+            explicit Connection(std::shared_ptr<Type> source):sourceType(Filter),source(source){
                 static_assert (std::is_base_of<InputDataConsumer,Type>::value,"Der Typ ist keine Subklasse eines InputDataConsumer.");
                 static_assert (std::is_base_of<Modules::Filter,Type>::value||std::is_base_of<Modules::Consumer,Type>::value,"Der Typ ist Filter oder Consumer.");
                 if(std::is_base_of<Modules::Filter,Type>::value){
@@ -90,7 +94,9 @@ namespace Modules {
         std::vector<detail::Connection> consumer;
 
         // saves for every Programm, filter, consumer, the state, whether the output data changed
-        std::map<void*,bool> dataChanged;
+        std::map<Named*,bool> dataChanged;
+        //TODO temp:
+        bool start = true;
     private:
         /**
          * @brief doConnection copy from the targeds output to the source input
@@ -102,7 +108,7 @@ namespace Modules {
             if(connection.isValid()){
                 unsigned int sourceStartIndex = 0;                
                 for(const auto & c : connection.targeds){
-                    if(dataChanged[c.second.targed]){
+                    if(dataChanged[dynamic_cast<Named*>(c.second.targed)]){
                         char * start = reinterpret_cast<char*>(c.second.targed->getOutputData());
                         start += c.second.startIndex * getSizeOfEnumType(c.second.targed->getOutputType());
                         connection.source->setInputData(start,sourceStartIndex,c.first);
@@ -111,7 +117,7 @@ namespace Modules {
                     }
                 }
             }
-            dataChanged[connection.source.get()]=outputUpdated;
+            dataChanged[dynamic_cast<Named*>(connection.source.get())]=outputUpdated;
             return outputUpdated;
         }
         bool haveOutputDataProducer(OutputDataProducer * p){
@@ -124,17 +130,17 @@ namespace Modules {
             }
             for(const auto &c : filter){
                 // alle filter sind auch OutputDataProducer und wenn nicht, dann kann p nicht die gleiche addresse wie einer haben
-                if(reinterpret_cast<OutputDataProducer*>(c.second.source.get())==p){
+                if(dynamic_cast<OutputDataProducer*>(c.second.source.get())==p){
                     return true;
                 }
             }
             return false;
         }
-    protected:
+    public:
         /**
          * @brief addProgramm adds a pointer to a programm. the pointer is owned
          */
-        void addProgramm(Program *p){programs.insert(std::shared_ptr<Program>(p));}
+        void addProgramm(std::shared_ptr<Program> p){programs.insert(p);}
         /**
          * @brief addFilter add filter. throw exeption if one datasource is unknown
          * @param c the connection
@@ -153,7 +159,7 @@ namespace Modules {
     public:
         ProgramBlock();
         ProgramBlock(const QJsonObject&);
-        virtual bool doStep(time_diff_t) = 0;
+        virtual bool doStep(time_diff_t)override;
         void writeJsonObject(QJsonObject&);
     };
 

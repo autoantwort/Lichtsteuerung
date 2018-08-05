@@ -57,7 +57,7 @@ public:
     void erase(typename std::vector<Type>::const_iterator i){
         const auto pos = i-model.begin();
         beginRemoveRows(QModelIndex(),pos,pos);
-        auto result = *model.erase(i);
+        model.erase(i);
         endRemoveRows();
     }
     Type erase(int i){

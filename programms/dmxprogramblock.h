@@ -12,7 +12,7 @@ namespace Modules {
      */
     class DMXProgramBlock : public ProgramBlock
     {
-        DMXProgram * prog = nullptr;
+        std::shared_ptr<DMXProgram> prog;
         std::shared_ptr<Consumer> consumer;
     public:
         /**

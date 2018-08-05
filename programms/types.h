@@ -18,16 +18,21 @@ namespace Modules {
 
     struct rgb_t{
         union{
-            brightness_t r;
-            brightness_t red;
-        };
-        union{
-            brightness_t g;
-            brightness_t green;
-        };
-        union{
-            brightness_t b;
-            brightness_t blue;
+            struct{
+                union{
+                    brightness_t r;
+                    brightness_t red;
+                };
+                union{
+                    brightness_t g;
+                    brightness_t green;
+                };
+                union{
+                    brightness_t b;
+                    brightness_t blue;
+                };
+            };
+            brightness_t rgb[3];
         };
     };
     static_assert (sizeof (rgb_t)==3, "size of rgb_t is not 3");

@@ -11,6 +11,10 @@ namespace Modules {
 
 class AbstractProgramm{
 public:
+    /**
+     * @brief doStep lässt das Programm einen Schritt machen
+     * @return true wenn das programm fertig ist, sonst false
+     */
     virtual bool doStep(time_diff_t) = 0;
     virtual ~AbstractProgramm() = default;
 };
@@ -41,24 +45,24 @@ public:
     }
 };
 
-template<typename value_type_t>
+template<typename OutputType>
 class TypedProgram : public Program{
 protected:
-    value_type_t *values = nullptr;
-    unsigned int length = 0;
+    OutputType *output = nullptr;
+    unsigned int outputLength = 0;
 public:
-    TypedProgram():Program(typeToEnum<value_type_t>()){}
+    TypedProgram():Program(typeToEnum<OutputType>()){}
     virtual void setOutputLength(unsigned int l) override{
-        length = l;
-        if(values)
-            delete [] values;
-        values = new value_type_t[length];
+        outputLength = l;
+        if(output)
+            delete [] output;
+        output = new OutputType[outputLength];
     }
     virtual unsigned int getOutputLength()const override{
-        return length;
+        return outputLength;
     }
-    virtual void* getOutputData()override{return values;}
-    virtual ~TypedProgram()override{delete [] values;}
+    virtual void* getOutputData()override{return output;}
+    virtual ~TypedProgram()override{delete [] output;}
 };
 
 

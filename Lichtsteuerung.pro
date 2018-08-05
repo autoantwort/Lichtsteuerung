@@ -56,7 +56,9 @@ SOURCES += \
     programms/dmxprogram.cpp \
     programms/dmxprogramblock.cpp \
     programms/json_storage.cpp \
-    codeeditorhelper.cpp
+    codeeditorhelper.cpp \
+    test/testmodulecontroller.cpp \
+    test/testprogrammblock.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -119,7 +121,9 @@ HEADERS += \
     programms/storage.hpp \
     programms/json_storage.h \
     codeeditorhelper.h \
-    programms/program.hpp
+    programms/program.hpp \
+    test/testmodulecontroller.h \
+    test/testprogrammblock.h
 
 
 # Default rules for deployment.
