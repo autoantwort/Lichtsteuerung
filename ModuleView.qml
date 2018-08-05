@@ -103,11 +103,43 @@ Item{
         Label{
             text: "Type:"
         }
-        ComboBox{
-            model: moduleTypeModel
-            Layout.preferredWidth: 200
-            currentIndex: listView.currentItem.itemData.type
-            onCurrentIndexChanged: listView.currentItem.itemData.type = currentIndex
+        RowLayout{
+            ComboBox{
+                model: moduleTypeModel
+                Layout.preferredWidth: implicitWidth+5
+                currentIndex: listView.currentItem.itemData.type
+                onCurrentIndexChanged: {
+                    listView.currentItem.itemData.type = currentIndex;
+                    if(currentIndex == 0/*Program*/ || currentIndex == 1/*LoopProgram*/){
+                        outputType.visible = true;
+                        inputType.visible = false;
+                    }else if(currentIndex == 2/*Filter*/){
+                        outputType.visible = true;
+                        inputType.visible = true;
+                    }
+                }
+            }
+            Label{
+                text: "Input:"
+                visible:inputType.visible
+            }
+            ComboBox{
+                id: inputType
+                model: valueTypeList
+                currentIndex: listView.currentItem.itemData.inputType
+                Layout.preferredWidth: implicitWidth+5
+                onCurrentIndexChanged: listView.currentItem.itemData.inputType = currentIndex;
+            }
+            Label{text: "Output:"
+                visible: outputType.visible
+            }
+            ComboBox{
+                id:outputType
+                model: valueTypeList
+                currentIndex: listView.currentItem.itemData.outputType
+                Layout.preferredWidth: implicitWidth+5
+                onCurrentIndexChanged: listView.currentItem.itemData.outputType = currentIndex;
+            }
         }
 
         Label{
@@ -119,10 +151,10 @@ Item{
             anchors.bottomMargin: -20
             clip: true
             Layout.preferredHeight: Math.max(50,Math.min(model.rowCount() * 20,120))
-            onModelChanged:{ for (var prop in model) {
+            /*onModelChanged:{ for (var prop in model) {
                                 print(prop += " (" + typeof(model[prop]) + ") = " + model[prop]);
                             }
-            }
+            }*/
             model: listView.currentItem.itemData.properties
             delegate: ItemDelegate{
                 id:delegate

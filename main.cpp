@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
+    qRegisterMetaType<Modules::ValueType>("ValueType");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");
@@ -114,10 +115,12 @@ int main(int argc, char *argv[])
     }
     QStringList moduleTypeList;
     const QMetaObject &_mom = Modules::Module::staticMetaObject;
-    QMetaEnum _metaEnum =_mom.enumerator(mo.indexOfEnumerator("Type"));
+    QMetaEnum _metaEnum =_mom.enumerator(_mom.indexOfEnumerator("Type"));
     for (int i = 0; i < _metaEnum.keyCount(); ++i) {
         moduleTypeList.append(_metaEnum.key(i));
     }
+    QStringList valueTypeList;
+    valueTypeList << "Brightness" << "RGB" ;
 
     QStringList modolePropertyTypeList;
     modolePropertyTypeList << "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
@@ -155,6 +158,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
     engine.rootContext()->setContextProperty("modulesModel",Modules::ModuleManager::singletone()->getModules());
     engine.rootContext()->setContextProperty("moduleTypeModel",moduleTypeList);
+    engine.rootContext()->setContextProperty("valueTypeList",valueTypeList);
     engine.rootContext()->setContextProperty("modolePropertyTypeList",modolePropertyTypeList);
     engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
     engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());

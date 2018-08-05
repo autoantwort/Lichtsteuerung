@@ -88,14 +88,16 @@ class Module : public QObject{
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
     Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
-    Q_PROPERTY(ValueType valueType READ getValueType WRITE setValueType NOTIFY valueTypeChanged)
+    Q_PROPERTY(ValueType inputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
+    Q_PROPERTY(ValueType outputType READ getOutputType WRITE setOutputType NOTIFY outputTypeChanged)
     Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
     Q_PROPERTY(PropertiesVector * properties READ getPropertiesP CONSTANT)
     QString name = "No Name";
     QString description;
     PropertiesVector  properties;
     QString code;
-    ValueType valueType;
+    ValueType inputType;
+    ValueType outputType;
     Q_ENUM(ValueType)
 
     //Module(Module&)=delete;
@@ -164,14 +166,23 @@ public:
     Type getType() const {
         return type;
     }
-    void setValueType( const ValueType _valueType){
-            if(_valueType != valueType){
-                    valueType = _valueType;
-                    emit valueTypeChanged();
+    void setInputType( const ValueType _inputType){
+            if(_inputType != inputType){
+                    inputType = _inputType;
+                    emit inputTypeChanged();
             }
     }
-    ValueType getValueType() const {
-            return valueType;
+    ValueType getInputType() const {
+            return inputType;
+    }
+    void setOutputType( const ValueType _outputType){
+            if(_outputType != outputType){
+                    outputType = _outputType;
+                    emit outputTypeChanged();
+            }
+    }
+    ValueType getOutputType() const {
+            return outputType;
     }
     void setCode( const QString _code){
         if(_code != code){
@@ -187,7 +198,8 @@ signals:
     void nameChanged();
     void descriptionChanged();
     void typeChanged();
-    void valueTypeChanged();
+    void inputTypeChanged();
+    void outputTypeChanged();
     void codeChanged();
 };
 

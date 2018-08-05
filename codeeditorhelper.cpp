@@ -325,7 +325,8 @@ void CodeEditorHelper::compile(){
     if ( file.open(QIODevice::ReadWrite) )
     {
         QString typeName = toName(module->getType());
-        QString valueName = toName(module->getValueType());
+        QString inputType = toName(module->getInputType());
+        QString outputType = toName(module->getOutputType());
         QTextStream stream( &file );
         stream << "#define MODULE_LIBRARY" << endl;
         switch (module->getType()) {
@@ -349,9 +350,9 @@ void CodeEditorHelper::compile(){
         stream << "using namespace std;" << endl;
         stream << "" << endl;
         if(module->getType() == Modules::Module::Filter){
-            stream << "class Impl : public Typed" << typeName << "<"<<valueName<<","<<valueName<<">{"<< endl;
+            stream << "class Impl : public Typed" << typeName << "<"<<inputType<<","<<outputType<<">{"<< endl;
         }else{
-            stream << "class Impl : public Typed" << typeName << "<"<<valueName<<">{"<< endl;
+            stream << "class Impl : public Typed" << typeName << "<"<<outputType<<">{"<< endl;
         }
         for(const auto &p : module->getProperties()){
             writeDeclaration(stream,p);

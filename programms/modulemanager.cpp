@@ -29,7 +29,8 @@ namespace detail {
 
 Module::Module(const QJsonObject &o):name(o["name"].toString("no name")),
     description(o["description"].toString()),code(o["code"].toString()),
-    valueType(static_cast<ValueType>(o["valueType"].toInt())),
+    inputType(static_cast<ValueType>(o["inputType"].toInt())),
+    outputType(static_cast<ValueType>(o["outputType"].toInt())),
     type(static_cast<Type>(o["type"].toInt())){
     QJsonArray a = o["properties"].toArray();
     for(const auto i : a){
@@ -42,7 +43,8 @@ void Module::writeJsonObject(QJsonObject &o)const{
     o["name"] = name;
     o["description"] = description;
     o["code"] = code;
-    o["valueType"] = valueType;
+    o["inputType"] = inputType;
+    o["outputType"] = outputType;
     o["type"] = type;
     QJsonArray a;
     for(const auto & p : properties){
