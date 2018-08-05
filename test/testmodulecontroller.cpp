@@ -35,9 +35,9 @@ void Test::createProgrammBlockAndTestRunIt(){
     rgbstrip->setInputLength(LENGTH);
     rgbstrip->getProperties()[0]->asNumeric<int>()->setValue(5);
     rgbstrip->getProperties()[1]->asNumeric<int>()->setValue(2);
-    detail::Connection first(blur);
+    Modules::detail::Connection first(blur);
     first.addTarget(LENGTH,lauflicht.get(),0);
-    detail::Connection second(rgbstrip);
+    Modules::detail::Connection second(rgbstrip);
     second.addTarget(LENGTH,blur.get(),0);
     con->addProgramm(lauflicht);
     con->addFilter(first,0);

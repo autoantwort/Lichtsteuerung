@@ -3,7 +3,27 @@
 #include <vector>
 #include <QAbstractListModel>
 #include <QDebug>
+#include <shared_ptr.hpp>
 
+
+namespace detail {
+
+template<typename T> //by value
+T getPointer(const std::vector<T> &v, int index){
+    return v[index];
+}
+
+template<typename T> //by pointer
+T*  getPointer(const std::vector<T*> &v, int index){
+    return v[index];
+}
+
+template<typename T> //by std::shared_ptr<T>
+T* getPointer(const std::vector<std::shared_ptr<T>> &v, int index){
+    return v[index].get();
+}
+
+}
 
 template<typename Type>
 /**
@@ -15,13 +35,23 @@ class ModelVector : public QAbstractListModel{
      */
     std::vector<Type> model;
 
-    Type get(int index, std::true_type)const{
-        return model[index];
+    /*
+      Old code:
+        namespace std {
+            template<>
+              struct __is_pointer_helper<std::shared_ptr<FOO>>
+              : public true_type { };
+        }
+
+
+    decltype (&*model.at(std::declval<int>())) get(int index, std::true_type)const{
+        // &* to handle smart pointer
+        return &*model[index];
     }
 
     Type* get(int index, std::false_type)const{
         return const_cast<Type*>(&model[index]);
-    }
+    }*/
 
 public:
     enum{
@@ -40,7 +70,8 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const override{
         Q_UNUSED(role);
         if(index.row()>=0&&index.row()<int(model.size())){
-            return QVariant::fromValue(get(index.row(),std::is_pointer<Type>()));
+            //return QVariant::fromValue(get(index.row(),std::is_pointer<Type>()));
+            return QVariant::fromValue(detail::getPointer(model,index.row()));
         }
         return QVariant();
     }
