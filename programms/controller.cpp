@@ -14,6 +14,7 @@ void Controller::run() noexcept{
         std::unique_lock<std::mutex> l(vectorLock);
         for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
             if((*pb)->doStep(1)){
+                (**pb).stop();
                 pb = runningProgramms.erase(pb);
             }else{
                 ++pb;
@@ -25,11 +26,18 @@ void Controller::run() noexcept{
 void Controller::runProgramm(std::shared_ptr<ProgramBlock> pb){
     std::unique_lock<std::mutex> l(vectorLock);
     runningProgramms.push_back(pb);
+    pb->start();
 }
 
 void Controller::stopProgramm(std::shared_ptr<ProgramBlock> pb){
     std::unique_lock<std::mutex> l(vectorLock);
     runningProgramms.erase(std::remove(runningProgramms.begin(),runningProgramms.end(),pb),runningProgramms.end());
+    pb->stop();
+}
+
+bool Controller::isProgramRunning(ProgramBlock * pb){
+    std::unique_lock<std::mutex> l(vectorLock);
+    return std::any_of(runningProgramms.cbegin(),runningProgramms.cend(),[=](const auto & p){return p.get()==pb;});
 }
 
 }

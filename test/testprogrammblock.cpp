@@ -20,11 +20,11 @@ void TestProgrammBlock::test(){
     prog->setOutputLength(10);
     cons->setInputLength(10);
     filt->setInputLength(10);
-    detail::Connection c(filt);
+    Modules::detail::Connection c(filt);
     c.addTarget(10,prog.get(),0);
     pb->addProgramm(prog);
     pb->addFilter(c,0);
-    detail::Connection l(cons);
+    Modules::detail::Connection l(cons);
     l.addTarget(10,filt.get(),0);
     pb->addConsumer(l);
 

@@ -45,5 +45,8 @@
         <file>icons/remove.svg</file>
         <file>icons/add.svg</file>
         <file>icons/baseline-add-24px.svg</file>
+        <file>ModuleProgramView.qml</file>
+        <file>ProgramBlockEntry.qml</file>
+        <file>ProgramBlockConnection.qml</file>
     </qresource>
 </RCC>

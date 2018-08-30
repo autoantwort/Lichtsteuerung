@@ -47,7 +47,8 @@ void filter()override{
 class ControlConsumer : public Modules::TypedConsumer<Modules::brightness_t>{
 int index = 0;
 public:
-    virtual void start(){};
+virtual void start(){}
+virtual void stop(){}
     /**
      * @brief show zeigt die eingabedaten an
      */

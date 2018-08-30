@@ -137,6 +137,30 @@ namespace Modules {
         Type& operator[](int i)       { if(i>=0){if(i<length){return data[i];}else{return data[length-1];}}else{return data[0];}}
         const Type& operator[](int i) const { if(i>=0){if(i<length){return data[i];}else{return data[length-1];}}else{return data[0];}}
     };
+    /**
+     * @brief The WrappedArray class maps index acces lower 0 to length - i and index access greater length-1 to i - length
+     */
+    template <typename Type>
+    class WrappedArray{
+        Type * data;
+        size_t length;
+    public:
+        WrappedArray(Type* data, size_t length):data(data),length(length){}
+        //Type& operator[](std::size_t idx)       { return idx<length?data[idx]:data[length-1]; }
+        //const Type& operator[](std::size_t idx) const { return idx<length?data[idx]:data[length-1]; }
+        Type& operator[](int i)       {
+            if(i>=0){
+                if(i<length){
+                    return data[i];
+                }else{
+                    return data[i%length];
+                }
+            }else{
+                return data[((i%static_cast<int>(length))+length)%length];
+            }
+        }
+        const Type& operator[](int i) const { if(i>=0){if(i<length){return data[i];}else{return data[i%length];}}else{return data[((i%static_cast<int>(length))+length)%length];}}
+    };
 
 
     using namespace std::string_literals;

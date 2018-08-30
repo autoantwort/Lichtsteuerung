@@ -58,7 +58,8 @@ SOURCES += \
     programms/json_storage.cpp \
     codeeditorhelper.cpp \
     test/testmodulecontroller.cpp \
-    test/testprogrammblock.cpp
+    test/testprogrammblock.cpp \
+    programblockeditor.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -123,7 +124,8 @@ HEADERS += \
     codeeditorhelper.h \
     programms/program.hpp \
     test/testmodulecontroller.h \
-    test/testprogrammblock.h
+    test/testprogrammblock.h \
+    programblockeditor.h
 
 
 # Default rules for deployment.

@@ -55,6 +55,16 @@ namespace Modules {
             o[name] = c;
         }
     };
+
+    /**
+     * @brief transferProperties transfers the properties to another Serilerizeable
+     * @param from the object from where the properties come from
+     * @param to the object where the propertie goes to
+     */
+    void transferProperties(Serilerizeable * from, Serilerizeable * to);
+
+
+
 }
 
 #endif // JSON_STORAGE_H

@@ -51,6 +51,17 @@ public:
             delete vec->erase(index);
         }
     }
+    Q_INVOKABLE bool addProgramBlock(){
+        auto temp = std::make_shared<Modules::ProgramBlock>();
+        Modules::ProgramBlockManager::model.push_back(temp);
+        return true;
+    }
+    Q_INVOKABLE void removeProgramBlock(int index){
+        auto & vec = Modules::ProgramBlockManager::model;
+        if(index>=0 && index < vec.size()){
+            vec.erase(index);
+        }
+    }
 
 };
 

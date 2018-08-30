@@ -123,7 +123,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         o["modules"] = a;
     }
 
-    void ModuleManager::loadModule(QString name){
+    void ModuleManager::loadModule(QString name, bool replaceNewInPBs){
         qDebug()<<"load lib  : " << name;
         QLibrary lib(name);
         if(lib.load()){
@@ -132,6 +132,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 qDebug()<<"have funktion is missing";
                 return;
             }
+            auto lastProgram  = programms.size();
+            auto lastFilter   = filter   .size();
+            auto lastConsumer = consumer .size();
             lastLibraryIdentifier++;
             loadedLibraryMap.emplace_back(lib.fileName(),lastLibraryIdentifier);
             if(f(MODUL_TYPE::Program)){
@@ -143,6 +146,25 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             }if(f(MODUL_TYPE::Consumer)){
                 qDebug()<< "Loading Consumer";
                 loadType(lib,consumer,"Consumer",lastLibraryIdentifier);
+            }
+            if(replaceNewInPBs){
+                for(const auto & pb : ProgramBlockManager::model){
+                    for(;lastProgram<programms.size();lastProgram++){
+                        for(const auto & v : pb->getUsedProgramsByName(programms[lastProgram].name())){
+                            pb->replaceProgram(v,std::shared_ptr<Program>(programms[lastProgram].create()));
+                        }
+                    }
+                    for(;lastFilter<filter.size();lastFilter++){
+                        for(const auto & v : pb->getUsedFiltersByName(filter[lastFilter].name())){
+                            pb->replaceFilter(v,std::shared_ptr<Filter>(filter[lastFilter].create()));
+                        }
+                    }
+                    for(;lastConsumer<consumer.size();lastConsumer++){
+                        for(const auto & v : pb->getUsedConsumersByName(consumer[lastConsumer].name())){
+                            pb->replaceConsumer(v,std::shared_ptr<Consumer>(consumer[lastConsumer].create()));
+                        }
+                    }
+                }
             }
         }else{
             qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString() ;

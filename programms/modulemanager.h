@@ -256,7 +256,7 @@ signals:
          * @brief loadModule loads the shared library(module) given by the filePath
          * @param name the filePath of the shared library that should be loaded
          */
-        void loadModule(QString name);
+        void loadModule(QString name, bool replaceNewImProgramBlocks = true);
         void loadAllModulesInDir(QDir name);
         ModelVector<Module*>* getModules(){return &modules;}
         const ProgrammModulContainer & getProgrammModules(){return programms;}

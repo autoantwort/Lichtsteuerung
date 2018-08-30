@@ -19,29 +19,36 @@ void Test::createProgrammBlockAndTestRunIt(){
     auto con = std::make_shared<ProgramBlock>();
     auto lauflicht = mm->createProgramm(/*"Lauflicht"*/"TestProgramm");
     auto blur = mm->createFilter("GaussianBlur");
-    auto rgbstrip = mm->createConsumer("WINBrightnessConsumer");
-    if(!lauflicht || !blur || !rgbstrip){
-        qDebug() << "Fehler beim erstellen" << lauflicht.get() << ' '<<blur.get() << ' ' << rgbstrip.get();
+    auto toRGB = mm->createFilter("toRGB");
+    auto rgbstrip = mm->createConsumer("WINBRGBConsumer");
+    if(!lauflicht || !blur || !toRGB|| !rgbstrip){
+        qDebug() << "Fehler beim erstellen" << lauflicht.get() << ' '<<blur.get() << ' ' <<toRGB.get() << ' ' << rgbstrip.get();
         return;
     }
     const auto LENGTH = 50;
-    lauflicht->getProperties()[0]->asNumeric<int>()->setValue(4);
+    lauflicht->getProperties()[0]->asNumeric<int>()->setValue(20);
     lauflicht->getProperties()[1]->asNumeric<int>()->setValue(255);
     lauflicht->getProperties()[2]->asNumeric<int>()->setValue(0);
     lauflicht->setOutputLength(LENGTH);
     blur->setInputLength(LENGTH);
-    blur->getProperties()[0]->asNumeric<int>()->setValue(5);
-    blur->getProperties()[1]->asNumeric<double>()->setValue(1);
+    blur->getProperties()[0]->asNumeric<int>()->setValue(50);
+    blur->getProperties()[1]->asNumeric<double>()->setValue(5);
+    toRGB->setInputLength(LENGTH);
+    toRGB->getProperties()[0]->asNumeric<int>()->setValue(2);
     rgbstrip->setInputLength(LENGTH);
-    rgbstrip->getProperties()[0]->asNumeric<int>()->setValue(5);
+    rgbstrip->getProperties()[0]->asNumeric<int>()->setValue(4);
     rgbstrip->getProperties()[1]->asNumeric<int>()->setValue(2);
     Modules::detail::Connection first(blur);
     first.addTarget(LENGTH,lauflicht.get(),0);
-    Modules::detail::Connection second(rgbstrip);
+    Modules::detail::Connection second(toRGB);
     second.addTarget(LENGTH,blur.get(),0);
+    Modules::detail::Connection third(rgbstrip);
+    third.addTarget(LENGTH,toRGB.get(),0);
     con->addProgramm(lauflicht);
     con->addFilter(first,0);
-    con->addConsumer(second);
+    con->addFilter(second,1);
+    con->addConsumer(third);
     mm->controller().runProgramm(con);
     mm->controller().start();
+    ProgramBlockManager::model.push_back(con);
 }

@@ -23,15 +23,15 @@ ApplicationWindow {
             enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_TAB);
         }
         TabButton {
-            text: qsTr("DevicePrototypes")
+            text: qsTr("Device\nPrototypes")
             enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_PROTOTYPE_TAB);
         }
         TabButton {
-            text: qsTr("ProgrammPrototypes")
+            text: qsTr("Program\nPrototypes")
             enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_PROTOTYPE_TAY);
         }
         TabButton {
-            text: qsTr("Programms")
+            text: qsTr("Programs")
             enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_TAB);
         }
         TabButton {
@@ -50,6 +50,9 @@ ApplicationWindow {
         }
         TabButton {
             text: qsTr("Modules")
+        }
+        TabButton {
+            text: qsTr("Module\nPrograms")
         }
     }
 
@@ -82,6 +85,8 @@ ApplicationWindow {
         SettingsView{}
 
         ModuleView{}
+
+        ModuleProgramView{}
     }
 
     MessageDialog{

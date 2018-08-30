@@ -21,6 +21,14 @@ Compiler::Compiler()
 }
 
 
+/**
+ * @brief Compiler::compileToLibrary compiles the code in the file to a module Library
+ * @note Unloads the old Library found at newLibraryFile and loads the new Library, replacing all
+ *       old Programs/Filters/Consumers in ProgramBlockManager by new in instances
+ * @param file a FileInfo Object describing the file where the code is in
+ * @param newLibraryFile the FilePath of the new Library
+ * @return return code from the compiler and the output of the compiler
+ */
 std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QString &newLibraryFile){
     QProcess p;
 #ifdef Q_OS_MAC
@@ -74,6 +82,12 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     return {p.exitCode(),QString(err)};
 }
 
+/**
+ * @brief Compiler::compileToLibrary writes code into a file ans compile it, @see Compiler::compileToLibrary(QFileInfo,QString)
+ * @param code The code to compile to a Module Library
+ * @param newLibraryFile The filepath of the new generated library
+ * @return return code from the compiler and the output of the compiler
+ */
 std::pair<int,QString> Compiler::compileToLibrary(const QString &code, const QString &newLibraryFile){
     QTemporaryFile file;
     file.open();

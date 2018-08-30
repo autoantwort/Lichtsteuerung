@@ -15,6 +15,7 @@ namespace Modules{
         Consumer(const ValueType inputDataType):InputDataConsumer(inputDataType){}
         virtual void setInputLength(unsigned int)=0;
         virtual void start()=0;
+        virtual void stop()=0;
         /**
          * @brief show zeigt die eingabedaten an
          */

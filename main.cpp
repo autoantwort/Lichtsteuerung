@@ -34,6 +34,8 @@
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
 #include "codeeditorhelper.h"
+#include "programms/programblock.h"
+#include "programblockeditor.h"
 
 int main(int argc, char *argv[])
 {
@@ -77,6 +79,7 @@ int main(int argc, char *argv[])
     CatchingErrorApplication app(argc, argv);
     QQmlApplicationEngine engine;
     ControlPanel::setQmlEngine(&engine);
+    ProgramBlockEditor::engine = &engine;
     //qmlRegisterType<const ChannelVector*>("my.models",1,0,"ChannelVector");
     qmlRegisterType<ChannelProgrammEditor>("custom.licht",1,0,"ChannelProgrammEditor");
     qmlRegisterType<MapView>("custom.licht",1,0,"MapView");
@@ -88,6 +91,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<DimmerGroupControlItemData>("custom.licht",1,0,"DimmerGroupControlItemData");
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
     qmlRegisterType<CodeEditorHelper>("custom.licht",1,0,"CodeEditorHelper");
+    qmlRegisterType<ProgramBlockEditor>("custom.licht",1,0,"ProgramBlockEditor");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
@@ -163,6 +167,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
     engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
     engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());
+    engine.rootContext()->setContextProperty("programBlocksModel",&Modules::ProgramBlockManager::model);
     engine.rootContext()->setContextProperty("userModel",IDBaseDataModel<User>::singletone());
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
     engine.rootContext()->setContextProperty("Settings",&settings);
@@ -193,10 +198,6 @@ int main(int argc, char *argv[])
     driver.init();
     driver.start();*/
 #endif
-
-    QLibrary l("/Users/leanderSchulten/Lichtsteuerung/programms/test");
-    qDebug() << "loaded : " << l.load();
-    qDebug() << l.isLibrary("/Users/leanderSchulten/Lichtsteuerung/programms/test");
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();

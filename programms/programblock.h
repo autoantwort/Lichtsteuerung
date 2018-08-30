@@ -8,7 +8,9 @@
 #include <map>
 #include <set>
 #include <QJsonObject>
+#include <QObject>
 #include <memory>
+#include <modelvector.h>
 
 
 namespace Modules {
@@ -72,12 +74,15 @@ namespace Modules {
         };
     }
 
+    class ModuleManager;
+
     /**
      * @brief The ProgramBlock class is the combination of programms, filter and Consumer. THE PROGRAMM_BLOCK OWNS THE POINTER!
      * Es legt fest welche Bereiche des outputs in welche bereiche des inputs gelangen(Programm -> Filter -> Consumer)
      */
-    class ProgramBlock : public AbstractProgramm
+    class ProgramBlock : public QObject, public AbstractProgramm
     {
+        friend class ModuleManager;
         /*  Input n programms
             m filters
             k consumer
@@ -86,6 +91,9 @@ namespace Modules {
             save to json, save names of modules
             load from json, get object from Module Manager throug name
         */
+        QString name;
+        Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
+        Q_OBJECT
 
         std::set<std::shared_ptr<Program>> programs;
         // verschiedene Ebenen von Filtern
@@ -95,8 +103,29 @@ namespace Modules {
 
         // saves for every Programm, filter, consumer, the state, whether the output data changed
         std::map<Named*,bool> dataChanged;
-        //TODO temp:
-        bool start = true;
+    private:
+        // Funktionen um Module neu zu laden
+        std::vector<std::shared_ptr<Program>> getUsedProgramsByName(const std::string &)const;
+        std::vector<std::shared_ptr<Consumer>> getUsedConsumersByName(const std::string &)const;
+        std::vector<std::shared_ptr<Filter>> getUsedFiltersByName(const std::string &)const;
+        /**
+         * @brief replaceProgram ersetzt alle vorkomnisse von dem Programm durch das neue Programm
+         * @param original Das zu ersetztende Programm
+         * @param newProgram Das neue Programm
+         */
+        void replaceProgram(std::shared_ptr<Program> original, std::shared_ptr<Program> newProgram);
+        /**
+         * @brief replaceConsumer ersetzt alle vorkomnisse von dem Consumer durch das neue Consumer
+         * @param original Das zu ersetztende Consumer
+         * @param newConsumer Das neue Consumer
+         */
+        void replaceConsumer(std::shared_ptr<Consumer> original, std::shared_ptr<Consumer> newConsumer);
+        /**
+         * @brief replaceFilter ersetzt alle vorkomnisse von dem Filter durch das neue Filter
+         * @param original Das zu ersetztende Filter
+         * @param newFilter Das neue Filter
+         */
+        void replaceFilter(std::shared_ptr<Filter> original, std::shared_ptr<Filter> newFilter);
     private:
         /**
          * @brief doConnection copy from the targeds output to the source input
@@ -156,13 +185,58 @@ namespace Modules {
         void removeConsumer(F f){
             std::remove_if(consumer.begin(),consumer.end(),f);
         }
+        const std::set<std::shared_ptr<Program>> & getPrograms()const{return programs;}
+        // verschiedene Ebenen von Filtern
+        const std::map<int,detail::Connection> & getFilter()const{return filter;}
+        // a list of all consumer and their connections
+        const std::vector<detail::Connection> getConsumer()const{return consumer;}
+
     public:
-        ProgramBlock();
+        ProgramBlock(QString name = "No name"):name(name){}
+        void setName( const QString _name){
+                if(_name != name){
+                        name = _name;
+                        emit nameChanged();
+                }
+        }
+        QString getName() const {
+                return name;
+        }
+    signals:
+        void nameChanged();
+    public:
         ProgramBlock(const QJsonObject&);
         virtual bool doStep(time_diff_t)override;
+        /**
+         * @brief start starts all used Programs and Consumer
+         */
+        void start();
+        /**
+         * @brief stop stop all used Consumer
+         */
+        void stop();
         void writeJsonObject(QJsonObject&);
     };
 
+
+
+    class ProgrammBlockVector : public ModelVector<std::shared_ptr<ProgramBlock>>{
+        Q_OBJECT
+    };
+
+    class ProgramBlockManager{
+    public:
+        static ProgrammBlockVector model;
+        static void writeToJsonObject(QJsonObject&);
+        static void readFromJsonObject(const QJsonObject&);
+    };
+
+
 }
 
+namespace std {
+template<>
+  struct __is_pointer_helper<std::shared_ptr<Modules::ProgramBlock>>
+  : public true_type { };
+}
 #endif // PROGRAMBLOCK_H

@@ -8,6 +8,8 @@
 namespace Modules {
 
 
+    ProgrammBlockVector ProgramBlockManager::model;
+
     namespace detail {
     template<typename PointerType>
     class SharedPtrComperator{
@@ -27,10 +29,7 @@ namespace Modules {
     };
     }
 
-    ProgramBlock::ProgramBlock()
-    {
 
-    }
 
     template<typename T>
     void loadProperties(const QJsonObject &o, T*t){
@@ -39,7 +38,7 @@ namespace Modules {
         t->load(lo);
     }
 
-    ProgramBlock::ProgramBlock(const QJsonObject& o){
+    ProgramBlock::ProgramBlock(const QJsonObject& o):name(o["name"].toString()){
         // Wir erstellen erstmal alle objecte mit passendem Typ und ID
         std::map<QString,std::shared_ptr<Program>> programs;
         std::map<QString,std::shared_ptr<Filter>> filter;
@@ -55,7 +54,8 @@ namespace Modules {
                     throw std::runtime_error(std::string("Program with name '") + str + "' does not exist.");
                 }
                 loadProperties(obj,p.get());
-                programs.insert(std::make_pair(qstr,p));
+                programs.insert(std::make_pair(obj["id"].toString(),p));
+                this->programs.insert(p);
             }
         }
         {
@@ -69,7 +69,7 @@ namespace Modules {
                     throw std::runtime_error(std::string("Filter with name '") + str + "' does not exist.");
                 }
                 loadProperties(obj,p.get());
-                filter.insert(std::make_pair(qstr,p));
+                filter.insert(std::make_pair(obj["id"].toString(),p));
             }
         }
         {
@@ -83,7 +83,7 @@ namespace Modules {
                     throw std::runtime_error(std::string("Consumer with name '") + str + "' does not exist.");
                 }
                 loadProperties(obj,p.get());
-                consumer.insert(std::make_pair(qstr,p));
+                consumer.insert(std::make_pair(obj["id"].toString(),p));
             }
         }
         // Wir haben schon alle benötogten Objecte erstellt und wissen zu welcher ID welches Object gehört.
@@ -166,16 +166,107 @@ namespace Modules {
     }
 
 
-    bool ProgramBlock::doStep(time_diff_t diff){
-        if(start){
-            start = false;
-            for(auto & p : programs){
-                p->start();
-            }
-            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
-                static_cast<Consumer*>(i->source.get())->start();
+    std::vector<std::shared_ptr<Program>> ProgramBlock::getUsedProgramsByName(const std::string &name)const{
+        std::vector<std::shared_ptr<Program>> vec;
+        for(const auto & p : programs){
+            if(std::strcmp(p->getName(),name.c_str())==0)
+                vec.push_back(p);
+        }
+        return vec;
+    }
+    std::vector<std::shared_ptr<Consumer>> ProgramBlock::getUsedConsumersByName(const std::string &name)const{
+        std::vector<std::shared_ptr<Consumer>> vec;
+        for(const auto & p : consumer){
+            if(std::strcmp(dynamic_cast<Named*>(p.source.get())->getName(),name.c_str())==0)
+                vec.push_back(std::dynamic_pointer_cast<Consumer>(p.source));
+        }
+        return vec;
+    }
+    std::vector<std::shared_ptr<Filter>> ProgramBlock::getUsedFiltersByName(const std::string &name)const{
+        std::vector<std::shared_ptr<Filter>> vec;
+        for(const auto & p : filter){
+            if(std::strcmp(dynamic_cast<Named*>(p.second.source.get())->getName(),name.c_str())==0)
+                vec.push_back(std::dynamic_pointer_cast<Filter>(p.second.source));
+        }
+        return vec;
+    }
+
+    void ProgramBlock::replaceProgram(std::shared_ptr<Program> original, std::shared_ptr<Program> newProgram){
+        const auto it = programs.find(original);
+        if(it==programs.cend())
+            return;
+        transferProperties(original.get(),newProgram.get());
+        bool isRunning = ModuleManager::singletone()->controller().isProgramRunning(this);
+        programs.erase(it);
+        programs.insert(newProgram);
+        if(isRunning)
+            newProgram->start();
+        for(auto & f : filter){
+            for(auto &con : f.second.targeds){
+                if(con.second.targed == original.get()){
+                    con.second.targed = newProgram.get();
+                }
             }
         }
+        for(auto & f : consumer){
+            for(auto &con : f.targeds){
+                if(con.second.targed == original.get()){
+                    con.second.targed = newProgram.get();
+                }
+            }
+        }
+    }
+
+    void ProgramBlock::replaceFilter(std::shared_ptr<Filter> original, std::shared_ptr<Filter> newFilter){
+        transferProperties(original.get(),newFilter.get());
+        for(auto & f : filter){
+            if(f.second.source == original){
+                f.second.source = newFilter;
+            }
+            for(auto & t : f.second.targeds){
+                if(t.second.targed == original.get()){
+                    t.second.targed = newFilter.get();
+                }
+            }
+        }
+        for(auto & f : consumer){
+            for(auto &con : f.targeds){
+                if(con.second.targed == original.get()){
+                    con.second.targed = newFilter.get();
+                }
+            }
+        }
+    }
+
+    void ProgramBlock::replaceConsumer(std::shared_ptr<Consumer> original, std::shared_ptr<Consumer> newConsumer){
+        bool isRunning = ModuleManager::singletone()->controller().isProgramRunning(this);
+        original->stop();
+        transferProperties(original.get(),newConsumer.get());
+        for(auto & f : consumer){
+            if(f.source == original){
+                f.source = newConsumer;
+            }
+        }
+        if(isRunning)
+            newConsumer->start();
+    }
+
+    void ProgramBlock::start(){
+        for(auto & p : programs){
+            p->start();
+        }
+        for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+            static_cast<Consumer*>(i->source.get())->start();
+        }
+    }
+
+    void ProgramBlock::stop(){
+        for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+            static_cast<Consumer*>(i->source.get())->stop();
+        }
+    }
+
+    bool ProgramBlock::doStep(time_diff_t diff){
         bool finished = false;
         for(auto & p : programs){
             const auto state = p->doStep(diff);
@@ -206,6 +297,7 @@ namespace Modules {
     }
 
     void ProgramBlock::writeJsonObject(QJsonObject &o){
+        o["name"] = name;
         // Wir speichern zu jedem Programm/Filter/Consumer ein Object ab, das den Typnamen und eine ID, wir nehmen die Adresse im Arbeitsspeicher.
         // Wir speichern die Connections, indem wir für die Source und die Targets die Adressen(IDs) der jeweiligen Pointer speichern.
         // --- Programs ---
@@ -213,7 +305,7 @@ namespace Modules {
         for(auto i = programs.cbegin();i!=programs.cend();++i){
             QJsonObject p;
             p["typename"] = (*i)->getName();
-            p["id"] = QString::number(reinterpret_cast<size_t>(i->get()));
+            p["id"] = QString::number(reinterpret_cast<size_t>(static_cast<Named*>(i->get())));
             saveProperties(p,i->get());
             static_assert (sizeof (size_t) == sizeof (Program*), "Pointer must have same size as size_t");
             progs.push_back(p);
@@ -227,9 +319,9 @@ namespace Modules {
         for(const auto & i : this->filter){
             QJsonObject e;
             QJsonObject con;
-            con["source"] = QString::number(reinterpret_cast<size_t>(i.second.source.get()));
-            e["typename"] = reinterpret_cast<Named*>(i.second.source.get())->getName();
-            e["id"] = QString::number(reinterpret_cast<size_t>(i.second.source.get()));
+            con["source"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(i.second.source.get())));
+            e["typename"] = dynamic_cast<Named*>(i.second.source.get())->getName();
+            e["id"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(i.second.source.get())));
             saveProperties(e,static_cast<Filter*>(i.second.source.get()));
             con["level"] = i.first;
             static_assert (sizeof (size_t) == sizeof (Filter*), "Pointer must have same size as size_t");
@@ -237,12 +329,13 @@ namespace Modules {
             QJsonArray targets;
             for(const auto & c : i.second.targeds){
                 QJsonObject target;
-                target["target"] = QString::number(reinterpret_cast<size_t>(c.second.targed));
+                target["target"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(c.second.targed)));
                 target["length"] = static_cast<int>(c.first);
                 target["targetStartIndex"] = static_cast<int>(c.second.startIndex);
                 targets.push_back(target);
             }
             con["targets"] = targets;
+            filterCon.push_back(con);
         }
         o["filter"] = filter;
         o["filterConnections"] = filterCon;
@@ -254,16 +347,16 @@ namespace Modules {
             for(const auto & i : this->consumer){
                 QJsonObject e;
                 QJsonObject con;
-                con["source"] = QString::number(reinterpret_cast<size_t>(i.source.get()));
-                e["typename"] = reinterpret_cast<Named*>(i.source.get())->getName();
-                e["id"] = QString::number(reinterpret_cast<size_t>(i.source.get()));
+                con["source"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(i.source.get())));
+                e["typename"] = dynamic_cast<Named*>(i.source.get())->getName();
+                e["id"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(i.source.get())));
                 saveProperties(e,static_cast<Consumer*>(i.source.get()));
                 static_assert (sizeof (size_t) == sizeof (Filter*), "Pointer must have same size as size_t");
                 consumer.push_back(e);
                 QJsonArray targets;
                 for(const auto & c : i.targeds){
                     QJsonObject target;
-                    target["target"] = QString::number(reinterpret_cast<size_t>(c.second.targed));
+                    target["target"] = QString::number(reinterpret_cast<size_t>(dynamic_cast<Named*>(c.second.targed)));
                     target["length"] = static_cast<int>(c.first);
                     target["targetStartIndex"] = static_cast<int>(c.second.startIndex);
                     targets.push_back(target);
@@ -276,7 +369,22 @@ namespace Modules {
         }
     }
 
-
+    void ProgramBlockManager::writeToJsonObject(QJsonObject & o){
+        QJsonArray a;
+        for(const auto & m : model){
+            QJsonObject o1;
+            m->writeJsonObject(o1);
+            a.append(o1);
+        }
+        o.insert("model",a);
+    }
+    void ProgramBlockManager::readFromJsonObject(const QJsonObject & o){
+        auto a = o["model"].toArray();
+        for(auto val_:a){
+            QJsonObject ob = val_.toObject();
+            model.push_back(std::make_shared<ProgramBlock>(ob));
+        }
+    }
 
 
 }
