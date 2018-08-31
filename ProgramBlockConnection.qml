@@ -5,6 +5,7 @@ import QtQuick.Shapes 1.0
 import custom.licht 1.0
 
 Shape{
+    objectName: "Shape"
     property alias color : pathObj.fillColor
     anchors.fill: parent;
     property alias targetStartIndex: pathObj.startX
@@ -49,11 +50,11 @@ Shape{
         }
 
     }
-    MouseArea{
+    /*MouseArea{
         x: (targetStartIndex + sourceStartIndex)/2
         y: targetBaseline
         width: (targetLength + sourceLength)/2
         height: (sourceBaseline-targetBaseline)
         onClicked: color = "red"
-    }
+    }*/
 }

@@ -5,5 +5,7 @@ import custom.licht 1.0
 import Qt.labs.handlers 1.0
 
 Label{
-    DragHandler { }
+    z: 10
+    objectName: "Test"
+    //DragHandler{}
 }

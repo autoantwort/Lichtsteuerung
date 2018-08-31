@@ -30,6 +30,7 @@ namespace detail {
     private:
         Type type;
         Q_ENUM(Type)
+        Q_ENUMS(Type)
         int max=1000,min=0,defaultValue=1;
     public:
         Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)

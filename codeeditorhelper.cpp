@@ -410,5 +410,17 @@ void CodeEditorHelper::compile(){
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
         }else
             emit information("Compilieren erfolgreich.");
+        const auto p = Modules::ModuleManager::singletone()->getProgrammModules();
+        for(const auto & m : p){
+            qDebug()<< QString::fromStdString(m.name());
+        }
+        const auto f = Modules::ModuleManager::singletone()->getFilterModules();
+        for(const auto & m : f){
+            qDebug()<< QString::fromStdString(m.name());
+        }
+        const auto c = Modules::ModuleManager::singletone()->getConsumerModules();
+        for(const auto & m : c){
+            qDebug()<< QString::fromStdString(m.name());
+        }
     }
 }

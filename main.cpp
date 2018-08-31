@@ -33,16 +33,46 @@
 #include "driver.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
+#include "test/testmodulecontroller.h"
+#include "test/testprogrammblock.h"
 #include "codeeditorhelper.h"
 #include "programms/programblock.h"
 #include "programblockeditor.h"
+
+namespace Modules {
+    Q_NAMESPACE
+    Q_ENUM_NS(Property::Type)
+}
 
 int main(int argc, char *argv[])
 {
     /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
     return 0;*/
+    //Modules::rgb_t t = {{{{1},{4},{3}}}};
 
+
+    /*{
+        using namespace std;
+        using namespace string_literals;
+        vector<shared_ptr<string>> vec;
+        vec.push_back(make_shared<string>("Hallo"));
+        vec.front()->append(" Wourld"s);
+        cout << vec.front().get() << endl;
+        vec[0] = make_shared<string>("TEST"s);
+        cout << vec.front().get() << endl;
+        shared_ptr<string> second = make_shared<string>("Second"s);
+        vec[0].swap(second);
+        cout << vec.front().get() << endl;
+
+
+    }*/
+
+
+
+
+//    Test::TestProgrammBlock().test();
+//    return 0;
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -72,6 +102,7 @@ int main(int argc, char *argv[])
 
 
 
+
 //    auto defaultFormat = QSurfaceFormat::defaultFormat();
 //    defaultFormat.setSamples(8);
 //    QSurfaceFormat::setDefaultFormat(defaultFormat);
@@ -96,6 +127,9 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
+    //qmlRegisterType<Modules::detail::PropertyInformation::Type>("custom.licht", 1, 0, "PropertyType");
+    qmlRegisterUncreatableMetaObject(Modules::detail::PropertyInformation::staticMetaObject,"test",1,0,"we","no enum");
+    //qmlRegisterUncreatableMetaObject(Modules::Property::Type,"test",1,0,"we","no enum");
     qRegisterMetaType<Modules::ValueType>("ValueType");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     Settings settings;
@@ -152,7 +186,18 @@ int main(int argc, char *argv[])
     Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     settings.connect(&settings,&Settings::moduleDirPathChanged,[&](){
         Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
-    });
+    });/*
+    auto mm = Modules::ModuleManager::singletone();
+    qDebug()<<"Loaded : ";
+    for(auto m : mm->getConsumerModules()){
+        qDebug() << "Consumer : "<<QString::fromStdString(m.name());
+    }
+    for(auto m : mm->getProgrammModules()){
+        qDebug() << "Program : "<<QString::fromStdString(m.name());
+    }
+    for(auto m : mm->getFilterModules()){
+        qDebug() << "Filter : "<<QString::fromStdString(m.name());
+    }*/
 
 
     engine.rootContext()->setContextProperty("ModelManager",new ModelManager());
@@ -199,6 +244,7 @@ int main(int argc, char *argv[])
     driver.start();*/
 #endif
 
+    Test::createProgrammBlockAndTestRunIt();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();
 }
