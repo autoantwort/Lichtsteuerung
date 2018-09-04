@@ -40,8 +40,6 @@
 #include "programblockeditor.h"
 
 namespace Modules {
-    Q_NAMESPACE
-    Q_ENUM_NS(Property::Type)
 }
 
 int main(int argc, char *argv[])
@@ -50,7 +48,7 @@ int main(int argc, char *argv[])
     testModulSystem.runTest();
     return 0;*/
     //Modules::rgb_t t = {{{{1},{4},{3}}}};
-
+    Test::createProgrammBlockAndTestRunIt();
 
     /*{
         using namespace std;
@@ -128,7 +126,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
     //qmlRegisterType<Modules::detail::PropertyInformation::Type>("custom.licht", 1, 0, "PropertyType");
-    qmlRegisterUncreatableMetaObject(Modules::detail::PropertyInformation::staticMetaObject,"test",1,0,"we","no enum");
+    //qmlRegisterUncreatableMetaObject(Modules::detail::PropertyInformation::staticMetaObject,"test",1,0,"we","no enum");
     //qmlRegisterUncreatableMetaObject(Modules::Property::Type,"test",1,0,"we","no enum");
     qRegisterMetaType<Modules::ValueType>("ValueType");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");

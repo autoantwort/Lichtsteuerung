@@ -3,7 +3,7 @@
 #include <vector>
 #include <QAbstractListModel>
 #include <QDebug>
-#include <shared_ptr.hpp>
+#include <memory>
 
 
 namespace detail {

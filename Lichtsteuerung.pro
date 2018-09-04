@@ -152,5 +152,5 @@ win32-g++{
 
 unix{
     #installed with brew install boost
-    LIBS += -L/usr/local/Cellar/boost/1.66.0/lib -lboost_coroutine -lboost_context-mt
+    LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
 }

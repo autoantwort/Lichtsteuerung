@@ -9,7 +9,7 @@ ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/Pro
     programBlockConnection(engine,QUrl("qrc:/ProgramBlockConnection.qml"))
 {
     setAcceptedMouseButtons(Qt::AllButtons);
-    QQuickItem *c1 ;
+    /*QQuickItem *c1 ;
     if(programBlockEntry.isReady()){
         QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
         component->setParentItem(this);
@@ -58,7 +58,7 @@ ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/Pro
     });
     QObject::connect(c1,&QQuickItem::yChanged,[=](){
         component->setProperty("targetBaseline",c1->y()+c1->height());
-    });
+    });*/
     /*
     property alias targetStartIndex: path.startX
     property alias targetLength: topRight.relativeX

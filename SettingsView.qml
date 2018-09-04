@@ -66,7 +66,7 @@ Pane{
         TextInputField{
             Layout.fillWidth: true
             text: Settings.moduleDirPath
-            onAccepted: Settings.moduleDirPath = text;
+            //onAccepted: Settings.moduleDirPath = text;
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
@@ -78,6 +78,7 @@ Pane{
                     fileDialog.callback = function(file){
                         console.log(file);
                         Settings.moduleDirPath = file;
+                        parent.text = file;
                     };
                 }
             }
@@ -106,6 +107,35 @@ Pane{
                     fileDialog.callback = function(file){
                         console.log(file);
                         Settings.compilerPath = file;
+                    };
+                }
+            }
+        }
+
+        Label{
+            Layout.fillWidth: true
+            text: "Include Path:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.includePath
+            onAccepted: Settings.includePath = text;
+            Button{
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: -5
+                anchors.bottomMargin: -5
+                anchors.bottom: parent.bottom
+                text: "File Chooser"
+                onClicked: {
+                    fileDialog.selectFolder = true;
+                    fileDialog.selectMultiple = false;
+                    fileDialog.folder = Settings.includePath;
+                    fileDialog.open();
+                    fileDialog.addSelection(Settings.includePath);
+                    fileDialog.callback = function(file){
+                        console.log(file);
+                        Settings.includePath = file;
                     };
                 }
             }

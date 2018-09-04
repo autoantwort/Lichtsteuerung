@@ -234,9 +234,9 @@ namespace Modules {
 
 }
 
-namespace std {
+/*namespace std {
 template<>
   struct __is_pointer_helper<std::shared_ptr<Modules::ProgramBlock>>
   : public true_type { };
-}
+}*/
 #endif // PROGRAMBLOCK_H
