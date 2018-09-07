@@ -69,8 +69,65 @@ ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/Pro
 }
 Q_DECLARE_METATYPE(Modules::PropertyBase *)
 
+void ProgramBlockEditor::updatePossibleEntries(){
+    QStringList l;
+    using namespace Modules;
+    for(const auto & m : ModuleManager::singletone()->getProgrammModules()){
+        l << QString::fromStdString(m.name()) + "(Program)";
+    }
+    for(const auto & m : ModuleManager::singletone()->getFilterModules()){
+        l << QString::fromStdString(m.name()) + "(Filter)";
+    }
+    for(const auto & m : ModuleManager::singletone()->getConsumerModules()){
+        l << QString::fromStdString(m.name()) + "(Consumer)";
+    }
+    possibleEntryModel.setStringList(l);
+}
+
+void ProgramBlockEditor::addEntry(int index, int size){
+    if(index < 0 || index >= possibleEntryModel.rowCount()){
+        return;
+    }
+    using namespace Modules;
+    QString name = possibleEntryModel.data(possibleEntryModel.index(index)).toString();
+    if(name.endsWith("(Program)")){
+        auto p = ModuleManager::singletone()->createProgramm(name.left(name.length()-9).toStdString());
+        if(p){
+            p->setOutputLength(size);
+            programBlock->addProgramm(p);
+            qDebug() << "added";
+            recreateView();
+        }else{
+            qDebug()<<"Invalid pointer for : "  << name;
+        }
+    } else if(name.endsWith("(Filter)")){
+        auto p = ModuleManager::singletone()->createFilter(name.left(name.length()-8).toStdString());
+        if(p){
+           p->setInputLength(size);
+           programBlock->addFilter(Modules::detail::Connection(p),1);
+           qDebug() << "added";
+           recreateView();
+        }else{
+           qDebug()<<"Invalid pointer for : "  << name;
+        }
+    } else if(name.endsWith("(Consumer)")){
+        auto p = ModuleManager::singletone()->createConsumer(name.left(name.length()-10).toStdString());
+        if(p){
+            p->setInputLength(size);
+            programBlock->addConsumer(Modules::detail::Connection(p));
+            recreateView();
+            qDebug() << "added";
+        }else{
+            qDebug()<<"Invalid pointer for : "  << name;
+        }
+    }else{
+        qDebug() << "ERROR : " << name;
+    }
+}
+
 void ProgramBlockEditor::recreateView(){
     for(auto i : this->childItems()){
+        if(i->objectName()=="removeable")
         i->setParentItem(nullptr);
     }
     if(!programBlock)
@@ -83,8 +140,9 @@ void ProgramBlockEditor::recreateView(){
         component->setProperty("text",p.get()->getName());
         component->setX(0);
         component->setY(y);
-        component->setWidth(p.get()->getOutputLength());
+        component->setWidth(p.get()->getOutputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(static_cast<PropertyBase*>(p.get())));
+        component->setObjectName("removeable");
         y += 70;
         components[p.get()] = component;
     }
@@ -93,8 +151,9 @@ void ProgramBlockEditor::recreateView(){
         component->setProperty("text",dynamic_cast<Named*>(p.second.source.get())->getName());
         component->setX(0);
         component->setY(y);
-        component->setWidth(p.second.source.get()->getInputLength());
+        component->setWidth(p.second.source.get()->getInputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.second.source.get())));
+        component->setObjectName("removeable");
         y += 70;
         components[dynamic_cast<Named*>(p.second.source.get())] = component;
     }
@@ -103,8 +162,9 @@ void ProgramBlockEditor::recreateView(){
         component->setProperty("text",dynamic_cast<Named*>(p.source.get())->getName());
         component->setX(0);
         component->setY(y);
-        component->setWidth(p.source.get()->getInputLength());
+        component->setWidth(p.source.get()->getInputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.source.get())));
+        component->setObjectName("removeable");
         y += 70;
         components[dynamic_cast<Named*>(p.source.get())] = component;
     }
@@ -117,14 +177,15 @@ void ProgramBlockEditor::recreateView(){
             component->setParentItem(this);
             QQmlEngine::setObjectOwnership(component,QQmlEngine::JavaScriptOwnership);
             component->setProperty("targetStartIndex",c.second.startIndex);
-            component->setProperty("targetLength",c.first);
+            component->setProperty("targetLength",c.first*scale);
             component->setProperty("sourceStartIndex",index);
-            component->setProperty("sourceLength",c.first);
+            component->setProperty("sourceLength",c.first*scale);
             const auto elem1 = components[dynamic_cast<Named*>(c.second.targed)];
             component->setProperty("targetBaseline",elem1->y() + elem1->height());
             const auto elem2 = components[dynamic_cast<Named*>(p.second.source.get())];
             component->setProperty("sourceBaseline",elem2->y());
             component->setProperty("color",QColor(23,255,23));
+            component->setObjectName("removeable");
             index += c.first;
 
             QObject::connect(elem1,&QQuickItem::xChanged,[=](){
@@ -150,14 +211,15 @@ void ProgramBlockEditor::recreateView(){
             component->setParentItem(this);
             QQmlEngine::setObjectOwnership(component,QQmlEngine::JavaScriptOwnership);
             component->setProperty("targetStartIndex",c.second.startIndex);
-            component->setProperty("targetLength",c.first);
+            component->setProperty("targetLength",c.first*scale);
             component->setProperty("sourceStartIndex",index);
-            component->setProperty("sourceLength",c.first);
+            component->setProperty("sourceLength",c.first*scale);
             const auto elem1 = components[dynamic_cast<Named*>(c.second.targed)];
             component->setProperty("targetBaseline",elem1->y() + elem1->height());
             const auto elem2 = components[dynamic_cast<Named*>(p.source.get())];
             component->setProperty("sourceBaseline",elem2->y());
             component->setProperty("color",QColor(23,255,23));
+            component->setObjectName("removeable");
             index += c.first;
 
             QObject::connect(elem1,&QQuickItem::xChanged,[=](){
@@ -180,6 +242,38 @@ void ProgramBlockEditor::recreateView(){
     for(const auto & p : components){
         p.second->setParentItem(this);
         QQmlEngine::setObjectOwnership(p.second,QQmlEngine::JavaScriptOwnership);
+    }
+}
+
+void print(PropertyInformationModel * p){
+    for(const auto &o:*p){
+        qDebug()<<o->getName() << o->getValue();
+    }
+}
+
+template<typename TargetType>
+void transferData(::detail::PropertyInformation *pi,Modules::Property * p){
+    p->asNumeric<TargetType>()->setValue(pi->getValue().value<TargetType>());
+}
+
+
+void detail::PropertyInformation::updateValue(){
+    qDebug()<<"set value";
+    using namespace Modules;
+    switch (getType()) {
+        case Property::Double: transferData<double>(this,property);
+            break;
+        case Property::Float: transferData<float>(this,property);
+            break;
+        case Property::Int: transferData<int>(this,property);
+            break;
+        case Property::Long: transferData<long>(this,property);
+            break;
+        case Property::Bool:
+            property->asBool()->setValue(getValue().toBool());
+            break;
+        case Property::String:
+            property->asString()->setValue(getValue().toString().toStdString());
     }
 }
 
@@ -208,6 +302,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
         comp = comp->parentItem();
     }
     if(comp->property("propertyBase").isValid()){
+        print(getPropertyInformationModel());
         Modules::PropertyBase * pb = comp->property("propertyBase").value<Modules::PropertyBase*>();
         if(propertyInformationModel.size()>pb->getProperties().size()){
             for(auto i = propertyInformationModel.cbegin()+pb->getProperties().size();i!=propertyInformationModel.cend();++i){
@@ -223,6 +318,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
         for(auto t = propertyInformationModel.cbegin();t!=propertyInformationModel.cend();++t,++s){
             auto & tp = **t;
             auto & sp = **s;
+            tp.property = *s;
             tp.setDescription(QString::fromStdString(sp.getDescription()));
             tp.setName(QString::fromStdString(sp.getName()));
             tp.setType(sp.type);
@@ -245,6 +341,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             }
 
         }
+        print(getPropertyInformationModel());
         setShowProperties(true);
 
     }else{

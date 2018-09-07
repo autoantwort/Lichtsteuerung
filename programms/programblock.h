@@ -97,7 +97,7 @@ namespace Modules {
 
         std::set<std::shared_ptr<Program>> programs;
         // verschiedene Ebenen von Filtern
-        std::map<int,detail::Connection> filter;
+        std::multimap<int,detail::Connection> filter;
         // a list of all consumer and their connections
         std::vector<detail::Connection> consumer;
 
@@ -187,7 +187,7 @@ namespace Modules {
         }
         const std::set<std::shared_ptr<Program>> & getPrograms()const{return programs;}
         // verschiedene Ebenen von Filtern
-        const std::map<int,detail::Connection> & getFilter()const{return filter;}
+        const std::multimap<int,detail::Connection> & getFilter()const{return filter;}
         // a list of all consumer and their connections
         const std::vector<detail::Connection> getConsumer()const{return consumer;}
 

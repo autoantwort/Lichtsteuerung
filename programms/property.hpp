@@ -23,7 +23,7 @@ namespace Modules {
         std::string name;
         std::string description;
     public:
-        const enum Type {Int, Long, Float, Double, Bool, String} type;
+        const enum Type {Int=0, Long=1, Float=2, Double=3, Bool=4, String=5} type;
     protected:
         Property(Type t):type(t){}
     public:

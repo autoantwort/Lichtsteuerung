@@ -4,6 +4,7 @@
 #include <QQuickItem>
 #include "programms/programblock.h"
 #include "programms/modulemanager.h"
+#include <QStringListModel>
 
 namespace detail {
     class PropertyInformation : public QObject{
@@ -11,7 +12,9 @@ namespace detail {
     public:
         typedef Modules::Property::Type Type;
         Q_ENUM(Type)
+        Modules::Property * property = nullptr;
     private:
+        void updateValue();
         //auto generated class:
         QVariant minValue;
         QVariant maxValue;
@@ -52,6 +55,7 @@ namespace detail {
         void setValue( const QVariant _value){
                 if(_value != value){
                         value = _value;
+                        updateValue();
                         emit valueChanged();
                 }
         }
@@ -125,23 +129,42 @@ class PropertyInformationModel : public ModelVector<detail::PropertyInformation*
 class ProgramBlockEditor : public QQuickItem
 {
     Q_OBJECT
-    Modules::ProgramBlock * programBlock;
+    Modules::ProgramBlock * programBlock = nullptr;
     PropertyInformationModel propertyInformationModel;
     bool showProperties;
+    QStringListModel possibleEntryModel;
     Q_PROPERTY(Modules::ProgramBlock* programBlock READ getProgramBlock WRITE setProgramBlock NOTIFY programBlockChanged)
     Q_PROPERTY(PropertyInformationModel * propertyInformationModel READ getPropertyInformationModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel * possibleEntryModel READ getPossibleEntryModel CONSTANT)
     Q_PROPERTY(bool showProperties READ getShowProperties WRITE setShowProperties NOTIFY showPropertiesChanged)
+    Q_PROPERTY(bool run READ getRun WRITE setRun NOTIFY runChanged)
     QQmlComponent programBlockEntry;
     QQmlComponent programBlockConnection;
+    double scale = 2;
+    bool run;
 private:
     void recreateView();
 public:
+    /** Wird vom ModuleProgramView aufgerufen wenn ein neuer entry hinzugefügt werden soll
+      *
+      *
+      */
+    Q_INVOKABLE void updatePossibleEntries();
+    /**
+     * @brief addEntry fügt den Entry an position index im possibleEntryModel hinzu
+     * @param index Der index im possibleEntryModel
+     * @param size Die inputoutput größe des entries
+     */
+    Q_INVOKABLE void addEntry(int index, int size);
     static QQmlEngine * engine;
-    ProgramBlockEditor();void setProgramBlock( Modules::ProgramBlock* _programBlock){
+    ProgramBlockEditor();
+    void setProgramBlock( Modules::ProgramBlock* _programBlock){
         if(_programBlock != programBlock){
             qDebug () << "Program Block changed";
                 programBlock = _programBlock;
                 recreateView();
+                run = Modules::ModuleManager::singletone()->controller().isProgramRunning(programBlock);
+                emit runChanged();
                 emit programBlockChanged();
         }
     }
@@ -151,14 +174,30 @@ public:
     PropertyInformationModel *getPropertyInformationModel() {
             return &propertyInformationModel;
     }
+    QAbstractListModel *getPossibleEntryModel() {
+            return &possibleEntryModel;
+    }
     void setShowProperties( const bool _showProperties){
-            if(_showProperties != showProperties){
+            //if(_showProperties != showProperties){
                     showProperties = _showProperties;
                     emit showPropertiesChanged();
-            }
+            //}
     }
     bool getShowProperties() const {
             return showProperties;
+    }
+    void setRun( const bool _run){
+            if(_run != run){
+                    run = _run;
+                    if(run)
+                        Modules::ModuleManager::singletone()->controller().runProgramm(*std::find_if(Modules::ProgramBlockManager::model.cbegin(),Modules::ProgramBlockManager::model.cend(),[&](const auto &v){return v.get()==programBlock;}));
+                    else
+                        Modules::ModuleManager::singletone()->controller().stopProgramm(programBlock);
+                    emit runChanged();
+            }
+    }
+    bool getRun() const {
+            return run;
     }
 protected:
     virtual void mouseReleaseEvent(QMouseEvent *event)override;
@@ -167,6 +206,7 @@ protected:
 signals:
     void programBlockChanged();
     void showPropertiesChanged();
+    void runChanged();
 };
 
 #endif // PROGRAMBLOCKEDITOR_H
