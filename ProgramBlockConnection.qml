@@ -22,6 +22,8 @@ Shape{
            * <--- *
         */
         startY: targetBaseline
+        strokeWidth: 0
+        strokeColor: "transparent"
         PathLine{
             id: topRight;
             y: targetBaseline
@@ -49,11 +51,11 @@ Shape{
         }
 
     }
-    MouseArea{
+    /*MouseArea{
         x: (targetStartIndex + sourceStartIndex)/2
         y: targetBaseline
         width: (targetLength + sourceLength)/2
         height: (sourceBaseline-targetBaseline)
         onClicked: color = "red"
-    }
+    }*/
 }

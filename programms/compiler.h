@@ -10,6 +10,7 @@ public:
     static QString compilerCmd;
     static QString compilerLibraryFlags;
     static QString compilerFlags;
+    static QString includePath;
 
 public:
     Compiler();

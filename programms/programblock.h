@@ -97,7 +97,7 @@ namespace Modules {
 
         std::set<std::shared_ptr<Program>> programs;
         // verschiedene Ebenen von Filtern
-        std::map<int,detail::Connection> filter;
+        std::multimap<int,detail::Connection> filter;
         // a list of all consumer and their connections
         std::vector<detail::Connection> consumer;
 
@@ -165,6 +165,30 @@ namespace Modules {
             }
             return false;
         }
+        void removeConnectionsToOutputDataProducer(OutputDataProducer*out){
+            for(auto & i : filter){
+                // entfere alle targets ab der ersten verbinndung zu dem zu entfernenem filter
+                auto first = i.second.targeds.cend();
+                for(auto t = i.second.targeds.cbegin() ; t != i.second.targeds.cend();++t){
+                    if(t->second.targed == out){
+                        first = t;
+                        break;
+                    }
+                }
+                i.second.targeds.erase(first,i.second.targeds.cend());
+            }
+            for(auto & i : consumer){
+                // entfere alle targets ab der ersten verbinndung zu dem zu entfernenem filter
+                auto first = i.targeds.cend();
+                for(auto t = i.targeds.cbegin() ; t != i.targeds.cend();++t){
+                    if(t->second.targed == out){
+                        first = t;
+                        break;
+                    }
+                }
+                i.targeds.erase(first,i.targeds.cend());
+            }
+        }
     public:
         /**
          * @brief addProgramm adds a pointer to a programm. the pointer is owned
@@ -183,13 +207,62 @@ namespace Modules {
         void addConsumer(detail::Connection c);
         template<typename F>
         void removeConsumer(F f){
-            std::remove_if(consumer.begin(),consumer.end(),f);
+            // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
+            for (auto it{consumer.begin()}, end{consumer.end()}; it != end; ) {
+                if (f(*it)) {
+                    it = consumer.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+        }
+        template<typename F>
+        void removeFilter(F f){
+            // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
+            for (auto it{filter.begin()}, end{filter.end()}; it != end; ) {
+                if (f(*it)) {
+                    removeConnectionsToOutputDataProducer(static_cast<Filter*>(it->second.source.get()));
+                    it = filter.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+        }
+        template<typename F>
+        void removeProgram(F f){
+            // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
+            for (auto it{programs.begin()}, end{programs.end()}; it != end; ) {
+                if (f(*it)) {
+                    removeConnectionsToOutputDataProducer(static_cast<Program*>(it->get()));
+                    it = programs.erase(it);
+                }
+                else {
+                    ++it;
+                }
+            }
+        }
+        void removeConsumer(Consumer * c){
+            removeConsumer([=](const auto &f){return f.source.get()==c;});
+        }
+        void removeFilter(Filter * filter){
+            removeFilter([=](const auto &f){return f.second.source.get()==filter;});
+        }
+        void removeProgram(Program * program){
+            removeProgram([=](const auto &f){return f.get()==program;});
         }
         const std::set<std::shared_ptr<Program>> & getPrograms()const{return programs;}
         // verschiedene Ebenen von Filtern
-        const std::map<int,detail::Connection> & getFilter()const{return filter;}
+        const std::multimap<int,detail::Connection> & getFilter()const{return filter;}
         // a list of all consumer and their connections
         const std::vector<detail::Connection> getConsumer()const{return consumer;}
+
+         std::set<std::shared_ptr<Program>> & getPrograms(){return programs;}
+        // verschiedene Ebenen von Filtern
+         std::multimap<int,detail::Connection> & getFilter(){return filter;}
+        // a list of all consumer and their connections
+         std::vector<detail::Connection> getConsumer(){return consumer;}
 
     public:
         ProgramBlock(QString name = "No name"):name(name){}
@@ -234,9 +307,9 @@ namespace Modules {
 
 }
 
-namespace std {
+/*namespace std {
 template<>
   struct __is_pointer_helper<std::shared_ptr<Modules::ProgramBlock>>
   : public true_type { };
-}
+}*/
 #endif // PROGRAMBLOCK_H

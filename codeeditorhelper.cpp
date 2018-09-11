@@ -404,11 +404,17 @@ void CodeEditorHelper::compile(){
         stream << "}" << endl;
         stream.flush();
         file.close();
+#ifdef Q_OS_WIN
         auto result = Modules::Compiler::compileToLibrary(file,module->getName()+".dll");
+#else
+        auto result = Modules::Compiler::compileToLibrary(file,module->getName()+".so");
+#endif
         if(result.first){
             QFileInfo finfo = file;
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
         }else
             emit information("Compilieren erfolgreich.");
+    }else{
+        emit information("Cant open file : " + s.getModuleDirPath() + "/" + module->getName() + ".cpp");
     }
 }

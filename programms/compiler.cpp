@@ -13,6 +13,7 @@ namespace Modules{
 QString Compiler::compilerCmd = "g++";
 QString Compiler::compilerLibraryFlags = "-shared -fPIC";
 QString Compiler::compilerFlags = "-std=c++14 -O3";
+QString Compiler::includePath = QDir::currentPath();
 
 
 Compiler::Compiler()
@@ -33,11 +34,12 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     QProcess p;
 #ifdef Q_OS_MAC
     p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
-    p.start("bash", QStringList() << "-c" << compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.fileName() + " -o " + newLibraryFile);
+    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + file.absolutePath()+"/"+newLibraryFile + " -I\"/"+includePath + "\" ";
+    p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
     QString tempName=newLibraryFile + ".o";
     QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
-    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + file.absolutePath() + "/" + tempName+"\" -I\"" + QDir::currentPath() + "\" ";
+    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + file.absolutePath() + "/" + tempName+"\" -I\"" + includePath + "\" ";
     cmd = "\" " + cmd + " \"";
     qDebug().noquote() << cmd;
     /*
@@ -61,7 +63,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     if(p.exitCode() != 0){
         qDebug() << p.errorString();
         qDebug() << p.error();
-        qDebug().noquote() << cmd;
+        //qDebug().noquote() << cmd;
     }else{
 #ifdef Q_OS_WIN
         // we have to unload the existing lib first
@@ -77,6 +79,13 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
         }
         return{oToDll.exitCode(),oToDll.readAllStandardError()};
 
+#endif
+#ifdef Q_OS_MAC
+        // we have to unload the existing lib first
+        if(p.exitCode()==0){
+            ModuleManager::singletone()->singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
+            ModuleManager::singletone()->singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
+        }
 #endif
     }
     return {p.exitCode(),QString(err)};

@@ -3,7 +3,7 @@
 #include <vector>
 #include <QAbstractListModel>
 #include <QDebug>
-#include <shared_ptr.hpp>
+#include <memory>
 
 
 namespace detail {
@@ -54,6 +54,8 @@ class ModelVector : public QAbstractListModel{
     }*/
 
 public:
+    using const_iterator = typename std::vector<Type>::const_iterator;
+
     enum{
         ModelDataRole = Qt::UserRole+1,
     };
@@ -89,6 +91,12 @@ public:
         const auto pos = i-model.begin();
         beginRemoveRows(QModelIndex(),pos,pos);
         model.erase(i);
+        endRemoveRows();
+    }
+    void erase(const_iterator first, const_iterator last){
+        const auto pos = std::distance(model.cbegin(),first);
+        beginRemoveRows(QModelIndex(),pos,pos + std::distance(first,last) -1);
+        model.erase(first,last);
         endRemoveRows();
     }
     Type erase(int i){

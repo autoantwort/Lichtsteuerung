@@ -178,9 +178,10 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             if(s.suffix() == "old"){
                 QFile::remove(s.filePath());
             }
-            if(s.suffix() == "dll")
 #endif
-            loadModule(s.absoluteFilePath());
+            if(QLibrary::isLibrary(s.fileName())){
+                loadModule(s.absoluteFilePath());
+            }
             //qDebug()<<"found : " << s;
         }
         for(auto s : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){

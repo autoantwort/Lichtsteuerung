@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QSettings>
 #include <QFile>
+#include <QDir>
 #include "programms/compiler.h"
 
 class Settings : public QObject
@@ -16,6 +17,7 @@ class Settings : public QObject
     Q_PROPERTY(QString compilerPath READ getCompilerPath WRITE setCompilerPath NOTIFY compilerPathChanged)
     Q_PROPERTY(QString compilerFlags READ getCompilerFlags WRITE setCompilerFlags NOTIFY compilerFlagsChanged)
     Q_PROPERTY(QString compilerLibraryFlags READ getCompilerLibraryFlags WRITE setCompilerLibraryFlags NOTIFY compilerLibraryFlagsChanged)
+    Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
 public:
     explicit Settings(QObject *parent = nullptr);
@@ -26,9 +28,14 @@ public:
     void setUpdatePauseInMs(unsigned int pause){settings.setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}
     unsigned int getUpdatePauseInMs()const{return settings.value("updatePauseInMs").toUInt();}
     void setModuleDirPath( const QString _moduleDirPath){
-        if(!QFile::exists(_moduleDirPath))return;
+#ifdef Q_OS_MAC
+        if(!QDir("/" + _moduleDirPath).exists())return;
+        settings.setValue("moduleDirPath","/" + _moduleDirPath);
+#else
+        if(!QDir(_moduleDirPath).exists())return;
             settings.setValue("moduleDirPath",_moduleDirPath);
-            emit moduleDirPathChanged();
+#endif
+        emit moduleDirPathChanged();
     }
 
     QString getModuleDirPath() const {
@@ -44,6 +51,16 @@ public:
     }
     QString getCompilerPath() const {
         return Modules::Compiler::compilerCmd;
+    }
+    void setIncludePath( const QString _includePath){
+            if(_includePath != Modules::Compiler::includePath){
+                    Modules::Compiler::includePath = _includePath;
+                    settings.setValue("includePath",_includePath);
+                    emit includePathChanged();
+            }
+    }
+    QString getIncludePath() const {
+            return Modules::Compiler::includePath;
     }
 
     void setCompilerFlags( const QString _compilerFlags){
@@ -74,6 +91,7 @@ signals:
     void compilerPathChanged();
     void compilerFlagsChanged();
     void compilerLibraryFlagsChanged();
+    void includePathChanged();
 public slots:
 };
 
