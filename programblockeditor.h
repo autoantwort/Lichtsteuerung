@@ -13,6 +13,9 @@ namespace detail {
         typedef Modules::Property::Type Type;
         Q_ENUM(Type)
         Modules::Property * property = nullptr;
+        // wenn dieses Feld ungleich 0 ist, dann wird hier die InputOutputLength gespeichert
+        Modules::PropertyBase * named = nullptr;
+        std::function<void()> updateCallback;
     private:
         void updateValue();
         //auto generated class:
@@ -119,7 +122,6 @@ namespace detail {
         void forwardPropertyNameChanged();
     };
 
-
 }
 
 class PropertyInformationModel : public ModelVector<detail::PropertyInformation*>{
@@ -133,29 +135,68 @@ class ProgramBlockEditor : public QQuickItem
     PropertyInformationModel propertyInformationModel;
     bool showProperties;
     QStringListModel possibleEntryModel;
+    QStringListModel outputDataProducerModel;
+    QStringListModel inputDataConsumerModel;
     Q_PROPERTY(Modules::ProgramBlock* programBlock READ getProgramBlock WRITE setProgramBlock NOTIFY programBlockChanged)
     Q_PROPERTY(PropertyInformationModel * propertyInformationModel READ getPropertyInformationModel CONSTANT)
     Q_PROPERTY(QAbstractListModel * possibleEntryModel READ getPossibleEntryModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel * outputDataProducerModel READ getOutputDataProducerModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel * inputDataConsumerModel READ getInputDataConsumerModel CONSTANT)
     Q_PROPERTY(bool showProperties READ getShowProperties WRITE setShowProperties NOTIFY showPropertiesChanged)
     Q_PROPERTY(bool run READ getRun WRITE setRun NOTIFY runChanged)
     QQmlComponent programBlockEntry;
     QQmlComponent programBlockConnection;
+    enum {None, MovePermanent, MoveTemporarily, AddConnection, AddReverseConnection} dragType = None;
+    QQuickItem * dragStartItem = nullptr;
+    //QPoint dragStartPoint;
+    QPointF dragOffsetInItem;
+    QQuickItem * dragEndItem = nullptr;
     double scale = 2;
+    int spaceBetweenLayers = 70;
     bool run;
 private:
     void recreateView();
+    /**
+     * @brief getItemWithPropertyBase travels through the hierarchy to find an entry component
+     * @return the component or nullptr
+     */
+    QQuickItem * getItemWithPropertyBase(QMouseEvent *event);
 public:
     /** Wird vom ModuleProgramView aufgerufen wenn ein neuer entry hinzugefügt werden soll
-      *
-      *
       */
     Q_INVOKABLE void updatePossibleEntries();
+    /**
+     * @brief updateInputOutputModels Wird vom ModuleProgramView aufgerufen, wenn eine neue Connection hinzugefügt werden soll.
+     */
+    Q_INVOKABLE void updateInputOutputModels();
+    /**
+     * @brief addConnection adds a connection between a inputDataConsumer and an OuputDataProducer, this function is meant to be called from qml
+     * @param inputIndex The index in the inputDataConsumerModel
+     * @param length the Length of the connection
+     * @param outputIndex The index in the outputDataProducerModel
+     * @param startIndex the start index in the output from the outputDataProducer
+     */
+    Q_INVOKABLE void addConnection(int inputIndex, int length, int outputIndex, int startIndex);
+    /**
+     * @brief addConnection you can call this method once when the signal @see askToAddConnection(QString,QString) gets emitted
+     * @param length the length of the connection
+     * @param startIndex the start index in the output of the target
+     */
+    Q_INVOKABLE void addConnection(int length, int startIndex);
     /**
      * @brief addEntry fügt den Entry an position index im possibleEntryModel hinzu
      * @param index Der index im possibleEntryModel
      * @param size Die inputoutput größe des entries
      */
     Q_INVOKABLE void addEntry(int index, int size);
+    /**
+     * @brief removeEntry removes the entry selected by mouse
+     */
+    Q_INVOKABLE void removeEntry();
+    /**
+     * @brief removeIncomingConnections removes all incoming connections from the current entry
+     */
+    Q_INVOKABLE void removeIncomingConnections();
     static QQmlEngine * engine;
     ProgramBlockEditor();
     void setProgramBlock( Modules::ProgramBlock* _programBlock){
@@ -164,6 +205,7 @@ public:
                 programBlock = _programBlock;
                 recreateView();
                 run = Modules::ModuleManager::singletone()->controller().isProgramRunning(programBlock);
+                setShowProperties(false);
                 emit runChanged();
                 emit programBlockChanged();
         }
@@ -177,6 +219,13 @@ public:
     QAbstractListModel *getPossibleEntryModel() {
             return &possibleEntryModel;
     }
+    QAbstractListModel *getInputDataConsumerModel() {
+            return &inputDataConsumerModel;
+    }
+    QAbstractListModel *getOutputDataProducerModel() {
+            return &outputDataProducerModel;
+    }
+
     void setShowProperties( const bool _showProperties){
             //if(_showProperties != showProperties){
                     showProperties = _showProperties;
@@ -207,6 +256,8 @@ signals:
     void programBlockChanged();
     void showPropertiesChanged();
     void runChanged();
+    void askToAddConnection(QString from, QString to);
+    void openRightClickEntry(int x, int y);
 };
 
 #endif // PROGRAMBLOCKEDITOR_H

@@ -23,6 +23,8 @@ Shape{
            * <--- *
         */
         startY: targetBaseline
+        strokeWidth: 0
+        strokeColor: "transparent"
         PathLine{
             id: topRight;
             y: targetBaseline
