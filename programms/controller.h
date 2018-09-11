@@ -32,7 +32,7 @@ public:
         }
     }
     void stop(){run_=false;}
-    ~Controller(){run_ = false;thread.join();}
+    ~Controller(){run_ = false;if(thread.joinable())thread.join();}
     void runProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(ProgramBlock* pb);
