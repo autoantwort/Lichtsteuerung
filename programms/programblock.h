@@ -256,13 +256,13 @@ namespace Modules {
         // verschiedene Ebenen von Filtern
         const std::multimap<int,detail::Connection> & getFilter()const{return filter;}
         // a list of all consumer and their connections
-        const std::vector<detail::Connection> getConsumer()const{return consumer;}
+        const std::vector<detail::Connection> & getConsumer()const{return consumer;}
 
          std::set<std::shared_ptr<Program>> & getPrograms(){return programs;}
         // verschiedene Ebenen von Filtern
          std::multimap<int,detail::Connection> & getFilter(){return filter;}
         // a list of all consumer and their connections
-         std::vector<detail::Connection> getConsumer(){return consumer;}
+         std::vector<detail::Connection> & getConsumer(){return consumer;}
 
     public:
         ProgramBlock(QString name = "No name"):name(name){}

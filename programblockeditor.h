@@ -238,9 +238,11 @@ public:
     void setRun( const bool _run){
             if(_run != run){
                     run = _run;
-                    if(run)
-                        Modules::ModuleManager::singletone()->controller().runProgramm(*std::find_if(Modules::ProgramBlockManager::model.cbegin(),Modules::ProgramBlockManager::model.cend(),[&](const auto &v){return v.get()==programBlock;}));
-                    else
+                    if(run){
+                        auto iter = std::find_if(Modules::ProgramBlockManager::model.cbegin(),Modules::ProgramBlockManager::model.cend(),[&](const auto &v){return v.get()==programBlock;});
+                        if(iter != Modules::ProgramBlockManager::model.cend())
+                            Modules::ModuleManager::singletone()->controller().runProgramm(*iter);
+                    }else
                         Modules::ModuleManager::singletone()->controller().stopProgramm(programBlock);
                     emit runChanged();
             }
