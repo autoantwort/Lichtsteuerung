@@ -61,16 +61,16 @@ CodeEditorHelper::CodeEditorHelper(){
 }
 
 QString generateProgrammCode(){
-    QString code = "int getProgrammLengthInMS(){\n\treturn Program::Infinite;\n}\n\n";
-    code += "void start(){\n\t\n}\n\n";
-    code += "ProgramState doStep(time_diff_t diff_ms){\n\treturn {false/*finished*/,true/*output changed*/};\n}\n\n";
+    QString code = "int getProgrammLengthInMS()override{\n\treturn Program::Infinite;\n}\n\n";
+    code += "void start()override{\n\t\n}\n\n";
+    code += "ProgramState doStep(time_diff_t diff_ms)override{\n\treturn {false/*finished*/,true/*output changed*/};\n}\n\n";
     return code;
 }
 
 QString generateFilterCode(){
-    QString code = "unsigned int computeOutputLength(unsigned int inputLength){\n\treturn inputLength;\n}\n\n";
-    code += "void filter(){\n\t\n}\n\n";
-    code += "bool doStep(time_diff_t diff_ms){\n\treturn false/*output changed*/;\n}\n\n";
+    QString code = "unsigned int computeOutputLength(unsigned int inputLength)override{\n\treturn inputLength;\n}\n\n";
+    code += "void filter()override{\n\t\n}\n\n";
+    code += "bool doStep(time_diff_t diff_ms)override{\n\treturn false/*output changed*/;\n}\n\n";
     return code;
 }
 
@@ -237,7 +237,10 @@ std::vector<int> findPropertyInsertionPoints(const QString &userCode){
     std::vector<int> pos;
     int lastIndex = 0;
     while (lastIndex>=0) {
-        int index = userCode.indexOf("filter",lastIndex);
+        // BUG: Wenn die Reihenfolge zb. doStep filter ist, wird das filter nicht erkannt
+        int index = userCode.indexOf("start",lastIndex);
+        if(index<0)
+            index = userCode.indexOf("filter",lastIndex);
         if(index<0)
             index = userCode.indexOf("doStep",lastIndex);
         if(index>=0){
