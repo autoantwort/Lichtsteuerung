@@ -6,6 +6,9 @@ import QtQuick.Dialogs 1.2
 
 Item{
     id: root
+    SwipeView.onIsCurrentItemChanged: {
+        programEditor.showProperties = false;
+    }
 
         Page{
             width: 300
