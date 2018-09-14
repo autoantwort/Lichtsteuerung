@@ -34,7 +34,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     QProcess p;
 #ifdef Q_OS_MAC
     p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
-    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + file.absolutePath()+"/"+newLibraryFile + " -I\"/"+includePath + "\" ";
+    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + file.absolutePath()+"/"+newLibraryFile + ".temp" + " -I\"/"+includePath + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
     QString tempName=newLibraryFile + ".o";
@@ -83,8 +83,9 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
 #ifdef Q_OS_MAC
         // we have to unload the existing lib first
         if(p.exitCode()==0){
-            ModuleManager::singletone()->singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
-            ModuleManager::singletone()->singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
+            ModuleManager::singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
+            QFile(file.absolutePath() + "/" + newLibraryFile + ".temp").rename(file.absolutePath() + "/" + newLibraryFile);
+            ModuleManager::singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
         }
 #endif
     }

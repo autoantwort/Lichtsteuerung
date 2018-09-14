@@ -174,11 +174,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
     void ModuleManager::loadAllModulesInDir(QDir dir){
          qDebug() << dir;
         for(auto s : dir.entryInfoList(QDir::Files)){
-#ifdef Q_OS_WIN
             if(s.suffix() == "old"){
                 QFile::remove(s.filePath());
             }
-#endif
             if(QLibrary::isLibrary(s.fileName())){
                 loadModule(s.absoluteFilePath());
             }

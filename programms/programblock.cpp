@@ -382,7 +382,11 @@ namespace Modules {
         auto a = o["model"].toArray();
         for(auto val_:a){
             QJsonObject ob = val_.toObject();
-            model.push_back(std::make_shared<ProgramBlock>(ob));
+            try {
+                model.push_back(std::make_shared<ProgramBlock>(ob));
+            } catch (std::runtime_error e) {
+                qDebug() << "Cant parse ProgramBlock : " << e.what();
+            }
         }
     }
 
