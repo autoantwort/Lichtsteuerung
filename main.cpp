@@ -35,105 +35,15 @@
 #include <QTimer>
 #include "oscillogram.h"
 #include "colorplot.h"
-
-#define WIN_ONLY(a)
-
-#ifdef Q_OS_WIN
-
-#ifndef _MSC_VER
-#include "audio_fft.h"
-#else /*_MSC_VER*/
-#include "audio_fft.h"
-#endif /*_MSC_VER*/
-#define WIN_ONLY(a) a
-
-int channel;
-const int fft_size=960;
-AudioFFT audioFft(fft_size);
-std::atomic_bool done (false);
-float fftOutput[fft_size/2];
-volatile float fftOutputV[fft_size/2];
-float data960[960*2];
-volatile float data960V[960*2];
-
-void init(int c){
-    channel = c;
-    Colorplot::getLast()->setBlockSize(300);
-}
-int counter480, counter960;
-void callback(float* data, unsigned int frames, bool*d){
-    if(data){
-        if(channel>2){
-            int index = -1;
-            for (int i = 0; i < frames*2; ++i) {
-                data[i] = data[++index];
-                data[++i] = data[++index];
-                index+=6;
-            }
-        }
-        auto d = qDebug();
-        for(int i = 0;i<frames*2;i++){
-            data[i] *= 400;
-        }
-        /*for(int i = 0; i<frames;++i){
-            data960[i] = data[i*2];
-        }*/
+#include "audio/audiocapturemanager.h"
+#include "test/testsampleclass.h"
 
 
-
-        if(frames==480){
-            //memmove(data960,data960+960,960);
-            //memmove(data960+960,data,960);
-            for(int i = 0; i<960;++i){
-                data960[i] = data960[i+960];
-            }
-            for(int i = 0; i<960;++i){
-                data960[i+960] = data[i];
-            }
-            counter480++;
-        }else{
-            //memcpy(data960,data,960*2);
-            counter960++;
-        }
-        audioFft.analyse(data960,channel,fftOutput);
-        for(int i = 0; i < fft_size/2;++i){
-            fftOutputV[i] = fftOutput[i];
-        }
-        if(Graph::getLast())
-            Graph::getLast()->showData(fftOutputV,960/2);
-        if(Colorplot::getLast()){
-            Colorplot::getLast()->startBlock();
-            for (int i = 0; i < 300; ++i) {
-                Colorplot::getLast()->pushDataToBlock(fftOutputV[i]);
-            }
-            Colorplot::getLast()->endBlock();
-        }
-
-        for(int i = 0 ; i < 960*2;++i){
-            data960V[i] = data960[i];
-        }
-        if(Oscillogram::getLast())
-            Oscillogram::getLast()->showData(data960V,960*2);
-            /*for(int i = 0; i< fft_size/2;++i){
-                std::cout << fftOutput[i]<< ' ';
-            }
-            std::cout<<std::endl;*/
-
-        qDebug()<<"480 : "<<counter480 << "  960 : "<<counter960;
-    }
-    *d = done;
-}
-
-
-
-
-
-#endif /*Q_OS_WIN*/
 
 int main(int argc, char *argv[])
 {
 
-    std::thread captureAudioThread;
+    Test::testSampleClass();
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -207,11 +117,6 @@ int main(int argc, char *argv[])
         QFile savePath(settings.getJsonSettingsFilePath());
         ApplicationData::saveData(savePath);
         Driver::stopAndUnloadDriver();
-        qDebug()<<"is captureAudioThread jionable : "<<captureAudioThread.joinable();
-        if(captureAudioThread.joinable()){
-            WIN_ONLY(done.store(true);)
-            captureAudioThread.join();
-        }
     });
     settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
@@ -240,18 +145,6 @@ int main(int argc, char *argv[])
     // laden erst nach dem laden des qml ausführen
     after();
 
-#ifdef Q_OS_WIN
-    typedef int (*capture)(void(*)(int),void(*)(float*,unsigned int, bool*)) ;
-    auto func = reinterpret_cast<capture>(QLibrary::resolve(settings.getAudioCaptureFilePath(),"captureAudio"));
-    if(func){
-        captureAudioThread = std::thread([&](){
-            qDebug()<<"Start capture";
-            qDebug()<<"Capture Result  :  "<<func(&init,&callback);
-
-        });
-    }
-
-#endif /*Q_OS_WIN*/
 
 
     // Treiber laden
@@ -287,6 +180,8 @@ int main(int argc, char *argv[])
             Colorplot::getLast()->update();
     });
     timer.start();
+
+    qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();

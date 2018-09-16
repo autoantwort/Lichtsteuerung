@@ -78,13 +78,14 @@ QSGNode * Colorplot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
             lines->y /*= points->y*/ = height()-i*2-1;
             lines->a /*= points->a*/ = 255;
             lines->r /*= points->r*/ = (unsigned char)(block[i]*0.5>255.f?255:block[i]*0.5);
-            lines->g /*= points->g*/ = (unsigned char)std::max(block[i]*0.2f,255.f);
-            lines->b /*= points->b*/ = 00;
+            lines->g /*= points->g*/ = (unsigned char)std::min(block[i]*0.2f,255.f);
+            lines->g /*= points->g*/ = (unsigned char)std::min(block[i]/20*255,255.f);
+            lines->r /*= points->b*/ = (unsigned char)(block[i]/10 * 255);
             ++lines; //++points;
             ++counter;
         }
     }
-    qDebug()<<"counter : " << counter << " size : "<< size << " blocks : "<< dataBlocks.size();
+    //qDebug()<<"counter : " << counter << " size : "<< size << " blocks : "<< dataBlocks.size();
 
     mutex.unlock();
 

@@ -2,12 +2,16 @@
 #define OSCILLOGRAM_H
 
 #include <QQuickItem>
+#include <queue>
 
 class Oscillogram : public QQuickItem
 {
     Q_OBJECT
     float data[2048];
     int size = 0;
+    std::queue<float> lastMaxValues;
+    float maxValuesSum=0;
+    float scale = 1;
     QColor lineColor = QColor(0,0,0);
     Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
     static Oscillogram * lastCreated;
@@ -21,14 +25,15 @@ public:
     static Oscillogram * getLast(){return lastCreated;}
     void showData(float* data, int size){
         this->size = std::min(2048,size);
-        memcpy(this->data,data,this->size);
-        haveNewData.store(true);
-    }
-    void showData(volatile float* data, int size){
-        this->size = std::min(2048,size);
-        for(int i = 0; i<this->size;++i){
-            this->data[i] = data[i];
+        lastMaxValues.push(*std::max_element(data,data+size));
+        maxValuesSum+=lastMaxValues.back();
+        if(lastMaxValues.size()>500){
+            maxValuesSum-=lastMaxValues.front();
+            lastMaxValues.pop();
         }
+        scale = std::min<float>(250.f,height()/2-50)/(maxValuesSum/lastMaxValues.size());
+        std::copy(data,data+this->size,this->data);
+
         haveNewData.store(true);
     }
     void setLineColor(QColor c){lineColor=c;update();lineColorChanged();}

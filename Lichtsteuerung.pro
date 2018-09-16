@@ -43,7 +43,10 @@ SOURCES += main.cpp \
     test/DriverDummy.cpp \
     graph.cpp \
     oscillogram.cpp \
-    colorplot.cpp
+    colorplot.cpp \
+    audio/sample.cpp \
+    test/testsampleclass.cpp \
+    audio/audiocapturemanager.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -87,7 +90,11 @@ HEADERS += \
     test/DriverDummy.h \
     graph.h \
     oscillogram.h \
-    colorplot.h
+    colorplot.h \
+    audio/sample.h \
+    test/testsampleclass.h \
+    audio/capturedatamanager.h \
+    audio/audiocapturemanager.h
 
 
 # Default rules for deployment.

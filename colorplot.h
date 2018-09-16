@@ -17,7 +17,7 @@ class Colorplot : public QQuickItem
     Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
     static Colorplot * lastCreated;
     std::atomic_bool haveNewData;
-    const static unsigned int MAX_BLOCKS_COUNT = 500;
+    const static unsigned int MAX_BLOCKS_COUNT = 900;
     std::mutex mutex;
 
 public:
@@ -46,7 +46,7 @@ public:
     }
     void pushDataToBlock(float d){
         if (currentBlockCounter>=0) {
-            dataBlocks.back()[currentBlockCounter] = d*0.4f;//std::pow(1+d*0.001,3)*20;
+            dataBlocks.back()[currentBlockCounter] = d;//*0.4f;//std::pow(1+d*0.001,3)*20;
             ++currentBlockCounter;
             if(currentBlockCounter>=blockSize)
                 currentBlockCounter=-1;

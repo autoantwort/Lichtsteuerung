@@ -21,14 +21,7 @@ public:
     static Graph * getLast(){return lastCreated;}
     void showData(float* data, int size){
         this->size = std::min(2048,size);
-        memcpy(this->data,data,this->size);
-        haveNewData.store(true);
-    }
-    void showData(volatile float* data, int size){
-        this->size = std::min(2048,size);
-        for(int i = 0; i<this->size;++i){
-            this->data[i] = data[i];
-        }
+        memcpy(this->data,data,this->size*sizeof (float));
         haveNewData.store(true);
     }
     void setLineColor(QColor c){lineColor=c;update();lineColorChanged();}

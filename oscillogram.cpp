@@ -46,7 +46,7 @@ QSGNode * Oscillogram::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
 
     for(int i = 0 ; i< size; ++i){
         vertices->x = i;
-        vertices->y = height()/2 - (data[i]);
+        vertices->y = height()/2 - (data[i])*scale;
         ++vertices;
     }
 
