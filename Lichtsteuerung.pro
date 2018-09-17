@@ -93,7 +93,6 @@ HEADERS += \
     colorplot.h \
     audio/sample.h \
     test/testsampleclass.h \
-    audio/capturedatamanager.h \
     audio/audiocapturemanager.h
 
 
@@ -106,6 +105,16 @@ DISTFILES +=
 
 win32-msvc{
     LIBS += -L$$PWD/lib/boost/
+}
+
+macx{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT.1
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+    #https://forum.qt.io/topic/59209/solved-osx-deployment-fatal-error-with-dylib-library-not-loaded-image-not-found/4
+    Resources.files += libAudioFFT.1.dylib
+    Resources.path = Contents/MacOS
+    QMAKE_BUNDLE_DATA += Resources
 }
 
 win32-g++{
