@@ -54,6 +54,15 @@ ApplicationWindow {
         TabButton {
             text: qsTr("Module\nPrograms")
         }
+        TabButton {
+            text: qsTr("Graph")
+        }
+        TabButton {
+            text: qsTr("Oscillogram")
+        }
+        TabButton {
+            text: qsTr("Colorplot")
+        }
     }
 
     SwipeView {
@@ -87,6 +96,14 @@ ApplicationWindow {
         ModuleView{}
 
         ModuleProgramView{}
+
+        Graph{
+        }
+
+        Oscillogram{
+        }
+
+        Colorplot{}
     }
 
     MessageDialog{

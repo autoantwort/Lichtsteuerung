@@ -18,13 +18,19 @@ class Settings : public QObject
     Q_PROPERTY(QString compilerFlags READ getCompilerFlags WRITE setCompilerFlags NOTIFY compilerFlagsChanged)
     Q_PROPERTY(QString compilerLibraryFlags READ getCompilerLibraryFlags WRITE setCompilerLibraryFlags NOTIFY compilerLibraryFlagsChanged)
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
+    Q_PROPERTY(QString audioCaptureFilePath READ getAudioCaptureFilePath WRITE setAudioCaptureFilePath NOTIFY audioCaptureFilePathChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
 public:
     explicit Settings(QObject *parent = nullptr);
     void setJsonSettingsFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("jsonSettingsFilePath",file);emit jsonSettingsFilePathChanged();}
     QString getJsonSettingsFilePath()const{return settings.value("jsonSettingsFilePath").toString();}
+
     void setDriverFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("driverFilePath",file);emit driverFilePathChanged();}
     QString getDriverFilePath()const{return settings.value("driverFilePath").toString();}
+
+    void setAudioCaptureFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("audioCaptureFilePath",file);emit audioCaptureFilePathChanged();}
+    QString getAudioCaptureFilePath()const{return settings.value("audioCaptureFilePath").toString();}
+
     void setUpdatePauseInMs(unsigned int pause){settings.setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}
     unsigned int getUpdatePauseInMs()const{return settings.value("updatePauseInMs").toUInt();}
     void setModuleDirPath( const QString _moduleDirPath){
@@ -92,6 +98,7 @@ signals:
     void compilerFlagsChanged();
     void compilerLibraryFlagsChanged();
     void includePathChanged();
+    void audioCaptureFilePathChanged();
 public slots:
 };
 

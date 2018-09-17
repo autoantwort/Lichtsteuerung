@@ -59,7 +59,10 @@ SOURCES += \
     codeeditorhelper.cpp \
     test/testmodulecontroller.cpp \
     test/testprogrammblock.cpp \
-    programblockeditor.cpp
+    programblockeditor.cpp \
+    audio/sample.cpp \
+    test/testsampleclass.cpp \
+    audio/audiocapturemanager.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -125,7 +128,10 @@ HEADERS += \
     programms/program.hpp \
     test/testmodulecontroller.h \
     test/testprogrammblock.h \
-    programblockeditor.h
+    programblockeditor.h \
+    audio/sample.h \
+    test/testsampleclass.h \
+    audio/audiocapturemanager.h
 
 
 # Default rules for deployment.
@@ -153,4 +159,29 @@ win32-g++{
 unix{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
+}
+win32-msvc{
+    LIBS += -L$$PWD/lib/boost/
+}
+
+macx{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT.1
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+    #https://forum.qt.io/topic/59209/solved-osx-deployment-fatal-error-with-dylib-library-not-loaded-image-not-found/4
+    Resources.files += libAudioFFT.1.dylib
+    Resources.path = Contents/MacOS
+    QMAKE_BUNDLE_DATA += Resources
+}
+
+win32-g++{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+}
+
+win32-msvc{
+    #AudioFFT
+    LIBS += -L$$PWD/'lib/AudioFFT/dll/AudioFFT.dll'
+    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
 }

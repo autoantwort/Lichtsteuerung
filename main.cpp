@@ -36,6 +36,12 @@
 #include "codeeditorhelper.h"
 #include "programms/programblock.h"
 #include "programblockeditor.h"
+#include "graph.h"
+#include <QTimer>
+#include "oscillogram.h"
+#include "colorplot.h"
+#include "audio/audiocapturemanager.h"
+#include "test/testsampleclass.h"
 
 int main(int argc, char *argv[])
 {
@@ -43,6 +49,7 @@ int main(int argc, char *argv[])
     testModulSystem.runTest();
     return 0;*/
 
+    Test::testSampleClass();
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -85,6 +92,9 @@ int main(int argc, char *argv[])
     qmlRegisterType<MapView>("custom.licht",1,0,"MapView");
     qmlRegisterType<MapEditor>("custom.licht",1,0,"MapEditor");
     qmlRegisterType<ControlPanel>("custom.licht",1,0,"ControlPanel");
+    qmlRegisterType<Graph>("custom.licht",1,0,"Graph");
+    qmlRegisterType<Oscillogram>("custom.licht",1,0,"Oscillogram");
+    qmlRegisterType<Colorplot>("custom.licht",1,0,"Colorplot");
     //qmlRegisterType<ErrorNotifier>("custom.licht",1,0,"ErrorNotifier");
     qmlRegisterType<ControlItem>("custom.licht.template",1,0,"ControlItemTemplate");
     qmlRegisterType<ControlItemData>("custom.licht.template",1,0,"ControlItemData");
@@ -181,10 +191,11 @@ int main(int argc, char *argv[])
     // Treiber laden
 #define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
-    if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
+    /*if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
     }
-    Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(15));
+    Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(1500000));
+    */
 #else
 #include "test/DriverDummy.h"
 
@@ -198,6 +209,20 @@ int main(int argc, char *argv[])
     driver.init();
     driver.start();*/
 #endif
+
+    QTimer timer;
+    timer.setInterval(15);
+    QObject::connect(&timer,&QTimer::timeout,[&](){
+        if(Graph::getLast())
+            Graph::getLast()->update();
+        if(Oscillogram::getLast())
+            Oscillogram::getLast()->update();
+        if(Colorplot::getLast())
+            Colorplot::getLast()->update();
+    });
+    timer.start();
+
+    qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
 
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();
