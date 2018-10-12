@@ -59,7 +59,10 @@ bool AudioCaptureManager::startCapturing(QString filePathToCaptureLibrary){
     if(func){
         captureAudioThread = std::thread([this,func](){
             run = true;
+            emit this->capturingStatusChanged();
             func(&AudioCaptureManager::staticInitCallback,&AudioCaptureManager::staticDataCallback);
+            run = false;
+            emit this->capturingStatusChanged();
         });
     }
     return func;

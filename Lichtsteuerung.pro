@@ -131,7 +131,8 @@ HEADERS += \
     programblockeditor.h \
     audio/sample.h \
     test/testsampleclass.h \
-    audio/audiocapturemanager.h
+    audio/audiocapturemanager.h \
+    programms/fftoutput.hpp
 
 
 # Default rules for deployment.

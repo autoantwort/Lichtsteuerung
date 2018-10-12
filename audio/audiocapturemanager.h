@@ -10,8 +10,10 @@ namespace Audio {
 /**
  * @brief The AudioCaptureManager class gets the data from the captureWindowsSountoutput Project and analyse the data and give the data to the other components
  */
-class AudioCaptureManager
+class AudioCaptureManager : public QObject
 {
+    Q_OBJECT
+    Q_PROPERTY(bool capturing READ isCapturing NOTIFY capturingStatusChanged)
     Sample<float,4096> sample;
     std::array<float,2048> fftoutput;
     std::thread captureAudioThread;
@@ -34,10 +36,14 @@ private:
     void dataCallback(float* data, unsigned int frames, bool*done);
 public:
     bool startCapturing(QString filePathToCaptureLibrary);
+    bool isCapturing(){return run;}
+    const std::array<float,2048>& getFFTOutput(){return fftoutput;}
 public:
     AudioCaptureManager(AudioCaptureManager const&)               = delete;
     void operator=(AudioCaptureManager const&)  = delete;
     static AudioCaptureManager & get(){static AudioCaptureManager m;return m;}
+signals:
+    void capturingStatusChanged();
 };
 
 }

@@ -19,6 +19,10 @@
 #include "consumer.hpp"
 #endif
 
+#ifdef HAVE_AUDIO
+#include "fftoutput.hpp"
+#endif
+
 #include <string>
 
 //disable Warning for char * as return type in extern "C" Block with clang
@@ -35,7 +39,7 @@
 #endif
 
 extern "C" {
-enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer};
+enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio};
 
 #ifdef MODULE_LIBRARY
 
@@ -65,6 +69,12 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
 #else
     return false;
 #endif
+    case MODUL_TYPE::Audio:
+#ifdef HAVE_AUDIO
+    return true;
+#else
+    return false;
+#endif
     }
     return false; // Vielleicht wird das enum in einer weiteren Version erweitert.
 }
@@ -90,6 +100,16 @@ MODULE_EXPORT unsigned int getNumberOfConsumers();
 MODULE_EXPORT char const * getNameOfConsumer(unsigned int index);
 MODULE_EXPORT char const * getDescriptionOfConsumer(unsigned int index);
 MODULE_EXPORT Modules::Consumer * createConsumer(unsigned int index);
+#endif
+
+#ifdef HAVE_AUDIO
+Modules::FFTOutputView<float> _emptyView;
+Modules::FFTOutputView<float> * _fftOutputView = &_emptyView;
+bool __supportAudio = false;
+MODULE_EXPORT void _supportAudio(bool b){__supportAudio = b;}
+MODULE_EXPORT void _setFFTOutputView(Modules::FFTOutputView<float> * fftOutputView){_fftOutputView = fftOutputView?fftOutputView:&_emptyView;}
+const Modules::FFTOutputView<float> & getFFTOutput(){return *_fftOutputView;}
+bool supportAudio(){return __supportAudio;}
 #endif
 
 }

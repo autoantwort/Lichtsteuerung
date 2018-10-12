@@ -5,6 +5,7 @@
 #include "settings.h"
 #include <QJsonObject>
 #include <QJsonArray>
+#include "audio/audiocapturemanager.h"
 
 namespace Modules {
 
@@ -65,7 +66,14 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
 
     ModuleManager::ModuleManager()
     {
-
+        fftOutputView = Audio::AudioCaptureManager::get().getFFTOutput();
+        QObject::connect(&Audio::AudioCaptureManager::get(),&Audio::AudioCaptureManager::capturingStatusChanged,[this](){
+            for(const auto & info : loadedLibraryMap){
+                if(info.second.supportAudioFunc){
+                    info.second.supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
+                }
+            }
+        });
     }
 
     void ModuleManager::loadModules(const QJsonObject & o){
@@ -81,13 +89,13 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             qDebug()<<e->first;
             if(e->first == filePath){
                 filter.erase(std::remove_if(filter.begin(),filter.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second;
+                    return f.libraryIdentifier == e->second.libraryIdentifier;
                 }),filter.cend());
                 programms.erase(std::remove_if(programms.begin(),programms.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second;
+                    return f.libraryIdentifier == e->second.libraryIdentifier;
                 }),programms.cend());
                 consumer.erase(std::remove_if(consumer.begin(),consumer.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second;
+                    return f.libraryIdentifier == e->second.libraryIdentifier;
                 }),consumer.cend());
                 QLibrary lib(filePath);
                 bool suc = lib.unload();
@@ -135,8 +143,6 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             auto lastProgram  = programms.size();
             auto lastFilter   = filter   .size();
             auto lastConsumer = consumer .size();
-            lastLibraryIdentifier++;
-            loadedLibraryMap.emplace_back(lib.fileName(),lastLibraryIdentifier);
             if(f(MODUL_TYPE::Program)){
                 loadType(lib,programms,"Program",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::LoopProgram)){
@@ -147,6 +153,13 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 qDebug()<< "Loading Consumer";
                 loadType(lib,consumer,"Consumer",lastLibraryIdentifier);
             }
+            SupportAudioFunc supportAudioFunc = nullptr;
+            if(f(MODUL_TYPE::Audio)){
+                //qDebug()<< "Loading Audio";
+                supportAudioFunc = loadAudio(lib,&fftOutputView);
+            }
+            lastLibraryIdentifier++;
+            loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
             if(replaceNewInPBs){
                 for(const auto & pb : ProgramBlockManager::model){
                     for(;lastProgram<programms.size();lastProgram++){
@@ -194,4 +207,23 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
 
     }
 
+
+
+    ModuleManager::SupportAudioFunc ModuleManager::loadAudio(QLibrary & lib, Modules::FFTOutputView<float> * fftOutputView){
+        //typedef void (*SupportAudioFunc )(bool);
+        typedef void (*SetFFTOutputViewFunc )(Modules::FFTOutputView<float>*);
+        //using SupportAudioFunc = unsigned int (bool);
+        //using SetFFTOutputViewFunc = char const * (Modules::FFTOutputView<float>*);
+        auto supportAudioFunc = reinterpret_cast<SupportAudioFunc>(lib.resolve("_supportAudio"));
+        auto setFFTOutputViewFunc = reinterpret_cast<SetFFTOutputViewFunc>(lib.resolve("_setFFTOutputView"));
+        if (!supportAudioFunc || !setFFTOutputViewFunc) {
+            qDebug() << "Error loading audio functions : "<< supportAudioFunc << setFFTOutputViewFunc;
+            return nullptr;
+        }
+        setFFTOutputViewFunc(fftOutputView);
+        supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
+        return  supportAudioFunc;
+    }
+
 }
+

@@ -332,6 +332,7 @@ void CodeEditorHelper::compile(){
         QString outputType = toName(module->getOutputType());
         QTextStream stream( &file );
         stream << "#define MODULE_LIBRARY" << endl;
+        stream << "#define HAVE_AUDIO" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;

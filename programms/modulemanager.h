@@ -17,6 +17,7 @@
 #include <memory>
 #include "modelvector.h"
 #include "controller.h"
+#include "fftoutput.hpp"
 
 namespace Modules {
 
@@ -92,7 +93,7 @@ class Module : public QObject{
     Q_PROPERTY(ValueType outputType READ getOutputType WRITE setOutputType NOTIFY outputTypeChanged)
     Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
     Q_PROPERTY(PropertiesVector * properties READ getPropertiesP CONSTANT)
-    QString name = "No Name";
+    QString name = "No_Name";
     QString description;
     PropertiesVector  properties;
     QString code;
@@ -233,7 +234,12 @@ signals:
         typedef std::vector<detail::Entry<Program>> ProgrammModulContainer;
         typedef std::vector<detail::Entry<Filter>> FilterModulContainer;
         typedef std::vector<detail::Entry<Consumer>> ConsumerModulContainer;
-        std::vector<std::pair<QString,int>> loadedLibraryMap;
+        typedef void (*SupportAudioFunc)(bool);
+        struct LibInfo{
+            int libraryIdentifier = -1;
+            SupportAudioFunc supportAudioFunc = nullptr;
+        };
+        std::vector<std::pair<QString,LibInfo>> loadedLibraryMap;
         int lastLibraryIdentifier = 0;
         ModelVector<Module*> modules;
         ProgrammModulContainer programms;
@@ -241,9 +247,13 @@ signals:
         FilterModulContainer filter;
         ConsumerModulContainer consumer;
         Controller controller_;
+        FFTOutputView<float> fftOutputView;
     private:
         template<typename Type, typename String>
         static void loadType(QLibrary & lib, std::vector<detail::Entry<Type>> &c,String name, int libraryIdentifier);
+
+        static SupportAudioFunc loadAudio(QLibrary & lib,Modules::FFTOutputView<float> * fftOutputView);
+
     public:
         ModuleManager();
         ~ModuleManager(){for(auto m : modules)delete m;}

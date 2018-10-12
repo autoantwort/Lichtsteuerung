@@ -88,6 +88,9 @@ Item{
             enabled: listView.currentIndex !== -1
             text: listView.currentItem ? listView.currentItem.itemData.name : "Select one Module"
             onTextChanged: listView.currentItem.itemData.name = text;
+            validator: RegExpValidator{
+                regExp: /[^\s]+/
+            }
         }
 
         Label{
