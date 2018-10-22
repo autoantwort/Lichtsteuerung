@@ -248,18 +248,153 @@ Item{
                 id: codeEditor
                 selectByMouse: true
                 text: listView.currentItem.itemData.code
+                onCursorPositionChanged: {
+                    if(codeCompletionPopup.visible){
+                        codeEditorHelper.updateCodeCompletionModel(codeEditor.cursorPosition);
+                    }
+                }
                 //onTextChanged: listView.currentItem.itemData.code = text
+                Keys.onDownPressed: {
+                    if(codeCompletionPopup.visible){
+                        event.accepted = true;
+                        codeCompletionListView.incrementCurrentIndex();
+                    }else{
+                        event.accepted = false;
+                    }
+                }
+                Keys.onUpPressed: {
+                    if(codeCompletionPopup.visible){
+                        event.accepted = true;
+                        codeCompletionListView.decrementCurrentIndex();
+                    }else{
+                        event.accepted = false;
+                    }
+                }
+
+                Keys.onSpacePressed: {
+                    if(event.modifiers & (Qt.MetaModifier|Qt.ControlModifier)){
+                        event.accepted = true;
+                        var old = codeCompletionPopup.visible;
+                        //descriptionPopup.visible = !old;
+                        codeCompletionPopup.visible = !old;
+
+                    }else{
+                        event.accepted = false;
+                    }
+                }                
+                Keys.onReturnPressed: {
+                    if(codeCompletionPopup.visible){
+                        event.accepted = true;
+                        codeCompletionListView.clickCurrentItem();
+                    }else{
+                        event.accepted = false;
+                    }
+                }
+
+                Popup{
+                    id: descriptionPopup
+                    x: codeCompletionPopup.x
+                    y: codeCompletionPopup.y - 20 - descriptionPopup.height
+                    width: codeCompletionPopup.width
+                    padding: 0
+                    height: descriptionLabel.implicitHeight + 4*2
+                    contentItem: Rectangle{
+                        Label{
+                            anchors.margins: 4
+                            anchors.fill: parent
+                            id: descriptionLabel
+                            wrapMode: "WordWrap"
+                            text: codeCompletionListView.currentItem.itemData.description
+                            background: null
+                        }
+                        color: "beige"
+                    }
+
+                }
+
+                Popup{
+                    padding: 0
+                    id:codeCompletionPopup                    
+                    x: codeEditor.cursorRectangle.x
+                    y: codeEditor.cursorRectangle.y + codeEditor.cursorRectangle.height
+                    width: contentItem.implicitWidth
+                    height: Math.max(Math.min(150,codeCompletionListView.count*20),20)
+                    onAboutToShow: {
+                        codeEditorHelper.updateCodeCompletionModel(codeEditor.cursorPosition);
+                        descriptionPopup.visible = codeCompletionListView.count > 0;
+                        codeCompletionListView.updateWidth();
+                    }
+                    onAboutToHide: descriptionPopup.visible = false
+                    contentItem: ListView{
+                        clip: true
+                        id: codeCompletionListView
+                        model: codeEditorHelper.codeCompletions                        
+                        delegate: ItemDelegate {
+                            property var itemData: modelData
+                            text: modelData.completion.replace(/\n*\t*/g,"")
+                            onClicked: codeCompletionListView.clickCurrentItem()
+                            highlighted: ListView.isCurrentItem
+                            width: codeCompletionPopup.width
+                            height: 20
+                            leftPadding: 1
+                            rightPadding: 1
+                            onHoveredChanged: {
+                                if(hovered){
+                                    codeCompletionListView.currentIndex = index;
+                                }
+                            }
+                            background: Rectangle{
+                                color: parent.ListView.isCurrentItem?Qt.darker("beige"):"beige"
+                            }
+                        }
+                        implicitWidth: 150
+                        onCountChanged: {
+                            if(codeCompletionPopup.opened){
+                                descriptionPopup.visible = count > 0;
+                            }
+                            updateWidth();
+                        }
+                        function updateWidth(){
+                            var max = 150;
+                            for(var child in codeCompletionListView.contentItem.children){
+                                max = Math.max(max,codeCompletionListView.contentItem.children[child].implicitWidth);
+                            }
+                            codeCompletionListView.implicitWidth = max;
+                        }
+                        function clickCurrentItem(){
+                            if(codeCompletionListView.currentIndex!==-1){
+                                console.log("close after " + codeCompletionListView.currentItem.itemData.closeAfterCompletion);
+                                if(codeCompletionListView.currentItem.itemData.closeAfterCompletion){
+                                    codeCompletionPopup.visible = false;
+                                    descriptionPopup.visible = false;
+                                }
+                                // finde heraus was schon eingegeben wurde
+                                var start = codeEditor.cursorPosition-1;
+                                while(start>=0 && /[\w_\d]/.test(codeEditor.text.charAt(start))){
+                                    --start;
+                                }
+                                // wenn wir uns in dem zu vervollständigem Wort befinden und das Wort schon vervollständigt im code steht, springen wir mit dem Cursor zum Ende des Wortes
+                                var completion = codeCompletionListView.currentItem.itemData.completion;
+                                if(codeEditor.text.substr(start+1,completion.length) === codeCompletionListView.completion){
+                                    codeEditor.cursorPosition += completion.length - (codeEditor.cursorPosition-start) + 1;
+                                    return;
+                                }
+                                codeEditor.insert(codeEditor.cursorPosition,completion.substring(codeEditor.cursorPosition-start-1));
+                            }
+                        }
+                    }                    
+                }
 
                 CodeEditorHelper{
                     id:codeEditorHelper
                     module: listView.currentItem.itemData
                     document: codeEditor.textDocument
                     onInsertText: {
-                        console.log(newText)
+                        console.log(newText);
                         codeEditor.insert(codeEditor.cursorPosition,newText);
                         // Hack to display all new text, sometimes new text disappear
-                        codeEditor.selectAll();
-                        codeEditor.deselect();
+                        //codeEditor.selectAll();
+                        //codeEditor.deselect();
                         codeEditor.cursorPosition = pos;
                     }
                     onInformation:{

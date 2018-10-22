@@ -4,6 +4,47 @@
 #include "settings.h"
 #include "programms/compiler.h"
 
+QString toName(Modules::Module::Type t){
+    switch (t) {
+        case Modules::Module::Filter:
+        return "Filter";
+        case Modules::Module::Program:
+        return "Program";
+        case Modules::Module::LoopProgram:
+        return "LoopProgram";
+        default:
+            return "wrong_type";
+    }
+}
+QString toName(Modules::ValueType t){
+    switch (t) {
+        case Modules::Brightness:
+        return "brightness_t";
+        case Modules::RGB:
+        return "rgb_t";
+        default:
+            return "wrong_type";
+    }
+}
+QString toName(Modules::Property::Type t){
+    switch (t) {
+    case Modules::Property::Bool:
+    return "bool";
+    case Modules::Property::Double:
+    return "double";
+    case Modules::Property::Float:
+    return "float";
+    case Modules::Property::Int:
+    return "int";
+    case Modules::Property::Long:
+    return "long";
+    case Modules::Property::String:
+    return "std::string";
+        default:
+            return "wrong_type";
+    }
+}
+
 CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (parent)
 {
     HighlightingRule rule;
@@ -56,8 +97,409 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
     commentEndExpression = QRegularExpression("\\*/");
 }
 
-CodeEditorHelper::CodeEditorHelper(){
+bool CodeCompletions::lessThan(const QModelIndex &left, const QModelIndex &right)const{
+    CodeCompletionEntry* leftData = sourceModel()->data(left).value<CodeCompletionEntry*>();
+    CodeCompletionEntry* rightData = sourceModel()->data(right).value<CodeCompletionEntry*>();
+    return leftData->completion < rightData->completion;
+}
 
+bool CodeCompletions::filterAcceptsRow(int sourceRow,
+          const QModelIndex &sourceParent) const
+  {
+      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+      CodeCompletionEntry* data = sourceModel()->data(index).value<CodeCompletionEntry*>();
+      return data->completion.contains(this->filterRegExp());
+  }
+
+
+void addBasicTypes(PossibleCodeCompletions & model){
+    model.push_back(new CodeCompletionEntry("int","int","Ganze Zahlen von -2^31 bis 2^31-1"));
+    model.push_back(new CodeCompletionEntry("unsigned int","unsigned int","Positive ganze Zahlen von 0 bis 2^32-1"));
+    model.push_back(new CodeCompletionEntry("double","double","Fließkommazahlen mit 64 Bit genauigkeit"));
+    model.push_back(new CodeCompletionEntry("float","float","Fließkommazahlen mit 32 Bit genauigkeit"));
+    model.push_back(new CodeCompletionEntry("bool","bool","Ein Boolischer Wert, der entweder 1 oder 0 ist"));
+    model.push_back(new CodeCompletionEntry("brightness_t","unsigned char","Ein Typ der Helligkeit representiert. Kann Werte von 0 bis 255 annehmen"));
+    model.push_back(new CodeCompletionEntry("rgb_t","struct","Eine Klasse mit den Eigenschaften red/r, green/g, blue/b die jeweils Werte von 0 bis 255 annehmen können. Alternativ kann über den Indexoperator auf die Farben zugegriffen werden, z.B. auf Grün mit var_name[1]"));
+}
+
+void addArrayTypes(PossibleCodeCompletions & model, Modules::Module * m){
+    bool haveInput = m->getType() == Modules::Module::Filter;
+    bool haveOutput = true;
+    QString inputType = toName(m->getInputType());
+    QString outputType = toName(m->getOutputType());
+
+    if(haveInput){
+        model.push_back(new CodeCompletionEntry("BoundedArray<"+inputType+"> in(input, inputLength);","BoundedArray<"+inputType+">",""));
+    }
+    if(haveOutput){
+        model.push_back(new CodeCompletionEntry("BoundedArray<"+outputType+"> out(input, outputLength);","BoundedArray<"+inputType+">",""));
+    }
+
+    if(haveInput){
+        model.push_back(new CodeCompletionEntry("WrappedArray<"+inputType+"> in(input, inputLength);","WrappedArray<"+inputType+">",""));
+    }
+    if(haveOutput){
+        model.push_back(new CodeCompletionEntry("WrappedArray<"+outputType+"> out(input, outputLength);","WrappedArray<"+inputType+">",""));
+    }
+
+    if(haveInput){
+        model.push_back(new CodeCompletionEntry("CheckedArray<"+inputType+"> in(input, inputLength);","CheckedArray<"+inputType+">",""));
+    }
+    if(haveOutput){
+        model.push_back(new CodeCompletionEntry("CheckedArray<"+outputType+"> out(input, outputLength);","CheckedArray<"+inputType+">",""));
+    }
+}
+
+void addAudioTypes(PossibleCodeCompletions & model){
+    model.push_back(new CodeCompletionEntry("supportAudio()","bool","Diese Funktion gibt an, ob auf diesem System Audioanalyse unterstützt wird"));
+    model.push_back(new CodeCompletionEntry("fftOutput.","const Modules::FFTOutputView<float>&","Über fftOutput kann man auf die Analyse des AudioOuputs zugreifen. Diese besteht darin, das Audiosignal in einzele Frequenzbereiche einzuteilen.",false));
+}
+
+void addForLoops(PossibleCodeCompletions & model, int tabs){
+    QString brackets = "{\n";
+    for(int i=-1;i<=tabs;++i)
+        brackets.append('\t');
+    brackets.append('\n');
+    for(int i=-1;i<tabs;++i)
+        brackets.append('\t');
+    brackets.append('}');
+
+    model.push_back(new CodeCompletionEntry("for (int i = 0; i < ... ; ++i)"+brackets,"","Eine normale for schleife, die bis ... zählt."));
+    model.push_back(new CodeCompletionEntry("for (int o = 0; o < outputLength ; ++o)"+brackets,"","Eine for schleife, die über den output iteriert."));
+    model.push_back(new CodeCompletionEntry("for (int i = 0; i < intputLength ; ++i)"+brackets,"","Eine for schleife, die über den input iteriert."));
+    model.push_back(new CodeCompletionEntry("for (float value : fftOutput)"+brackets,"","Eine for schleife über die Werte des FFtOutputs."));
+    model.push_back(new CodeCompletionEntry("for (auto i = fftOutput.begin(begin_frequency) ; i != fftOutput.end(end_frequency); ++i)"+brackets,"","Eine for schleife, die über den fftOutput von einer bis zu einer anderen Requenz iteriert"));
+
+}
+void addCompletionsForType(PossibleCodeCompletions & model, QString type){
+    if(type=="rgb_t"){
+        model.push_back(new CodeCompletionEntry("r","brightness_t","Der Rotanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("red","brightness_t","Der Rotanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("g","brightness_t","Der Grünanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("green","brightness_t","Der Grünanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("blue","brightness_t","Der Blauanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("b","brightness_t","Der Blauanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("[0]","brightness_t","Der Rotanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("[1]","brightness_t","Der Grünanteil des RGBWerts von 0 - 255"));
+        model.push_back(new CodeCompletionEntry("[2]","brightness_t","Der Blauanteil des RGBWerts von 0 - 255"));
+    }
+    if(type=="fftOutput"){
+        model.push_back(new CodeCompletionEntry("getSampleRate()","int","Gibt an, mit welcher Rate das Audiosignal abgetastet wurde(in Hz)."));
+        model.push_back(new CodeCompletionEntry("getMaxFrequency()","int","Gibt die maxiamle Frequenz zurück, die analysiert wurde."));
+        model.push_back(new CodeCompletionEntry("getBlockSize()","double","Das Intervall [0,maxFrequency] wird ein size() Blöcke eingeteil. Diese Methode gibt zurück, welche Frequenzspanne ein Block hat."));
+        model.push_back(new CodeCompletionEntry("getLowerBlockFrequency(iterator i)","int","Gibt die niedrigste Frquenz eines Blocks an, auf den der iterator zeigt."));
+        model.push_back(new CodeCompletionEntry("getLowerBlockFrequency(int index)","int","Gibt die niedrigste Frquenz eines Blocks an, der den Index index hat."));
+        model.push_back(new CodeCompletionEntry("getUpperBlockFrequency(iterator i)","int","Gibt die höchste Frquenz eines Blocks an, auf den der iterator zeigt."));
+        model.push_back(new CodeCompletionEntry("getUpperBlockFrequency(int index)","int","Gibt die höchste Frquenz eines Blocks an, der den Index index hat."));
+        model.push_back(new CodeCompletionEntry("begin(int frequency)","iterator","Gibt einen iterator zu dem Block, in dem die Frequenz frequency liegt, zurück."));
+        model.push_back(new CodeCompletionEntry("end(int frequency)","iterator","Gibt einen iterator hinter den Block, in dem die Frequenz frequency liegt, zurück."));
+        model.push_back(new CodeCompletionEntry("atFrequency(int frequency)","float","Gibt die stärke einer bestimmten Frequenz zurück(Die des Blocks in dem die Frequenz liegt)."));
+        model.push_back(new CodeCompletionEntry("at(int index)","float","Gibt den Wert des Blocks mit Index index zurück."));
+        model.push_back(new CodeCompletionEntry("size()","int","Gibt an, wie viele Blöcke es gibt."));
+    }
+}
+
+void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
+
+    model.push_back(new CodeCompletionEntry("inputLength","unsigned int","Die Länge des Inputs"));
+    model.push_back(new CodeCompletionEntry("outputLength","unsigned int","Die Länge des Outputs"));
+    model.push_back(new CodeCompletionEntry("output[i]","unsigned int","Ein Element im Output an der Position index"));
+    model.push_back(new CodeCompletionEntry("output","unsigned int * ","Der Outputarray"));
+    model.push_back(new CodeCompletionEntry("input[i]","unsigned int","Ein Element im Input an der Position index"));
+    model.push_back(new CodeCompletionEntry("input","unsigned int * ","Der Inputarray"));
+}
+
+void skipWhitespaces(int & cursor, QTextDocument * d){
+    while (cursor>=0 && d->characterAt(cursor).isSpace()) {
+        --cursor;
+    }
+}
+
+/**
+ * @brief checkBlock checks if the cursor is inside a block
+ * @param startIndex the index where the block starts
+ * @param cursor the position of the cursor
+ * @param doc the document
+ * @return the end index of the Block or 0 if inside
+ */
+int checkBlock(int startIndex, int cursor, QTextDocument * doc){
+    if(doc->characterAt(startIndex)=='{')
+        ++startIndex;
+    int depth = 1;
+    while (startIndex<doc->characterCount()) {
+        if(startIndex == cursor)
+            return 0;
+        if(doc->characterAt(startIndex)=='{')
+            ++depth;
+        if(doc->characterAt(startIndex)=='}'){
+            --depth;
+            if(depth == 0){
+                return startIndex;
+            }
+        }
+        ++startIndex;
+    }
+    return startIndex;
+}
+
+void addUserVariables(PossibleCodeCompletions & model, int cursorPos, Modules::Module * m, QTextDocument * doc){
+    for(auto p : *m->getPropertiesP()){
+        model.push_back(new CodeCompletionEntry(p->getName(),toName(p->getType()),m->getDescription()));
+    }
+#ifdef CHECK_END
+#error ALREADY_DEFINED
+#endif
+#define CHECK_END(i) if(i>=doc->characterCount() || i<0)return;
+    int index=0;
+    while (index<doc->characterCount()) {
+        auto c = doc->characterAt(index);
+        if(c.isSpace() || c == '}'){
+            ++index;
+            continue;
+        }
+        if(c == '{'){
+            int newIndex = checkBlock(index,cursorPos,doc);
+            if (newIndex == 0) {
+                ++index;
+            }else{
+                index = newIndex+1;
+            }
+            continue;
+        }
+        if(doc->characterCount()-index > 10){
+            if(c=='f'&&doc->characterAt(index+1)=='o'&&doc->characterAt(index+2)=='r'&&(doc->characterAt(index+3)==' '||doc->characterAt(index+3)=='(')){
+                while (doc->characterAt(index)!='(') {
+                    ++index;
+                    CHECK_END(index)
+                }
+                // check for: for(type name : container)
+                int rangeLoopIndex = index;
+                while(doc->characterAt(rangeLoopIndex)!=')'){
+                    if(doc->characterAt(rangeLoopIndex)==':'){
+                        break;
+                    }
+                    ++rangeLoopIndex;
+                    CHECK_END(rangeLoopIndex)
+                }
+                if(doc->characterAt(rangeLoopIndex)==':'){
+                    --rangeLoopIndex;
+                    skipWhitespaces(rangeLoopIndex,doc);
+                    QString type_name;
+                    while(doc->characterAt(rangeLoopIndex) != '('){
+                        type_name.push_front(doc->characterAt(rangeLoopIndex));
+                        --rangeLoopIndex;
+                        CHECK_END(rangeLoopIndex)
+                    }
+                    model.push_back(new CodeCompletionEntry(type_name.mid(type_name.lastIndexOf(' ')),type_name.left(type_name.lastIndexOf(' ')),""));
+                }else{
+                    // not a range loop
+                    while (doc->characterAt(index) != '=' && doc->characterAt(index) != ';') {
+                        ++index;
+                        CHECK_END(index);
+                    }
+                    rangeLoopIndex = index-1;
+                    skipWhitespaces(rangeLoopIndex,doc);
+                    QString type_name;
+                    while(doc->characterAt(rangeLoopIndex) != '('){
+                        type_name.push_front(doc->characterAt(rangeLoopIndex));
+                        --rangeLoopIndex;
+                        CHECK_END(rangeLoopIndex)
+                    }
+                    if(type_name.size()>4){
+                        model.push_back(new CodeCompletionEntry(type_name.mid(type_name.lastIndexOf(' ')),type_name.left(type_name.lastIndexOf(' ')),""));
+                    }
+                }
+                while (doc->characterAt(index)!='{') {
+                    ++index;
+                    CHECK_END(index)
+                }
+                continue;
+            }
+            {// check for return
+                bool is_return = true;
+                for (int i = 0; i < 6;++i) {
+                    is_return &= doc->characterAt(index+i) == "return"[i];
+                }
+                if(is_return){
+                    while (doc->characterAt(index)!=';') {
+                        ++index;
+                        CHECK_END(index);
+                    }
+                    ++index;
+                    continue;
+                }
+            }
+            //check for if
+            if(c=='i' &&doc->characterAt(index+1)=='f' && (doc->characterAt(index+2)==' '||doc->characterAt(index+2)=='(')){
+                while (doc->characterAt(index)!=';'&&doc->characterAt(index)!='{') {
+                    ++index;
+                    CHECK_END(index);
+                }
+                ++index;
+                continue;
+            }
+
+
+        }
+        int start = index;
+        // a variable declaration can be:   a function can be:
+        // type name = ...; or type name;   type name(...) { ... }
+        bool continueAtStart = false;
+        while (c != ';' && c != '=') {
+            if(c=='(')
+                break;
+            if(c=='}' || c == '\n'){ // maybe we are in the line where the cursor is and we have ne real end like ';'
+                continueAtStart = true;
+                break;
+            }
+            c = doc->characterAt(++index);
+            CHECK_END(index)
+        }
+        if(continueAtStart){
+            continue;
+        }
+        if(c!='('){
+            // variable declaration or assignment found
+            int i = index-1;
+            skipWhitespaces(i,doc);
+            QString variableName = "";
+            while (!doc->characterAt(i).isSpace()) {
+                variableName.push_front(doc->characterAt(i));
+                --i;
+                CHECK_END(i)
+            }
+            if(i>start+1){// no assigments
+                QString type = "";
+                while (start != i) {
+                    type += doc->characterAt(start);
+                    ++start;
+                }
+                model.push_back(new CodeCompletionEntry(variableName,type,""));
+            }
+            while (doc->characterAt(index)!=';') {
+                ++index;
+                CHECK_END(index)
+            }
+            ++index;
+            continue;
+        }else{// function declaration
+            int startIndex = index+1;
+            while (doc->characterAt(index)!='{') {
+                ++index;
+                CHECK_END(index)
+            }
+            auto endIndex = checkBlock(index,cursorPos,doc);
+            if(endIndex != 0){
+                index = endIndex+1;
+                continue;
+            }
+            //parseInto function
+            QString parameters ;
+            while (doc->characterAt(startIndex) != ')') {
+                parameters.push_back(doc->characterAt(startIndex));
+                ++startIndex;
+                CHECK_END(startIndex)
+            }
+            for(const auto & parts : parameters.splitRef(",",QString::SplitBehavior::SkipEmptyParts)){
+                model.push_back(new CodeCompletionEntry(parts.mid(parts.lastIndexOf(" ")).toString(),parts.left(parts.lastIndexOf(" ")).toString(),""));
+            }
+        }
+    }
+#undef CHECK_END
+}
+
+
+
+void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
+    for(auto i : codeCompletions.model){
+        delete i;
+    }
+    codeCompletions.model.clear();
+    QString find;
+    //find if cursor is in text
+    {
+        int start = cursorPos-1;
+        while (start>=0 && (document->characterAt(start).isLetterOrNumber() || document->characterAt(start) == '_')) {
+            --start;
+        }
+        if(start == cursorPos-1){
+            codeCompletions.setFilterFixedString("");
+        }else{
+            for(int i = start+1; i < cursorPos; ++i){
+                find += document->characterAt(i);
+            }
+            codeCompletions.setFilterCaseSensitivity(Qt::CaseInsensitive);
+            codeCompletions.setFilterRegExp("^" + find);
+        }
+    }
+    bool objectCompletion = false;
+    // check if we access properties of a object
+    {
+        int start = cursorPos - 1;
+        skipWhitespaces(start,document);
+        // skip things linke <here 'gre'>: rgb_t.gre
+        while (start>0 && (document->characterAt(start).isLetterOrNumber() || document->characterAt(start)=='_')) {
+            --start;
+        }
+        if(start > 0 && (document->characterAt(start--) == '.' || (document->characterAt(start+1) == '>' && document->characterAt(start--) == '-')) ){
+            // get variable
+            skipWhitespaces(start,document);
+            // skip index access if existing
+            if(document->characterAt(start)==']'){
+                while (document->characterAt(--start)!='[');
+                --start;
+            }
+            QString reverseVariable;
+            while (document->characterAt(start).isLetterOrNumber() || document->characterAt(start) == '_') {
+                reverseVariable += document->characterAt(start);
+                --start;
+            }
+            if(reverseVariable.back().isNumber()){
+                goto noObject;
+            }
+            QString variable;
+            for(auto i = reverseVariable.crbegin(); i!= reverseVariable.crend() ;++i){
+                variable += *i;
+            }
+            //getType
+            addCompletionsForType(codeCompletions.model,getType(variable,start));
+            objectCompletion = true;
+        }
+        noObject:;
+    }
+    if(!objectCompletion){
+        addBasicTypes(codeCompletions.model);
+        addDefaultVariables(codeCompletions.model,module);
+        addArrayTypes(codeCompletions.model,module);
+        addAudioTypes(codeCompletions.model);
+        addForLoops(codeCompletions.model,countTabs(cursorPos));
+        addUserVariables(codeCompletions.model,cursorPos,module,document);
+    }
+}
+
+QString CodeEditorHelper::getType(QString variable, int pos){
+    if(variable == "inputLength")
+        return "unsigned int";
+    if(variable == "outputLength")
+        return "unsigned int";
+    if(variable == "output" || variable == "input"){
+        if(module->getOutputType() == Modules::Brightness)
+            return "brightness_t";
+        if(module->getOutputType() == Modules::RGB)
+            return "rgb_t";
+    }
+    if(variable == "fftOutput"){
+        return "fftOutput";
+    }
+    return "unknown";
+}
+
+
+CodeEditorHelper::CodeEditorHelper(){
+    codeCompletions.model.push_back(new CodeCompletionEntry("2test","21test","1test"));
+    codeCompletions.model.push_back(new CodeCompletionEntry("2test2","12tes2t","2test2"));
+    codeCompletions.setDynamicSortFilter(true);
+    codeCompletions.sort(0);
 }
 
 QString generateProgrammCode(){
@@ -96,7 +538,7 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
     qDebug() << "pos " << from << " removed : " << charsRemoved << " added : " << charsAdded;
     if(charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator){
         qDebug() << "Enter pressed :  " << document->characterAt(from-1);
-        if(document->characterAt(from-1) == '{'){
+        /*if(document->characterAt(from-1) == '{'){
             qDebug()<<"write";
             int tabs = countTabs(from-1);
             QString newText;
@@ -107,8 +549,11 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
                 newText += (QString(QChar::Tabulation));
             newText += '}';
             emit insertText(newText,from + tabs+ 2);
-        }else{
+        }else{*/
             int tabs = countTabs(from-1);
+            if(document->characterAt(from-1) == '{'){
+                tabs += 1;
+            }
             if(tabs==0)
                 return;
             QString newText;
@@ -116,7 +561,7 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
             for(int i = 0 ; i< tabs;++i)
                 newText += (QString(QChar::Tabulation));
             emit insertText(newText,from + tabs +1);
-        }
+        //}
     }
     if(charsAdded==1 && document->characterAt(from).isSpace() &&
             document->characterAt(from-1) == 'r' &&
@@ -172,46 +617,7 @@ void CodeHighlighter::highlightBlock(const QString &text)
     }
 }
 
-QString toName(Modules::Module::Type t){
-    switch (t) {
-        case Modules::Module::Filter:
-        return "Filter";
-        case Modules::Module::Program:
-        return "Program";
-        case Modules::Module::LoopProgram:
-        return "LoopProgram";
-        default:
-            return "wrong_type";
-    }
-}
-QString toName(Modules::ValueType t){
-    switch (t) {
-        case Modules::Brightness:
-        return "brightness_t";
-        case Modules::RGB:
-        return "rgb_t";
-        default:
-            return "wrong_type";
-    }
-}
-QString toName(Modules::Property::Type t){
-    switch (t) {
-    case Modules::Property::Bool:
-    return "bool";
-    case Modules::Property::Double:
-    return "double";
-    case Modules::Property::Float:
-    return "float";
-    case Modules::Property::Int:
-    return "int";
-    case Modules::Property::Long:
-    return "long";
-    case Modules::Property::String:
-    return "std::string";
-        default:
-            return "wrong_type";
-    }
-}
+
 
 
 QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyInformation *p){

@@ -7,6 +7,7 @@
 #include <QTextCharFormat>
 #include <QRegularExpression>
 #include <programms/modulemanager.h>
+#include <QSortFilterProxyModel>
 
 // Highlight code from https://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
 class CodeHighlighter : public QSyntaxHighlighter{
@@ -34,13 +35,50 @@ public:
     CodeHighlighter(const CodeHighlighter &) = delete ;
 };
 
+class CodeCompletionEntry : public QObject{
+    Q_OBJECT
+public:
+    const QString type;
+    const QString description;
+    const QString completion;
+    const bool closeAfterCompletion;
+    Q_PROPERTY(QString type MEMBER type CONSTANT)
+    Q_PROPERTY(QString description MEMBER description CONSTANT)
+    Q_PROPERTY(QString completion MEMBER completion CONSTANT)
+    Q_PROPERTY(bool closeAfterCompletion MEMBER closeAfterCompletion CONSTANT)
+public:
+    CodeCompletionEntry(QString completion,QString type,QString description,bool closeAfterCompletion = true):type(type.trimmed()),description(description),completion(completion.trimmed()),closeAfterCompletion(closeAfterCompletion){
+
+    }
+};
+
+
+class PossibleCodeCompletions : public ModelVector<CodeCompletionEntry*>{
+  Q_OBJECT
+};
+
+class CodeCompletions : public QSortFilterProxyModel{
+    Q_OBJECT
+public:
+    PossibleCodeCompletions model;
+    CodeCompletions(){
+        setSourceModel(&model);
+    }
+protected:
+    virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right)const override;
+    virtual bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const override;
+};
+
 class CodeEditorHelper : public QObject
 {
     QQuickTextDocument* documentWrapper = nullptr;
     QTextDocument * document = nullptr;
     QMetaObject::Connection typeConnection;
+    CodeCompletions codeCompletions;
+
     Q_PROPERTY(QQuickTextDocument* document READ getDocument WRITE setDocument NOTIFY documentChanged)
     Q_PROPERTY(Modules::Module* module READ getModule WRITE setModule NOTIFY moduleChanged)
+    Q_PROPERTY(QAbstractItemModel * codeCompletions READ getCodeCompletions CONSTANT)
     Q_OBJECT
     /** Wird automatisch gelöscht, wenn das textdocument zerstört wird
      * @brief highlighter
@@ -50,8 +88,11 @@ class CodeEditorHelper : public QObject
 
 protected:
     int countTabs(int startPos);
-
+    QString getType(QString variable, int pos);
 public:
+    QAbstractItemModel * getCodeCompletions(){
+        return &codeCompletions;
+    }
 
     void setModule(  Modules::Module* _module){
             if(_module != module){
@@ -68,6 +109,7 @@ public:
 
     CodeEditorHelper();
     Q_INVOKABLE void compile();
+    Q_INVOKABLE void updateCodeCompletionModel(int cursorPosition);
 
     void setDocument(  QQuickTextDocument* _document){
        if(_document != documentWrapper){

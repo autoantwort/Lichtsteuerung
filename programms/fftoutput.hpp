@@ -86,7 +86,7 @@ public:
     }
 
     /// Returns a pointer to the beginning of the span
-    T*
+    const T*
     data() const
     {
         return data_;
@@ -149,12 +149,19 @@ public:
         return getMaxFrequency()/static_cast<double>(size_);
     }
 
-    int getLowerBlockFrequency(const_iterator i){
+    int getLowerBlockFrequency(const_iterator i)const{
         return getMaxFrequency() * std::distance(cbegin(),i) / size();
     }
+    int getLowerBlockFrequency(int index)const{
+        return getMaxFrequency() * index / size();
+    }
 
-    int getUpperBlockFrequency(const_iterator i){
+    int getUpperBlockFrequency(const_iterator i)const{
         return getLowerBlockFrequency(++i);
+    }
+
+    int getUpperBlockFrequency(int index)const{
+        return getLowerBlockFrequency(++index);
     }
 
     /// Returns an iterator to the beginning of the span
@@ -172,6 +179,13 @@ public:
 
     T atFrequency(int frequency)const{
         return *begin(frequency);
+    }
+
+    T at(int index){
+        if(static_cast<unsigned int>(index)>=size()){
+            return -1;
+        }
+        return data_[index];
     }
 
 

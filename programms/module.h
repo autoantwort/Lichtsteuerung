@@ -104,11 +104,10 @@ MODULE_EXPORT Modules::Consumer * createConsumer(unsigned int index);
 
 #ifdef HAVE_AUDIO
 Modules::FFTOutputView<float> _emptyView;
-Modules::FFTOutputView<float> * _fftOutputView = &_emptyView;
+Modules::FFTOutputView<float> & fftOutput = _emptyView;
 bool __supportAudio = false;
 MODULE_EXPORT void _supportAudio(bool b){__supportAudio = b;}
-MODULE_EXPORT void _setFFTOutputView(Modules::FFTOutputView<float> * fftOutputView){_fftOutputView = fftOutputView?fftOutputView:&_emptyView;}
-const Modules::FFTOutputView<float> & getFFTOutput(){return *_fftOutputView;}
+MODULE_EXPORT void _setFFTOutputView(Modules::FFTOutputView<float> * fftOutputView){fftOutput = fftOutputView?*fftOutputView:_emptyView;}
 bool supportAudio(){return __supportAudio;}
 #endif
 
