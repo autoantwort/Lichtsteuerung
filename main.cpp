@@ -213,12 +213,14 @@ int main(int argc, char *argv[])
     QTimer timer;
     timer.setInterval(15);
     QObject::connect(&timer,&QTimer::timeout,[&](){
-        if(Graph::getLast())
-            Graph::getLast()->update();
-        if(Oscillogram::getLast())
-            Oscillogram::getLast()->update();
-        if(Colorplot::getLast())
-            Colorplot::getLast()->update();
+        if(Audio::AudioCaptureManager::get().isCapturing()){
+            if(Graph::getLast())
+                Graph::getLast()->update();
+            if(Oscillogram::getLast())
+                Oscillogram::getLast()->update();
+            if(Colorplot::getLast())
+                Colorplot::getLast()->update();
+        }
     });
     timer.start();
 
