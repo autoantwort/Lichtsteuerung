@@ -173,6 +173,15 @@ public:
     typename std::vector<Type>::reference back(){
         return model.back();
     }
+
+    void clear(){
+        if(size()==0){
+            return;
+        }
+        beginRemoveRows(QModelIndex(),0,size()-1);
+        model.clear();
+        endRemoveRows();
+    }
 };
 
 #endif // MODELVECTOR_H
