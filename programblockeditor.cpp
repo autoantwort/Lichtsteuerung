@@ -257,16 +257,29 @@ void ProgramBlockEditor::recreateView(){
         if(i->objectName()=="removeable")
         i->setParentItem(nullptr);
     }
-    if(!programBlock)
+    if(programBlockEntry.isError()){
+        qDebug() << programBlockEntry.errorString();
+        for(const auto & e : programBlockEntry.errors()){
+            qDebug() << e;
+        }
+    }if(programBlockConnection.isError()){
+        qDebug() << programBlockConnection.errorString();
+        for(const auto & e : programBlockConnection.errors()){
+            qDebug() << e;
+        }
+    }
+    if(!programBlock||!programBlockEntry.isReady()||!programBlockConnection.isReady())
         return;
     using namespace Modules;
     std::map<Named*,QQuickItem*> components;
     int y = 0;
     int x = 0;
+    const int LAYER_OFFSET = 15;
+    int layerOffsetX = 0;
     for(const auto & p : programBlock->getPrograms()){
         QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
         component->setProperty("text",p.get()->getName());
-        component->setX(x);
+        component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.get()->getOutputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(static_cast<PropertyBase*>(p.get())));
@@ -280,10 +293,11 @@ void ProgramBlockEditor::recreateView(){
         if(lastLayer!=p.first){
             x = 0;
             y += spaceBetweenLayers;
+            layerOffsetX += LAYER_OFFSET;
         }
         QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
         component->setProperty("text",dynamic_cast<Named*>(p.second.source.get())->getName());
-        component->setX(x);
+        component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.second.source.get()->getInputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.second.source.get())));
@@ -293,11 +307,12 @@ void ProgramBlockEditor::recreateView(){
         lastLayer = p.first;
     }
     y+=spaceBetweenLayers;
+    layerOffsetX += LAYER_OFFSET;
     x = 0;
     for(const auto & p : programBlock->getConsumer()){
         QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
         component->setProperty("text",dynamic_cast<Named*>(p.source.get())->getName());
-        component->setX(x);
+        component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.source.get()->getInputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.source.get())));
