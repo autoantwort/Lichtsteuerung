@@ -42,6 +42,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+includePath + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
+    tempOutputFileName+=".dll"; // we have to add .dll, otherwise the compiler will add .exe itselves
     QString tempName=tempOutputFileName + ".o";
     QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
     QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + tempName+"\" -I\"" + includePath + "\" ";
