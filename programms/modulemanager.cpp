@@ -87,17 +87,31 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
     bool ModuleManager::unloadLibrary(QString filePath){
         for(auto e = loadedLibraryMap.begin();e!=loadedLibraryMap.end();++e){
             qDebug()<<e->first;
-            if(e->first == filePath){
-                filter.erase(std::remove_if(filter.begin(),filter.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second.libraryIdentifier;
-                }),filter.cend());
-                programms.erase(std::remove_if(programms.begin(),programms.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second.libraryIdentifier;
-                }),programms.cend());
-                consumer.erase(std::remove_if(consumer.begin(),consumer.end(),[&](const auto &f){
-                    return f.libraryIdentifier == e->second.libraryIdentifier;
-                }),consumer.cend());
-                QLibrary lib(filePath);
+            qDebug()<<filePath+"____";
+            // add "____" to avoid subname conflicts. eg we unload print ans e have name print_super
+            if(e->first.startsWith(filePath+"____",Qt::CaseInsensitive)){
+                for(auto it = filter.cbegin();it != filter.cend();){
+                    if(it->libraryIdentifier == e->second.libraryIdentifier){
+                        it = filter.erase(it);
+                    }else{
+                        ++it;
+                    }
+                }
+                for(auto it = programms.cbegin();it != programms.cend();){
+                    if(it->libraryIdentifier == e->second.libraryIdentifier){
+                        it = programms.erase(it);
+                    }else{
+                        ++it;
+                    }
+                }
+                for(auto it = consumer.cbegin();it != consumer.cend();){
+                    if(it->libraryIdentifier == e->second.libraryIdentifier){
+                        it = consumer.erase(it);
+                    }else{
+                        ++it;
+                    }
+                }
+                QLibrary lib(e->first);
                 bool suc = lib.unload();
                 if(suc){
                    loadedLibraryMap.erase(e);
@@ -107,11 +121,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                    }
                    return true;
                 }
-                int counter = 0;
-                while (QFile::exists(filePath+ QString::number(counter)+".old")) {
-                    ++counter;
-                }
-                suc = QFile(filePath).rename(filePath+ QString::number(counter)+".old");
+                suc = QFile::rename(e->first,e->first+ ".old");
                 if(suc){
                     loadedLibraryMap.erase(e);
                 }
@@ -131,7 +141,26 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         o["modules"] = a;
     }
 
+    QString ModuleManager::getFreeAbsoluteFilePathForModule(const QString & name)const{
+#ifdef Q_OS_WIN
+#define SHARED_LIB_FILE_SUFFIX ".dll"
+#else
+#define SHARED_LIB_FILE_SUFFIX ".so"
+#endif
+        for(int counter = 0; ;++counter){
+            auto fileName = name + "____" + QString::number(counter)+ SHARED_LIB_FILE_SUFFIX;
+            if(!QFileInfo::exists(fileName)&&!QFileInfo::exists(fileName+".old")){
+                Q_ASSERT(QFile::rename(name,fileName));
+                return fileName;
+            }
+        }
+    }
+
     void ModuleManager::loadModule(QString name, bool replaceNewInPBs){
+
+        if(!QLibrary::isLibrary(name))
+            return;
+
         qDebug()<<"load lib  : " << name;
         QLibrary lib(name);
         if(lib.load()){
@@ -140,18 +169,39 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 qDebug()<<"have funktion is missing";
                 return;
             }
-            auto lastProgram  = programms.size();
-            auto lastFilter   = filter   .size();
-            auto lastConsumer = consumer .size();
             if(f(MODUL_TYPE::Program)){
-                loadType(lib,programms,"Program",lastLibraryIdentifier);
+                loadType(lib,programms,"Program",lastLibraryIdentifier,[&](const auto p){
+                    if(replaceNewInPBs){
+                        for(const auto & pb : ProgramBlockManager::model){
+                            for(const auto & v : pb->getUsedProgramsByName(p->name())){
+                                pb->replaceProgram(v,std::shared_ptr<Program>(p->create()));
+                            }
+                        }
+                    }
+                });
             }if(f(MODUL_TYPE::LoopProgram)){
                 //loadType(lib,programms,"LoopProgramm",lastLibraryIdentifier);
             }if(f(MODUL_TYPE::Filter)){
-                loadType(lib,filter,"Filter",lastLibraryIdentifier);
+                loadType(lib,filter,"Filter",lastLibraryIdentifier,[&](const auto p){
+                    if(replaceNewInPBs){
+                        for(const auto & pb : ProgramBlockManager::model){
+                            for(const auto & v : pb->getUsedFiltersByName(p->name())){
+                                pb->replaceFilter(v,std::shared_ptr<Filter>(p->create()));
+                            }
+                        }
+                    }
+                });
             }if(f(MODUL_TYPE::Consumer)){
                 qDebug()<< "Loading Consumer";
-                loadType(lib,consumer,"Consumer",lastLibraryIdentifier);
+                loadType(lib,consumer,"Consumer",lastLibraryIdentifier,[&](const auto p){
+                    if(replaceNewInPBs){
+                        for(const auto & pb : ProgramBlockManager::model){
+                            for(const auto & v : pb->getUsedConsumersByName(p->name())){
+                                pb->replaceConsumer(v,std::shared_ptr<Consumer>(p->create()));
+                            }
+                        }
+                    }
+                });
             }
             SupportAudioFunc supportAudioFunc = nullptr;
             if(f(MODUL_TYPE::Audio)){
@@ -160,25 +210,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             }
             lastLibraryIdentifier++;
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
-            if(replaceNewInPBs){
-                for(const auto & pb : ProgramBlockManager::model){
-                    for(;lastProgram<programms.size();lastProgram++){
-                        for(const auto & v : pb->getUsedProgramsByName(programms[lastProgram].name())){
-                            pb->replaceProgram(v,std::shared_ptr<Program>(programms[lastProgram].create()));
-                        }
-                    }
-                    for(;lastFilter<filter.size();lastFilter++){
-                        for(const auto & v : pb->getUsedFiltersByName(filter[lastFilter].name())){
-                            pb->replaceFilter(v,std::shared_ptr<Filter>(filter[lastFilter].create()));
-                        }
-                    }
-                    for(;lastConsumer<consumer.size();lastConsumer++){
-                        for(const auto & v : pb->getUsedConsumersByName(consumer[lastConsumer].name())){
-                            pb->replaceConsumer(v,std::shared_ptr<Consumer>(consumer[lastConsumer].create()));
-                        }
-                    }
-                }
-            }
+            qDebug() << lib.errorString();
         }else{
             qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString() ;
         }

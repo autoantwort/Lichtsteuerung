@@ -22,24 +22,29 @@ Compiler::Compiler()
 }
 
 
-/**
- * @brief Compiler::compileToLibrary compiles the code in the file to a module Library
- * @note Unloads the old Library found at newLibraryFile and loads the new Library, replacing all
- *       old Programs/Filters/Consumers in ProgramBlockManager by new in instances
- * @param file a FileInfo Object describing the file where the code is in
- * @param newLibraryFile the FilePath of the new Library
- * @return return code from the compiler and the output of the compiler
- */
-std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QString &newLibraryFile){
+std::pair<int,QString> Compiler::compileAndLoadModule(const QFileInfo &sourceCode, const QString &moduleName){
+    auto moduleFilePath = sourceCode.absolutePath() + "/" + moduleName;
+    auto result = compileToLibrary(sourceCode,moduleFilePath);
+    if(result.first == 0){
+        ModuleManager::singletone()->unloadLibrary(moduleFilePath);
+        ModuleManager::singletone()->loadModule(ModuleManager::singletone()->getFreeAbsoluteFilePathForModule(moduleFilePath));
+    }
+    return result;
+}
+
+
+std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QString &absoluteNewLibraryFilePath){
+
+    QString tempOutputFileName = absoluteNewLibraryFilePath+QString::number(rand());
     QProcess p;
 #ifdef Q_OS_MAC
-    p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
-    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + file.absolutePath()+"/"+newLibraryFile + ".temp" + " -I\"/"+includePath + "\" ";
+    //p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
+    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+includePath + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
-    QString tempName=newLibraryFile + ".o";
+    QString tempName=tempOutputFileName + ".o";
     QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
-    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + file.absolutePath() + "/" + tempName+"\" -I\"" + includePath + "\" ";
+    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + tempName+"\" -I\"" + includePath + "\" ";
     cmd = "\" " + cmd + " \"";
     qDebug().noquote() << cmd;
     /*
@@ -63,29 +68,22 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     if(p.exitCode() != 0){
         qDebug() << p.errorString();
         qDebug() << p.error();
-        //qDebug().noquote() << cmd;
     }else{
 #ifdef Q_OS_WIN
-        // we have to unload the existing lib first
-        ModuleManager::singletone()->singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
         // we only have a .o ans need a .dll
         // cmd: g++ -shared -o foo.dll foo.dll.o
         QProcess oToDll;
         oToDll.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
-        oToDll.start("cmd /c \" " + compilerCMD + " " + compilerLibraryFlags + " -o \"" + file.absolutePath() + "/" + newLibraryFile +"\"  \""+ file.absolutePath() + "/" + tempName +"\" \"");
+        oToDll.start("cmd /c \" " + compilerCMD + " " + compilerLibraryFlags + " -o \"" + tempOutputFileName +"\"  \""+ tempName +"\" \"");
         oToDll.waitForFinished();
-        if(oToDll.exitCode() == 0){
-            ModuleManager::singletone()->singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
-        }
+        QFile::rename(tempOutputFileName,absoluteNewLibraryFilePath);
+        QFile::remove(tempName);
         return{oToDll.exitCode(),oToDll.readAllStandardError()};
 
 #endif
 #ifdef Q_OS_MAC
-        // we have to unload the existing lib first
         if(p.exitCode()==0){
-            ModuleManager::singletone()->unloadLibrary(file.absolutePath() + "/" + newLibraryFile);
-            QFile(file.absolutePath() + "/" + newLibraryFile + ".temp").rename(file.absolutePath() + "/" + newLibraryFile);
-            ModuleManager::singletone()->loadModule(file.absolutePath() + "/" + newLibraryFile);
+            Q_ASSERT(QFile::rename(tempOutputFileName,absoluteNewLibraryFilePath));
         }
 #endif
     }

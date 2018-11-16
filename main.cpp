@@ -48,6 +48,8 @@ int main(int argc, char *argv[])
     /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
     return 0;*/
+    // init the rand function for different random numbers each startup
+    srand(static_cast<unsigned int>(time(nullptr)));
 
     Test::testSampleClass();
 

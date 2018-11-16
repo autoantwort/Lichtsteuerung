@@ -814,11 +814,10 @@ void CodeEditorHelper::compile(){
         stream << "}" << endl;
         stream.flush();
         file.close();
-#ifdef Q_OS_WIN
-        auto result = Modules::Compiler::compileToLibrary(file,module->getName()+".dll");
-#else
-        auto result = Modules::Compiler::compileToLibrary(file,module->getName()+".so");
-#endif
+
+
+        auto result = Modules::Compiler::compileAndLoadModule(file,module->getName());
+
         if(result.first){
             QFileInfo finfo = file;
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
