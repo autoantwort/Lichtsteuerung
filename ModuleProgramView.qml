@@ -24,11 +24,21 @@ Item{
                 id:listView
                 delegate: ItemDelegate{
                     property var itemData : modelData
+                    property var selected: ListView.isCurrentItem
                     width: parent.width
                     height: 60
-                    text: modelData.name
                     onClicked: {
                         listView.currentIndex = index;
+                    }
+
+                    TextInputField{
+                        id:input;
+                        text: modelData.name
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 15
+                        onTextChanged: modelData.name = text
+                        color: parent.selected ? "white" : "black"
                     }
                 }
                 highlight: Rectangle{
