@@ -213,8 +213,16 @@ ControlItem{
                 delegate: CheckDelegate{
                     width: 200
                     text: itemData.name
-                    visible: itemData.name.startsWith(search.text,Qt.CaseInsensitive)
+                    visible: height !== 0
+                    height: itemData.name.startsWith(search.text,Qt.CaseInsensitive) * implicitHeight
                     checked: use
+                    clip:true
+                    Behavior on height {
+                        NumberAnimation{
+                            duration: 250
+                            easing.type: "OutQuad"
+                        }
+                    }
 
                     onCheckedChanged: use = checked
 
