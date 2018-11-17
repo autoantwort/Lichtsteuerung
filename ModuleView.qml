@@ -461,13 +461,6 @@ Item{
                             minVal.enabled = currentIndex>=0 && currentIndex <=3;
                             maxVal.enabled = currentIndex>=0 && currentIndex <=3;
                         defaultVal.enabled = currentIndex>=0 && currentIndex <=4;
-                        if(currentIndex === 4){
-                            defaultVal.validator.top = 1;
-                            defaultVal.validator.bottom = 0;
-                        }else{
-                            defaultVal.validator.top = 2^31;
-                            defaultVal.validator.bottom = -2^31;
-                        }
                     }
                 }
                 Label{
@@ -499,8 +492,8 @@ Item{
                     id:defaultVal
                     enabled: type.currentIndex !== 5
                     validator: IntValidator{
-                        top:  dialog.prop.maxValue
-                        bottom: dialog.prop.minValue
+                        top:  maxVal.text
+                        bottom: minVal.text
                     }
                 }
                 RowLayout{

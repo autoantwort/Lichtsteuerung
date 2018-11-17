@@ -131,7 +131,7 @@ ControlPanel{
                         Button{
                             Layout.fillWidth: true
                             text:"Abbrechen"
-                            onClicked: dialog.visible = false
+                            onClicked: selectProgrammDialog.visible = false
                         }
                         Button{
                             Layout.fillWidth: true
