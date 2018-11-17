@@ -3,6 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import QtGraphicalEffects 1.0
 import custom.licht 1.0
+import QtQml 2.11
 
 ControlItem{
     id:item
@@ -13,13 +14,65 @@ ControlItem{
 
     ControlItemBlock{
         blockWidth: 1
+        id:withRef
+        clip:true
         Label{
-            anchors.fill: parent
+            id: textLabel
+            width: Math.max(implicitWidth,withRef.width)
+            leftPadding: 4
+            rightPadding: 4
+            anchors.top: parent.top
+            anchors.bottom: parent.bottom
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             text: controlData?controlData.name:"null"
-            elide: "ElideRight"
+            //elide: "ElideRight"
             font.pointSize: 12
+            Behavior on x{
+                NumberAnimation {
+                    alwaysRunToEnd: true
+                    duration: (textLabel.implicitWidth- withRef.width)*15
+                }
+            }
+            Timer{
+                id:timer
+            }
+            onXChanged: {
+                if( x === withRef.width-textLabel.implicitWidth){ //end of animation
+                    if(!mouseArea.containsMouse){
+                        timer.interval = 500;
+                        timer.triggered.connect(function(){
+                            textLabel.x = 0;
+                        });
+                        timer.start();
+                    }
+                }
+            }
+
+            MouseArea{
+                id:mouseArea
+                anchors.fill: parent
+                anchors.topMargin: 18
+                anchors.bottomMargin: 18
+                hoverEnabled: textLabel.implicitWidth > withRef.width
+                acceptedButtons: Qt.NoButton
+                preventStealing: true
+                propagateComposedEvents: true
+                onEntered: {
+                    if(textLabel.implicitWidth > withRef.width){
+                        textLabel.x = withRef.width-textLabel.implicitWidth;
+                    }
+                }
+                onExited: {
+                    if(textLabel.x === withRef.width-textLabel.implicitWidth){
+                        textLabel.x = 0;
+                    }
+                }
+                /*Rectangle{
+                    anchors.fill: parent
+                    color: "blue"
+                }*/
+            }
         }
     }
     ControlItemBlock{
