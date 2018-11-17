@@ -13,6 +13,8 @@ namespace Modules {
 
     class StringProperty;
     class BoolProperty;
+    struct rgb_t;
+    class RGBProperty;
 
     /**
      * @brief The Property class holds a property. A Property have a name and a description.
@@ -23,7 +25,7 @@ namespace Modules {
         std::string name;
         std::string description;
     public:
-        const enum Type {Int=0, Long=1, Float=2, Double=3, Bool=4, String=5} type;
+        const enum Type {Int=0, Long=1, Float=2, Double=3, Bool=4, String=5, RGB = 6} type;
     protected:
         Property(Type t):type(t){}
     public:
@@ -58,13 +60,20 @@ namespace Modules {
             }
             return nullptr;
         }
+
+        RGBProperty * asRGB(){
+            if(type == RGB){
+                return reinterpret_cast<RGBProperty*>(this);
+            }
+            return nullptr;
+        }
     };
 
     namespace defail{
 
         template<typename t>
         Property::Type toEnum(){
-            static_assert (std::is_same<t,float>::value||std::is_same<t,int>::value||std::is_same<t,long>::value||std::is_same<t,double>::value||std::is_same<t,bool>::value,"Wrong Type. Con be only int float long double bool std::string");
+            static_assert (std::is_same<t,float>::value||std::is_same<t,int>::value||std::is_same<t,long>::value||std::is_same<t,double>::value||std::is_same<t,bool>::value||std::is_same<t,rgb_t>::value,"Wrong Type. Con be only int float long double bool std::string");
             if(std::is_same<t,int>::value){
                 return Property::Int;
             }else if(std::is_same<t,long>::value){
@@ -75,6 +84,8 @@ namespace Modules {
                 return Property::Double;
             }else if(std::is_same<t,std::string>::value){
                 return Property::String;
+            }else if(std::is_same<t,rgb_t>::value){
+                return Property::RGB;
             }else {
                 return Property::Bool;
             }

@@ -674,6 +674,9 @@ void writeLocalPropertiesAssigments(QTextStream& out, const Modules::PropertiesV
         case Modules::Property::String:
             out << "\tauto " << p->getName() << " = _" << p->getName() << ".asString()->getString();\n";
             break;
+        case Modules::Property::RGB:
+                out << "\tauto " << p->getName() << " = *_" << p->getName() << ".asRGB();\n";
+            break;
         }
     }
 }
