@@ -34,6 +34,13 @@ namespace Modules {
             };
             brightness_t rgb[3];
         };
+        rgb_t(brightness_t r, brightness_t g, brightness_t b):r(r),g(g),b(b){}
+        rgb_t & operator * (brightness_t b){
+            this->r *= b / 255.f;
+            this->g *= b / 255.f;
+            this->b *= b / 255.f;
+            return *this;
+        }
     };
     static_assert (sizeof (rgb_t)==3, "size of rgb_t is not 3");
 
@@ -194,6 +201,45 @@ namespace Modules {
     public:
         virtual const char* getName()const = 0;
         virtual ~Named() = default;
+    };
+
+    /**
+     * Must be here, in the Property.hpp we have no rgb_t type
+     * @brief The RGBProperty class is a Property wrapper araoud the rgb_t type
+     */
+    class RGBProperty : public Property{
+    private:
+        rgb_t value;
+        RGBProperty():Property(Property::RGB),value(0,0,0){}
+
+        void save(SaveObject &o)const override{
+            auto red   = name + "_red";
+            auto green = name + "_green";
+            auto blue  = name + "_blue";
+            o.saveInt(red.c_str(),value.red);
+            o.saveInt(green.c_str(),value.green);
+            o.saveInt(blue.c_str(),value.blue);
+        }
+        void load(const LoadObject &l)override{
+            auto red   = name + "_red";
+            auto green = name + "_green";
+            auto blue  = name + "_blue";
+            value.red = l.loadInt(red.c_str());
+            value.green = l.loadInt(green.c_str());
+            value.blue = l.loadInt(blue.c_str());
+        }
+        const rgb_t & operator *()const{
+            return value;
+        }
+        rgb_t & operator *(){
+            return value;
+        }
+        void setRGB(const rgb_t &v){
+            value = v;
+        }
+        rgb_t getRGB()const{
+            return value;
+        }
     };
 
 }
