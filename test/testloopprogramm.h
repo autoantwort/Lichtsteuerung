@@ -1,20 +1,24 @@
 #ifndef TESTLOOPPROGRAMM_H
 #define TESTLOOPPROGRAMM_H
 
-#include "programms/loopprogramm.h"
-#include "programms/program.hpp"
+#include <programms/types.h>
+#include <programms/program.hpp>
+#include <programms/loopprogram.hpp>
 
 #include <iostream>
 #include <qdebug.h>
-void test();
 
-class TestLoopProgramm : public Modules::LoopProgramm<Modules::TypedProgram<Modules::brightness_t>>
+namespace Test{
+void testLoopProgramm();
+
+
+class TestLoopProgramm : public Modules::TypedLoopProgram< Modules::brightness_t >
 {
 protected:
-    virtual void loopProgramm()override{
+    virtual void loopProgram()override{
         for(unsigned i = 0; i< outputLength;++i){
             output[i] = 255;
-
+            //qDebug()<<i;
             wait(50);
         }
     }
@@ -25,5 +29,6 @@ public:
     virtual void start() override{}
     virtual ~TestLoopProgramm()override = default ;
 };
+}
 
 #endif // TESTLOOPPROGRAMM_H
