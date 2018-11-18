@@ -31,6 +31,10 @@ Item{
                         listView.currentIndex = index;
                     }
 
+                    function makeCurrentItem(){
+                        listView.currentIndex = index;
+                    }
+
                     TextInputField{
                         id:input;
                         text: modelData.name
@@ -39,6 +43,12 @@ Item{
                         anchors.leftMargin: 15
                         onTextChanged: modelData.name = text
                         color: parent.selected ? "white" : "black"
+                        onFocusChanged: {
+                            if(focus){
+                                parent.makeCurrentItem();
+                                forceActiveFocus("MouseFocusReason");
+                            }
+                        }
                     }
                 }
                 highlight: Rectangle{
