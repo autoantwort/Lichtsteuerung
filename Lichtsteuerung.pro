@@ -42,7 +42,6 @@ SOURCES += \
     programm.cpp \
     programmprototype.cpp \
     programms/dmxconsumer.cpp \
-    programms/loopprogramm.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     syncservice.cpp \
@@ -62,7 +61,8 @@ SOURCES += \
     programblockeditor.cpp \
     audio/sample.cpp \
     test/testsampleclass.cpp \
-    audio/audiocapturemanager.cpp
+    audio/audiocapturemanager.cpp \
+    programms/boostloopprogramcontextswitcher.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -108,7 +108,6 @@ HEADERS += \
     graph.h \
     oscillogram.h \
     programms/types.h \
-    programms/loopprogramm.h \
     programms/dmxconsumer.h \
     programms/module.h \
     test/testloopprogramm.h \
@@ -132,7 +131,9 @@ HEADERS += \
     audio/sample.h \
     test/testsampleclass.h \
     audio/audiocapturemanager.h \
-    programms/fftoutput.hpp
+    programms/fftoutput.hpp \
+    programms/loopprogram.hpp \
+    programms/boostloopprogramcontextswitcher.h
 
 
 # Default rules for deployment.

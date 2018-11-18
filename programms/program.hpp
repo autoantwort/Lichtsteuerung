@@ -45,13 +45,14 @@ public:
     }
 };
 
-template<typename OutputType>
-class TypedProgram : public Program{
+template<typename OutputType, typename Base = Program>
+class TypedProgram : public Base{
+    static_assert (std::is_base_of<Program,Base>::value,"The Base class must be an subclass of the Program class!");
 protected:
     OutputType *output = nullptr;
     unsigned int outputLength = 0;
 public:
-    TypedProgram():Program(typeToEnum<OutputType>()){}
+    TypedProgram():Base(typeToEnum<OutputType>()){}
     virtual void setOutputLength(unsigned int l) override{
         outputLength = l;
         if(output)
