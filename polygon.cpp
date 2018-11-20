@@ -9,6 +9,8 @@
 #include <corecrt_math_defines.h>
 #endif
 
+namespace GUI {
+
 Polygon::Polygon(QString name):name(name)
 {
     setFlag(ItemHasContents);
@@ -287,4 +289,7 @@ void Polygon::addRectangle(Point p1, Point p2, Point p3, Point p4){
     Triangle::index_type i1 = createPoint(p1),i2 = createPoint(p2),i3 = createPoint(p3),i4 = createPoint(p4);
     triangles.emplace_back(i1,i2,i3);
     triangles.emplace_back(i2,i3,i4);
+}
+
+
 }

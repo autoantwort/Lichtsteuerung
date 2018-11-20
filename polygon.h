@@ -9,6 +9,10 @@
 #include <corecrt_math_defines.h>
 #endif
 
+namespace GUI {
+    class Polygon;
+}
+
 namespace Primitives {
 
 
@@ -57,7 +61,7 @@ class Arc{
 public:
   Indextype left, mid, right;
 public:
-  friend class Polygon;
+  friend class GUI::Polygon;
   typedef Indextype index_type;
   Arc(Indextype left,Indextype mid,Indextype right):left(left),mid(mid),right(right){}
   Arc(const QJsonObject &o):left(o["left"].toInt()),mid(o["mid"].toInt()),right(o["right"].toInt()){}
@@ -103,6 +107,9 @@ public:
 };
 
 }
+
+namespace GUI {
+
 
 /**
  * @brief The Polygon class holds an Polygon. Its contains multiple Points that con be combined to Triangles and Arcs
@@ -226,5 +233,7 @@ protected:
 public:
     QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
 };
+
+}
 
 #endif // POLYGON_H

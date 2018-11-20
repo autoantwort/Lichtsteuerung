@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
     ProgramBlockEditor::engine = &engine;
     //qmlRegisterType<const ChannelVector*>("my.models",1,0,"ChannelVector");
     qmlRegisterType<ChannelProgrammEditor>("custom.licht",1,0,"ChannelProgrammEditor");
-    qmlRegisterType<MapView>("custom.licht",1,0,"MapView");
-    qmlRegisterType<MapEditor>("custom.licht",1,0,"MapEditor");
+    qmlRegisterType<GUI::MapView>("custom.licht",1,0,"MapView");
+    qmlRegisterType<GUI::MapEditor>("custom.licht",1,0,"MapEditor");
     qmlRegisterType<ControlPanel>("custom.licht",1,0,"ControlPanel");
     qmlRegisterType<Graph>("custom.licht",1,0,"Graph");
     qmlRegisterType<Oscillogram>("custom.licht",1,0,"Oscillogram");

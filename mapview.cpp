@@ -1,6 +1,7 @@
 #include "mapview.h"
 #include <QJsonArray>
 
+namespace GUI {
 
 MapView * MapView::lastCreated = nullptr;
 
@@ -47,4 +48,6 @@ void MapView::writeJsonObject(QJsonObject &o) const{
         a.append(o);
     }
     o.insert("polygons",a);
+}
+
 }

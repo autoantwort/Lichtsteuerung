@@ -54,7 +54,7 @@ QByteArray saveData(){
         o.insert("ControlPanel",u);
     }{
         QJsonObject u;
-        MapView::getLastCreated()->writeJsonObject(u);
+        GUI::MapView::getLastCreated()->writeJsonObject(u);
         o.insert("MapView",u);
     }{
         QJsonObject u;
@@ -110,7 +110,7 @@ std::function<void()> loadData(QByteArray data){
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
     return [=](){
         ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
-        MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
+        GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
         Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());
     };
 

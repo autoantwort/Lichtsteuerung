@@ -1,5 +1,7 @@
 #include "mapeditor.h"
 
+namespace GUI{
+
 MapEditor::MapEditor()
 {
     setAcceptedMouseButtons(Qt::AllButtons);
@@ -23,4 +25,6 @@ void MapEditor::mouseMoveEvent(QMouseEvent *event){
         stonework->update();
         event->accept();
     }
+}
+
 }

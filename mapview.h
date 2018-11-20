@@ -4,14 +4,16 @@
 #include "polygon.h"
 #include "gridbackground.h"
 
+namespace GUI{
+
 class MapView : public GridBackground
 {
     Q_OBJECT
     static MapView * lastCreated;
 protected:
-    std::vector<Polygon *> polygons;
-    Polygon * stonework;
-    Polygon * surfaces;
+    std::vector<GUI::Polygon *> polygons;
+    GUI::Polygon * stonework;
+    GUI::Polygon * surfaces;
 public:
     MapView();
     static MapView * getLastCreated(){return lastCreated;}
@@ -21,5 +23,7 @@ signals:
 
 public slots:
 };
+
+}
 
 #endif // MAPVIEW_H
