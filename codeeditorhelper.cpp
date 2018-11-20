@@ -509,6 +509,13 @@ QString generateProgrammCode(){
     return code;
 }
 
+QString generateLoopProgrammCode(){
+    QString code = "int getProgrammLengthInMS()override{\n\treturn 50 * outputLength; // Program::Infinite \n}\n\n";
+    code += "void start()override{\n\t\n}\n\n";
+    code += "void loopProgram()override{\n\tfor (int i = 0; i < outputLength; ++i){\n\t\t//output[i] = ... ;\n\t\twait(50);//waits 50 ms und shows the output\n\t}\n}\n\n";
+    return code;
+}
+
 QString generateFilterCode(){
     QString code = "unsigned int computeOutputLength(unsigned int inputLength)override{\n\treturn inputLength;\n}\n\n";
     code += "void filter()override{\n\t\n}\n\n";
@@ -519,6 +526,8 @@ QString generateFilterCode(){
 void CodeEditorHelper::typeChanged(){
     if(module->getType()==Modules::Module::Program){
         emit insertText(generateProgrammCode(),0);
+    }else if(module->getType()==Modules::Module::LoopProgram){
+        emit insertText(generateLoopProgrammCode(),0);
     }else if(module->getType()==Modules::Module::Filter){
         emit insertText(generateFilterCode(),0);
     }
