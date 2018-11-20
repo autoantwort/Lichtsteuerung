@@ -11,6 +11,10 @@
 #include "program.hpp"
 #endif
 
+#ifdef HAVE_LOOP_PROGRAM
+#include "loopprogram.hpp"
+#endif
+
 #ifdef HAVE_FILTER
 #include "filter.hpp"
 #endif
@@ -52,7 +56,7 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
     return false;
 #endif
     case MODUL_TYPE::LoopProgram:
-#ifdef HAVE_LOOP_PROGRAMM
+#ifdef HAVE_LOOP_PROGRAM
     return true;
 #else
     return false;
@@ -86,6 +90,13 @@ MODULE_EXPORT unsigned int getNumberOfPrograms();
 MODULE_EXPORT char const * getNameOfProgram(unsigned int index);
 MODULE_EXPORT Modules::Program * createProgram(unsigned int index);
 MODULE_EXPORT char const * getDescriptionOfProgram(unsigned int index);
+#endif
+
+#ifdef HAVE_LOOP_PROGRAM
+MODULE_EXPORT unsigned int getNumberOfLoopPrograms();
+MODULE_EXPORT char const * getNameOfLoopProgram(unsigned int index);
+MODULE_EXPORT Modules::LoopProgram * createLoopProgram(unsigned int index);
+MODULE_EXPORT char const * getDescriptionOfLoopProgram(unsigned int index);
 #endif
 
 #ifdef HAVE_FILTER
