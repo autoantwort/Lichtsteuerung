@@ -94,15 +94,7 @@ public:
         return &codeCompletions;
     }
 
-    void setModule(  Modules::Module* _module){
-            if(_module != module){
-                    module = _module;
-                    QObject::disconnect(typeConnection);
-                    if(module)
-                        typeConnection = QObject::connect(module,&Modules::Module::typeChanged,this,&CodeEditorHelper::typeChanged);
-                    emit moduleChanged();
-            }
-    }
+    void setModule(  Modules::Module* _module);
     Modules::Module *getModule() const {
             return module;
     }
@@ -135,6 +127,11 @@ signals:
    void information(QString text);
    void moduleChanged();
    void documentChanged();
+   /**
+    * @brief insertText send a signal to the qml editor component to inform the component, that text should be inserted at the current cursor pos
+    * @param newText the text that should be inserted
+    * @param pos the new cursor after text inserting.
+    */
    void insertText(QString newText, int pos);
    protected:
    void typeChanged();

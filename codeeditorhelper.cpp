@@ -523,13 +523,56 @@ QString generateFilterCode(){
     return code;
 }
 
-void CodeEditorHelper::typeChanged(){
+void CodeEditorHelper::setModule(  Modules::Module* _module){
+        if(_module != module){
+                module = _module;
+                QObject::disconnect(typeConnection);
+                if(module){
+                    typeConnection = QObject::connect(module,&Modules::Module::typeChanged,this,&CodeEditorHelper::typeChanged);
+                    if(module->getCode().isEmpty()){
+                        //create default code
+                        if(module->getType()==Modules::Module::Program){
+                            module->setCode(generateProgrammCode());
+                        }else if(module->getType()==Modules::Module::LoopProgram){
+                            module->setCode(generateLoopProgrammCode());
+                        }else if(module->getType()==Modules::Module::Filter){
+                            module->setCode(generateFilterCode());
+                        }
+                    }
+                }
+                emit moduleChanged();
+        }
+}
+
+void CodeEditorHelper::typeChanged(){    
+    QString text = document->toPlainText().trimmed();
+    // check if we can replace the whole text(when it is empty or a default code)
+    bool replace = text.trimmed().isEmpty() ? true : text == generateFilterCode().trimmed() || text == generateLoopProgrammCode().trimmed() || text == generateProgrammCode().trimmed();
     if(module->getType()==Modules::Module::Program){
-        emit insertText(generateProgrammCode(),0);
+        // we only have to generate code if the current code dont have the right functions
+        if(replace)
+            module->setCode(generateProgrammCode());
+        else if(text.indexOf("int getProgrammLengthInMS()") <0 ||  text.indexOf("void start()") <0 ||  text.indexOf("ProgramState doStep(time_diff_t") <0){
+            //emit insertText(generateProgrammCode(),0);
+            module->setCode(generateProgrammCode() + module->getCode());
+            qDebug ()  << "insert ProgrammCode" << generateProgrammCode();
+        }
     }else if(module->getType()==Modules::Module::LoopProgram){
-        emit insertText(generateLoopProgrammCode(),0);
+        // we only have to generate code if the current code dont have the right functions
+        if(replace)
+            module->setCode(generateLoopProgrammCode());
+        else if(text.indexOf("int getProgrammLengthInMS()") <0 ||  text.indexOf("void start()") <0 ||  text.indexOf("void loopProgram()") <0){
+            emit insertText(generateLoopProgrammCode(),0);
+            qDebug ()  << "insert LoopProgrammCode" << generateLoopProgrammCode();
+        }
     }else if(module->getType()==Modules::Module::Filter){
-        emit insertText(generateFilterCode(),0);
+        // we only have to generate code if the current code dont have the right functions
+        if(replace)
+            module->setCode(generateFilterCode());
+        else if(text.indexOf("unsigned int computeOutputLength(unsigned int inputLength)") <0 ||  text.indexOf("void filter()") <0 ||  text.indexOf("bool doStep(time_diff_t ") <0){
+            emit insertText(generateFilterCode(),0);
+            qDebug ()  << "insert FilterCode " << generateFilterCode();
+        }
     }
 }
 
