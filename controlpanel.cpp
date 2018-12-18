@@ -15,7 +15,12 @@ ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ProgrammControl.qml")),s
         throw std::runtime_error("Kein Kontext gesetzt!");
     }
     setAcceptHoverEvents(true);
-
+    if(dimmerGroup.isError())
+        throw std::runtime_error(dimmerGroup.errorString().toStdString());
+    if(switchGroup.isError())
+        throw std::runtime_error(switchGroup.errorString().toStdString());
+    if(programm.isError())
+        throw std::runtime_error(programm.errorString().toStdString());
 }
 
 void ControlPanel::writeJsonObject(QJsonObject &o){
