@@ -94,6 +94,7 @@ ControlItem{
 
             }
             onValueChanged: controlData.value = value
+            value: controlData.value;
         }
     }
 
@@ -123,9 +124,7 @@ ControlItem{
                     Text {
                         text: qsTr("Min")
                         font.underline: true
-                        anchors.horizontalCenter: parent.horizontalCenter
-
-
+                        Layout.alignment: Qt.AlignHCenter
                     }
                     RadioButton{
                         text: "Remap"
@@ -143,7 +142,7 @@ ControlItem{
                     Text {
                         text: qsTr("Max")
                         font.underline: true
-                        anchors.horizontalCenter: parent.horizontalCenter
+                        Layout.alignment: Qt.AlignHCenter
                     }
                     RadioButton{
                         text: "Remap"
