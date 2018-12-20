@@ -2,6 +2,7 @@
 #include <QQmlEngine>
 #include <QPropertyAnimation>
 #include "programms/property.hpp"
+#include "errornotifier.h"
 
 QQmlEngine*  ProgramBlockEditor::engine = nullptr;
 
@@ -259,11 +260,13 @@ void ProgramBlockEditor::recreateView(){
     }
     if(programBlockEntry.isError()){
         qDebug() << programBlockEntry.errorString();
+        ErrorNotifier::showError(programBlockEntry.errorString());
         for(const auto & e : programBlockEntry.errors()){
             qDebug() << e;
         }
     }if(programBlockConnection.isError()){
         qDebug() << programBlockConnection.errorString();
+        ErrorNotifier::showError(programBlockConnection.errorString());
         for(const auto & e : programBlockConnection.errors()){
             qDebug() << e;
         }
