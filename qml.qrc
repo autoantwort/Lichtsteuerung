@@ -48,5 +48,7 @@
         <file>ModuleProgramView.qml</file>
         <file>ProgramBlockEntry.qml</file>
         <file>ProgramBlockConnection.qml</file>
+        <file>VerticalTabBar.qml</file>
+        <file>VerticalTabButton.qml</file>
     </qresource>
 </RCC>

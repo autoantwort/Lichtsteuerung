@@ -12,98 +12,112 @@ ApplicationWindow {
 
 
 
-    header:TabBar {
-
-        id: tabBar
-        currentIndex: swipeView.currentIndex
-
-
-        TabButton {
-            text: qsTr("Devices")
-            enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_TAB);
-        }
-        TabButton {
-            text: qsTr("Device\nPrototypes")
-            enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_PROTOTYPE_TAB);
-        }
-        TabButton {
-            text: qsTr("Program\nPrototypes")
-            enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_PROTOTYPE_TAY);
-        }
-        TabButton {
-            text: qsTr("Programs")
-            enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_TAB);
-        }
-        TabButton {
-            text: qsTr("Control Pane")
-        }
-        TabButton {
-            text: qsTr("Map View")
-        }
-        TabButton {
-            text: qsTr("Login")
-            Component.onCompleted: tabBar.currentIndex = 6
-        }
-        TabButton {
-            text: qsTr("Settings")
-            enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
-        }
-        TabButton {
-            text: qsTr("Modules")
-        }
-        TabButton {
-            text: qsTr("Module\nPrograms")
-        }
-        TabButton {
-            text: qsTr("Graph")
-        }
-        TabButton {
-            text: qsTr("Oscillogram")
-        }
-        TabButton {
-            text: qsTr("Colorplot")
-        }
-    }
-
-    SwipeView {
-        interactive: false
-        clip:true
-        id: swipeView
+    Item{
         anchors.fill: parent
-        currentIndex: tabBar.currentIndex        
-        DeviceView{}
+        VerticalTabBar{
 
-        DevicePrototypeView{}
+            id: tabBar
+            currentIndex: swipeView.currentIndex
 
-        ProgrammPrototypeView{}
+            height: parent.height
+            width: 150
+            x:0
+            y:0
+            z: 2
 
-        ProgrammView{}
-
-        ControlView{
-            id:controlPane
-        }
-
-        Item{
-            clip: true
-            MapView{
-                anchors.fill: parent
+            VerticalTabButton {
+                text: qsTr("Devices")
+                enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_TAB);
+            }
+            VerticalTabButton {
+                text: qsTr("Device\nPrototypes")
+                enabled: UserManagment.currentUser.havePermission(Permission.DEVICE_PROTOTYPE_TAB);
+            }
+            VerticalTabButton {
+                text: qsTr("Program\nPrototypes")
+                enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_PROTOTYPE_TAY);
+            }
+            VerticalTabButton {
+                text: qsTr("Programs")
+                enabled: UserManagment.currentUser.havePermission(Permission.PROGRAMM_TAB);
+            }
+            VerticalTabButton {
+                text: qsTr("Control Pane")
+            }
+            VerticalTabButton {
+                text: qsTr("Map View")
+            }
+            VerticalTabButton {
+                text: qsTr("Login")
+                Component.onCompleted: tabBar.currentIndex = 6
+            }
+            VerticalTabButton {
+                text: qsTr("Settings")
+                enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
+            }
+            VerticalTabButton {
+                text: qsTr("Modules")
+            }
+            VerticalTabButton {
+                text: qsTr("Module\nPrograms")
+            }
+            VerticalTabButton {
+                text: qsTr("Graph")
+            }
+            VerticalTabButton {
+                text: qsTr("Oscillogram")
+            }
+            VerticalTabButton {
+                text: qsTr("Colorplot")
             }
         }
-        LoginView{}
 
-        SettingsView{}
+        SwipeView {
 
-        ModuleView{}
+            interactive: false
+            //clip:true
+            id: swipeView
 
-        ModuleProgramView{}
+            height: parent.height
+            width: parent.width - tabBar.width
+            x:tabBar.width
+            y:0
+            currentIndex: tabBar.currentIndex
+            orientation: "Vertical"
+            DeviceView{}
 
-        Graph{
+            DevicePrototypeView{}
+
+            ProgrammPrototypeView{}
+
+            ProgrammView{}
+
+            ControlView{
+                id:controlPane
+            }
+
+            Item{
+                clip: true
+                MapView{
+                    anchors.fill: parent
+                }
+            }
+            LoginView{}
+
+            SettingsView{}
+
+            ModuleView{}
+
+            ModuleProgramView{}
+
+            Graph{
+            }
+
+            Oscillogram{
+            }
+
+            Colorplot{}
         }
-
-        Oscillogram{
-        }
-
-        Colorplot{}
     }
 
     MessageDialog{
