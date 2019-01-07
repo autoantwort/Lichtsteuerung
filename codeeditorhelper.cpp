@@ -510,8 +510,7 @@ QString generateProgrammCode(){
 }
 
 QString generateLoopProgrammCode(){
-    QString code = "int getProgrammLengthInMS()override{\n\treturn 50 * outputLength; // Program::Infinite \n}\n\n";
-    code += "void start()override{\n\t\n}\n\n";
+    QString code = "int getProgrammLengthInMS()override{\n\treturn 50 * outputLength; // or Program::Infinite \n}\n\n";
     code += "void loopProgram()override{\n\tfor (int i = 0; i < outputLength; ++i){\n\t\t//output[i] = ... ;\n\t\twait(50);//waits 50 ms und shows the output\n\t}\n}\n\n";
     return code;
 }
@@ -561,7 +560,7 @@ void CodeEditorHelper::typeChanged(){
         // we only have to generate code if the current code dont have the right functions
         if(replace)
             module->setCode(generateLoopProgrammCode());
-        else if(text.indexOf("int getProgrammLengthInMS()") <0 ||  text.indexOf("void start()") <0 ||  text.indexOf("void loopProgram()") <0){
+        else if(text.indexOf("int getProgrammLengthInMS()") <0 || text.indexOf("void loopProgram()") <0){
             emit insertText(generateLoopProgrammCode(),0);
             qDebug ()  << "insert LoopProgrammCode" << generateLoopProgrammCode();
         }
@@ -808,6 +807,7 @@ void CodeEditorHelper::compile(){
                 return;
         }
         stream << "#include <programms/module.h>" << endl;
+        stream << "#include <iostream>" << endl;
         stream << "#define _USE_MATH_DEFINES"<<endl;
         stream << "#include <cmath>"<<endl;
         stream << "" << endl;

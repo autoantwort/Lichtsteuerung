@@ -26,7 +26,6 @@ public:
     TestLoopProgramm() = default;
     virtual const char * getName()const override{return "TestLoopProgramm";}
     virtual int getProgrammLengthInMS() override{return outputLength*50;}
-    virtual void start() override{}
     virtual ~TestLoopProgramm()override = default ;
 };
 }

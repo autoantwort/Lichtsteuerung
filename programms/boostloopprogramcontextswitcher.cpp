@@ -4,22 +4,35 @@
 namespace Modules {
 
 
-    BoostLoopProgramContextSwitcher::BoostLoopProgramContextSwitcher():m_coro([this](Coro::push_type &y){
-        m_yield = &y;
-        y();
-        startLoopProgram();
-    }){
-
+    bool BoostLoopProgramContextSwitcher::resume(){
+        if(m_coro){
+            (*m_coro)();
+            return !(*m_coro);
+        }
+        return true;
     }
 
-bool BoostLoopProgramContextSwitcher::resume(){
-    m_coro();
-    return !m_coro;
-}
+    void BoostLoopProgramContextSwitcher::yield(){
+        if(m_yield)
+            (*m_yield)();
+    }
 
-void BoostLoopProgramContextSwitcher::yield(){
-    (*m_yield)();
-}
+    void BoostLoopProgramContextSwitcher::start(){
+        if(m_coro){
+            delete m_coro;
+            m_coro = nullptr;
+            m_yield = nullptr;
+        }
+        m_coro = new Coro::pull_type([this](Coro::push_type &y){
+                m_yield = &y;
+                y();
+                startLoopProgram();
+            });
+    }
 
+    BoostLoopProgramContextSwitcher::~BoostLoopProgramContextSwitcher(){
+        if(m_coro)
+            delete m_coro;
+    }
 
 }

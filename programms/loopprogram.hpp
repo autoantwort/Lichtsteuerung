@@ -32,6 +32,11 @@ public:
      */
     virtual bool resume()=0;
     /**
+     * @brief start must be called before you can use the resume and yield functions. This function should reset and initialize
+     * the context switcher
+     */
+    virtual void start()=0;
+    /**
      * @brief setStartFunction set the function wich contain the aktual loopProgramm
      * @param loopProgram the function that the contextSwitcher should call the first time when starts
      */
@@ -95,6 +100,14 @@ public:
             return {finished,true};
         }
         return {false,false};
+    }
+    virtual void start()final override{
+        if(contextSwitcher){
+            contextSwitcher->start();
+            finished = false;
+            currentWaitTime = 0;
+            timeToWait = 0;
+        }
     }
 };
 

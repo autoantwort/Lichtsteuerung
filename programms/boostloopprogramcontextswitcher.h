@@ -26,12 +26,13 @@ namespace Modules {
     class BoostLoopProgramContextSwitcher : public LoopProgramContextSwitcher
     {
         using Coro = boost::coroutines2::coroutine<void>;
-        Coro::pull_type m_coro;
-        Coro::push_type *m_yield;
+        Coro::pull_type *m_coro = nullptr;
+        Coro::push_type *m_yield = nullptr;
     public:
-        BoostLoopProgramContextSwitcher();
         virtual void yield()override;
         virtual bool resume()override;
+        virtual void start()override;
+        ~BoostLoopProgramContextSwitcher() override;
     };
 
 }
