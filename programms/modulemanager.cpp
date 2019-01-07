@@ -150,7 +150,10 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         for(int counter = 0; ;++counter){
             auto fileName = name + "____" + QString::number(counter)+ SHARED_LIB_FILE_SUFFIX;
             if(!QFileInfo::exists(fileName)&&!QFileInfo::exists(fileName+".old")){
-                Q_ASSERT(QFile::rename(name,fileName));
+                if(!QFile::rename(name,fileName)){
+                    auto msg = ("Renaming from " + name + " to " + fileName + " does not work").toLatin1();
+                    qCritical(msg.data());
+                }
                 return fileName;
             }
         }
@@ -180,7 +183,15 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                     }
                 });
             }if(f(MODUL_TYPE::LoopProgram)){
-                //loadType(lib,programms,"LoopProgramm",lastLibraryIdentifier);
+                loadType(lib,programms,"LoopProgram",lastLibraryIdentifier,[&](const auto p){
+                    if(replaceNewInPBs){
+                        for(const auto & pb : ProgramBlockManager::model){
+                            for(const auto & v : pb->getUsedProgramsByName(p->name())){
+                                pb->replaceProgram(v,std::shared_ptr<Program>(p->create()));
+                            }
+                        }
+                    }
+                });
             }if(f(MODUL_TYPE::Filter)){
                 loadType(lib,filter,"Filter",lastLibraryIdentifier,[&](const auto p){
                     if(replaceNewInPBs){

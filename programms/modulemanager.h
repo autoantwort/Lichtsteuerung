@@ -8,6 +8,8 @@
 #include "consumer.hpp"
 #include <cstring>
 #include "property.hpp"
+#include "programms/loopprogram.hpp"
+#include "programms/boostloopprogramcontextswitcher.h"
 
 #include <QString>
 #include <QFile>
@@ -321,7 +323,16 @@ signals:
         for(unsigned int i = 0 ; i < getNumberOfProgramms();++i){            
             const auto name = getNameOfProgramm(i);
             const auto desc = getDescriptionOfProgramm(i);
-            const auto func = [=](){return createProgramm(i);};
+            std::function<Type*(void)> func = [](){return nullptr;};
+            if("LoopProgram"s == Typename){
+                func = [=]() -> Type*{
+                    LoopProgram * lp = static_cast<LoopProgram*>(static_cast<void*>(createProgramm(i)));
+                    lp->setContextSwitcher(std::make_unique<BoostLoopProgramContextSwitcher>());
+                    return static_cast<Type*>(static_cast<void*>(lp));
+                };
+            }else{
+                func = [=](){return createProgramm(i);};
+            }
             auto iter = c.find({name,desc});
             const detail::Entry<Type> * p;
             if(iter!=c.cend()){ // remove old entry if exists
