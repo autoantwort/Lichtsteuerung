@@ -43,13 +43,13 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Control Pane")
+                Component.onCompleted: tabBar.currentIndex = 4
             }
             VerticalTabButton {
                 text: qsTr("Map View")
             }
             VerticalTabButton {
                 text: qsTr("Login")
-                Component.onCompleted: tabBar.currentIndex = 6
             }
             VerticalTabButton {
                 text: qsTr("Settings")
