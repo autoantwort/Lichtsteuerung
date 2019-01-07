@@ -278,6 +278,7 @@ void ProgramBlockEditor::recreateView(){
     int y = 0;
     int x = 0;
     const int LAYER_OFFSET = 15;
+    const int GAP_BETWEEN_BLOCKS = 10;
     int layerOffsetX = 0;
     for(const auto & p : programBlock->getPrograms()){
         QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
@@ -287,7 +288,7 @@ void ProgramBlockEditor::recreateView(){
         component->setWidth(p.get()->getOutputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(static_cast<PropertyBase*>(p.get())));
         component->setObjectName("removeable");
-        x += component->width();
+        x += component->width() + GAP_BETWEEN_BLOCKS;
         components[p.get()] = component;
     }
     x=0;
@@ -306,7 +307,7 @@ void ProgramBlockEditor::recreateView(){
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.second.source.get())));
         component->setObjectName("removeable");
         components[dynamic_cast<Named*>(p.second.source.get())] = component;
-        x+= component->width();
+        x+= component->width() + GAP_BETWEEN_BLOCKS;
         lastLayer = p.first;
     }
     y+=spaceBetweenLayers;
@@ -320,7 +321,7 @@ void ProgramBlockEditor::recreateView(){
         component->setWidth(p.source.get()->getInputLength() * scale);
         component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.source.get())));
         component->setObjectName("removeable");
-        x += component->width();
+        x += component->width() + GAP_BETWEEN_BLOCKS;
         components[dynamic_cast<Named*>(p.source.get())] = component;
     }
 
@@ -340,7 +341,7 @@ void ProgramBlockEditor::recreateView(){
             const auto elem2 = components[dynamic_cast<Named*>(p.second.source.get())];
             component->setProperty("sourceStartIndex",index*scale + elem2->x());
             component->setProperty("sourceBaseline",elem2->y());
-            component->setProperty("color",QColor(23,255,23));
+            component->setProperty("color",QColor(23,255,23,50));
             component->setObjectName("removeable");
 
             QObject::connect(elem1,&QQuickItem::xChanged,[=](){
