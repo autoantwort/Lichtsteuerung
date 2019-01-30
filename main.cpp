@@ -228,6 +228,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
 
+    Modules::ModuleManager::singletone()->controller().start();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
     return app.exec();
 }
