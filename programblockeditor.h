@@ -143,7 +143,6 @@ class ProgramBlockEditor : public QQuickItem
     Q_PROPERTY(QAbstractListModel * outputDataProducerModel READ getOutputDataProducerModel CONSTANT)
     Q_PROPERTY(QAbstractListModel * inputDataConsumerModel READ getInputDataConsumerModel CONSTANT)
     Q_PROPERTY(bool showProperties READ getShowProperties WRITE setShowProperties NOTIFY showPropertiesChanged)
-    Q_PROPERTY(bool run READ getRun WRITE setRun NOTIFY runChanged)
     QQmlComponent programBlockEntry;
     QQmlComponent programBlockConnection;
     enum {None, MovePermanent, MoveTemporarily, AddConnection, AddReverseConnection} dragType = None;
@@ -204,9 +203,7 @@ public:
             qDebug () << "Program Block changed";
                 programBlock = _programBlock;
                 recreateView();
-                run = Modules::ModuleManager::singletone()->controller().isProgramRunning(programBlock);
                 setShowProperties(false);
-                emit runChanged();
                 emit programBlockChanged();
         }
     }
@@ -234,21 +231,6 @@ public:
     }
     bool getShowProperties() const {
             return showProperties;
-    }
-    void setRun( const bool _run){
-            if(_run != run){
-                    run = _run;
-                    if(run){
-                        auto iter = std::find_if(Modules::ProgramBlockManager::model.cbegin(),Modules::ProgramBlockManager::model.cend(),[&](const auto &v){return v.get()==programBlock;});
-                        if(iter != Modules::ProgramBlockManager::model.cend())
-                            Modules::ModuleManager::singletone()->controller().runProgramm(*iter);
-                    }else
-                        Modules::ModuleManager::singletone()->controller().stopProgramm(programBlock);
-                    emit runChanged();
-            }
-    }
-    bool getRun() const {
-            return run;
     }
 protected:
     virtual void mouseReleaseEvent(QMouseEvent *event)override;

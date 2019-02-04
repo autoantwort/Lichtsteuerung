@@ -50,5 +50,10 @@
         <file>ProgramBlockConnection.qml</file>
         <file>VerticalTabBar.qml</file>
         <file>VerticalTabButton.qml</file>
+        <file>icons/resume.png</file>
+        <file>icons/replay.svg</file>
+        <file>icons/material-pause.svg</file>
+        <file>icons/material-play.svg</file>
+        <file>icons/material-stop.svg</file>
     </qresource>
 </RCC>

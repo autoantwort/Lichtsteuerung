@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
     qRegisterMetaType<Modules::ValueType>("ValueType");
+    qRegisterMetaType<Modules::ProgramBlock::Status>("Status");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");

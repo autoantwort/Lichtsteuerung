@@ -75,13 +75,15 @@ namespace Modules {
     }
 
     class ModuleManager;
+    class Controller;
 
     /**
      * @brief The ProgramBlock class is the combination of programms, filter and Consumer. THE PROGRAMM_BLOCK OWNS THE POINTER!
      * Es legt fest welche Bereiche des outputs in welche bereiche des inputs gelangen(Programm -> Filter -> Consumer)
      */
-    class ProgramBlock : public QObject, public AbstractProgramm
+    class ProgramBlock : public QObject, public AbstractProgramm, public std::enable_shared_from_this<ProgramBlock>
     {
+        Q_OBJECT
         friend class ModuleManager;
         /*  Input n programms
             m filters
@@ -92,8 +94,14 @@ namespace Modules {
             load from json, get object from Module Manager throug name
         */
         QString name;
+        Controller * controller = nullptr;
+    public:
+        enum Status{Stopped=0, Running=1, Paused=2}status = Stopped;
+        Q_ENUM(Status)
+    private:
         Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
-        Q_OBJECT
+        Q_PROPERTY(Status status READ getStatus NOTIFY statusChanged)
+
 
         std::set<std::shared_ptr<Program>> programs;
         // verschiedene Ebenen von Filtern
@@ -277,18 +285,46 @@ namespace Modules {
         }
     signals:
         void nameChanged();
+        void statusChanged();
     public:
         ProgramBlock(const QJsonObject&);
         virtual bool doStep(time_diff_t)override;
         /**
-         * @brief start starts all used Programs and Consumer
+         * @brief start start the program block if not running
          */
-        void start();
+        void start(Controller * c);
+        Q_INVOKABLE void start();
+        /**
+         * @brief restart this function restart or start the program
+         */
+        void restart(Controller * c);
+        Q_INVOKABLE void restart();
         /**
          * @brief stop stop all used Consumer
          */
-        void stop();
+        Q_INVOKABLE void stop();
+        /**
+         * @brief pause an running program or do nothing
+         */
+        Q_INVOKABLE void pause();
+        /**
+         * @brief resume resume an paused program or start an stopped program
+         */
+        void resume(Controller * c);
+        Q_INVOKABLE void resume();
+        Status getStatus()const{return status;}
         void writeJsonObject(QJsonObject&);
+    private:
+        /**
+         * @brief setStatus use this function to set the status, this function emit a signal when the status changed
+         * @param s the new status
+         */
+        void setStatus(Status s){
+            if(s!=status){
+                status = s;
+                emit statusChanged();
+            }
+        }
     };
 
 
@@ -306,6 +342,7 @@ namespace Modules {
 
 
 }
+Q_DECLARE_METATYPE(Modules::ProgramBlock::Status)
 
 /*namespace std {
 template<>

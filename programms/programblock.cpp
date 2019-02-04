@@ -251,18 +251,70 @@ namespace Modules {
             newConsumer->start();
     }
 
+
+    void ProgramBlock::restart(Controller * c){
+        stop();
+        start(c);
+    }
+
     void ProgramBlock::start(){
-        for(auto & p : programs){
-            p->start();
-        }
-        for(auto i = consumer.cbegin(); i != consumer.cend();++i){
-            static_cast<Consumer*>(i->source.get())->start();
+        start(&ModuleManager::singletone()->controller());
+    }
+
+    void ProgramBlock::restart(){
+        restart(&ModuleManager::singletone()->controller());
+    }
+    void ProgramBlock::resume(){
+        resume(&ModuleManager::singletone()->controller());
+    }
+
+    void ProgramBlock::start(Controller * c){
+        if(status!=Running && c){
+            for(auto & p : programs){
+                p->start();
+            }
+            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+                static_cast<Consumer*>(i->source.get())->start();
+            }
+            setStatus(Running);
+            c->runProgramm(shared_from_this());
+            controller = c;
         }
     }
 
     void ProgramBlock::stop(){
-        for(auto i = consumer.cbegin(); i != consumer.cend();++i){
-            static_cast<Consumer*>(i->source.get())->stop();
+        if(status==Running && controller){
+            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+                static_cast<Consumer*>(i->source.get())->stop();
+            }
+            setStatus(Stopped);
+            controller->stopProgramm(shared_from_this());
+            controller = nullptr;
+        }
+    }
+
+    void ProgramBlock::pause(){
+        if(status==Running&&controller){
+            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+                static_cast<Consumer*>(i->source.get())->stop();
+            }
+            setStatus(Paused);
+            controller->stopProgramm(shared_from_this());
+            controller = nullptr;
+        }
+    }
+
+    void ProgramBlock::resume(Controller * c){
+        if(status==Paused && c){
+            //start consumer
+            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
+                static_cast<Consumer*>(i->source.get())->start();
+            }
+            setStatus(Running);
+            controller = c;
+            controller->runProgramm(shared_from_this());
+        }else if (status == Stopped) {
+            start(c);
         }
     }
 

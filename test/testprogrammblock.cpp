@@ -29,7 +29,7 @@ void TestProgrammBlock::test(){
     pb->addConsumer(l);
 
     controller.start();
-    controller.runProgramm(pb);
+    pb->start(&controller);
     this_thread::sleep_for(20ms);
     controller.stop();
 

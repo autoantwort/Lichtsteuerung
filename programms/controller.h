@@ -5,7 +5,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
-#include "programms/programblock.h"
+#include "programblock.h"
 
 namespace Modules {
 
@@ -20,6 +20,8 @@ class Controller
     std::condition_variable wait;
     std::vector<std::shared_ptr<ProgramBlock>> runningProgramms;
     std::mutex vectorLock;
+    ProgramBlock * deletingProgramBlock = nullptr;
+    friend class ProgramBlock;
     void run() noexcept;
 public:
     Controller();
@@ -33,6 +35,7 @@ public:
     }
     void stop(){run_=false;}
     ~Controller(){run_ = false;if(thread.joinable())thread.join();}
+private:
     void runProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(ProgramBlock* pb);

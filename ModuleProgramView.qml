@@ -1,5 +1,5 @@
 import QtQuick 2.9
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.3
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
@@ -99,6 +99,7 @@ Item{
                 Layout.fillWidth: true
                 id: programEditor
                 programBlock: listView.currentItem.itemData;
+                property var status: programBlock.status;
                 onShowPropertiesChanged: propertiesView.update()
                 onOpenRightClickEntry: {
                     rightClickMenu.x = x;
@@ -110,22 +111,53 @@ Item{
                     popup_addConnectionAsk.inputName = to
                     popup_addConnectionAsk.visible = true;
                 }
+                // enum Status{Stopped=0, Running=1, Paused=2}
+
                 RoundButton{
-                    id: button_run
-                     checkable: true
-                     checked: programEditor.run
-                     onCheckedChanged: programEditor.run = checked
-                     text: programEditor.run ? "Stop" : "Run"
-                     width: 70
-                     anchors.bottom: parent.bottom
-                     anchors.left: parent.left
-                     anchors.leftMargin: 15
-                 }
+                    id: button_startStop
+                    icon.source: programEditor.programBlock.status === 1 ? "qrc:icons/stop.svg" : programEditor.programBlock.status === 0 ? "qrc:icons/play.svg":"qrc:icons/replay.svg"
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 15
+                    anchors.left: parent.left
+                    checked: programEditor.programBlock.status === 1
+                    onClicked: {
+                        if(programEditor.programBlock.status === 0){
+                            programEditor.programBlock.start();
+                        } else if(programEditor.programBlock.status === 1){
+                            programEditor.programBlock.stop();
+                        } else if(programEditor.programBlock.status === 2){
+                            programEditor.programBlock.restart();
+                        }
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 1000
+                    ToolTip.text: programEditor.programBlock.status === 1 ? "Stop" : programEditor.programBlock.status === 0 ? "Play":"Replay"
+                }
+                RoundButton{
+                    id: button_pauseResume
+                    icon.source: programEditor.programBlock.status === 1 ? "qrc:icons/pause.svg" : "qrc:icons/resume.png"
+                    visible: programEditor.programBlock.status !== 0;
+                    checked: programEditor.programBlock.status === 1
+                    anchors.bottom: parent.bottom
+                    anchors.leftMargin: 15
+                    anchors.left: button_startStop.right
+                    onClicked: {
+                        if(programEditor.programBlock.status === 1){
+                            programEditor.programBlock.pause();
+                        } else if(programEditor.programBlock.status === 2){
+                            programEditor.programBlock.resume();
+                        }
+                    }
+                    ToolTip.visible: hovered
+                    ToolTip.delay: 1000
+                    ToolTip.text: programEditor.programBlock.status === 1 ? "Pause" : "Resume"
+                }
+
                 RoundButton{
                     id:button_add_entry
                     text: "Add Entry"
                     anchors.bottom: parent.bottom
-                    anchors.left: button_run.right
+                    anchors.left: button_pauseResume.right
                     anchors.leftMargin: 15
                     onClicked: {
                         programEditor.updatePossibleEntries();

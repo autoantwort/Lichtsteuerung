@@ -48,7 +48,7 @@ void Test::createProgrammBlockAndTestRunIt(){
     con->addFilter(first,0);
     con->addFilter(second,1);
     con->addConsumer(third);
-    mm->controller().runProgramm(con);
+    con->start(&mm->controller());
     mm->controller().start();
     ProgramBlockManager::model.push_back(con);
 }
