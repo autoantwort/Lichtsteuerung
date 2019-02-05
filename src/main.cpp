@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     Settings settings;
     settings.setJsonSettingsFilePath("QTJSONFile.json");
     QFile file(settings.getJsonSettingsFilePath());
-    file.copy(settings.getJsonSettingsFilePath()+"_"+QDateTime::currentDateTime().toString("dd.MM.YYYY HH:mm:ss"));
+    file.copy(settings.getJsonSettingsFilePath()+"_"+QDateTime::currentDateTime().toString("dd.MM.YYYY HH.mm.ss"));
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
