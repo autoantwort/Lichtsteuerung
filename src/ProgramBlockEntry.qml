@@ -9,5 +9,15 @@ Label{
     background: Rectangle{
         color:"lightblue"
     }
+    MouseArea{
+        hoverEnabled: true
+        anchors.fill: parent
+        id:mouseArea
+        acceptedButtons: Qt.NoButton
+    }
+
+    ToolTip.visible: mouseArea.containsMouse
+    ToolTip.delay: 1000
+    ToolTip.text: text
     id:label
 }
