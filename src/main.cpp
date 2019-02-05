@@ -89,6 +89,9 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     ControlPanel::setQmlEngine(&engine);
     ProgramBlockEditor::engine = &engine;
+    // normally this should be done automatically
+    qRegisterMetaType<QAbstractListModel*>("QAbstractListModel*");
+    qRegisterMetaType<PropertyInformationModel*>("PropertyInformationModel*");
     //qmlRegisterType<const ChannelVector*>("my.models",1,0,"ChannelVector");
     qmlRegisterType<ChannelProgrammEditor>("custom.licht",1,0,"ChannelProgrammEditor");
     qmlRegisterType<GUI::MapView>("custom.licht",1,0,"MapView");

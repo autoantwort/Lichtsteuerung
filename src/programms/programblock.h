@@ -216,7 +216,7 @@ namespace Modules {
         template<typename F>
         void removeConsumer(F f){
             // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
-            for (auto it{consumer.begin()}, end{consumer.end()}; it != end; ) {
+            for (auto it{consumer.begin()}; it != consumer.end(); ) {
                 if (f(*it)) {
                     it = consumer.erase(it);
                 }
@@ -228,7 +228,7 @@ namespace Modules {
         template<typename F>
         void removeFilter(F f){
             // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
-            for (auto it{filter.begin()}, end{filter.end()}; it != end; ) {
+            for (auto it{filter.begin()}; it != filter.end(); ) {
                 if (f(*it)) {
                     removeConnectionsToOutputDataProducer(static_cast<Filter*>(it->second.source.get()));
                     it = filter.erase(it);
@@ -241,7 +241,7 @@ namespace Modules {
         template<typename F>
         void removeProgram(F f){
             // see https://stackoverflow.com/questions/24263259/c-stdseterase-with-stdremove-if
-            for (auto it{programs.begin()}, end{programs.end()}; it != end; ) {
+            for (auto it{programs.begin()}; it != programs.end(); ) {
                 if (f(*it)) {
                     removeConnectionsToOutputDataProducer(static_cast<Program*>(it->get()));
                     it = programs.erase(it);
