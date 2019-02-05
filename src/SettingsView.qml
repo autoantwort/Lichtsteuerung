@@ -158,6 +158,34 @@ Pane{
             text: Settings.compilerLibraryFlags
             onAccepted: Settings.compilerLibraryFlags = text;
         }
+
+        Label{
+            Layout.fillWidth: true
+            text: "AudioCaptureLib:"
+        }
+        TextInputField{
+            Layout.fillWidth: true
+            text: Settings.includePath
+            onAccepted: Settings.includePath = text;
+            Button{
+                anchors.top: parent.top
+                anchors.right: parent.right
+                anchors.topMargin: -5
+                anchors.bottomMargin: -5
+                anchors.bottom: parent.bottom
+                text: "File Chooser"
+                onClicked: {
+                    fileDialog.selectFolder = false;
+                    fileDialog.selectMultiple = false;
+                    fileDialog.folder = Settings.audioCaptureFilePath;
+                    fileDialog.open();
+                    fileDialog.addSelection(Settings.audioCaptureFilePath);
+                    fileDialog.callback = function(file){
+                        Settings.audioCaptureFilePath = file;
+                    };
+                }
+            }
+        }
     }
     FileDialog{
         property var callback;
