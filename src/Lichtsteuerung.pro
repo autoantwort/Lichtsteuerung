@@ -156,7 +156,19 @@ win32-msvc{
 }
 
 win32-g++{
-    LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
+    CONFIG(debug, debug|release){
+        DEBUG = d-
+    } else {
+        DEBUG =
+    }
+    contains(QT_ARCH, i386){ # 32 bit
+        BITS = 32
+        LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
+    } else { # 64 bit
+        BITS = 64
+        # use the mingw73 builds
+        LIBS += -L$$PWD/'lib/boost/mingw73'  -lboost_coroutine-mgw73-mt-$${DEBUG}x64-1_69 -lboost_context-mgw73-mt-$${DEBUG}x64-1_69
+    }
     INCLUDEPATH += $$PWD/'boost'
 }
 
@@ -180,7 +192,12 @@ macx{
 
 win32-g++{
     #AudioFFT
-    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    #LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    contains(QT_ARCH, i386){ # 32 bit
+        LIBS += -L$$PWD/'lib/AudioFFT/dll/win32/' -lAudioFFT
+    } else { # 64 bit
+        LIBS += -L$$PWD/'lib/AudioFFT/dll/win64' -lAudioFFT
+    }
     INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
 }
 
