@@ -223,7 +223,12 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
             qDebug() << lib.errorString();
         }else{
-            qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString() ;
+#ifdef Q_OS_WIN
+            if(lib.errorString().endsWith("Unknown error 0x000000c1.")){
+                qDebug() << "Lib" << name.mid(name.lastIndexOf("/")+1) << " has the wrong bitness! 64 vs 32 or 32 vs 64 Bit!";
+            }else
+#endif
+                qDebug()<<"Cant load lib :" << name<< " because : " << lib.errorString();
         }
     }
 
