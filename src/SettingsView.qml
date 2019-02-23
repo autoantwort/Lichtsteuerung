@@ -165,8 +165,8 @@ Pane{
         }
         TextInputField{
             Layout.fillWidth: true
-            text: Settings.includePath
-            onAccepted: Settings.includePath = text;
+            text: Settings.audioCaptureFilePath
+            onAccepted: Settings.audioCaptureFilePath = text;
             Button{
                 anchors.top: parent.top
                 anchors.right: parent.right
