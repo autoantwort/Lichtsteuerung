@@ -3,6 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import QtGraphicalEffects 1.0
 import custom.licht 1.0
+import ".."
 
 ControlItem{
     id:item

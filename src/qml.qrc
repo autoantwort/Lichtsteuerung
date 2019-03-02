@@ -10,8 +10,6 @@
         <file>ProgrammPrototypeView.qml</file>
         <file>ModelView.qml</file>
         <file>TextUnderline.qml</file>
-        <file>ControlView.qml</file>
-        <file>ControlItem.qml</file>
         <file>icons/down.svg</file>
         <file>icons/pause.svg</file>
         <file>icons/play.svg</file>
@@ -30,10 +28,6 @@
         <file>icons/ic_stop_black_24px.svg</file>
         <file>icons/ic_pause_black_24px.svg</file>
         <file>icons/ic_play_arrow_black_24px.svg</file>
-        <file>ControlItemBlock.qml</file>
-        <file>ProgrammControl.qml</file>
-        <file>SwitchGroupControl.qml</file>
-        <file>DimmerGroupControl.qml</file>
         <file>LoginView.qml</file>
         <file>SettingsView.qml</file>
         <file>ModuleView.qml</file>
@@ -55,5 +49,11 @@
         <file>icons/material-pause.svg</file>
         <file>icons/material-play.svg</file>
         <file>icons/material-stop.svg</file>
+        <file alias="ControlPane/ControlItemBlock.qml">qml/ControlItemBlock.qml</file>
+        <file alias="ControlPane/ProgrammControl.qml">qml/ProgrammControl.qml</file>
+        <file alias="ControlPane/SwitchGroupControl.qml">qml/SwitchGroupControl.qml</file>
+        <file alias="ControlPane/DimmerGroupControl.qml">qml/DimmerGroupControl.qml</file>
+        <file alias="ControlPane/ControlView.qml">qml/ControlView.qml</file>
+        <file alias="ControlPane/ControlItem.qml">qml/ControlItem.qml</file>
     </qresource>
 </RCC>

@@ -8,7 +8,7 @@
 ControlPanel * ControlPanel::lastCreated = nullptr;
 QQmlEngine * ControlPanel::engine = nullptr;
 
-ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/DimmerGroupControl.qml"))
+ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ControlPane/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/ControlPane/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/ControlPane/DimmerGroupControl.qml"))
 {
     lastCreated = this;
     if(engine==nullptr){

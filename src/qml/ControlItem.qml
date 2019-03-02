@@ -45,7 +45,7 @@ ControlItemTemplate{
         height: 18
         anchors.top: parent.top
         anchors.right: parent.right
-        source: "icons/ic_settings_black_24px.svg"
+        source: "/icons/ic_settings_black_24px.svg"
         visible: popup!==null
 
         Behavior on rotation{
