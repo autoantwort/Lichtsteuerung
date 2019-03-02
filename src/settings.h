@@ -53,14 +53,12 @@ public:
 
     void setUpdatePauseInMs(unsigned int pause){settings.setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}
     unsigned int getUpdatePauseInMs()const{return settings.value("updatePauseInMs").toUInt();}
-    void setModuleDirPath( const QString _moduleDirPath){
-#ifdef Q_OS_MAC
-        if(!QDir("/" + _moduleDirPath).exists())return;
-        settings.setValue("moduleDirPath","/" + _moduleDirPath);
-#else
-        if(!QDir(_moduleDirPath).exists())return;
-            settings.setValue("moduleDirPath",_moduleDirPath);
-#endif
+    void setModuleDirPath( const QString &_moduleDirPath){
+        if(_moduleDirPath == getModuleDirPath())
+            return;
+        if(!QDir(_moduleDirPath).exists())
+            return;
+        settings.setValue("moduleDirPath",_moduleDirPath);
         emit moduleDirPathChanged();
     }
 
