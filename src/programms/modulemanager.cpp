@@ -67,7 +67,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
     ModuleManager::ModuleManager()
     {
         fftOutputView = Audio::AudioCaptureManager::get().getFFTOutput();
-        QObject::connect(&Audio::AudioCaptureManager::get(),&Audio::AudioCaptureManager::capturingStatusChanged,[this](){
+        captureStatusChangedConnection = QObject::connect(&Audio::AudioCaptureManager::get(),&Audio::AudioCaptureManager::capturingStatusChanged,[this](){
             for(const auto & info : loadedLibraryMap){
                 if(info.second.supportAudioFunc){
                     info.second.supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());

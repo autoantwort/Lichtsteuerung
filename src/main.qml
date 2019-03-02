@@ -4,8 +4,6 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
-import "ControlPane"
-
 ApplicationWindow {
     visible: true
     width: 900

@@ -254,6 +254,7 @@ signals:
         ConsumerModuleContainer consumer;
         Controller controller_;
         FFTOutputView<float> fftOutputView;
+        QMetaObject::Connection captureStatusChangedConnection;
     private:
         template<typename Type, typename String, typename Callback>
         static void loadType(QLibrary & lib, ModuleContainer<detail::Entry<Type>> &c,String name, int libraryIdentifier, Callback = nullptr);
@@ -262,7 +263,7 @@ signals:
 
     public:
         ModuleManager();
-        ~ModuleManager(){for(auto m : modules)delete m;}
+        ~ModuleManager(){for(auto m : modules)delete m;QObject::disconnect(captureStatusChangedConnection);}
         /**
          * @brief getFreeAbsoluteFilePathForModule if you have a new compiled module that is not loaded, you can get here a new free name.
          * @note Important! If you use an old file name, maybe the old lib gets loaded, even when you delete the file

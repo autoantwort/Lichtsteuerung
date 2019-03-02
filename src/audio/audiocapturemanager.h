@@ -36,6 +36,8 @@ private:
     void dataCallback(float* data, unsigned int frames, bool*done);
 public:
     bool startCapturing(QString filePathToCaptureLibrary);
+    void stopCapturing(){run=false;}
+    void stopCapturingAndWait(){run=false;if(captureAudioThread.joinable())captureAudioThread.join();}
     bool isCapturing(){return run;}
     const std::array<float,2048>& getFFTOutput(){return fftoutput;}
 public:

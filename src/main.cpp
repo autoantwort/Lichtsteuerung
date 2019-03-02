@@ -160,6 +160,11 @@ int main(int argc, char *argv[])
     settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
+    settings.connect(&settings,&Settings::audioCaptureFilePathChanged,[&](){
+        if(Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath())==false){
+            ErrorNotifier::get()->newError("Failed to load Audio Capture Library");
+        }
+    });
     settings.connect(&settings,&Settings::updatePauseInMsChanged,[&](){
         if(Driver::getCurrentDriver()){
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));

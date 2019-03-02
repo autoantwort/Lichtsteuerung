@@ -22,13 +22,33 @@ class Settings : public QObject
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
 public:
     explicit Settings(QObject *parent = nullptr);
-    void setJsonSettingsFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("jsonSettingsFilePath",file);emit jsonSettingsFilePathChanged();}
+    void setJsonSettingsFilePath(QString file){
+        if(file == getJsonSettingsFilePath())return;
+        if(QFile::exists(file)){
+            settings.setValue("jsonSettingsFilePath",file);
+            emit jsonSettingsFilePathChanged();
+        }
+    }
     QString getJsonSettingsFilePath()const{return settings.value("jsonSettingsFilePath").toString();}
 
-    void setDriverFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("driverFilePath",file);emit driverFilePathChanged();}
+    void setDriverFilePath(QString file){
+        if(file == getDriverFilePath())return;
+        if(QFile::exists(file)){
+            settings.setValue("driverFilePath",file);
+            emit driverFilePathChanged();
+        }
+    }
     QString getDriverFilePath()const{return settings.value("driverFilePath").toString();}
 
-    void setAudioCaptureFilePath(QString file){if(!QFile::exists(file))return;settings.setValue("audioCaptureFilePath",file);emit audioCaptureFilePathChanged();}
+    void setAudioCaptureFilePath(QString file){
+        if(file == getAudioCaptureFilePath()){
+            return;
+        }
+        if(QFile::exists(file)){
+            settings.setValue("audioCaptureFilePath",file);
+            emit audioCaptureFilePathChanged();
+        }
+    }
     QString getAudioCaptureFilePath()const{return settings.value("audioCaptureFilePath").toString();}
 
     void setUpdatePauseInMs(unsigned int pause){settings.setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}

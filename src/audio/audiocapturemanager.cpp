@@ -54,6 +54,7 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
 }
 
 bool AudioCaptureManager::startCapturing(QString filePathToCaptureLibrary){
+    stopCapturingAndWait();
     typedef int (*capture)(void(*)(int),void(*)(float*,unsigned int, bool*)) ;
     auto func = reinterpret_cast<capture>(QLibrary::resolve(filePathToCaptureLibrary,"captureAudio"));
     if(func){
