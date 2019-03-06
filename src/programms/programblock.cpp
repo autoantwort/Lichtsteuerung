@@ -215,13 +215,16 @@ namespace Modules {
                 }
             }
         }
+        emit propertyBaseChanged(original.get(),newProgram.get());
     }
 
     void ProgramBlock::replaceFilter(std::shared_ptr<Filter> original, std::shared_ptr<Filter> newFilter){
         transferProperties(original.get(),newFilter.get());
+        bool foundOne = false;
         for(auto & f : filter){
             if(f.second.source == original){
                 f.second.source = newFilter;
+                foundOne = true;
             }
             for(auto & t : f.second.targeds){
                 if(t.second.targed == original.get()){
@@ -236,19 +239,24 @@ namespace Modules {
                 }
             }
         }
+        if(foundOne)
+            emit propertyBaseChanged(original.get(),newFilter.get());
     }
 
     void ProgramBlock::replaceConsumer(std::shared_ptr<Consumer> original, std::shared_ptr<Consumer> newConsumer){
-        bool isRunning = ModuleManager::singletone()->controller().isProgramRunning(this);
-        original->stop();
+        if(std::find(std::cbegin(consumer),std::cend(consumer),original) == std::end(consumer))
+            return;
+        if(getStatus() == Running)
+            original->stop();
         transferProperties(original.get(),newConsumer.get());
         for(auto & f : consumer){
             if(f.source == original){
                 f.source = newConsumer;
             }
         }
-        if(isRunning)
+        if(getStatus() == Running)
             newConsumer->start();
+        emit propertyBaseChanged(original.get(),newConsumer.get());
     }
 
 

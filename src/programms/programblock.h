@@ -289,6 +289,12 @@ namespace Modules {
     signals:
         void nameChanged();
         void statusChanged();
+        /**
+         * @brief propertyBaseChanged this signal is emitted, when replace* is called and one Program/Filter/Consumer is affected
+         * @param oldPB the PropertyBase of the old Program/Filter/Consumer
+         * @param newPB the PropertyBase of the new Program/Filter/Consumer
+         */
+        void propertyBaseChanged(PropertyBase * oldPB, PropertyBase * newPB);
     public:
         ProgramBlock(const QJsonObject&);
         virtual bool doStep(time_diff_t)override;
