@@ -39,13 +39,13 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     QProcess p;
 #ifdef Q_OS_MAC
     //p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
-    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+includePath + "\" ";
+    QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+QFileInfo(includePath).absoluteFilePath() + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
     tempOutputFileName+=".dll"; // we have to add .dll, otherwise the compiler will add .exe itselves
     QString tempName=tempOutputFileName + ".o";
     QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
-    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + tempName+"\" -I\"" + includePath + "\" ";
+    QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + tempName+"\" -I\"" + QFileInfo(includePath).absoluteFilePath() + "\" ";
     cmd = "\" " + cmd + " \"";
     qDebug().noquote() << cmd;
     /*
