@@ -4,6 +4,7 @@
 #include <QObject>
 #include "programm.h"
 #include "device.h"
+#include "programms/programblock.h"
 
 class ControlItemData : public QObject
 {
@@ -14,7 +15,7 @@ private:
     int startXBlock=0;
     int startYBlock=0;
 public:
-    enum Type{PROGRAMM, SWITCH_GROUP, DIMMER_GROUP};
+    enum Type{PROGRAMM, SWITCH_GROUP, DIMMER_GROUP, PROGRAM_BLOCK};
 private:
     Type type;
 public:
@@ -193,6 +194,22 @@ signals:
     void minValueChanged();
     void valueChanged();
     void shouldOverrideValueChanged();
+};
+
+class ProgramBlockControlItemData : public ControlItemData{
+    Q_OBJECT
+    Q_PROPERTY(Modules::ProgramBlock* programBlock READ getProgramBlock WRITE setProgramBlock NOTIFY programBlockChanged)
+    Modules::ProgramBlock * program=nullptr;
+    QMetaObject::Connection connection;
+public:
+    ProgramBlockControlItemData(Modules::ProgramBlock * p,QObject *parent = nullptr);
+    ProgramBlockControlItemData(const QJsonObject &o,QObject *parent = nullptr);
+    ~ProgramBlockControlItemData()override{QObject::disconnect(connection);}
+    virtual void writeJsonObject(QJsonObject &o)override;
+    void setProgramBlock(Modules::ProgramBlock * );
+    Modules::ProgramBlock * getProgramBlock()const{return program;}
+signals:
+    void programBlockChanged();
 };
 
 #endif // CONTROLITEMDATA_H

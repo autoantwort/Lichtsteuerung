@@ -109,9 +109,9 @@ std::function<void()> loadData(QByteArray data){
     }
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
     return [=](){
-        ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
         GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
-        Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());
+        Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());        
+        ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
     };
 
 }

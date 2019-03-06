@@ -11,6 +11,7 @@
 #include <QObject>
 #include <memory>
 #include <modelvector.h>
+#include "id.h"
 
 
 namespace Modules {
@@ -95,6 +96,7 @@ namespace Modules {
         */
         QString name;
         Controller * controller = nullptr;
+        ID id;
     public:
         enum Status{Stopped=0, Running=1, Paused=2}status = Stopped;
         Q_ENUM(Status)
@@ -274,6 +276,7 @@ namespace Modules {
 
     public:
         ProgramBlock(QString name = "No name"):name(name){}
+        ID getID()const{return id;}
         void setName( const QString _name){
                 if(_name != name){
                         name = _name;
@@ -331,6 +334,14 @@ namespace Modules {
 
     class ProgrammBlockVector : public ModelVector<std::shared_ptr<ProgramBlock>>{
         Q_OBJECT
+    public:
+        virtual QVariant data(const QModelIndex &index, int role) const override{
+            auto res = ModelVector<std::shared_ptr<ProgramBlock>>::data(index,role);
+            if(res.isValid() && role == Qt::DisplayRole){
+                return res.value<ProgramBlock*>()->getName();
+            }
+            return res;
+        }
     };
 
     class ProgramBlockManager{

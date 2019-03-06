@@ -8,14 +8,18 @@ import custom.licht 1.0
 
 ControlPanel{
 
-
+    //we can only define enums here
+    enum Select{
+        ProgramBlock,
+        Program
+    }
 
     onExitMenuArea: programm.width = programm.height
-    menuHeight: height-switchGroup.y
+    menuHeight: height-programBlock.y
     menuWidth: width-programm.x
     RoundButton{
 
-        onClicked: selectProgrammDialog.visible=true
+        onClicked: selectProgramDialog.createProgram()
         visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
         id:programm
         text: "+"
@@ -35,10 +39,13 @@ ControlPanel{
                         textAnimation.newText="Add Programm";
                         dimmerGroup.y = programm.y;
                         switchGroup.y = programm.y;
+                        programBlock.y = programm.y;
                     }else if(!running&&programm.hovered){
                         textAnimation.newText="+";
                         dimmerGroup.y = programm.y-programm.height;
                         switchGroup.y = programm.y-programm.height*2;
+                        switchGroup.y = programm.y-programm.height*2;
+                        programBlock.y = programm.y-programm.height*3;
                     }
                 }
             }
@@ -47,9 +54,11 @@ ControlPanel{
             if(width!=height){
                 dimmerGroup.y = programm.y-programm.height
                 switchGroup.y = programm.y-programm.height*2;
+                programBlock.y = programm.y-programm.height*3;
             }else{
                 dimmerGroup.y = programm.y;
                 switchGroup.y = programm.y;
+                programBlock.y = programm.y;
             }
         }
 
@@ -108,12 +117,33 @@ ControlPanel{
         }
         onClicked: addDimmerGroupControl()
     }
+    RoundButton{
+        visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
+        z:1.3
+        id: programBlock
+        text:"ProgramBlock"
+        anchors.right: programm.right
+        anchors.left: programm.left
+        Behavior on y{
+            NumberAnimation{duration: 100}
+        }
+        onClicked: selectProgramDialog.createProgramBlock()
+    }
 
     Dialog{
         modality: Qt.WindowModal
-        id:selectProgrammDialog
-        title: "Select Programm"
+        id:selectProgramDialog
+        property int select: ControlView.Select.Program
+        title: select === ControlView.Select.Program?"Select Program":"Select ProgramBlock"
         width:300
+        function createProgram(){
+            select = ControlView.Select.Program;
+            visible = true;
+        }
+        function createProgramBlock(){
+            select = ControlView.Select.ProgramBlock;
+            visible = true;
+        }
         contentItem: RowLayout {
             Pane{
                 Layout.fillWidth: true
@@ -124,21 +154,25 @@ ControlPanel{
                     ComboBox{
                         Layout.fillWidth: true
                         id:programmSelect
-                        model: programmModel
+                        model: selectProgramDialog.select === ControlView.Select.Program?programmModel:programBlocksModel
                         textRole: "display"
                     }
                     RowLayout{
                         Button{
                             Layout.fillWidth: true
                             text:"Abbrechen"
-                            onClicked: selectProgrammDialog.visible = false
+                            onClicked: selectProgramDialog.visible = false
                         }
                         Button{
                             Layout.fillWidth: true
                             text:"Hinzufügen"
                             onClicked: {
-                                    selectProgrammDialog.visible = false;
+                                selectProgramDialog.visible = false;
+                                if(selectProgramDialog.select === ControlView.Select.Program){
                                     addProgrammControl(programmModel.data(programmModel.index(programmSelect.currentIndex,0),-1));
+                                }else{
+                                    addProgramBlockControl(programBlocksModel.data(programBlocksModel.index(programmSelect.currentIndex,0),-1));
+                                }
 
                             }
                         }

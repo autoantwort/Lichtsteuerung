@@ -38,7 +38,7 @@ namespace Modules {
         t->load(lo);
     }
 
-    ProgramBlock::ProgramBlock(const QJsonObject& o):name(o["name"].toString()){
+    ProgramBlock::ProgramBlock(const QJsonObject& o):name(o["name"].toString()),id(o){
         // Wir erstellen erstmal alle objecte mit passendem Typ und ID
         std::map<QString,std::shared_ptr<Program>> programs;
         std::map<QString,std::shared_ptr<Filter>> filter;
@@ -349,6 +349,7 @@ namespace Modules {
     }
 
     void ProgramBlock::writeJsonObject(QJsonObject &o){
+        id.writeJsonObject(o);
         o["name"] = name;
         // Wir speichern zu jedem Programm/Filter/Consumer ein Object ab, das den Typnamen und eine ID, wir nehmen die Adresse im Arbeitsspeicher.
         // Wir speichern die Connections, indem wir für die Source und die Targets die Adressen(IDs) der jeweiligen Pointer speichern.

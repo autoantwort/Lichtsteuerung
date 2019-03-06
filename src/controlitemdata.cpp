@@ -275,3 +275,38 @@ void DimmerGroupControlItemData::shouldOverrideValue(bool o){
     }
 }
 
+// start ProgramBlockControlItemData
+
+ProgramBlockControlItemData::ProgramBlockControlItemData(Modules::ProgramBlock * p,QObject *parent):ControlItemData(ControlItemData::PROGRAM_BLOCK,parent){
+    setProgramBlock(p);
+}
+
+ProgramBlockControlItemData::ProgramBlockControlItemData(const QJsonObject &o,QObject *parent):
+    ControlItemData(o,parent){
+    ID id(o);
+    for(const auto & p : Modules::ProgramBlockManager::model){
+        if(p->getID() == id){
+            setProgramBlock(p.get());
+            return;
+        }
+    }
+}
+
+void ProgramBlockControlItemData::writeJsonObject(QJsonObject &o){
+    ControlItemData::writeJsonObject(o);
+    if(program)
+        o.insert("programBlock",QString::number(program->getID().value()));
+}
+void ProgramBlockControlItemData::setProgramBlock(Modules::ProgramBlock *p){
+    if(p!=program){
+        QObject::disconnect(connection);
+        program = p;
+        if(program){
+            QQmlEngine::setObjectOwnership(program,QQmlEngine::CppOwnership);
+            connection = QObject::connect(program,&QObject::destroyed,[this](){
+                setProgramBlock(nullptr);
+            });
+        }
+        emit programBlockChanged();
+    }
+}

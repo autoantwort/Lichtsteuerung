@@ -3,6 +3,7 @@
 
 #include <QQuickItem>
 #include "programm.h"
+#include "programms/programblock.h"
 #include "controlitemdata.h"
 
 /**
@@ -18,6 +19,7 @@ class ControlPanel : public QQuickItem
     QQmlComponent programm;
     QQmlComponent switchGroup;
     QQmlComponent dimmerGroup;
+    QQmlComponent programBlock;
     int menuHeight;
     int menuWidth;
 protected:
@@ -42,6 +44,11 @@ public:
      * @brief addDimmerGroupControl add a DimmerControlItem to the panel that set the channel values from 0 to 255 of the first channel of the selected Devices
      */
     Q_INVOKABLE void addDimmerGroupControl();
+    /**
+     * @brief addProgramBlockControl adds a ProgramBlockControlItem to the panel to start and stop Programblocks
+     * @param programBlock the ProgramBlock that the controlItem should control
+     */
+    Q_INVOKABLE void addProgramBlockControl(Modules::ProgramBlock * programBlock);
     int getMenuHeight()const{return menuHeight;}
     int getMenuWidth ()const{return menuWidth;}
     void setMenuHeight(int i){if(i!=menuHeight){menuHeight=i;emit menuHeightChanged();}}

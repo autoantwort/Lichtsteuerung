@@ -49,6 +49,7 @@
         <file>icons/material-pause.svg</file>
         <file>icons/material-play.svg</file>
         <file>icons/material-stop.svg</file>
+        <file alias="ControlPane/ProgramBlockControl.qml">qml/ProgramBlockControl.qml</file>
         <file alias="ControlPane/ControlItemBlock.qml">qml/ControlItemBlock.qml</file>
         <file alias="ControlPane/ProgrammControl.qml">qml/ProgrammControl.qml</file>
         <file alias="ControlPane/SwitchGroupControl.qml">qml/SwitchGroupControl.qml</file>

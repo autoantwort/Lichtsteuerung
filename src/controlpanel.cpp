@@ -9,7 +9,7 @@
 ControlPanel * ControlPanel::lastCreated = nullptr;
 QQmlEngine * ControlPanel::engine = nullptr;
 
-ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ControlPane/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/ControlPane/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/ControlPane/DimmerGroupControl.qml"))
+ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ControlPane/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/ControlPane/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/ControlPane/DimmerGroupControl.qml")),programBlock(engine,QUrl("qrc:/ControlPane/ProgramBlockControl.qml"))
 {
     lastCreated = this;
     if(engine==nullptr){
@@ -22,6 +22,8 @@ ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ControlPane/ProgrammCont
         throw std::runtime_error(switchGroup.errorString().toStdString());
     if(programm.isError())
         throw std::runtime_error(programm.errorString().toStdString());
+    if(programBlock.isError())
+        throw std::runtime_error(programBlock.errorString().toStdString());
 }
 
 void ControlPanel::writeJsonObject(QJsonObject &o){
@@ -57,6 +59,8 @@ void ControlPanel::loadFromJsonObject(const QJsonObject &o){
             createControlItem(switchGroup,new SwitchGroupControlItemData(o));
         }else if(o["type"].toInt()==ControlItemData::DIMMER_GROUP){
             createControlItem(dimmerGroup,new DimmerGroupControlItemData(o));
+        }else if(o["type"].toInt()==ControlItemData::PROGRAM_BLOCK){
+            createControlItem(programBlock,new ProgramBlockControlItemData(o));
         }
     }
 }
@@ -74,6 +78,11 @@ void ControlPanel::addDimmerGroupControl(){
     createControlItem(dimmerGroup,new DimmerGroupControlItemData());
 }
 
+void ControlPanel::addProgramBlockControl(Modules::ProgramBlock *p){
+    if(p==nullptr)
+        throw std::runtime_error("Nullpointer für neues Object");
+    createControlItem(programBlock,new ProgramBlockControlItemData(p));
+}
 
 void ControlPanel::hoverEnterEvent(QHoverEvent *event){
 
