@@ -92,10 +92,10 @@ Item{
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.bottom: parent.bottom
+            spacing: 0
 
             ProgramBlockEditor{
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                Layout.fillHeight: true
                 Layout.fillWidth: true
                 id: programEditor
                 programBlock: listView.currentItem.itemData;
@@ -206,22 +206,18 @@ Item{
 
 
 
+            Rectangle{
+                color: "lightgrey"
+                Layout.fillHeight: true
+                width: 1
+            }
             ColumnLayout{
-                anchors.top: parent.top
-                anchors.bottom: parent.bottom
+                Layout.fillHeight: true
                 Layout.preferredWidth: 200
                 Layout.maximumWidth: 200
                 visible: programEditor.showProperties
 
                 spacing: 0
-                Rectangle{
-                    id:line
-                    color: "lightgrey"
-                    width: 1
-                    anchors.top: parent.top
-                    anchors.left: parent.left
-                    anchors.bottom: parent.bottom
-                }
 
                 id: propertyPane
                 Label{
@@ -231,11 +227,9 @@ Item{
                     text:"Properties"
                 }
                 Rectangle{
-
                     color: "lightgrey"
                     Layout.preferredHeight: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    Layout.fillWidth: true
                 }
                 ListView{
                     clip:true
@@ -285,11 +279,9 @@ Item{
 
 
                 Rectangle{
-                    id:hline
                     color: "lightgrey"
                     Layout.preferredHeight: 1
-                    anchors.left: parent.left
-                    anchors.right: parent.right
+                    Layout.fillWidth: true
                 }
 
 
