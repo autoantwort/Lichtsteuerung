@@ -153,6 +153,7 @@ class ProgramBlockEditor : public QQuickItem
     double scale = 2;
     int spaceBetweenLayers = 70;
     bool run;
+    QMetaObject::Connection connection;
 private:
     void recreateView();
     /**
@@ -198,13 +199,23 @@ public:
     Q_INVOKABLE void removeIncomingConnections();
     static QQmlEngine * engine;
     ProgramBlockEditor();
+    ~ProgramBlockEditor()override{QObject::disconnect(connection);}
     void setProgramBlock( Modules::ProgramBlock* _programBlock){
         if(_programBlock != programBlock){
-            qDebug () << "Program Block changed";
-                programBlock = _programBlock;
-                recreateView();
-                setShowProperties(false);
-                emit programBlockChanged();
+            if(programBlock){
+                QObject::disconnect(programBlock,&Modules::ProgramBlock::propertyBaseChanged,this,&ProgramBlockEditor::propertyBaseChanged);
+            }
+            programBlock = _programBlock;
+            recreateView();
+            setShowProperties(false);
+            emit programBlockChanged();
+            QObject::disconnect(connection);
+            if(programBlock){
+                connection = QObject::connect(programBlock,&QObject::destroyed,[this](){
+                    setProgramBlock(nullptr);
+                });
+                QObject::connect(programBlock,&Modules::ProgramBlock::propertyBaseChanged,this,&ProgramBlockEditor::propertyBaseChanged);
+            }
         }
     }
     Modules::ProgramBlock* getProgramBlock() const {
@@ -236,6 +247,8 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *event)override;
     virtual void mouseMoveEvent(QMouseEvent *event)override;
     virtual void mousePressEvent(QMouseEvent *event)override;
+protected slots:
+    void propertyBaseChanged(Modules::PropertyBase * oldPB, Modules::PropertyBase * newPB);
 signals:
     void programBlockChanged();
     void showPropertiesChanged();

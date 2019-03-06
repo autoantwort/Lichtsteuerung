@@ -709,4 +709,13 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
 
 }
 
-
+void ProgramBlockEditor::propertyBaseChanged(Modules::PropertyBase * oldPB, Modules::PropertyBase * newPB){
+    for(const auto & child : childItems()){
+        auto prop = child->property("propertyBase");
+        if(prop.isValid()){
+            if(prop.value<Modules::PropertyBase*>() == oldPB){
+                child->setProperty("propertyBase",QVariant::fromValue(newPB));
+            }
+        }
+    }
+}
