@@ -22,7 +22,7 @@ ControlItem{
             anchors.margins: 1
             anchors.fill:parent
             id: play
-            source: "icons/play.svg"
+            source: "/icons/play.svg"
             Behavior on opacity {
                 NumberAnimation{
                     duration: 100
@@ -33,7 +33,7 @@ ControlItem{
             anchors.margins: 1
             anchors.fill:parent
             id: pause
-            source: "icons/pause.svg"
+            source: "/icons/pause.svg"
             opacity: 1-play.opacity
         }
         Rectangle{
