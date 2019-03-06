@@ -244,7 +244,7 @@ namespace Modules {
     }
 
     void ProgramBlock::replaceConsumer(std::shared_ptr<Consumer> original, std::shared_ptr<Consumer> newConsumer){
-        if(std::find(std::cbegin(consumer),std::cend(consumer),original) == std::end(consumer))
+        if(std::find_if(std::cbegin(consumer),std::cend(consumer),[&](const auto &c){return c.source == original;}) == std::end(consumer))
             return;
         if(getStatus() == Running)
             original->stop();
