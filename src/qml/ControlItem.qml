@@ -7,6 +7,7 @@ import custom.licht 1.0
 
 ControlItemTemplate{
 
+    controlData: __controlData
     moveable: UserManagment.currentUser.havePermission(Permission.MOVE_CONTROL_ITEM);
     id:item
     property bool pressed: false

@@ -6,7 +6,8 @@ ControlItemData::ControlItemData(Type t,QObject *parent) : QObject(parent),type(
 
 }
 
-ControlItemData::ControlItemData(const QJsonObject &o):
+ControlItemData::ControlItemData(const QJsonObject &o, QObject *parent):
+    QObject(parent),
     startXBlock(o["startXBlock"].toInt()),
     startYBlock(o["startYBlock"].toInt()),
     type(static_cast<Type>(o["type"].toInt())){
@@ -38,8 +39,8 @@ ProgrammControlItemData::ProgrammControlItemData(Programm * p,QObject *parent):C
 
 }
 
-ProgrammControlItemData::ProgrammControlItemData(const QJsonObject &o):
-    ControlItemData(o),
+ProgrammControlItemData::ProgrammControlItemData(const QJsonObject &o, QObject *parent):
+    ControlItemData(o,parent),
     programm(IDBase<Programm>::getIDBaseObjectByID(o["programm"])){
 
 }
@@ -85,7 +86,7 @@ void GroupModel::handleRowsRemoved(const QModelIndex &parent, int first, int las
 
 
 // GroupControlItemData
-GroupControlItemData::GroupControlItemData(const QJsonObject &o):ControlItemData(o),name(o["name"].toString()){
+GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent):ControlItemData(o,parent),name(o["name"].toString()){
     const auto enabled = o["enabledDevices"].toArray();
     auto iter = IDBase<Device>::getAllIDBases().cbegin();
     int index = 0;
@@ -149,7 +150,7 @@ void GroupControlItemData::setName(QString n){
 }
 // SwitchGroupControlItemData
 
-SwitchGroupControlItemData::SwitchGroupControlItemData(const QJsonObject &o):GroupControlItemData(o),
+SwitchGroupControlItemData::SwitchGroupControlItemData(const QJsonObject &o, QObject *parent):GroupControlItemData(o,parent),
     activated(o["activated"].toBool()),
     activateCooldown(o["activateCooldown"].toInt()),
     deactivateCooldown(o["deactivateCooldown"].toInt()){

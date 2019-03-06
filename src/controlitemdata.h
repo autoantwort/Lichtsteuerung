@@ -18,9 +18,10 @@ public:
 private:
     Type type;
 public:
-    ControlItemData(){}
+    ControlItemData() = default;
+    virtual ~ControlItemData() = default;
     explicit ControlItemData(Type t, QObject *parent = nullptr);
-    ControlItemData(const QJsonObject &o);
+    ControlItemData(const QJsonObject &o, QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
     int getStartXBlock()const{return startXBlock;}
     int getStartYBlock()const{return startYBlock;}
@@ -37,7 +38,7 @@ class ProgrammControlItemData : public ControlItemData{
     Programm * programm=nullptr;
 public:
     ProgrammControlItemData(Programm * p,QObject *parent = nullptr);
-    ProgrammControlItemData(const QJsonObject &o);
+    ProgrammControlItemData(const QJsonObject &o,QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
     void setProgramm(Programm * );
     Programm * getProgramm()const{return programm;}
@@ -112,7 +113,7 @@ class GroupControlItemData : public ControlItemData{
     QString name;
 public:
     GroupControlItemData(ControlItemData::Type t, QObject *parent = nullptr):ControlItemData(t,parent){}
-    GroupControlItemData(const QJsonObject &o);
+    GroupControlItemData(const QJsonObject &o,QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
     GroupModel * getGroupModel(){return &groupModel;}
     void forEach(std::function<void(Device*)> f);
@@ -134,7 +135,7 @@ class SwitchGroupControlItemData : public GroupControlItemData{
     int deactivateCooldown = 1000;
 public:
     SwitchGroupControlItemData(QObject *parent = nullptr):GroupControlItemData(SWITCH_GROUP,parent){}
-    SwitchGroupControlItemData(const QJsonObject &o);
+    SwitchGroupControlItemData(const QJsonObject &o,QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
     void setActivated(bool a);
     bool isActivated()const{return activated;}

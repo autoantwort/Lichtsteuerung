@@ -3,6 +3,7 @@
 
 #include <QQuickItem>
 #include "programm.h"
+#include "controlitemdata.h"
 
 /**
  * @brief The ControlPanel is the Component, that holds multiple ControlItems
@@ -19,6 +20,13 @@ class ControlPanel : public QQuickItem
     QQmlComponent dimmerGroup;
     int menuHeight;
     int menuWidth;
+protected:
+    /**
+     * @brief createControlItem creates an ControlItem defined by component and set the ControlItemData field of the ControlData to data
+     * @param component The component that should be defined, must be a subclass of "qrc:/ControlPane/ControlItem.qml"
+     * @param data The DataObject that holds the information, this object is owned by the instance created from the component
+     */
+    void createControlItem(QQmlComponent & component, ControlItemData * data);
 public:
     ControlPanel();
     static ControlPanel * getLastCreated(){return lastCreated;}
