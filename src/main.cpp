@@ -114,17 +114,23 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::ValueType>("ValueType");
     qRegisterMetaType<Modules::ProgramBlock::Status>("Status");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
-    Settings settings;
-    settings.setJsonSettingsFilePath("QTJSONFile.json");
-    QFile file(settings.getJsonSettingsFilePath());
-    file.copy(settings.getJsonSettingsFilePath()+"_"+QDateTime::currentDateTime().toString("dd.MM.YYYY HH.mm.ss"));
+
+    // Load Settings and ApplicationData
+    Settings settings(QFileInfo("settings.ini"));
+    QFile file("QTJSONFile.json");
+    if(!file.exists()){
+        file.setFileName(settings.getJsonSettingsFilePath());
+    }
+    if(file.exists()){
+        file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss"));
+    }
+    auto after = ApplicationData::loadData(file);
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
     std::thread t(Test::testLoopProgramm);
     t.join();
 
-    auto after = ApplicationData::loadData(file);
 
 
     QStringList dataList;
