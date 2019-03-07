@@ -12,10 +12,10 @@ Settings::Settings(QObject *parent) : QObject(parent), settings("Turmstraße 1 e
 Settings::Settings(const QFileInfo &settingsFile, QObject *parent) : QObject(parent), settings("Turmstraße 1 e.V.","Lichtsteuerung"), localSettings(QVariant::fromValue(new QSettings(settingsFile.filePath(),QSettings::IniFormat)))
 {
     localSettings.value<QSettings*>()->setIniCodec("UTF-8");
-    Modules::Compiler::compilerCmd = settings.value("compilerCmd",Modules::Compiler::compilerCmd).toString();
-    Modules::Compiler::compilerFlags = settings.value("compilerFlags",Modules::Compiler::compilerFlags).toString();
-    Modules::Compiler::compilerLibraryFlags = settings.value("compilerLibraryFlags",Modules::Compiler::compilerLibraryFlags).toString();
-    Modules::Compiler::includePath = settings.value("includePath",Modules::Compiler::includePath).toString();
+    Modules::Compiler::compilerCmd = value("compilerCmd",Modules::Compiler::compilerCmd).toString();
+    Modules::Compiler::compilerFlags = value("compilerFlags",Modules::Compiler::compilerFlags).toString();
+    Modules::Compiler::compilerLibraryFlags = value("compilerLibraryFlags",Modules::Compiler::compilerLibraryFlags).toString();
+    Modules::Compiler::includePath = value("includePath",Modules::Compiler::includePath).toString();
 }
 
 void Settings::setValue(const QString &key, const QVariant &value){
