@@ -21,12 +21,21 @@ class Settings : public QObject
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
     Q_PROPERTY(QString audioCaptureFilePath READ getAudioCaptureFilePath WRITE setAudioCaptureFilePath NOTIFY audioCaptureFilePathChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
+    static QFileInfo localSettingsFile;
+public:
+    /**
+     * @brief setLocalSettingFile sets a localSetting file that is loaded and preferred everytime a Settings object is created
+     * @param settingFile the filePath to the local setting file in utf8 ini format
+     */
+    static void setLocalSettingFile(const QFileInfo & settingFile){
+        localSettingsFile = settingFile;
+    }
 protected:
     void setValue(const QString &key, const QVariant &value);
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant())const;
 public:
     explicit Settings(QObject *parent = nullptr);
-    Settings(const QFileInfo & settingsFile, QObject *parent = nullptr);
+    ~Settings();
     void setJsonSettingsFilePath(QString file){
         if(file == getJsonSettingsFilePath())return;
         if(QFile::exists(file)){

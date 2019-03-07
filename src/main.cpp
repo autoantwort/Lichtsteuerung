@@ -116,7 +116,8 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
 
     // Load Settings and ApplicationData
-    Settings settings(QFileInfo("settings.ini"));
+    Settings::setLocalSettingFile(QFileInfo("settings.ini"));
+    Settings settings;
     QFile file("QTJSONFile.json");
     if(!file.exists()){
         file.setFileName(settings.getJsonSettingsFilePath());
