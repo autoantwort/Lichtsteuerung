@@ -26,7 +26,7 @@ private:
     unsigned char maxValue = 255;
     unsigned char minValue = 0;
     unsigned char value = 0;
-    bool shouldOverrideValue_;
+    bool shouldOverrideValue_ = false;
 public:
     DMXChannelFilter() = default;
     DMXChannelFilter(const QJsonObject &o);
