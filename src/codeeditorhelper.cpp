@@ -806,7 +806,7 @@ void CodeEditorHelper::compile(){
             default:
                 return;
         }
-        stream << "#include <programms/module.h>" << endl;
+        stream << "#include <module.h>" << endl;
         stream << "#include <iostream>" << endl;
         stream << "#define _USE_MATH_DEFINES"<<endl;
         stream << "#include <cmath>"<<endl;
