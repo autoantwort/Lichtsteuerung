@@ -209,11 +209,12 @@ int main(int argc, char *argv[])
     // Treiber laden
 #define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
-    /*if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
+    if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
+    }else {
+        Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(40));
     }
-    Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(1500000));
-    */
+
 #else
 #include "test/DriverDummy.h"
 
