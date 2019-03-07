@@ -93,6 +93,7 @@ Item{
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             spacing: 0
+            visible: programEditor.programBlock!==null
 
             ProgramBlockEditor{
                 Layout.fillHeight: true
