@@ -159,6 +159,7 @@ Item{
                             }
             }*/
             model: listView.currentItem.itemData.properties
+            maximumFlickVelocity: 400
             delegate: ItemDelegate{
                 id:delegate
                 property var modelEntry : modelData
