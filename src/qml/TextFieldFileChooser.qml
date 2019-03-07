@@ -44,7 +44,7 @@ RowLayout{
             fileDialog.addSelection("file:///"+path);
             fileDialog.open();
             fileDialog.callback = function(file){
-                root.pathChanged(file);
+                root.path = file;
             };
         }
     }
