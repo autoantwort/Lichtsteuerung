@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include "audio/audiocapturemanager.h"
+#include "dmxconsumer.h"
 
 namespace Modules {
 
@@ -73,6 +74,10 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                     info.second.supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
                 }
             }
+        });
+        // add the DMXConsumer for the old driver
+        consumer.emplace("DMXConsumer","With the DMXConsumer class you can write to the DMX Channels",-1,[](){
+            return new DMXConsumer;
         });
     }
 

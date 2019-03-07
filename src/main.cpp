@@ -219,8 +219,10 @@ int main(int argc, char *argv[])
 
     /*DriverDummy driver;
     driver.setSetValuesCallback([](unsigned char* values, int size, double time){
+        std::memset(values,0,size);
         DMXChannelFilter::initValues(values,size);
         Programm::fill(values,size,time);
+        Modules::DMXConsumer::fillWithDMXConsumer(values,size);
         DMXChannelFilter::filterValues(values,size);
     });
     driver.setWaitTime(std::chrono::seconds(5));

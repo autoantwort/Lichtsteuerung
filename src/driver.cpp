@@ -6,6 +6,7 @@
 #include "dmxchannelfilter.h"
 #include <QDir>
 #include <cstring>
+#include "programms/dmxconsumer.h"
 #ifdef Q_OS_WIN
 #include <windows.h>
 #endif
@@ -64,6 +65,7 @@ namespace Driver {
                 std::memset(values,0,size);
                 DMXChannelFilter::initValues(values,size);
                 Programm::fill(values,size,time);
+                Modules::DMXConsumer::fillWithDMXConsumer(values,size);
                 DMXChannelFilter::filterValues(values,size);
             });
 
