@@ -1,3 +1,5 @@
+#deploy dirs
+deploy-*
 
 # Qt-es
 object_script.*.Release
