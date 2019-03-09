@@ -34,7 +34,7 @@ namespace Modules {
             };
             brightness_t rgb[3];
         };
-        rgb_t(brightness_t r, brightness_t g, brightness_t b):r(r),g(g),b(b){}
+        rgb_t(brightness_t r=0, brightness_t g=0, brightness_t b=0):r(r),g(g),b(b){}
         rgb_t & operator * (brightness_t b){
             this->r *= b / 255.f;
             this->g *= b / 255.f;
