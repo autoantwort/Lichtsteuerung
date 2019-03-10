@@ -250,28 +250,47 @@ Item{
                         color: "lightgrey"
                     }
                     onCurrentItemChanged: update()
+                    function intHandler() {
+                        propertiesView.currentItem.itemData.value = spinBox.value;
+                    }
+                    function doubleHandler() {
+                        propertiesView.currentItem.itemData.value = spinBox.value/1000;
+                    }
                     function update(){
                         if(propertiesView.currentIndex<0)
                             return;
                         var data = propertiesView.currentItem.itemData;
-                        print("type : " + data.type)
                         if(data.type>=0&&data.type<=3){
-                            slider.visible = true;
-                            // Wenn die folgenden zwei zeilen fehlen, wird der value beim setzten auf die grenzen gesetzt und dann verändert
-                            slider.to = 9999999999;
-                            slider.from = -9999999999999;
-                            slider.value = data.value;
-                            slider.from = data.minValue;
-                            slider.to = data.maxValue;
-                            slider.stepSize = (data.type==0||data.type==1)?1:0;
-                            slider.snapMode = (data.type==0||data.type==1)?Slider.SnapAlways:Slider.NoSnap;
-                            print("stepSize : " + slider.stepSize)
+                            spinBox.onValueChanged.disconnect(intHandler);
+                            spinBox.onValueChanged.disconnect(doubleHandler);
+                            if(data.type == 0 || data.type == 1){ // int
+                                spinBox.textFromValue = (value,locale) => Number(value).toLocaleString(locale,'f',0);
+                                spinBox.valueFromText = (text,locale) => Number.fromLocaleString(locale,text);
+                                spinBox.from = data.minValue;
+                                spinBox.to = data.maxValue;
+                                spinBox.value = data.value;
+                                spinBox.stepSize = 1;
+                                spinBoxValidator.decimals = 0;
+                                spinBox.onValueChanged.connect(intHandler);
+                            }else{ //float
+                                spinBox.textFromValue = (value,locale) => Number(value/1000).toLocaleString(locale,'f',3);
+                                spinBox.valueFromText = (text,locale) => Number.fromLocaleString(locale,text) * 1000;
+                                spinBoxValidator.decimals = 3
+                                spinBox.from = data.minValue * 1000;
+                                spinBox.to = data.maxValue * 1000;
+                                spinBox.value = data.value * 1000;
+                                spinBox.stepSize = 50;
+                                spinBox.onValueChanged.connect(doubleHandler);
+                            }
+                            spinBoxValidator.bottom = data.minValue;
+                            spinBoxValidator.top = data.maxValue;
+                            spinBox.visible = true;
                         }else{
                             if(data.type===4){
                                 checkBox.checked = data.value
                             }
 
-                            slider.visible = false;
+                            spinBox.visible = false;
                         }
                         checkBox.visible = data.type === 4;
 
@@ -295,18 +314,12 @@ Item{
                         wrapMode: Text.WordWrap
                         text:propertiesView.currentItem.itemData.description
                     }
-                    Slider{
-                        id:slider
-                        onValueChanged: {
-                            propertiesView.currentItem.itemData.value = value;
-                            print(propertiesView.currentItem.itemData.name + " set value to " + value)
+                    SpinBox{
+                        id:spinBox
+                        validator: DoubleValidator{
+                            id: spinBoxValidator
                         }
-                        Text{
-                            text: slider.stepSize===0?slider.value.toFixed(2):slider.value.toFixed(0);
-                            anchors.bottom: slider.handle.top
-                            anchors.bottomMargin: 7
-                            anchors.horizontalCenter: slider.handle.horizontalCenter
-                        }
+                        editable: true
                     }
                     CheckBox{
                         id:checkBox
