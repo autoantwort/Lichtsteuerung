@@ -690,67 +690,50 @@ QTextStream& writeConstructor(QTextStream& out, const Modules::detail::PropertyI
     return out;
 }
 
-std::vector<int> findPropertyInsertionPoints(const QString &userCode){
-    std::vector<int> pos;
-    int lastIndex = 0;
-    while (lastIndex>=0) {
-        // BUG: Wenn die Reihenfolge zb. doStep filter ist, wird das filter nicht erkannt
-        int index = userCode.indexOf("start",lastIndex);
-        if(index<0)
-            index = userCode.indexOf("filter",lastIndex);
-        if(index<0)
-            index = userCode.indexOf("doStep",lastIndex);
-        if(index>=0){
-            lastIndex = index = userCode.indexOf("{",index) + 1;
-            pos.push_back(lastIndex);
-        }else{
-            lastIndex = -1;
+/**
+ * @brief checkForDuplicatedPropertiesNames Check if no own symbol with the same name of a propertie is declared
+ * @param userCode The code to check
+ * @param vec the Vector of the properties to check
+ * @param func a callback that is called with the name of a property if a own symbol with the same name is found
+ * @return true if found one match
+ */
+template<typename Function>
+bool checkForDuplicatedPropertiesNames(const QString &userCode, const Modules::PropertiesVector & vec, Function func){
+    QString typeRegex = "(unsigned|int|bool|float|double|long|void|char|short) *\\**&? *%1[^\\w]";
+    bool matches = false;
+    for(const auto & prop : vec){
+        QRegularExpression regex(typeRegex.arg(prop->getName()),QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption);
+        if(userCode.contains(regex)){
+            func(prop->getName());
+            matches = true;
         }
     }
-    return pos;
+    return matches;
 }
 
-void writeLocalPropertiesAssigments(QTextStream& out, const Modules::PropertiesVector & vec){
+void replacePropertiesUsages(QString &code, const Modules::PropertiesVector & vec){
     for(const auto p : vec){
+        QRegularExpression regex("(?<!\\w)"+p->getName()+"(?!\\w)");
         switch (p->getType()) {
         case Modules::Property::Int:
         case Modules::Property::Double:
         case Modules::Property::Float:
         case Modules::Property::Long:
-            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asNumeric<" << toName(p->getType()) << ">()->getValue();\n";
+            code.replace(regex,"_" + p->getName() + ".asNumeric<" + toName(p->getType()) + ">()->getValue()");
             break;
         case Modules::Property::Bool:
-            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asBool()->getValue();\n";
+            code.replace(regex,"_" + p->getName() + ".asBool()->getValue()");
             break;
         case Modules::Property::String:
-            out << "\tauto " << p->getName() << " = _" << p->getName() << ".asString()->getString();\n";
+            code.replace(regex,"_" + p->getName() + ".asString()->getString()");
             break;
         case Modules::Property::RGB:
-                out << "\tauto " << p->getName() << " = *_" << p->getName() << ".asRGB();\n";
+            code.replace(regex,"_" + p->getName() + ".asRGB()");
             break;
         }
     }
 }
 
-QTextStream& writeUserCode(QTextStream& out, QString userCode, const Modules::PropertiesVector & vec){
-    using namespace Modules;
-    auto positions = findPropertyInsertionPoints(userCode);
-    if(positions.size()==0){
-        out << userCode;
-    }else if(positions.size()==1){
-        out << userCode.leftRef(positions[0]) << '\n';
-        writeLocalPropertiesAssigments(out,vec);
-        out << userCode.rightRef(userCode.length() - positions[0]);
-    }else{
-        positions.insert(positions.begin(),0);
-        for(unsigned int i = 1 ; i < positions.size(); ++i){
-            out << userCode.midRef(positions[i-1],positions[i]-positions[i-1]) << '\n';
-            writeLocalPropertiesAssigments(out,vec);
-        }
-        out << userCode.mid(positions.back());
-    }
-    return out;
-}
 QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
     QString s = ":";
     for(const auto p : vec){
@@ -773,6 +756,7 @@ QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
 void CodeEditorHelper::compile(){
     if(!module)
         return;
+    QString userCode = document->toPlainText();
     for(const auto p1 : module->getProperties()){
         for(const auto p2 : module->getProperties()){
             if(p1 != p2 && p1->getName() == p2->getName()){
@@ -781,6 +765,16 @@ void CodeEditorHelper::compile(){
             }
         }
     }
+    {
+       QString msg = "Fehler:\n";
+       if(checkForDuplicatedPropertiesNames(userCode,module->getProperties(),[&](auto name){
+           msg += "Es darf keine eigene Variable/Function mit dem Namen " + name + " deklariert werden.\n";
+       })){
+           emit information(msg);
+           return;
+       };
+    }
+    replacePropertiesUsages(userCode,module->getProperties());
 
     Settings s;
     QFile file( s.getModuleDirPath() + "/" + module->getName() + ".cpp" );
@@ -832,7 +826,7 @@ void CodeEditorHelper::compile(){
         stream <<   "return \"" << module->getName()<< "\";" << endl;
         stream << "}" << endl;
         stream << "" << endl;
-        writeUserCode(stream,document->toPlainText(),module->getProperties()); // write Code from document
+        stream << userCode << endl; // write Code from document
         stream << "" << endl;
         stream << "};" << endl; // class end
         stream << "" << endl;
