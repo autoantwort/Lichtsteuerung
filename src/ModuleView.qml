@@ -35,13 +35,36 @@ Item{
                     onClicked: {
                         listView.currentIndex = index;
                     }
+                    MouseArea{
+                        acceptedButtons: "RightButton"
+                        anchors.fill: parent
+                        onClicked: {
+                            var pos = listView.mapFromItem(parent,mouse.x, mouse.y);
+                            duplicateMenu.x = pos.x;
+                            duplicateMenu.y = pos.y;
+                            duplicateMenu.visible = true
+                            duplicateMenu.index = index;
+                        }
+                    }
+
                 }
                 highlight: Rectangle{
                     color: "blue"
                     opacity: 0.7
                 }
                 model: modulesModel
+                Menu{
+                    id:duplicateMenu
+                    property int index;
+                    MenuItem{
+                        text: "Duplicate"
+                        onClicked: {
+                            ModelManager.duplicateModule(duplicateMenu.index);
+                            listView.currentIndex = listView.count-1;
+                        }
+                    }
 
+                }
             }
             footer: RowLayout{
                 Button{
@@ -50,7 +73,10 @@ Item{
                     id: buttonAdd
                     text:"Add"
                     font.pixelSize: 15
-                    onClicked: {ModelManager.addModule(); console.log("test");}
+                    onClicked: {
+                        ModelManager.addModule();
+                        listView.currentIndex = listView.count - 1;
+                    }
                 }
                 Button{
                     Layout.preferredWidth: listView.width/2-10
@@ -166,7 +192,6 @@ Item{
                 text: modelData.name
                 width: propertyView.width
                 height: 20
-                Component.onCompleted: console.log(modelEntry)
                 onClicked: {
                     dialog.prop = modelEntry;
                     dialog.visible = true;
