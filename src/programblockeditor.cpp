@@ -376,7 +376,7 @@ void ProgramBlockEditor::recreateView(){
             const auto elem2 = components[dynamic_cast<Named*>(p.source.get())];
             component->setProperty("sourceStartIndex",elem2->x()+index*scale);
             component->setProperty("sourceBaseline",elem2->y());
-            component->setProperty("color",QColor(23,255,23));
+            component->setProperty("color",QColor(23,255,23,50));
             component->setObjectName("removeable");
 
             QObject::connect(elem1,&QQuickItem::xChanged,[=](){
