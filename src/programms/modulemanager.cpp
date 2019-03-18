@@ -30,6 +30,7 @@ namespace detail {
 }
 
 Module::Module(const QJsonObject &o):name(o["name"].toString("no name")),
+    compiledName(o["compiledName"].toString()),
     description(o["description"].toString()),code(o["code"].toString()),
     inputType(static_cast<ValueType>(o["inputType"].toInt())),
     outputType(static_cast<ValueType>(o["outputType"].toInt())),
@@ -43,6 +44,7 @@ Module::Module(const QJsonObject &o):name(o["name"].toString("no name")),
 
 void Module::writeJsonObject(QJsonObject &o)const{
     o["name"] = name;
+    o["compiledName"] = compiledName;
     o["description"] = description;
     o["code"] = code;
     o["inputType"] = inputType;
@@ -164,7 +166,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         }
     }
 
-    void ModuleManager::loadModule(QString name, bool replaceNewInPBs){
+    void ModuleManager::loadModule(QString name, std::function<std::string(const std::string&)> replaceOldModulesInProgramBlocks){
 
         if(!QLibrary::isLibrary(name))
             return;
@@ -177,11 +179,12 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 qDebug()<<"have funktion is missing";
                 return;
             }
+            lastLibraryIdentifier++;
             if(f(MODUL_TYPE::Program)){
                 loadType(lib,programms,"Program",lastLibraryIdentifier,[&](const auto p){
-                    if(replaceNewInPBs){
+                    if(replaceOldModulesInProgramBlocks){
                         for(const auto & pb : ProgramBlockManager::model){
-                            for(const auto & v : pb->getUsedProgramsByName(p->name())){
+                            for(const auto & v : pb->getUsedProgramsByName(replaceOldModulesInProgramBlocks(p->name()))){
                                 pb->replaceProgram(v,std::shared_ptr<Program>(p->create()));
                             }
                         }
@@ -189,9 +192,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 });
             }if(f(MODUL_TYPE::LoopProgram)){
                 loadType(lib,programms,"LoopProgram",lastLibraryIdentifier,[&](const auto p){
-                    if(replaceNewInPBs){
+                    if(replaceOldModulesInProgramBlocks){
                         for(const auto & pb : ProgramBlockManager::model){
-                            for(const auto & v : pb->getUsedProgramsByName(p->name())){
+                            for(const auto & v : pb->getUsedProgramsByName(replaceOldModulesInProgramBlocks(p->name()))){
                                 pb->replaceProgram(v,std::shared_ptr<Program>(p->create()));
                             }
                         }
@@ -199,9 +202,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 });
             }if(f(MODUL_TYPE::Filter)){
                 loadType(lib,filter,"Filter",lastLibraryIdentifier,[&](const auto p){
-                    if(replaceNewInPBs){
+                    if(replaceOldModulesInProgramBlocks){
                         for(const auto & pb : ProgramBlockManager::model){
-                            for(const auto & v : pb->getUsedFiltersByName(p->name())){
+                            for(const auto & v : pb->getUsedFiltersByName(replaceOldModulesInProgramBlocks(p->name()))){
                                 pb->replaceFilter(v,std::shared_ptr<Filter>(p->create()));
                             }
                         }
@@ -210,9 +213,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             }if(f(MODUL_TYPE::Consumer)){
                 qDebug()<< "Loading Consumer";
                 loadType(lib,consumer,"Consumer",lastLibraryIdentifier,[&](const auto p){
-                    if(replaceNewInPBs){
+                    if(replaceOldModulesInProgramBlocks){
                         for(const auto & pb : ProgramBlockManager::model){
-                            for(const auto & v : pb->getUsedConsumersByName(p->name())){
+                            for(const auto & v : pb->getUsedConsumersByName(replaceOldModulesInProgramBlocks(p->name()))){
                                 pb->replaceConsumer(v,std::shared_ptr<Consumer>(p->create()));
                             }
                         }
@@ -224,7 +227,6 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 //qDebug()<< "Loading Audio";
                 supportAudioFunc = loadAudio(lib,&fftOutputView);
             }
-            lastLibraryIdentifier++;
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
             qDebug() << lib.errorString();
         }else{

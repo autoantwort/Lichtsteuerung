@@ -22,12 +22,13 @@ Compiler::Compiler()
 }
 
 
-std::pair<int,QString> Compiler::compileAndLoadModule(const QFileInfo &sourceCode, const QString &moduleName){
+std::pair<int,QString> Compiler::compileAndLoadModule(const QFileInfo &sourceCode, const QString &moduleName, const QString &oldModuleName, std::function<std::string(const std::string&)> replaceOldModulesInProgramBlocks){
     auto moduleFilePath = sourceCode.absolutePath() + "/" + moduleName;
+    auto oldModuleFilePath = sourceCode.absolutePath() + "/" + oldModuleName;
     auto result = compileToLibrary(sourceCode,moduleFilePath);
     if(result.first == 0){
-        ModuleManager::singletone()->unloadLibrary(moduleFilePath);
-        ModuleManager::singletone()->loadModule(ModuleManager::singletone()->getFreeAbsoluteFilePathForModule(moduleFilePath));
+        ModuleManager::singletone()->unloadLibrary(oldModuleFilePath);
+        ModuleManager::singletone()->loadModule(ModuleManager::singletone()->getFreeAbsoluteFilePathForModule(moduleFilePath),replaceOldModulesInProgramBlocks);
     }
     return result;
 }

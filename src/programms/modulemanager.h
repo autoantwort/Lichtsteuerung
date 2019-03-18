@@ -89,6 +89,7 @@ class Module : public QObject{
 
     Q_OBJECT
     Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
+    Q_PROPERTY(QString compiledName READ getCompiledName WRITE setCompiledName NOTIFY compiledNameChanged)
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
     Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
     Q_PROPERTY(ValueType inputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
@@ -96,6 +97,10 @@ class Module : public QObject{
     Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
     Q_PROPERTY(PropertiesVector * properties READ getPropertiesP CONSTANT)
     QString name = "No_Name";
+    /**
+     * @brief compiledName Der Name, der beim letzten kompilieren benutzt wurde und wie das Module jetzt in der dll heißt. Kann ein anderer sein als in <name>
+     */
+    QString compiledName = "";
     QString description;
     PropertiesVector  properties;
     QString code;
@@ -151,6 +156,16 @@ public:
     QString getName() const {
         return name;
     }
+
+    void setCompiledName( const QString &_compiledName){
+        if(_compiledName != compiledName){
+            compiledName = _compiledName;
+            emit compiledNameChanged();
+        }
+    }
+    QString getCompiledName() const {
+        return compiledName;
+    }
     void setDescription( const QString _description){
         if(_description != description){
             description = _description;
@@ -199,6 +214,7 @@ public:
 
 signals:
     void nameChanged();
+    void compiledNameChanged();
     void descriptionChanged();
     void typeChanged();
     void inputTypeChanged();
@@ -279,9 +295,9 @@ signals:
         /**
          * @brief loadModule loads the shared library(module) given by the filePath, if fileNamePath is no shared lib, nothing will happen
          * @param fileNamePath the filePath of the shared library that should be loaded
-         * @param replaceNewImProgramBlocks if new programs/filters/consumers are loaded and old programs/filters/consumers are found in ProgramBlocks, they get replaced by new ones
+         * @param replaceOldModulesInProgramBlocks if new programs/filters/consumers are loaded old programs/filters/consumers can be replaced, but they can now have another name, so you have to provide a function that maps new names to the old names to replace them. If no function is provided, no modules gets replaced
          */
-        void loadModule(QString fileNamePath, bool replaceNewImProgramBlocks = true);
+        void loadModule(QString fileNamePath, std::function<std::string(const std::string&)> replaceOldModulesInProgramBlocks = std::function<std::string(const std::string&)>());
         void loadAllModulesInDir(QDir name);
         ModelVector<Module*>* getModules(){return &modules;}
         const ProgrammModuleContainer & getProgrammModules(){return programms;}

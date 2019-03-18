@@ -715,6 +715,7 @@ void ProgramBlockEditor::propertyBaseChanged(Modules::PropertyBase * oldPB, Modu
         if(prop.isValid()){
             if(prop.value<Modules::PropertyBase*>() == oldPB){
                 child->setProperty("propertyBase",QVariant::fromValue(newPB));
+                child->setProperty("text",dynamic_cast<Modules::Named*>(newPB)->getName());
             }
         }
     }

@@ -865,13 +865,15 @@ void CodeEditorHelper::compile(){
         file.close();
 
 
-        auto result = Modules::Compiler::compileAndLoadModule(file,module->getName());
+        auto result = Modules::Compiler::compileAndLoadModule(file,module->getName(),module->getCompiledName(),[&](auto){return module->getCompiledName().toStdString();});
 
         if(result.first){
             QFileInfo finfo = file;
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
-        }else
+        }else{
             emit information("Compilieren erfolgreich.");
+            module->setCompiledName(module->getName());
+        }
     }else{
         emit information("Cant open file : " + s.getModuleDirPath() + "/" + module->getName() + ".cpp");
     }
