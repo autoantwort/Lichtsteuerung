@@ -16,16 +16,19 @@ namespace Modules {
         const QJsonObject &o;
     public:
         JsonLoadObject(const QJsonObject &o):o(o){}
-        virtual int loadInt(const char*name) const override{return o[name].toInt();}
-        virtual float loadFloat(const char*name) const override {return static_cast<float>(o[name].toDouble());}
-        virtual double loadDouble(const char*name)  const override{return o[name].toDouble();}
-        virtual bool loadBool(const char*name)  const override{return o[name].toBool();}
-        virtual long loadLong(const char*name)  const override{return static_cast<long>(o[name].toDouble());}
-        virtual char* loadStringOwn(const char*name)  const override{
-            const auto data = o[name].toString().toLatin1();
-            char * d = new char[data.size()+1];
-            std::memcpy(d,data.constData(),data.size()+1);
-            return d;
+        virtual int loadInt(const char*name, int defaultValue) const override{return o[name].toInt(defaultValue);}
+        virtual float loadFloat(const char*name, float defaultValue) const override {return static_cast<float>(o[name].toDouble(defaultValue));}
+        virtual double loadDouble(const char*name, double defaultValue)  const override{return o[name].toDouble(defaultValue);}
+        virtual bool loadBool(const char*name, bool defaultValue)  const override{return o[name].toBool(defaultValue);}
+        virtual long loadLong(const char*name, long defaultValue)  const override{return static_cast<long>(o[name].toDouble(defaultValue));}
+        virtual char* loadStringOwn(const char*name, char* defaultValue)  const override{
+            if(o.contains(name)){
+                const auto data = o[name].toString().toLatin1();
+                char * d = new char[data.size()+1];
+                std::memcpy(d,data.constData(),data.size()+1);
+                return d;
+            }
+            return defaultValue;
         }
     };
 

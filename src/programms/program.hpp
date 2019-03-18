@@ -35,7 +35,7 @@ public:
     virtual ~Program() override = default;
     virtual void load(const LoadObject &l)override{
         PropertyBase::load(l);
-        int length = l.loadInt("outputLength");
+        int length = l.loadInt("outputLength",0);
         if(length>0)
             setOutputLength(static_cast<unsigned>(length));
     }

@@ -111,15 +111,15 @@ namespace Modules {
 
         void load(const LoadObject &o)override{
             if(std::is_same<Type_t,int>::value){
-                value = o.loadInt(name.c_str());
+                value = o.loadInt(name.c_str(),value);
             }else if(std::is_same<Type_t,long>::value){
-                value = o.loadLong(name.c_str());
+                value = o.loadLong(name.c_str(),value);
             }else if(std::is_same<Type_t,float>::value){
-                value = o.loadFloat(name.c_str());
+                value = o.loadFloat(name.c_str(),value);
             }else if(std::is_same<Type_t,double>::value){
-                value = o.loadDouble(name.c_str());
+                value = o.loadDouble(name.c_str(),value);
             }else {
-                value = o.loadBool(name.c_str());
+                value = o.loadBool(name.c_str(),value);
             }
         }
 
@@ -168,7 +168,12 @@ namespace Modules {
             o.saveString(name.c_str(),value.c_str());
         }
         void load(const LoadObject &l)override{
-            const auto s = l.loadStringOwn(name.c_str());
+            auto defaultValue = new char[value.size()+1];
+            std::copy(value.c_str(), value.c_str()+value.size()+1,defaultValue);
+            const auto s = l.loadStringOwn(name.c_str(),defaultValue);
+            if(s != defaultValue){
+                delete [] defaultValue;
+            }
             value = s;
             delete [] s;
         }
@@ -194,7 +199,7 @@ namespace Modules {
             o.saveBool(name.c_str(),value);
         }
         void load(const LoadObject &l)override{
-            value = l.loadBool(name.c_str());
+            value = l.loadBool(name.c_str(),value);
         }
 
         void setValue(bool value){

@@ -24,7 +24,7 @@ namespace Modules {
         virtual bool doStep(time_diff_t){return false;}
         virtual void load(const LoadObject &l)override{
             PropertyBase::load(l);
-            int length = l.loadInt("inputLength");
+            int length = l.loadInt("inputLength",0);
             if(length>0)
                 setInputLength(static_cast<unsigned>(length));
         }

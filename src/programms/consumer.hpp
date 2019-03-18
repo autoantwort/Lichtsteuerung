@@ -24,7 +24,7 @@ namespace Modules{
         virtual ~Consumer()override = default;
         virtual void load(const LoadObject &l)override{
             PropertyBase::load(l);
-            int length = l.loadInt("inputLength");
+            int length = l.loadInt("inputLength",0);
             if(length>0)
                 setInputLength(static_cast<unsigned>(length));
         }

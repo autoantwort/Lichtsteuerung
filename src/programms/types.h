@@ -224,9 +224,9 @@ namespace Modules {
             auto red   = name + "_red";
             auto green = name + "_green";
             auto blue  = name + "_blue";
-            value.red = l.loadInt(red.c_str());
-            value.green = l.loadInt(green.c_str());
-            value.blue = l.loadInt(blue.c_str());
+            value.red = l.loadInt(red.c_str(),value.red);
+            value.green = l.loadInt(green.c_str(),value.green);
+            value.blue = l.loadInt(blue.c_str(),value.blue);
         }
         const rgb_t & operator *()const{
             return value;

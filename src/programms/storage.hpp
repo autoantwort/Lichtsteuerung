@@ -23,17 +23,17 @@ public:
 class LoadObject
 {
 public:
-    virtual int loadInt(const char*name) const = 0;
-    virtual float loadFloat(const char*name) const  = 0;
-    virtual double loadDouble(const char*name)  const = 0;
-    virtual bool loadBool(const char*name)  const = 0;
-    virtual long loadLong(const char*name)  const = 0;
+    virtual int loadInt(const char*name, int defaultValue) const = 0;
+    virtual float loadFloat(const char*name, float defaultValue) const  = 0;
+    virtual double loadDouble(const char*name, double defaultValue)  const = 0;
+    virtual bool loadBool(const char*name, bool defaultValue)  const = 0;
+    virtual long loadLong(const char*name, long defaultValue)  const = 0;
     /**
      * @brief loadStringOwn loads a string, the caller own the string and have to delete it
      * @param name the name of the property
      * @return the string or a nullptr if the property does not exist
      */
-    virtual char* loadStringOwn(const char*name)  const = 0;
+    virtual char* loadStringOwn(const char*name, char* defaultValue)  const = 0;
 };
 
 /**
