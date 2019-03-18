@@ -174,6 +174,10 @@ public:
         return model.back();
     }
 
+    const Type operator[](int index){
+        return model[index];
+    }
+
     void clear(){
         if(size()==0){
             return;
