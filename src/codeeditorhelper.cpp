@@ -61,7 +61,7 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
                     << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
                     << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                    << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b"
+                    << "\\bvoid\\b" << "\\bvolatile\\b" << "\\bbool\\b" << "\\bextern\\b"
                     << "\\bauto\\b" << "\\bfor\\b"  << "\\bwhile\\b"  << "\\breturn\\b"  ;
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegularExpression(pattern);
@@ -734,6 +734,38 @@ void replacePropertiesUsages(QString &code, const Modules::PropertiesVector & ve
     }
 }
 
+/**
+ * @brief extractExternCode extract the extern { ... } block in the code and returns this block, or an empty string if no extern block exists
+ * @param code The usercode that maybe contains an extern block
+ * @return the extracted block(only the content) or an empty string
+ */
+QString extractExternCode(QString &code){
+    auto index = code.indexOf("extern");
+    if(index < 0)
+        return "";
+    auto firstBracket = code.indexOf('{',index);
+    if(firstBracket<0)
+        return "";
+    for(int i = index + 6; i < firstBracket; ++i){
+        if(!code.at(i).isSpace()){
+            return "";
+        }
+    }
+    int blockDepth = 1;
+    int i = firstBracket + 1;
+    for(; i < code.length()&&blockDepth; ++i){
+        if(code[i] == '{')
+            blockDepth++;
+        if(code[i] == '}')
+            blockDepth--;
+    }
+    if(blockDepth)
+        return "";
+    auto returnVal = code.mid(firstBracket+1 , i - firstBracket - 2);
+    code.remove(index, i-index);
+    return returnVal;
+}
+
 QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
     QString s = ":";
     for(const auto p : vec){
@@ -765,6 +797,7 @@ void CodeEditorHelper::compile(){
             }
         }
     }
+    QString externCode = extractExternCode(userCode);
     {
        QString msg = "Fehler:\n";
        if(checkForDuplicatedPropertiesNames(userCode,module->getProperties(),[&](auto name){
@@ -807,6 +840,8 @@ void CodeEditorHelper::compile(){
         stream << "" << endl;
         stream << "using namespace Modules;" << endl;
         stream << "using namespace std;" << endl;
+        stream << "" << endl;
+        stream << externCode << endl;
         stream << "" << endl;
         if(module->getType() == Modules::Module::Filter){
             stream << "class Impl : public Typed" << typeName << "<"<<inputType<<","<<outputType<<">{"<< endl;
