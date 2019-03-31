@@ -6,6 +6,7 @@
 //#define HAVE_LOOP_PROGRAMM
 //#define HAVE_FILTER
 //#define HAVE_CONSUMER
+//#define HAVE_SPOTIFY
 
 #ifdef HAVE_PROGRAM
 #include "program.hpp"
@@ -27,6 +28,11 @@
 #include "fftoutput.hpp"
 #endif
 
+#ifdef HAVE_SPOTIFY
+#undef CONVERT_FROM_SPOTIFY_OBJECTS
+#include "spotify.hpp"
+#endif
+
 #include <string>
 
 //disable Warning for char * as return type in extern "C" Block with clang
@@ -43,7 +49,7 @@
 #endif
 
 extern "C" {
-enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio};
+enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio,Spotify};
 
 #ifdef MODULE_LIBRARY
 
@@ -75,6 +81,12 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
 #endif
     case MODUL_TYPE::Audio:
 #ifdef HAVE_AUDIO
+    return true;
+#else
+    return false;
+#endif
+    case MODUL_TYPE::Spotify:
+#ifdef HAVE_SPOTIFY
     return true;
 #else
     return false;
@@ -120,6 +132,12 @@ bool __supportAudio = false;
 MODULE_EXPORT void _supportAudio(bool b){__supportAudio = b;}
 MODULE_EXPORT void _setFFTOutputView(Modules::FFTOutputView<float> * fftOutputView){fftOutput = fftOutputView?*fftOutputView:_emptyView;}
 bool supportAudio(){return __supportAudio;}
+#endif
+
+#ifdef HAVE_SPOTIFY
+Modules::SpotifyState __emptySpotifyState;
+Modules::SpotifyState const * spotify = &__emptySpotifyState;
+MODULE_EXPORT void _setSpotifyState(Modules::SpotifyState const * s){spotify = s?s:&__emptySpotifyState;}
 #endif
 
 }

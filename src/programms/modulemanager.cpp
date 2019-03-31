@@ -34,6 +34,7 @@ Module::Module(const QJsonObject &o):name(o["name"].toString("no name")),
     description(o["description"].toString()),code(o["code"].toString()),
     inputType(static_cast<ValueType>(o["inputType"].toInt())),
     outputType(static_cast<ValueType>(o["outputType"].toInt())),
+    spotifyResponder(o["spotifyResponder"].toBool()),
     type(static_cast<Type>(o["type"].toInt())){
     QJsonArray a = o["properties"].toArray();
     for(const auto i : a){
@@ -50,6 +51,7 @@ void Module::writeJsonObject(QJsonObject &o)const{
     o["inputType"] = inputType;
     o["outputType"] = outputType;
     o["type"] = type;
+    o["spotifyResponder"] = spotifyResponder;
     QJsonArray a;
     for(const auto & p : properties){
         QJsonObject prop;
@@ -81,6 +83,10 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         consumer.emplace("DMXConsumer","With the DMXConsumer class you can write to the DMX Channels",-1,[](){
             return new DMXConsumer;
         });
+    }
+
+    void ModuleManager::setSpotify(Spotify::Spotify *s){
+        controller_.setSpotify(s);
     }
 
     void ModuleManager::loadModules(const QJsonObject & o){
@@ -227,6 +233,15 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 //qDebug()<< "Loading Audio";
                 supportAudioFunc = loadAudio(lib,&fftOutputView);
             }
+            if(f(MODUL_TYPE::Spotify)){
+                typedef void (*SetSpotifyFunc)(Modules::SpotifyState const *);
+                SetSpotifyFunc func = reinterpret_cast<SetSpotifyFunc>(lib.resolve("_setSpotifyState"));
+                if(func){
+                    func(&controller_.getSpotifyState());
+                }
+            }
+
+
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
             qDebug() << lib.errorString();
         }else{

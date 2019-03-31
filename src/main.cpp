@@ -42,6 +42,7 @@
 #include "colorplot.h"
 #include "audio/audiocapturemanager.h"
 #include "test/testsampleclass.h"
+#include "spotify/spotify.h"
 
 int main(int argc, char *argv[])
 {
@@ -132,6 +133,8 @@ int main(int argc, char *argv[])
     std::thread t(Test::testLoopProgramm);
     t.join();
 
+    auto & spotify = Spotify::get();
+    Modules::ModuleManager::singletone()->setSpotify(&spotify);
 
 
     QStringList dataList;
@@ -199,6 +202,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("userModel",IDBaseDataModel<User>::singletone());
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
     engine.rootContext()->setContextProperty("Settings",&settings);
+    engine.rootContext()->setContextProperty("spotify",&spotify);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
 

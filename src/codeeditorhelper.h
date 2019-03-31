@@ -74,6 +74,7 @@ class CodeEditorHelper : public QObject
     QQuickTextDocument* documentWrapper = nullptr;
     QTextDocument * document = nullptr;
     QMetaObject::Connection typeConnection;
+    QMetaObject::Connection spotifyResponderConnection;
     CodeCompletions codeCompletions;
 
     Q_PROPERTY(QQuickTextDocument* document READ getDocument WRITE setDocument NOTIFY documentChanged)
@@ -133,8 +134,9 @@ signals:
     * @param pos the new cursor after text inserting.
     */
    void insertText(QString newText, int pos);
-   protected:
+protected:
    void typeChanged();
+   void spotifyResponderChanged();
    void contentsChange(int from, int charsRemoved, int charsAdded);
 
 };

@@ -1,12 +1,14 @@
-QT += qml quick
+QT += qml quick networkauth
 
-CONFIG += c++14
+CONFIG += c++1z
 
 TARGET = Lichtsteuerung
 
 TEMPLATE = app
 
 RESOURCES += qml.qrc
+
+DEFINES += CONVERT_FROM_SPOTIFY_OBJECTS
 
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
@@ -62,7 +64,19 @@ SOURCES += \
     audio/sample.cpp \
     test/testsampleclass.cpp \
     audio/audiocapturemanager.cpp \
-    programms/boostloopprogramcontextswitcher.cpp
+    programms/boostloopprogramcontextswitcher.cpp \
+    spotify/spotify.cpp \
+    spotify/currentplayingobject.cpp \
+    spotify/trackobject.cpp \
+    spotify/albumobject.cpp \
+    spotify/artistobject.cpp \
+    spotify/imageobject.cpp \
+    spotify/audiofeaturesobject.cpp \
+    spotify/timeintervalobject.cpp \
+    spotify/sectionobject.cpp \
+    spotify/segmentobject.cpp \
+    spotify/audioanalysisobject.cpp \
+    spotify/userobject.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -133,7 +147,22 @@ HEADERS += \
     audio/audiocapturemanager.h \
     programms/fftoutput.hpp \
     programms/loopprogram.hpp \
-    programms/boostloopprogramcontextswitcher.h
+    programms/boostloopprogramcontextswitcher.h \
+    spotify/spotify.h \
+    spotify/currentplayingobject.h \
+    spotify/trackobject.h \
+    spotify/albumobject.h \
+    spotify/artistobject.h \
+    spotify/imageobject.h \
+    spotify/audiofeaturesobject.h \
+    spotify/timeintervalobject.h \
+    spotify/sectionobject.h \
+    spotify/segmentobject.h \
+    spotify/audioanalysisobject.h \
+    spotify/userobject.h \
+    spotify/util.h \
+    programms/spotifyobjetcs.hpp \
+    programms/spotify.hpp
 
 
 # Default rules for deployment.

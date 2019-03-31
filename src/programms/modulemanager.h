@@ -20,6 +20,7 @@
 #include "modelvector.h"
 #include "controller.h"
 #include "fftoutput.hpp"
+#include "spotify/spotify.h"
 
 namespace Modules {
 
@@ -95,6 +96,7 @@ class Module : public QObject{
     Q_PROPERTY(ValueType inputType READ getInputType WRITE setInputType NOTIFY inputTypeChanged)
     Q_PROPERTY(ValueType outputType READ getOutputType WRITE setOutputType NOTIFY outputTypeChanged)
     Q_PROPERTY(QString code READ getCode WRITE setCode NOTIFY codeChanged)
+    Q_PROPERTY(bool spotifyResponder MEMBER spotifyResponder NOTIFY spotifyResponderValueChanged)
     Q_PROPERTY(PropertiesVector * properties READ getPropertiesP CONSTANT)
     QString name = "No_Name";
     /**
@@ -106,6 +108,10 @@ class Module : public QObject{
     QString code;
     ValueType inputType;
     ValueType outputType;
+    /**
+     * @brief spotifyResponder indicates if the module have functions like onBeat onTatum ...
+     */
+    bool spotifyResponder = false;
     Q_ENUM(ValueType)
 
     //Module(Module&)=delete;
@@ -142,6 +148,7 @@ public:
         return properties;
     }
 
+    bool isSpotifyResponder()const{return spotifyResponder;}
 
     PropertiesVector * getPropertiesP(){
         return &properties;
@@ -220,6 +227,7 @@ signals:
     void inputTypeChanged();
     void outputTypeChanged();
     void codeChanged();
+    void spotifyResponderValueChanged();
 };
 
 
@@ -280,6 +288,7 @@ signals:
     public:
         ModuleManager();
         ~ModuleManager(){for(auto m : modules)delete m;QObject::disconnect(captureStatusChangedConnection);}
+        void setSpotify(Spotify::Spotify * s);
         /**
          * @brief getFreeAbsoluteFilePathForModule if you have a new compiled module that is not loaded, you can get here a new free name.
          * @note Important! If you use an old file name, maybe the old lib gets loaded, even when you delete the file

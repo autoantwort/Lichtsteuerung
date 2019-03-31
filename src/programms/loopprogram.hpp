@@ -89,7 +89,7 @@ public:
         }
     }
     LoopProgram(const ValueType valueType):Program (valueType){}
-    virtual ProgramState doStep(time_diff_t t)final override{
+    virtual ProgramState doStep(time_diff_t t)override{
         if(finished)
             return {true,false};
         currentWaitTime+=t;

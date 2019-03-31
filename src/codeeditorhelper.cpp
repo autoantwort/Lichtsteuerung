@@ -197,6 +197,65 @@ void addCompletionsForType(PossibleCodeCompletions & model, QString type){
         model.push_back(new CodeCompletionEntry("at(int index)","float","Gibt den Wert des Blocks mit Index index zurück."));
         model.push_back(new CodeCompletionEntry("size()","int","Gibt an, wie viele Blöcke es gibt."));
     }
+    if(type=="TimeIntervalObject" || type=="SegmentObject" || type=="SectionObject"){
+        model.push_back(new CodeCompletionEntry("start","int","The starting point (in milliSeconds) of the time interval."));
+        model.push_back(new CodeCompletionEntry("duration","int","The duration (in milliSeconds) of the time interval."));
+        model.push_back(new CodeCompletionEntry("confidence","float","The confidence, from 0.0 to 1.0, of the reliability of the interval."));
+    }
+    if(type=="SectionObject"){
+        model.push_back(new CodeCompletionEntry("loudness","float","The overall loudness of the section in decibels (dB). Loudness values are useful for comparing relative loudness of sections within tracks."));
+        model.push_back(new CodeCompletionEntry("tempo","float","The overall estimated tempo of the section in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration."));
+        model.push_back(new CodeCompletionEntry("tempo_confidence","float","The confidence, from 0.0 to 1.0, of the reliability of the tempo. Some tracks contain tempo changes or sounds which don’t contain tempo (like pure speech) which would correspond to a low value in this field."));
+        model.push_back(new CodeCompletionEntry("key","int","The estimated overall key of the section. The values in this field ranging from 0 to 11 mapping to pitches using standard Pitch Class notation (E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on). If no key was detected, the value is -1."));
+        model.push_back(new CodeCompletionEntry("key_confidence","int","The confidence, from 0.0 to 1.0, of the reliability of the key. Songs with many key changes may correspond to low values in this field."));
+        model.push_back(new CodeCompletionEntry("mode","int","Indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. This field will contain a 0 for “minor”, a 1 for “major”, or a -1 for no result. Note that the major key (e.g. C major) could more likely be confused with the minor key at 3 semitones lower (e.g. A minor) as both keys carry the same pitches."));
+        model.push_back(new CodeCompletionEntry("mode_confidence","float","The confidence, from 0.0 to 1.0, of the reliability of the mode."));
+        model.push_back(new CodeCompletionEntry("time_signature","int","An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure). The time signature ranges from 3 to 7 indicating time signatures of “3/4”, to “7/4”."));
+        model.push_back(new CodeCompletionEntry("time_signature_confidence","float","The confidence, from 0.0 to 1.0, of the reliability of the time_signature. Sections with time signature changes may correspond to low values in this field."));
+    }
+    if(type=="SegmentObject"){
+        model.push_back(new CodeCompletionEntry("loudness_start","float","The onset loudness of the segment in decibels (dB). Combined with loudness_max and loudness_max_time, these components can be used to desctibe the “attack” of the segment."));
+        model.push_back(new CodeCompletionEntry("loudness_max","float","The peak loudness of the segment in decibels (dB). Combined with loudness_start and loudness_max_time, these components can be used to desctibe the “attack” of the segment."));
+        model.push_back(new CodeCompletionEntry("loudness_max_time","int","The segment-relative offset of the segment peak loudness in milliseconds. Combined with loudness_start and loudness_max, these components can be used to desctibe the “attack” of the segment."));
+        model.push_back(new CodeCompletionEntry("loudness_end","float","The offset loudness of the segment in decibels (dB). This value should be equivalent to the loudness_start of the following segment."));
+        model.push_back(new CodeCompletionEntry("pitches","std::vector<float>","A “chroma” vector representing the pitch content of the segment, corresponding to the 12 pitch classes C, C#, D to B, with values ranging from 0 to 1 that describe the relative dominance of every pitch in the chromatic scale. More details about how to interpret this vector can be found below.."));
+        model.push_back(new CodeCompletionEntry("timbre","std::vector<float>","Timbre is the quality of a musical note or sound that distinguishes different types of musical instruments, or voices. Timbre vectors are best used in comparison with each other. More details about how to interpret this vector can be found on the below.."));
+    }
+    if(type=="TrackObject"){
+        model.push_back(new CodeCompletionEntry("duration_ms","int","The track length in milliseconds."));
+        model.push_back(new CodeCompletionEntry("acousticness","float","A confidence measure from 0.0 to 1.0 of whether the track is acoustic. 1.0 represents high confidence the track is acoustic."));
+        model.push_back(new CodeCompletionEntry("energy","float","Energy is a measure from 0.0 to 1.0 and represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy."));
+        model.push_back(new CodeCompletionEntry("instrumentalness","float","Predicts whether a track contains no vocals. “Ooh” and “aah” sounds are treated as instrumental in this context. Rap or spoken word tracks are clearly “vocal”. The closer the instrumentalness value is to 1.0, the greater likelihood the track contains no vocal content. Values above 0.5 are intended to represent instrumental tracks, but confidence is higher as the value approaches 1.0."));
+        model.push_back(new CodeCompletionEntry("key","int","The key the track is in. Integers map to pitches using standard Pitch Class notation . E.g. 0 = C, 1 = C♯/D♭, 2 = D, and so on."));
+        model.push_back(new CodeCompletionEntry("liveness","float","Detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. A value above 0.8 provides strong likelihood that the track is live."));
+        model.push_back(new CodeCompletionEntry("loudness","float","The overall loudness of a track in decibels (dB). Loudness values are averaged across the entire track and are useful for comparing relative loudness of tracks. Loudness is the quality of a sound that is the primary psychological correlate of physical strength (amplitude). Values typical range between -60 and 0 db."));
+        model.push_back(new CodeCompletionEntry("mode","int","Mode indicates the modality (major or minor) of a track, the type of scale from which its melodic content is derived. Major is represented by 1 and minor is 0."));
+        model.push_back(new CodeCompletionEntry("speechiness","float","Speechiness detects the presence of spoken words in a track. The more exclusively speech-like the recording (e.g. talk show, audio book, poetry), the closer to 1.0 the attribute value. Values above 0.66 describe tracks that are probably made entirely of spoken words. Values between 0.33 and 0.66 describe tracks that may contain both music and speech, either in sections or layered, including such cases as rap music. Values below 0.33 most likely represent music and other non-speech-like tracks."));
+        model.push_back(new CodeCompletionEntry("tempo","float","The overall estimated tempo of a track in beats per minute (BPM). In musical terminology, tempo is the speed or pace of a given piece and derives directly from the average beat duration."));
+        model.push_back(new CodeCompletionEntry("time_signature","int","An estimated overall time signature of a track. The time signature (meter) is a notational convention to specify how many beats are in each bar (or measure)."));
+        model.push_back(new CodeCompletionEntry("valence","float","A measure from 0.0 to 1.0 describing the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry)."));
+        model.push_back(new CodeCompletionEntry("name","std::string","The name of the track."));
+        model.push_back(new CodeCompletionEntry("progress_ms","int","Progress into the currently playing track."));
+    }
+    if(type=="SpotifyState"){
+        model.push_back(new CodeCompletionEntry("newBar","bool","true when in this TimeInterval(one doStep call) a new bar emerge"));
+        model.push_back(new CodeCompletionEntry("newBeat","bool","true when in this TimeInterval(one doStep call) a new beat emerge"));
+        model.push_back(new CodeCompletionEntry("newTrack","bool","true when in this TimeInterval(one doStep call) a new track is playing"));
+        model.push_back(new CodeCompletionEntry("newTatum","bool","true when in this TimeInterval(one doStep call) a new tatum emerge"));
+        model.push_back(new CodeCompletionEntry("newSection","bool","true when in this TimeInterval(one doStep call) a new section emerge"));
+        model.push_back(new CodeCompletionEntry("newSegment","bool","true when in this TimeInterval(one doStep call) a new segment emerge"));
+        model.push_back(new CodeCompletionEntry("haveCurrentTrack","bool","true when an user is logged in and a track is the current track"));
+        model.push_back(new CodeCompletionEntry("isPlaying","bool","true when an user is logged in and a track is currently playing"));
+        model.push_back(new CodeCompletionEntry("enabled","bool","true when an user is logged in and give the neceasary permissions"));
+        model.push_back(new CodeCompletionEntry("currentBar.","TimeIntervalObject","The current Bar of the Analysis of the current track."));
+        model.push_back(new CodeCompletionEntry("currentBeat.","TimeIntervalObject","The current Beat of the Analysis of the current track."));
+        model.push_back(new CodeCompletionEntry("currentTatum.","TimeIntervalObject","The current Tatum of the Analysis of the current track."));
+        model.push_back(new CodeCompletionEntry("currentSection.","SectionObject","The current Section of the Analysis of the current track."));
+        model.push_back(new CodeCompletionEntry("currentSegment.","SegmentObject","The current Segment of the Analysis of the current track."));
+    }
+    //model.push_back(new CodeCompletionEntry("","float",""));
+
+    qDebug()<<"type" << type;
 }
 
 void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
@@ -207,6 +266,7 @@ void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
     model.push_back(new CodeCompletionEntry("output","unsigned int * ","Der Outputarray"));
     model.push_back(new CodeCompletionEntry("input[i]","unsigned int","Ein Element im Input an der Position index"));
     model.push_back(new CodeCompletionEntry("input","unsigned int * ","Der Inputarray"));
+    model.push_back(new CodeCompletionEntry("spotify->","SpotifyState","Ein Object, dass alle zu Spotify gehörigen Daten enthält."));
 }
 
 void skipWhitespaces(int & cursor, QTextDocument * d){
@@ -491,6 +551,17 @@ QString CodeEditorHelper::getType(QString variable, int pos){
     if(variable == "fftOutput"){
         return "fftOutput";
     }
+    if(variable == "bar" || variable == "beat" || variable == "tatum"
+            || variable == "currentBar" || variable == "currentBeat" || variable == "currentTatum")
+        return "TimeIntervalObject";
+    if(variable == "track" || variable == "currentTrack")
+        return "TrackObject";
+    if(variable == "section" || variable == "currentSection")
+        return "SectionObject";
+    if(variable == "segment" || variable == "currentSegment")
+        return "SegmentObject";
+    if(variable == "spotify")
+        return "SpotifyState";
     return "unknown";
 }
 
@@ -526,8 +597,10 @@ void CodeEditorHelper::setModule(  Modules::Module* _module){
         if(_module != module){
                 module = _module;
                 QObject::disconnect(typeConnection);
+                QObject::disconnect(spotifyResponderConnection);
                 if(module){
                     typeConnection = QObject::connect(module,&Modules::Module::typeChanged,this,&CodeEditorHelper::typeChanged);
+                    spotifyResponderConnection = QObject::connect(module,&Modules::Module::spotifyResponderValueChanged,this,&CodeEditorHelper::spotifyResponderChanged);
                     if(module->getCode().isEmpty()){
                         //create default code
                         if(module->getType()==Modules::Module::Program){
@@ -571,6 +644,36 @@ void CodeEditorHelper::typeChanged(){
         else if(text.indexOf("unsigned int computeOutputLength(unsigned int inputLength)") <0 ||  text.indexOf("void filter()") <0 ||  text.indexOf("bool doStep(time_diff_t ") <0){
             emit insertText(generateFilterCode(),0);
             qDebug ()  << "insert FilterCode " << generateFilterCode();
+        }
+    }
+}
+
+void CodeEditorHelper::spotifyResponderChanged(){
+    QString text = document->toPlainText().trimmed();
+    QRegularExpression beat("void +onBeat\\( *const *TimeIntervalObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    QRegularExpression bar("void +onBar\\( *const *TimeIntervalObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    QRegularExpression tatum("void +onTatum\\( *const *TimeIntervalObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    QRegularExpression section("void +onSection\\( *const *SectionObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    QRegularExpression segment("void +onSegment\\( *const *SegmentObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    QRegularExpression track("void +newTrack\\( *const *TrackObject *& *[a-zA-Z0-9_]+ *\\) *{");
+    if(module->isSpotifyResponder()){
+        if(text.indexOf(track)<0){
+            emit insertText("void newTrack(const TrackObject& track){\n\t\n}\n",0);
+        }
+        if(text.indexOf(section)<0){
+            emit insertText("void onSection(const SectionObject& section){\n\t\n}\n",0);
+        }
+        if(text.indexOf(segment)<0){
+            emit insertText("void onSegment(const SegmentObject& segment){\n\t\n}\n",0);
+        }
+        if(text.indexOf(tatum)<0){
+            emit insertText("void onTatum(const TimeIntervalObject& tatum){\n\t\n}\n",0);
+        }
+        if(text.indexOf(bar)<0){
+            emit insertText("void onBar(const TimeIntervalObject& bar){\n\t\n}\n",0);
+        }
+        if(text.indexOf(beat)<0){
+            emit insertText("void onBeat(const TimeIntervalObject& beat){\n\t\n}\n",0);
         }
     }
 }
@@ -820,6 +923,7 @@ void CodeEditorHelper::compile(){
         QTextStream stream( &file );
         stream << "#define MODULE_LIBRARY" << endl;
         stream << "#define HAVE_AUDIO" << endl;
+        stream << "#define HAVE_SPOTIFY" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;
@@ -865,6 +969,20 @@ void CodeEditorHelper::compile(){
         stream << "" << endl;
         stream << "};" << endl; // class end
         stream << "" << endl;
+        if(module->isSpotifyResponder()){
+            //subclass to override doStep
+            stream << "class ImplSpotify : public Impl{"<<endl;
+            stream << " virtual " <<((module->getType() == Modules::Module::Filter)?"void":"ProgramState") << " doStep(time_diff_t t)override{"<<endl;
+            stream << "  if(spotify->newTrack)newTrack(spotify->currentTrack);"<<endl;
+            stream << "  if(spotify->newSection)onSection(spotify->currentSection);"<<endl;
+            stream << "  if(spotify->newSegment)onSegment(spotify->currentSegment);"<<endl;
+            stream << "  if(spotify->newTatum)onTatum(spotify->currentTatum);"<<endl;
+            stream << "  if(spotify->newBar)onBar(spotify->currentBar);"<<endl;
+            stream << "  if(spotify->newBeat)onBeat(spotify->currentBeat);"<<endl;
+            stream << "  "<< ((module->getType() == Modules::Module::Filter)?"Impl::doStep(t);":"return Impl::doStep(t);") << endl;
+            stream << " }"<<endl;
+            stream << "};"<<endl;
+        }
         stream << "" << endl;
         stream << "unsigned int getNumberOf"<<typeName<<"s(){" << endl;
         stream << " return 1;" << endl;
@@ -891,7 +1009,7 @@ void CodeEditorHelper::compile(){
         stream << typeName << " * create"<< typeName <<"(unsigned int index){ " << endl;
         stream << "  switch (index) {" << endl;
         stream << "    case 0:" << endl;
-        stream << "      return new Impl;" << endl;
+        stream << "      return new " << (module->isSpotifyResponder()? "ImplSpotify":"Impl") << ";" << endl;
         stream << "    default:" << endl;
         stream << "      return nullptr;" << endl;
         stream << "  }" << endl;

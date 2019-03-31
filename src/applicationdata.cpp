@@ -14,6 +14,7 @@
 #include <QCryptographicHash>
 #include "programms/modulemanager.h"
 #include "programms/programblock.h"
+#include "spotify/spotify.h"
 
 namespace ApplicationData{
 
@@ -64,6 +65,10 @@ QByteArray saveData(){
         QJsonObject u;
         Modules::ProgramBlockManager::writeToJsonObject(u);
         o.insert("ProgramBlockManager",u);
+    }{
+        QJsonObject u;
+        Spotify::get().writeToJsonObject(u);
+        o.insert("Spotify",u);
     }
     return QJsonDocument(o).toJson();
 }
@@ -107,6 +112,7 @@ std::function<void()> loadData(QByteArray data){
         QJsonObject ob = o["ModuleManager"].toObject();
         Modules::ModuleManager::singletone()->loadModules(ob);
     }
+    Spotify::get().loadFromJsonObject(o["Spotify"].toObject());
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
     return [=](){
         GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());

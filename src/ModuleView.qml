@@ -256,6 +256,14 @@ Item{
                 }
             }
         }
+        Label{
+            text: "Spotify responder:"
+        }
+        CheckBox{
+            checked: listView.currentItem.itemData.spotifyResponder;
+            onCheckStateChanged: listView.currentItem.itemData.spotifyResponder = checked;
+            Layout.preferredHeight: 29
+        }
 
         Label{
             text: "Code"

@@ -56,6 +56,7 @@
         <file alias="ControlPane/DimmerGroupControl.qml">qml/DimmerGroupControl.qml</file>
         <file alias="ControlPane/ControlView.qml">qml/ControlView.qml</file>
         <file alias="ControlPane/ControlItem.qml">qml/ControlItem.qml</file>
-        <file alias="component/TextFieldFileChooser.qml">qml/TextFieldFileChooser.qml</file>        
+        <file alias="component/TextFieldFileChooser.qml">qml/TextFieldFileChooser.qml</file>
+        <file>SpotifyLoginView.qml</file>
     </qresource>
 </RCC>
