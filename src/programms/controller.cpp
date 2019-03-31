@@ -59,7 +59,7 @@ void Controller::updateSpotifyState(){
         lastIndexOfCurrent ## Type = newIndex; \
         spotifyState.current ## Type .~ Object(); \
         if(newIndex>=0){ \
-            new (&spotifyState.current ## Type) Object(spotify->getCurrentAudioAnalysis()->type ## s[5]); \
+            new (&spotifyState.current ## Type) Object(spotify->getCurrentAudioAnalysis()->type ## s[static_cast<unsigned>(newIndex)]); \
             spotifyState.new ## Type = true; \
         } else {\
             new (&spotifyState.current ## Type) Object(); \
