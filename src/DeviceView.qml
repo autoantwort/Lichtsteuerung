@@ -7,6 +7,7 @@ import custom.licht 1.0
 ModelView{
     id: deviceModelView
     model:deviceModel
+    nameFunction: function(modelData){return modelData.name + ", Channel: " + modelData.startDMXChannel + (modelData.prototype.numberOfChannels > 1 ? " - " + (modelData.startDMXChannel + modelData.prototype.numberOfChannels - 1) : "");}
     rows: 7
     onAddClicked:dialog.visible = true
     addButtonEnabled: UserManagment.currentUser.havePermission(Permission.ADD_DEVICE)
@@ -27,12 +28,12 @@ ModelView{
         Layout.row: 2
         Layout.column: 3
         enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DEVICE_DMX_CHANNEL);
-        text: parent.currentItem.data.startDMXChannel
+        text: parent.currentItem.modelData.startDMXChannel
         validator: IntValidator{
             bottom: 0
             top:512
         }
-        onTextChanged: parent.currentItem.data.startDMXChannel = text.length?text:0
+        onTextChanged: parent.currentItem.modelData.startDMXChannel = text.length?text:0
     }
     Text{
         Layout.row: 3
@@ -44,7 +45,7 @@ ModelView{
     Text{
         Layout.row: 3
         Layout.column: 3
-        text:parent.currentItem.data.prototype.name
+        text:parent.currentItem.modelData.prototype.name
         font.pixelSize: 15
         TextUnderline{
             extendetWidth:1
@@ -68,9 +69,9 @@ ModelView{
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 50
-            text:deviceModelView.currentItem.data.position.x
+            text:deviceModelView.currentItem.modelData.position.x
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentItem.data.position.x = text.length?text:0
+            onTextChanged: deviceModelView.currentItem.modelData.position.x = text.length?text:0
         }
         Text{
             Layout.leftMargin: 10
@@ -79,9 +80,9 @@ ModelView{
         }
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
-            text:deviceModelView.currentItem.data.position.y
+            text:deviceModelView.currentItem.modelData.position.y
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentItem.data.position.y = text.length?text:0
+            onTextChanged: deviceModelView.currentItem.modelData.position.y = text.length?text:0
         }
     }
 

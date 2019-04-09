@@ -15,9 +15,9 @@ ModelView{
         text: "Speed : "
     }
     TextInputField{
-        text: modelView.currentItem?modelView.currentItem.data.speed:""
+        text: modelView.currentItem?modelView.currentItem.modelData.speed:""
         validator: DoubleValidator{}
-        onTextChanged: modelView.currentItem.data.speed = text
+        onTextChanged: modelView.currentItem.modelData.speed = text
     }
     Label{
         text: "Time Distortion:"
@@ -33,8 +33,8 @@ ModelView{
         id:topTD
         Layout.preferredHeight: 25
         Layout.leftMargin: -10
-        checked: modelView.currentItem?modelView.currentItem.data.timeDistortion.enabled:false
-        onCheckStateChanged: modelView.currentItem.data.timeDistortion.enabled = checked
+        checked: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.enabled:false
+        onCheckStateChanged: modelView.currentItem.modelData.timeDistortion.enabled = checked
     }
     Label{
         Layout.leftMargin: 6
@@ -43,8 +43,8 @@ ModelView{
     TextInputField{
         Layout.fillWidth: true
         validator: DoubleValidator{}
-        text: modelView.currentItem?modelView.currentItem.data.timeDistortion.intervall:""
-        onTextChanged: {if(modelView.currentItem!==null)modelView.currentItem.data.timeDistortion.intervall = text;}
+        text: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.intervall:""
+        onTextChanged: {if(modelView.currentItem!==null)modelView.currentItem.modelData.timeDistortion.intervall = text;}
     }
     Label{
         Layout.leftMargin: 6
@@ -55,8 +55,8 @@ ModelView{
         Layout.rightMargin: 5
         id:endTD
         model:easingModel
-        currentIndex: modelView.currentItem?modelView.currentItem.data.timeDistortion.distortionCurve.type:0
-        onCurrentIndexChanged: {if(modelView.currentItem!==null)modelView.currentItem.data.timeDistortion.distortionCurve.type = currentIndex;}
+        currentIndex: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.distortionCurve.type:0
+        onCurrentIndexChanged: {if(modelView.currentItem!==null)modelView.currentItem.modelData.timeDistortion.distortionCurve.type = currentIndex;}
     }
     Rectangle{
         anchors.top: topTD.top
@@ -130,7 +130,7 @@ ModelView{
 
             }
         }
-        model: modelView.currentItem?modelView.currentItem.data.programs:null
+        model: modelView.currentItem?modelView.currentItem.modelData.programs:null
         highlight: Rectangle{
             color: "blue"
             opacity: 0.7
@@ -154,7 +154,7 @@ ModelView{
             Layout.fillWidth: true
             text:"Remove Programmprototype"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.data.removeDeviceProgramm(channelView.currentIndex)
+            onClicked: modelView.currentItem.modelData.removeDeviceProgramm(channelView.currentIndex)
         }
     }
 
@@ -220,7 +220,7 @@ ModelView{
                             onClicked: {
                                 dialog.visible = false;
 
-                                modelView.currentItem.data.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
+                                modelView.currentItem.modelData.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
 
                             }
                         }

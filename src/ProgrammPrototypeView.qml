@@ -93,7 +93,7 @@ ModelView{
 
         }
 
-        model: modelView.currentItem.data.channelProgramms
+        model: modelView.currentItem.modelData.channelProgramms
     }
 
 

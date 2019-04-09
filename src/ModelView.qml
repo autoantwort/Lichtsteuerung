@@ -18,6 +18,7 @@ GridLayout{
     property alias nameInputEnabled: textName.enabled
     property alias descriptionInputEnabled: textDescription.enabled
     property alias listView : listView
+    property var nameFunction: null
 
 
     ListView{
@@ -27,9 +28,9 @@ GridLayout{
         Layout.rowSpan: parent.rows-1
         id:listView
         delegate: ItemDelegate{
-            property var data: itemData
+            property var modelData: itemData
             width: parent.width
-            text: itemData.name +"("+itemData.description+")"
+            text: nameFunction ? nameFunction(itemData) : itemData.name +"("+itemData.description+")"
             onClicked: listView.currentIndex = index
 
         }
@@ -56,7 +57,7 @@ GridLayout{
         id: buttonRemove
         text:"Remove"
         font.pixelSize: 15
-        onClicked: ModelManager.remove(listView.currentItem.data)
+        onClicked: ModelManager.remove(listView.currentItem.modelData)
     }
 
 
@@ -71,8 +72,8 @@ GridLayout{
         Layout.column: 3
         Layout.fillWidth: true
         id:textName
-        text: listView.currentItem?listView.currentItem.data.name:""
-        onTextChanged: listView.currentItem.data.name = text
+        text: listView.currentItem?listView.currentItem.modelData.name:""
+        onTextChanged: listView.currentItem.modelData.name = text
     }
     Label{
         Layout.row: 1
@@ -86,8 +87,8 @@ GridLayout{
         Layout.column: 3
         Layout.fillWidth: true
         id:textDescription
-        text: listView.currentItem?listView.currentItem.data.description:""
-        onTextChanged: listView.currentItem.data.description = text
+        text: listView.currentItem?listView.currentItem.modelData.description:""
+        onTextChanged: listView.currentItem.modelData.description = text
     }
 
 

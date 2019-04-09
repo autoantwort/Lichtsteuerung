@@ -35,7 +35,7 @@ ModelView{
                 onTextChanged: name = text
             }
         }
-        model: modelView.currentItem.data.channel
+        model: modelView.currentItem.modelData.channel
     }
 
     onAddClicked: ModelManager.addDevicePrototype("New DevicePrototype");
@@ -49,13 +49,13 @@ ModelView{
             Layout.fillWidth: true
             text:"Add Channel"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.data.pushChannel("te34324324327st")
+            onClicked: modelView.currentItem.modelData.pushChannel("te34324324327st")
         }
         Button{
             Layout.fillWidth: true
             text:"Remove Channel"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.data.popChannel()
+            onClicked: modelView.currentItem.modelData.popChannel()
         }
     }
 }
