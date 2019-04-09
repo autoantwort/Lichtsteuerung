@@ -3,6 +3,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
+import "component"
 
 Item{
     id: root
@@ -73,16 +74,21 @@ Item{
                     id: buttonRemove
                     text:"Remove"
                     font.pixelSize: 15
-                    onClicked: {
-                        var index = listView.currentIndex;
-                        if(index === 0){
-                            listView.currentIndex = 1;
-                        }else{
-                            listView.currentIndex = index - 1;
-                        }
-                        ModelManager.removeProgramBlock(index);
-                    }
+                    onClicked: askWhenRemovePopup.open()
                 }
+            }
+        }
+
+        AskWhenRemovePopup{
+            id: askWhenRemovePopup
+            onYesClicked: {
+                var index = listView.currentIndex;
+                if(index === 0){
+                    listView.currentIndex = 1;
+                }else{
+                    listView.currentIndex = index - 1;
+                }
+                ModelManager.removeProgramBlock(index);
             }
         }
 

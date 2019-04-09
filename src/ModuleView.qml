@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Controls.Material 2.2
 import QtQuick.Dialogs 1.2
+import "component"
 
 Item{
     id: root
@@ -84,15 +85,7 @@ Item{
                     id: buttonRemove
                     text:"Remove"
                     font.pixelSize: 15
-                    onClicked: {
-                        var index = listView.currentIndex;
-                        if(index === 0){
-                            listView.currentIndex = 1;
-                        }else{
-                            listView.currentIndex = index - 1;
-                        }
-                        ModelManager.removeModule(index);
-                    }
+                    onClicked: aksWhenRemoveDialog.visible = true
                 }
             }
         }
@@ -447,6 +440,19 @@ Item{
 
     }
 
+
+    AskWhenRemovePopup{
+        id: aksWhenRemoveDialog
+        onYesClicked:{
+            var index = listView.currentIndex;
+            if(index === 0){
+                listView.currentIndex = 1;
+            }else{
+                listView.currentIndex = index - 1;
+            }
+            ModelManager.removeModule(index);
+        }
+    }
 
     MessageDialog{
         id: informationDialog

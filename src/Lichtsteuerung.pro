@@ -76,7 +76,8 @@ SOURCES += \
     spotify/sectionobject.cpp \
     spotify/segmentobject.cpp \
     spotify/audioanalysisobject.cpp \
-    spotify/userobject.cpp
+    spotify/userobject.cpp \
+    sortedmodelview.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -162,7 +163,8 @@ HEADERS += \
     spotify/userobject.h \
     spotify/util.h \
     programms/spotifyobjetcs.hpp \
-    programms/spotify.hpp
+    programms/spotify.hpp \
+    sortedmodelview.h
 
 
 # Default rules for deployment.

@@ -58,5 +58,6 @@
         <file alias="ControlPane/ControlItem.qml">qml/ControlItem.qml</file>
         <file alias="component/TextFieldFileChooser.qml">qml/TextFieldFileChooser.qml</file>
         <file>SpotifyLoginView.qml</file>
+        <file alias="component/AskWhenRemovePopup.qml">qml/AskWhenRemovePopup.qml</file>
     </qresource>
 </RCC>
