@@ -20,6 +20,7 @@ public:
     }
     static Graph * getLast(){return lastCreated;}
     void showData(float* data, int size){
+        setImplicitWidth(size * 2);
         this->size = std::min(2048,size);
         memcpy(this->data,data,this->size*sizeof (float));
         haveNewData.store(true);

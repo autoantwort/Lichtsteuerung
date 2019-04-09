@@ -112,8 +112,7 @@ ApplicationWindow {
 
             ModuleProgramView{}
 
-            Graph{
-            }
+            FFTGraphView{}
 
             Oscillogram{
             }
