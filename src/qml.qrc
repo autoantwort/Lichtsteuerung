@@ -59,5 +59,6 @@
         <file alias="component/TextFieldFileChooser.qml">qml/TextFieldFileChooser.qml</file>
         <file>SpotifyLoginView.qml</file>
         <file alias="component/AskWhenRemovePopup.qml">qml/AskWhenRemovePopup.qml</file>
+        <file alias="FFTGraphView.qml">qml/FFTGraphView.qml</file>
     </qresource>
 </RCC>

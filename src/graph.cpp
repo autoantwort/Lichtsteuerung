@@ -92,7 +92,7 @@ QSGNode * Graph::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
     for(int i = 0 ; i< size; ++i){
         vertices->x = i*2;
         //vertices->y = height() - 50 - 20* (std::log10(data[i]));
-        vertices->y = height() - 50 - 2*data[i];
+        vertices->y = height() - 2*data[i];
         ++vertices;
     }
 
