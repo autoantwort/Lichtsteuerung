@@ -2,7 +2,6 @@
 #include <QJsonArray>
 #include <unordered_set>
 
-QString Programm::syncServiceClassName;
 
 TimeDistortion::TimeDistortion(const QJsonObject &o):enabled(o["enable"].toBool()),intervall(o["intervall"].toDouble()),distortionCurve(QEasingCurve::Type(o["type"].toInt())){
 
@@ -31,7 +30,7 @@ void TimeDistortion::setIntervall(double i){
     emit intervallChanged(i);
 }
 
-Programm::Programm(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Programm>(o),speed(o["speed"].toDouble()),timeDistortion(o["timeDistortion"].toObject())
+Programm::Programm(const QJsonObject &o):NamedObject(o),IDBase<Programm>(o),speed(o["speed"].toDouble()),timeDistortion(o["timeDistortion"].toObject())
 {
     auto array = o["programms"].toArray();
     for(const auto r : array){

@@ -2,9 +2,8 @@
 #include <cmath>
 #include <QJsonArray>
 
-QString ProgrammPrototype::syncServiceClassName;
 
-ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description,&syncServiceClassName),devicePrototype(devicePrototype){
+ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description),devicePrototype(devicePrototype){
     setParent(devicePrototype);
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
     connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
@@ -143,7 +142,7 @@ ChannelProgramm::ChannelProgramm(const QJsonObject &o):repeatPolicy(RepeatPolicy
     }
 }
 
-ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<ProgrammPrototype>(o),
+ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o),IDBase<ProgrammPrototype>(o),
     devicePrototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["devicePrototype"])){
     setParent(getDevicePrototype());
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);

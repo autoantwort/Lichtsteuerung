@@ -1,8 +1,7 @@
 #include "device.h"
 #include <QJsonArray>
-QString Device::syncServiceClassName;
 
-Device::Device(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase<Device>(o),
+Device::Device(const QJsonObject &o):NamedObject(o),IDBase<Device>(o),
     prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"])),
     startDMXChannel(o["startDMXChannel"].toInt()),
     position(o["position"].toObject()["x"].toInt(),o["position"].toObject()["y"].toInt()){

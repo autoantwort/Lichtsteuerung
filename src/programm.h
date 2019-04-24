@@ -28,7 +28,7 @@ public:
      * @brief setOffset setzt den offset des DeviceProgramms, um diese zeit läuft dieses Programm nach dem Programm
      * @param o der offset
      */
-    Q_SLOT void setOffset(double o){if(o==offset)return;offset=o;emit offsetChanged();SyncService::addUpdateMessage("DeviceProgramm",getID(),"offset",QString::number(offset));}
+    Q_SLOT void setOffset(double o){if(o==offset)return;offset=o;emit offsetChanged();}
     double getOffset()const{return offset;}
     /**
       * @brief setSpeed Sets the Speed of the Device Programm
@@ -51,7 +51,6 @@ public:
         programmPrototype = p;
         connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);
         emit programmPrototypeChanged();
-        SyncService::addUpdateMessage("DeviceProgramm",getID(),"programmPrototype",QString::number(programmPrototype->getID().value()));
         return true;
     }
     ProgrammPrototype * getProgrammPrototyp()const{return programmPrototype;}
@@ -138,10 +137,9 @@ class Programm : public NamedObject, public IDBase<Programm>
     DeviceProgrammVector programms;
     TimeDistortion timeDistortion;
 public:
-    static QString syncServiceClassName;
     Programm(const QJsonObject &o);
-    Programm(QString name,QString description = ""):NamedObject(name,description,&syncServiceClassName){}
-    Q_SLOT void setRunning(bool run){if(run != isRunning_)emit runningChanged(run);isRunning_ = run;SyncService::addUpdateMessage("Programm",getID(),"running",run?"true":"false");}
+    Programm(QString name,QString description = ""):NamedObject(name,description){}
+    Q_SLOT void setRunning(bool run){if(run != isRunning_)emit runningChanged(run);isRunning_ = run;}
 
     /**
      * @brief run lässt das Programm laufen, wenn es keine Konflikte mit anderen laufenden Programmen gibt
@@ -180,38 +178,6 @@ private:
     void addDeviceProgramm(const QJsonObject &o);
 private slots:
     void deviceProgrammDeleted(QObject*);
-public:
-    // statische methoden für den syncService:
-    static void update (const ID &id, const QString &name,const QString &value){
-        auto d = IDBase<Programm>::getIDBaseObjectByID(id);
-        if(d){
-            auto s = name.toLatin1();
-            d->setProperty(s.data(),QVariant(value));
-        }
-    }
-    static void create (const QJsonObject &o){new Programm(o);}
-    static void remove (const ID &id){
-        auto d = IDBase<Programm>::getIDBaseObjectByID(id);
-        if(d){
-            delete d;
-        }
-    }
-    static void createMember (const ID &id,const QString &name,const QJsonObject &o){
-        auto d = IDBase<Programm>::getIDBaseObjectByID(id);
-        if(d&&name=="programms")d->addDeviceProgramm(o);
-    }
-    static void removeMember (const ID &pid,const QString &name,const ID &id){
-        auto d = IDBase<Programm>::getIDBaseObjectByID(pid);
-        if(d&&name=="programms"){
-            for(auto i = d->programms.cbegin();i!=d->programms.cend();++i){
-                if((**i).getID()==id){
-                    delete *i;
-                    d->programms.erase(i);
-                    return;
-                }
-            }
-        }
-    }
 signals:
     void runningChanged(bool running);
     void speedChanged(double speed);

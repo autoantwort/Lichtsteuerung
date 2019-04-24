@@ -46,7 +46,6 @@ SOURCES += \
     programms/dmxconsumer.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
-    syncservice.cpp \
     test/DriverDummy.cpp \
     usermanagment.cpp \
     programms/modulemanager.cpp \
@@ -101,7 +100,6 @@ HEADERS += \
     programm.h \
     applicationdata.h \
     namedobject.h \
-    syncservice.h \
     dmxchannelfilter.h \
     usermanagment.h \
     channelprogrammeditor.h \

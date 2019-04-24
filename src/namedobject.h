@@ -3,7 +3,6 @@
 
 #include <QObject>
 #include <QJsonObject>
-#include "syncservice.h"
 
 /**
  * @brief The NamedObject class superclass for Every class that will have a name and a description
@@ -15,10 +14,6 @@ class NamedObject : public QObject
     Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
 private:
     /**
-     * @brief syncClassName ein hässlicher trick um den SyncService benutzten zu können
-     */
-    QString * syncClassName;
-    /**
      * @brief name Der Name des Objects
      */
     QString name;
@@ -28,12 +23,12 @@ private:
     QString description;
 public:
     //explicit NamedObject(QObject *parent = 0);
-    NamedObject(QString name, QString description="",QString * syncClassName=nullptr):syncClassName(syncClassName),name(name),description(description){}
-    NamedObject(const QJsonObject &o,QString * syncClassName=nullptr):syncClassName(syncClassName),name(o["name"].toString()),description(o["description"].toString()){}
+    NamedObject(QString name, QString description=""):name(name),description(description){}
+    NamedObject(const QJsonObject &o):name(o["name"].toString()),description(o["description"].toString()){}
 
-    Q_SLOT void setName(const QString &n){if(n==name)return;name=n;emit nameChanged(name);if(syncClassName)if(!syncClassName->isEmpty())SyncService::addUpdateMessage(*syncClassName,*(ID*)(this+sizeof(this)),"name",name);}
+    Q_SLOT void setName(const QString &n){if(n==name)return;name=n;emit nameChanged(name);}
     QString getName()const{return name;}
-    Q_SLOT void setDescription(const QString &d){if(d==description)return;description=d;emit descriptionChanged(description);if(syncClassName)if(!syncClassName->isEmpty())SyncService::addUpdateMessage(*syncClassName,*(ID*)(this+sizeof(this)),"description",description);}
+    Q_SLOT void setDescription(const QString &d){if(d==description)return;description=d;emit descriptionChanged(description);}
     QString getDescription()const{return description;}
 
     void writeJsonObject(QJsonObject &o) const{

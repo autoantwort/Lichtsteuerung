@@ -152,7 +152,7 @@ private:
     QByteArray password;
     std::set<UserManagment::Permission> permissions;
     UserPermissionModel permissionModel;
-    void setUsername(const QString &u){if(u==username)return;username = u;emit usernameChanged(username);SyncService::addUpdateMessage("User",getID(),"username",username);}
+    void setUsername(const QString &u){if(u==username)return;username = u;emit usernameChanged(username);}
     void setPermission(UserManagment::Permission p,bool get = true);
     User(const QString & name, const QByteArray &password):username(name),password(password),permissionModel(this){}
     User(const QJsonObject &o);

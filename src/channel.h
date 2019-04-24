@@ -20,8 +20,7 @@ private:
     int index;
     friend class DevicePrototype;
 public:
-    static QString syncServiceClassName;
-    Channel(int index, QString name = "Unknown", QString description=""):NamedObject(name,description,&syncServiceClassName),index(index){}
+    Channel(int index, QString name = "Unknown", QString description=""):NamedObject(name,description),index(index){}
     Channel(const QJsonObject &o);
 
     int getIndex()const{return index;}

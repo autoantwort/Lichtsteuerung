@@ -1,7 +1,6 @@
 #include "deviceprototype.h"
 #include <QJsonArray>
 
-QString DevicePrototype::syncServiceClassName;
 
 void ChannelVector::beginPushBack(int length){
     beginInsertRows(QModelIndex(),channels.size(),channels.size()+length);
@@ -25,7 +24,6 @@ void DevicePrototype::removeChannels(int newMaxIndex){
     // Elemente ganz hinten löschen
     for (int i = 0; i < getNumberOfChannels() - newMaxIndex; ++i) {
         channelRemoved(channels.getChannel().back());
-        SyncService::addRemoveMemberMessage("DevicePrototype",getID(),"channels",channels.getChannel().back()->getID());
         delete channels.getChannel().back();
         channels.pop_back();
     }
@@ -41,14 +39,12 @@ void DevicePrototype::addChannel(int channel, QString name, QString description)
             emit channelAdded(channels.getChannel().back());
             QJsonObject o;
             channels.getChannel().back()->writeJsonObject(o);
-            SyncService::addCreateMemberMessage("DevicePrototype",getID(),"channels",o);
         }        
         channels.getChannel().push_back(new Channel(channel,name,description));
         channels.endPushBack();
         emit channelAdded(channels.getChannel().back());
         QJsonObject o;
         channels.getChannel().back()->writeJsonObject(o);
-        SyncService::addCreateMemberMessage("DevicePrototype",getID(),"channels",o);
     }else{
         // eigenschaften setzten
         channels.getChannel()[channel]->setName(name);
@@ -81,7 +77,7 @@ const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelInd
     return channels.getChannel()[channelIndex];
 }
 
-DevicePrototype::DevicePrototype(const QJsonObject &o):NamedObject(o,&syncServiceClassName),IDBase(o){
+DevicePrototype::DevicePrototype(const QJsonObject &o):NamedObject(o),IDBase(o){
     auto array = o["channels"].toArray();
     for(const auto c : array){
         channels.getChannel().push_back(new Channel(c.toObject()));
