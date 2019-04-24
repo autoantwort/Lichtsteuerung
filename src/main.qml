@@ -98,12 +98,8 @@ ApplicationWindow {
                 id:controlPane
             }
 
-            Item{
-                clip: true
-                MapView{
-                    anchors.fill: parent
-                }
-            }
+            BarMapView{}
+            
             LoginView{}
 
             SettingsView{}

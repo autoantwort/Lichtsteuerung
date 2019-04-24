@@ -193,7 +193,6 @@ public:
      * @param right The Right Point where the Arc ends
      */
     void addArc(Arc::index_type left, Arc::index_type mid, Arc::index_type right);
-protected:
     /**
      * @brief createPoint Adds a point if the Point does not exists and return the new index, or returns the index of the existins Point
      * @return the index of the Point in the Container
@@ -229,6 +228,14 @@ protected:
     }
     void addArc(Point::number_type lx,Point::number_type ly,Point::number_type mx,Point::number_type my,Point::number_type rx,Point::number_type ry){
         addArc(createPoint(Point(lx,ly)),createPoint(Point(mx,my)),createPoint(Point(rx,ry)));
+    }
+    /**
+     * @brief translatePoints translates all points in this polygon by a given offset
+     * @param diffX the difference in the x-achsis direction
+     * @param diffY the difference in the y-achsis direction
+     */
+    void translatePoints(Point::number_type diffX, Point::number_type diffY){
+        std::for_each(points.begin(),points.end(),[=](auto & p){p.x+=diffX; p.y+=diffY;});
     }
 public:
     QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
