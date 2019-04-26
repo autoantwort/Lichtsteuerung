@@ -16,12 +16,9 @@ Colorplot * Colorplot::lastCreated = nullptr;
 
 QSGNode * Colorplot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
     QSGNode *node = nullptr;
-    QSGGeometryNode *pointNode = nullptr;
-    QSGGeometry *pointGeometry = nullptr;
     QSGGeometryNode *lineNode = nullptr;
     QSGGeometry *lineGeometry = nullptr;
     mutex.lock();
-    int size = dataBlocks.size() * blockSize;
     int size2 = dataBlocks.size() * (blockSize+1);
     if (!oldNode) {
         node  = new QSGNode;
@@ -72,7 +69,7 @@ QSGNode * Colorplot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
         lines->x = x + 50;
         lines->y = height()-(blockSize-1)*2-1;
         ++lines;
-        for (int i = 0; i < blockSize; ++i) {
+        for (int i = 0; i < static_cast<int>(blockSize); ++i) {
             lines->x = x + 50;
             //           points->x = x*2;
             lines->y /*= points->y*/ = height()-i*2-1;

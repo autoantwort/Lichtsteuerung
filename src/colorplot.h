@@ -48,7 +48,7 @@ public:
         if (currentBlockCounter>=0) {
             dataBlocks.back()[currentBlockCounter] = d;//*0.4f;//std::pow(1+d*0.001,3)*20;
             ++currentBlockCounter;
-            if(currentBlockCounter>=blockSize)
+            if(currentBlockCounter>=static_cast<int>(blockSize))
                 currentBlockCounter=-1;
         }else
             qDebug()<<"Error : currentBlockCounter less then 0";

@@ -204,7 +204,6 @@ QSGNode* Polygon::updatePaintNode(QSGNode *oldNode , UpdatePaintNodeData *){
             *(++indices) = lastVertexIndex;
             for(int i = 1;i<needExtraVertices;++i){
                 Matrix::rotate5Degrees(startVector);
-                const auto lengthMult = lengthDiff * ((i+1)*fiveDegrees/angle);
                 const auto lengthXMult = lengthXDiff * ((i+1)*fiveDegrees/angle);
                 const auto lengthYMult = lengthYDiff * ((i+1)*fiveDegrees/angle);
                 ++vertices;

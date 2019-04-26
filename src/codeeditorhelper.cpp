@@ -259,7 +259,7 @@ void addCompletionsForType(PossibleCodeCompletions & model, QString type){
 }
 
 void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
-
+    Q_UNUSED(m)
     model.push_back(new CodeCompletionEntry("inputLength","unsigned int","Die Länge des Inputs"));
     model.push_back(new CodeCompletionEntry("outputLength","unsigned int","Die Länge des Outputs"));
     model.push_back(new CodeCompletionEntry("output[i]","unsigned int","Ein Element im Output an der Position index"));
@@ -538,6 +538,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
 }
 
 QString CodeEditorHelper::getType(QString variable, int pos){
+    Q_UNUSED(pos)
     if(variable == "inputLength")
         return "unsigned int";
     if(variable == "outputLength")

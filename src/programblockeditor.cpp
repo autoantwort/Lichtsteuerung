@@ -662,7 +662,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             for(const auto & i : programBlock->getFilter()){
                 if(static_cast<Filter*>(i.second.source.get())==pb){
                     const auto sum = std::accumulate(i.second.targeds.cbegin(),i.second.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= i.second.source->getInputLength()){
+                    if(sum >= static_cast<int>(i.second.source->getInputLength())){
                         dragType = None;
                         return;
                     }
@@ -671,7 +671,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             for(const auto & i : programBlock->getConsumer()){
                 if(static_cast<Consumer*>(i.source.get())==pb){
                     const auto sum = std::accumulate(i.targeds.cbegin(),i.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= i.source->getInputLength()){
+                    if(sum >= static_cast<int>(i.source->getInputLength())){
                         dragType = None;
                         return;
                     }
@@ -687,7 +687,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             for(const auto & i : programBlock->getFilter()){
                 if(static_cast<Filter*>(i.second.source.get())==pb){
                     const auto sum = std::accumulate(i.second.targeds.cbegin(),i.second.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= i.second.source->getInputLength()){
+                    if(sum >= static_cast<int>(i.second.source->getInputLength())){
                         dragType = None;
                         return;
                     }
@@ -696,7 +696,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             for(const auto & i : programBlock->getConsumer()){
                 if(static_cast<Consumer*>(i.source.get())==pb){
                     const auto sum = std::accumulate(i.targeds.cbegin(),i.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= i.source->getInputLength()){
+                    if(sum >= static_cast<int>(i.source->getInputLength())){
                         dragType = None;
                         return;
                     }

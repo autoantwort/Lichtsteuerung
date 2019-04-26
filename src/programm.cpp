@@ -3,7 +3,7 @@
 #include <unordered_set>
 
 
-TimeDistortion::TimeDistortion(const QJsonObject &o):enabled(o["enable"].toBool()),intervall(o["intervall"].toDouble()),distortionCurve(QEasingCurve::Type(o["type"].toInt())){
+TimeDistortion::TimeDistortion(const QJsonObject &o):enabled(o["enable"].toBool()),distortionCurve(QEasingCurve::Type(o["type"].toInt())),intervall(o["intervall"].toDouble()){
 
     const auto a = o.find("amplitude");
     if(a != o.end()) distortionCurve.setAmplitude(a->toDouble());

@@ -73,6 +73,7 @@ namespace Modules {
             return sizeof(rgb_t);
         }
         assert(false && "Nicht im Enum");
+        return 0;
     }
 
     class PropertyBase : public Serilerizeable{

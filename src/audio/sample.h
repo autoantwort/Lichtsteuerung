@@ -30,7 +30,7 @@ public:
         newData += startOffset;
         int dis = std::distance(newData,endPointer);
         int length = (dis+interleaved) / (1+interleaved);
-        if(length >= size_){
+        if(length >= static_cast<int>(size_)){
             --endPointer;
             for (auto i = array.rbegin();i != array.rend();++i,std::advance(endPointer,-(1+interleaved))) {
                 *i = *endPointer;

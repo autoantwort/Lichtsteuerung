@@ -18,7 +18,7 @@ public:
     Modules::ProgramState doStep(Modules::time_diff_t){
         output[i] = 255;
         ++i;
-        if(i>=outputLength){
+        if(i>=static_cast<int>(outputLength)){
             return {true,true};
         }
         return {false,true};
@@ -31,7 +31,7 @@ class TestFilter : public Modules::TypedFilter<Modules::brightness_t,Modules::br
 public:
 
 void filter()override{
-    for (int i = 0 ; i <inputLength;++i) {
+    for (unsigned i = 0 ; i <inputLength;++i) {
         output[i] = input[i]/2;
     }
 }
@@ -45,7 +45,7 @@ void filter()override{
 };
 
 class ControlConsumer : public Modules::TypedConsumer<Modules::brightness_t>{
-int index = 0;
+    unsigned index = 0;
 public:
 virtual void start(){}
 virtual void stop(){}
@@ -54,18 +54,19 @@ virtual void stop(){}
      */
     virtual void show(){
         ++index;
-        for (int i = 0;i<index;++i) {
+        for (unsigned i = 0;i<index;++i) {
             Q_ASSERT(input[i]==255/2);
         }
-        for (int i = index;i<inputLength;++i) {
+        for (unsigned i = index;i<inputLength;++i) {
             Q_ASSERT(input[i]==0);
         }
     }
     virtual void doStep(Modules::time_diff_t diff){
-        for (int i = 0;i<index;++i) {
+        Q_UNUSED(diff)
+        for (unsigned i = 0;i<index;++i) {
             Q_ASSERT(input[i]==255/2);
         }
-        for (int i = index;i<inputLength;++i) {
+        for (unsigned i = index;i<inputLength;++i) {
             Q_ASSERT(input[i]==0);
         }
     }

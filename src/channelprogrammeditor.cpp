@@ -146,6 +146,8 @@ void ChannelProgrammEditor::setChannelProgramm(ChannelProgramm *p){
 }
 
 void ChannelProgrammEditor::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry){
+    Q_UNUSED(newGeometry)
+    Q_UNUSED(oldGeometry)
     updatePolish();
 }
 
@@ -161,6 +163,7 @@ void ChannelProgrammEditor::updatePolish(){
 }
 
 QSGNode * ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData * nodeData){
+    Q_UNUSED(nodeData)
     ChannelProgrammEditor::updatePolish();
     QSGTransformNode *node = nullptr;
     QSGGeometryNode *lineNode = nullptr;
@@ -235,7 +238,7 @@ QSGNode * ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNo
         QRectF bounds = boundingRect();
         QSGGeometry::Point2D *vertices = lineGeometry->vertexDataAsPoint2D();
 
-        const qreal stepSize = 1./segments;
+        //const qreal stepSize = 1./segments;
         auto iter = channelProgramm->timeline.cbegin();
         /*
          * effective version :
@@ -365,7 +368,6 @@ decltype(ChannelProgramm::timeline)::iterator ChannelProgrammEditor::getTimePoin
 }
 
 QEasingCurve * ChannelProgrammEditor::getCurveForPoint(int x){
-    auto time = mapFromVisualX(x);
     if(!channelProgramm)
         return nullptr;
     if(channelProgramm->timeline.empty())

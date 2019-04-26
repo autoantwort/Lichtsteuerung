@@ -85,7 +85,7 @@ void ControlPanel::addProgramBlockControl(Modules::ProgramBlock *p){
 }
 
 void ControlPanel::hoverEnterEvent(QHoverEvent *event){
-
+    Q_UNUSED(event)
 }
 void ControlPanel::hoverMoveEvent(QHoverEvent *event){
     if(event->oldPos().x()>=width()-menuWidth&&
@@ -97,5 +97,6 @@ void ControlPanel::hoverMoveEvent(QHoverEvent *event){
     }
 }
 void ControlPanel::hoverLeaveEvent(QHoverEvent *event){
+    Q_UNUSED(event)
     emit exitMenuArea();
 }

@@ -61,7 +61,6 @@ QSGNode * GridBackground::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData 
     }
 
     QSGGeometry::Point2D *vertices = lineGeometry->vertexDataAsPoint2D();
-    auto start = vertices;
     vertices->x=0;
     vertices->y=0;
     ++vertices;

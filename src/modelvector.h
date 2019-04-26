@@ -100,7 +100,7 @@ public:
         endRemoveRows();
     }
     Type erase(int i){
-        Q_ASSERT(i>=0 && i < size());
+        Q_ASSERT(i>=0 && i < static_cast<int>(size()));
         beginRemoveRows(QModelIndex(),i,i);
         auto result = model[i];
         model.erase(model.cbegin() + i);

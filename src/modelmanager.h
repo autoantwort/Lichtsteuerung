@@ -47,7 +47,7 @@ public:
     }
     Q_INVOKABLE bool duplicateModule(int index){
         const auto vec = Modules::ModuleManager::singletone()->getModules();
-        if(index>=0 && index < vec->size()){
+        if(index>=0 && index < static_cast<int>(vec->size())){
             QJsonObject o;
             (*vec)[index]->writeJsonObject(o);
             Modules::ModuleManager::singletone()->getModules()->push_back(new Modules::Module(o));
@@ -57,7 +57,7 @@ public:
     }
     Q_INVOKABLE void removeModule(int index){
         const auto vec = Modules::ModuleManager::singletone()->getModules();
-        if(index>=0 && index < vec->size()){
+        if(index>=0 && index < static_cast<int>(vec->size())){
             delete vec->erase(index);
         }
     }
@@ -68,7 +68,7 @@ public:
     }
     Q_INVOKABLE void removeProgramBlock(int index){
         auto & vec = Modules::ProgramBlockManager::model;
-        if(index>=0 && index < vec.size()){
+        if(index>=0 && index < static_cast<int>(vec.size())){
             vec.erase(index);
         }
     }
