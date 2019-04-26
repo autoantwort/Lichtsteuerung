@@ -16,6 +16,7 @@ ModelView{
     descriptionInputEnabled: UserManagment.currentUser.havePermission(Permission.CHANGE_NAME)
     addButton.text: "Add Device"
     removeButton.text: "Remove Device"
+    property var placeOnMapCallback
 
     Text{
         Layout.row: 2
@@ -68,7 +69,7 @@ ModelView{
         }
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
-            Layout.minimumWidth: 50
+            Layout.minimumWidth: 40
             text:deviceModelView.currentItem.modelData.position.x
             validator: IntValidator{}
             onTextChanged: deviceModelView.currentItem.modelData.position.x = text.length?text:0
@@ -80,9 +81,16 @@ ModelView{
         }
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
+            Layout.minimumWidth: 40
             text:deviceModelView.currentItem.modelData.position.y
             validator: IntValidator{}
             onTextChanged: deviceModelView.currentItem.modelData.position.y = text.length?text:0
+        }
+        Button{
+            visible: deviceModelView.placeOnMapCallback && deviceModelView.currentItem.modelData.position.x === -1 || deviceModelView.currentItem.modelData.position.x === -1
+            text: "Place on map"
+            onClicked: deviceModelView.placeOnMapCallback(deviceModelView.currentItem.modelData)
+            height: implicitHeight - 15
         }
     }
 

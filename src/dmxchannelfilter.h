@@ -11,6 +11,12 @@
  */
 class DMXChannelFilter : public QObject{
     Q_OBJECT
+    Q_PROPERTY(unsigned char value READ getValue WRITE setValue NOTIFY valueChanged)
+    Q_PROPERTY(unsigned char minValue READ getMinValue WRITE setMinValue NOTIFY minValueChanged)
+    Q_PROPERTY(unsigned char maxValue READ getMaxValue WRITE setMaxValue NOTIFY maxValueChanged)
+    Q_PROPERTY(Operation minOperation READ getMinOperation WRITE setMinOperation NOTIFY minOperationChanged)
+    Q_PROPERTY(Operation maxOperation READ getMaxOperation WRITE setMaxOperation NOTIFY maxOperationChanged)
+    Q_PROPERTY(bool shouldOverrideValue READ shouldOverrideValue WRITE shouldOverrideValue NOTIFY shouldOverrideValueChanged)
 public:
     /**
      * @brief The Operation enum legt die Operationen für den min und max value fest

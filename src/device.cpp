@@ -63,10 +63,13 @@ void Device::channelAdded(Channel *c){
 
 DMXChannelFilter * Device::getFilterForChannel( Channel *c){
     for(auto i = filter.cbegin();i!=filter.cend();++i){
-        if(i->first==c)
+        if(i->first==c){
+            QQmlEngine::setObjectOwnership(i->second,QQmlEngine::CppOwnership);
             return i->second;
+        }
     }
     filter.emplace_back(c,new DMXChannelFilter);
+    QQmlEngine::setObjectOwnership(filter.back().second,QQmlEngine::CppOwnership);
     return filter.back().second;
 }
 

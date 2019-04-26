@@ -29,6 +29,71 @@ std::vector<unsigned char> oldData;
 
 namespace Driver {
 
+    DMXQMLValue::DMXQMLValue(){
+        QQmlEngine::setObjectOwnership(this,QQmlEngine::CppOwnership);
+    }
+
+    DMXValueModel::DMXValueModel(){
+        QQmlEngine::setObjectOwnership(this,QQmlEngine::CppOwnership);
+    }
+
+    void DMXValueModel::setQMLEngineThread(QThread *qmlEngineThread){
+        if(this->qmlEngineThread == qmlEngineThread)
+            return;
+        this->qmlEngineThread = qmlEngineThread;
+        for(auto & v : values){
+            v->moveToThread(qmlEngineThread);
+        }
+    }
+
+    void DMXValueModel::setValues(unsigned char *v, size_t size){
+        if(!enableUpdates)
+            return;
+        int diffSize = static_cast<int>(size - values.size());
+        if(diffSize>0){
+            beginInsertRows(QModelIndex(),static_cast<int>(values.size()),static_cast<int>(values.size())+diffSize);
+            for(int i = 0; i < diffSize; ++i){
+                values.emplace_back(std::make_unique<DMXQMLValue>());
+                if(qmlEngineThread)
+                    values.back()->moveToThread(qmlEngineThread);
+            }
+            emit valuesChanged();
+        }else if(diffSize<0){
+            beginRemoveRows(QModelIndex(),static_cast<int>(values.size()) + diffSize,static_cast<int>(values.size()) - 1);
+            values.resize(size);
+            emit valuesChanged();
+        }
+        if(diffSize>0){
+            endInsertRows();
+        }else if(diffSize<0){
+            endRemoveRows();
+        }
+        for(auto dmxValue = values.begin(); dmxValue != values.end();++dmxValue,++v){
+            **dmxValue = *v;
+        }
+    }
+
+    QHash<int, QByteArray> DMXValueModel::roleNames() const{
+        auto map = QAbstractListModel::roleNames();
+        map.insert(ValueRole,"value");
+        return map;
+    }
+
+    QVariant DMXValueModel::data(const QModelIndex &index, int role) const{
+        Q_UNUSED(role)
+        if(index.row()<0||index.row()>=rowCount())
+            return {};
+        return QVariant::fromValue(values[static_cast<std::vector<unsigned char>::size_type>(index.row())].get());
+    }
+
+    DMXQMLValue * DMXValueModel::value(int index){
+        if(static_cast<size_t>(index) >= values.size())
+            return nullptr;
+        return values[static_cast<size_t>(index)].get();
+    }
+
+
+
     bool loadAndStartDriver(QString path){
         if(!loadDriver(path)){
             return false;
@@ -104,6 +169,7 @@ namespace Driver {
                 Programm::fill(values,size,time);
                 Modules::DMXConsumer::fillWithDMXConsumer(values,size);
                 DMXChannelFilter::filterValues(values,size);
+                dmxValueModel.setValues(values,static_cast<size_t>(size));
                 std::copy(values+1, values+size,values);
 #ifdef LOG_DRIVER
                 if(debugOutput.is_open() && !std::equal(std::begin(oldData),std::end(oldData),values)){

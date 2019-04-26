@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     ControlPanel::setQmlEngine(&engine);
     ProgramBlockEditor::engine = &engine;
+    Driver::dmxValueModel.setQMLEngineThread(engine.thread());
     // normally this should be done automatically
     qRegisterMetaType<QAbstractListModel*>("QAbstractListModel*");
     qRegisterMetaType<PropertyInformationModel*>("PropertyInformationModel*");
@@ -115,6 +116,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::ValueType>("ValueType");
     qRegisterMetaType<Modules::ProgramBlock::Status>("Status");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
+    qRegisterMetaType<Driver::DMXQMLValue*>("DMXQMLValue*");
 
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo("settings.ini"));
@@ -203,6 +205,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
     engine.rootContext()->setContextProperty("Settings",&settings);
     engine.rootContext()->setContextProperty("spotify",&spotify);
+    QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
+    engine.rootContext()->setContextProperty("dmxOutputValues",&Driver::dmxValueModel);
     engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 
 
@@ -222,17 +226,18 @@ int main(int argc, char *argv[])
 #else
 #include "test/DriverDummy.h"
 
-    /*DriverDummy driver;
+    DriverDummy driver;
     driver.setSetValuesCallback([](unsigned char* values, int size, double time){
         std::memset(values,0,size);
         DMXChannelFilter::initValues(values,size);
         Programm::fill(values,size,time);
         Modules::DMXConsumer::fillWithDMXConsumer(values,size);
         DMXChannelFilter::filterValues(values,size);
+        Driver::dmxValueModel.setValues(values,size);
     });
-    driver.setWaitTime(std::chrono::seconds(5));
+    driver.setWaitTime(std::chrono::milliseconds(40));
     driver.init();
-    driver.start();*/
+    driver.start();
 #endif
 
     QTimer timer;

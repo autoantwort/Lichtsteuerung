@@ -45,7 +45,7 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Control Pane")
-                Component.onCompleted: tabBar.currentIndex = 4
+                Component.onCompleted: tabBar.setCurrentIndex(4)
             }
             VerticalTabButton {
                 text: qsTr("Map View")
@@ -86,7 +86,13 @@ ApplicationWindow {
             y:0
             currentIndex: tabBar.currentIndex
             orientation: "Vertical"
-            DeviceView{}
+
+            DeviceView{
+                placeOnMapCallback: function(device){
+                    mapView.toPlacedDevice = device;
+                    swipeView.setCurrentIndex(mapView.SwipeView.index);
+                }
+            }
 
             DevicePrototypeView{}
 
@@ -98,7 +104,9 @@ ApplicationWindow {
                 id:controlPane
             }
 
-            BarMapView{}
+            BarMapView{
+                id: mapView
+            }
             
             LoginView{}
 

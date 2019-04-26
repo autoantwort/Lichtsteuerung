@@ -61,8 +61,8 @@ public:
 
     const std::vector<std::pair<Channel*,DMXChannelFilter*>> & getChannelFilter()const{return filter;}
 
-    DMXChannelFilter * getFilterForChannel( Channel * c);
-    DMXChannelFilter * getFilterForChannelindex(int intdex);
+    Q_INVOKABLE DMXChannelFilter * getFilterForChannel( Channel * c);
+    Q_INVOKABLE DMXChannelFilter * getFilterForChannelindex(int intdex);
 
 signals:
     void startDMXChannelChanged(unsigned int newStartDMXChannel);
