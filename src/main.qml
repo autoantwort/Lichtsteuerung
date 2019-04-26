@@ -16,6 +16,16 @@ ApplicationWindow {
 
     Item{
         anchors.fill: parent
+        id: root
+        Shortcut{
+            sequence: StandardKey.Save
+            autoRepeat: false
+            onActivated: {
+                ModelManager.save()
+                root.ToolTip.show("Data Saved",1500)
+            }
+        }
+
         VerticalTabBar{
 
             id: tabBar

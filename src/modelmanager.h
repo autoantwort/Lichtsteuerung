@@ -1,15 +1,20 @@
 #ifndef MODELMANAGER_H
 #define MODELMANAGER_H
 
-#include <QObject>
+#include "applicationdata.h"
 #include "device.h"
-#include "programmprototype.h"
 #include "programm.h"
+#include "programmprototype.h"
 #include "programms/modulemanager.h"
+#include "settings.h"
+#include <QObject>
 
 class ModelManager : public QObject{
     Q_OBJECT
+    Settings & settings;
 public:
+    explicit ModelManager(Settings & settings):settings(settings){}
+
     Q_INVOKABLE void remove(QObject * item){
         if(item)
             delete item;
@@ -71,6 +76,16 @@ public:
         if(index>=0 && index < static_cast<int>(vec.size())){
             vec.erase(index);
         }
+    }
+    /**
+      * @brief saves the application data
+      */
+    Q_INVOKABLE void save(){
+        QFile savePath(settings.getJsonSettingsFilePath());
+        if(savePath.exists()){
+            savePath.copy(savePath.fileName()+"_"+QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
+        }
+        ApplicationData::saveData(savePath);
     }
 
 };

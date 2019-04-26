@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
     });
 
 
-    engine.rootContext()->setContextProperty("ModelManager",new ModelManager());
+    engine.rootContext()->setContextProperty("ModelManager",new ModelManager(settings));
     engine.rootContext()->setContextProperty("easingModel",dataList);
     engine.rootContext()->setContextProperty("ErrorNotifier",ErrorNotifier::get());
     engine.setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
