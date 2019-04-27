@@ -37,7 +37,7 @@ RowLayout{
                 throw "fileChooser ist not set!";
             }
             path = root.path
-            fileDialog = root.fileChooser;
+            var fileDialog = root.fileChooser;
             fileDialog.selectFolder = parent.folder;
             fileDialog.selectMultiple = !parent.folder;
             fileDialog.folder = "file:///"+path.substring(0,path.lastIndexOf("/"));
