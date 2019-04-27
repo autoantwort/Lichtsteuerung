@@ -2,11 +2,26 @@
 
 namespace Modules {
 
+    /**
+     * @brief consumers a list of all existing dmxconsumers
+     */
+    std::vector<DMXConsumer *> consumers;
+
     DMXConsumer::DMXConsumer():startDMXChannel(0,512,0)
     {
         properties.push_back(&startDMXChannel);
         startDMXChannel.setName("start DMX Channel");
         startDMXChannel.setDescription("The address of the first position in the output array.");
+        consumers.push_back(this);
+    }
+
+    DMXConsumer::~DMXConsumer(){
+        for (auto i = consumers.cbegin();i != consumers.cend();++i) {
+            if(*i == this) {
+                consumers.erase(i);
+                return;
+            }
+        }
     }
 
 
@@ -22,13 +37,12 @@ namespace Modules {
     }
 
     void DMXConsumer::fillWithDMXConsumer(unsigned char *data, size_t length){
-        for(const auto & i : IDBase<DMXConsumer>::getAllIDBases()){
-            if(i->running){
-                for (int a = 0; a < std::min(static_cast<int>(length)-i->startDMXChannel.getValue(),static_cast<int>(i->getInputLength()));++a) {
-                    data[i->startDMXChannel.getValue() + a] = i->input[a];
-                }
+        for(const auto & i : consumers){
+            if(i->running && i->startDMXChannel.getValue() < static_cast<int>(length)){
+                const auto numElements = std::min(static_cast<int>(length) - i->startDMXChannel.getValue(),static_cast<int>(i->getInputLength()));
+                std::copy_n(i->input,numElements,data + i->startDMXChannel.getValue());
             }
         }
     }
 
-}
+}  // namespace Modules
