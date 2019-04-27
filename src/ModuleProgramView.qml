@@ -505,6 +505,23 @@ Item{
             id: popup_addConnectionAsk
             property string outputName
             property string inputName
+            Shortcut{
+                enabled: popup_addConnectionAsk.visible
+                sequences: ["Enter" , "Return"]
+                onActivated: popup_addConnectionAsk.addConnectionWithInput();
+            }
+
+            onVisibleChanged: {
+                if(visible){
+                    textInput_connectionWidth.forceActiveFocus();
+                }
+            }
+
+            function addConnectionWithInput(){
+                popup_addConnectionAsk.visible = false;
+                programEditor.addConnection(textInput_connectionWidth.text,textInput_connectionStartIndex.text);
+            }
+
             contentItem: ColumnLayout{
                     Label{
                         text:"Add a connection from the OutputDataProducer " + popup_addConnectionAsk.outputName + " to the InputDataConsumer " + popup_addConnectionAsk.inputName + "."
@@ -518,7 +535,6 @@ Item{
                         TextInputField{
                             id: textInput_connectionWidth
                             width: 35
-                            text:"50"
                             validator: IntValidator{
                                 bottom: 1
                                 top: 9999
@@ -559,8 +575,7 @@ Item{
                         text:"Create"
                         enabled: textInput_connectionWidth.text.length>0 && textInput_connectionStartIndex.text.length > 0
                         onClicked: {
-                            popup_addConnectionAsk.visible = false;
-                            programEditor.addConnection(textInput_connectionWidth.text,textInput_connectionStartIndex.text);
+                            popup_addConnectionAsk.addConnectionWithInput();
                         }
                     }
                 }
