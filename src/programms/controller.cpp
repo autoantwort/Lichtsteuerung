@@ -112,6 +112,7 @@ void Controller::run() noexcept{
             }
         }
         spotifyState.newTrack = false;
+        controlPoint.positionChanged = false;
     }
 }
 

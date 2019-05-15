@@ -9,6 +9,15 @@ ColumnLayout{
     anchors.margins: 5
     property var toPlacedDevice: null
 
+    ToolTip.visible: !root.toPlacedDevice && hoverMouseArea.containsMouse
+    ToolTip.text: "Use the shift or alt modifier to move the control point or no modifier to move the map"
+
+    SwipeView.onIsCurrentItemChanged: {
+        if(!SwipeView.isCurrentItem){
+            toPlacedDevice = null; // if the item is not placed and we leave the tab ignore the to placed item
+        }
+    }
+
     Item{
         Layout.fillWidth: true
         Layout.fillHeight: true
@@ -82,14 +91,24 @@ ColumnLayout{
                         MouseArea{
                             anchors.fill: parent
                             acceptedButtons: Qt.LeftButton | Qt.RightButton
+                            enabled: root.toPlacedDevice !== null
                             onClicked: {
                                 if(root.toPlacedDevice && mouse.button === Qt.LeftButton){
                                     root.toPlacedDevice.position.x = mouse.x - 30;
                                     root.toPlacedDevice.position.y = mouse.y - 30;
+                                }else{
+                                    mouse.accepted = false;
                                 }
                                 root.toPlacedDevice = null;
                                 deviceInfo.device = null;
                             }
+                        }
+                        MouseArea{
+                            id: hoverMouseArea
+                            anchors.fill: parent
+                            acceptedButtons: Qt.NoButton
+                            hoverEnabled: true
+                            scrollGestureEnabled: true
                             onWheel: {
                                 if(wheel.modifiers & Qt.ControlModifier){
                                     var newScale = map.scale + wheel.angleDelta.y / 120. * 0.1;
@@ -99,8 +118,8 @@ ColumnLayout{
                                     wheel.accepted = false
                                 }
                             }
-
                         }
+
                         Repeater{
                             model: deviceModel
                             Rectangle{
@@ -148,6 +167,28 @@ ColumnLayout{
                                 ToolTip.text: itemData.name + "\nDmx Addess: " + itemData.startDMXChannel
                             }
                         }
+
+                        Rectangle{
+                            id: controlPoint
+                            x: parent.controlPoint.x + 30 - 3
+                            y: parent.controlPoint.y + 30 - 3
+                            width: 7
+                            height: 7
+                            radius: 7
+                            color: "lightgreen"
+                            MouseArea{
+                                id: mouseAreaControlPoint
+                                acceptedButtons: Qt.NoButton
+                                enabled: !root.toPlacedDevice
+                                anchors.fill: parent
+                                anchors.margins: -5
+                                hoverEnabled: true
+                            }
+                            ToolTip.visible: mouseAreaControlPoint.containsMouse
+                            ToolTip.delay: 500
+                            ToolTip.text: "This control point is used by modules programs"
+                        }
+
                     }
                 }
             }

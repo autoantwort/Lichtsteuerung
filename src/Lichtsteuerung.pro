@@ -101,6 +101,7 @@ HEADERS += \
     applicationdata.h \
     namedobject.h \
     dmxchannelfilter.h \
+    programms/controlpoint.hpp \
     usermanagment.h \
     channelprogrammeditor.h \
     modelmanager.h \

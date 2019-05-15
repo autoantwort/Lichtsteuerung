@@ -253,6 +253,11 @@ void addCompletionsForType(PossibleCodeCompletions & model, QString type){
         model.push_back(new CodeCompletionEntry("currentSection.","SectionObject","The current Section of the Analysis of the current track."));
         model.push_back(new CodeCompletionEntry("currentSegment.","SegmentObject","The current Segment of the Analysis of the current track."));
     }
+    if(type=="ControlPoint"){
+        model.push_back(new CodeCompletionEntry("x","double","the x position of the control point"));
+        model.push_back(new CodeCompletionEntry("y","double","the y position of the control point"));
+        model.push_back(new CodeCompletionEntry("positionChanged","bool","A bool that indicates the position change of the control point."));
+    }
     //model.push_back(new CodeCompletionEntry("","float",""));
 
     qDebug()<<"type" << type;
@@ -267,6 +272,7 @@ void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
     model.push_back(new CodeCompletionEntry("input[i]","unsigned int","Ein Element im Input an der Position index"));
     model.push_back(new CodeCompletionEntry("input","unsigned int * ","Der Inputarray"));
     model.push_back(new CodeCompletionEntry("spotify->","SpotifyState","Ein Object, dass alle zu Spotify gehörigen Daten enthält."));
+    model.push_back(new CodeCompletionEntry("controlPoint->","ControlPoint","Der ControlPoint der in dem Map View gesetzt werden kann."));
 }
 
 void skipWhitespaces(int & cursor, QTextDocument * d){
@@ -563,6 +569,8 @@ QString CodeEditorHelper::getType(QString variable, int pos){
         return "SegmentObject";
     if(variable == "spotify")
         return "SpotifyState";
+    if(variable == "controlPoint")
+        return "ControlPoint";
     return "unknown";
 }
 
@@ -925,6 +933,7 @@ void CodeEditorHelper::compile(){
         stream << "#define MODULE_LIBRARY" << endl;
         stream << "#define HAVE_AUDIO" << endl;
         stream << "#define HAVE_SPOTIFY" << endl;
+        stream << "#define HAVE_CONTROL_POINT" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;

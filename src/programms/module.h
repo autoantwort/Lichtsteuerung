@@ -7,6 +7,7 @@
 //#define HAVE_FILTER
 //#define HAVE_CONSUMER
 //#define HAVE_SPOTIFY
+//#define HAVE_CONTROL_POINT
 
 #ifdef HAVE_PROGRAM
 #include "program.hpp"
@@ -33,6 +34,10 @@
 #include "spotify.hpp"
 #endif
 
+#ifdef HAVE_CONTROL_POINT
+#include "controlpoint.hpp"
+#endif
+
 #include <string>
 
 //disable Warning for char * as return type in extern "C" Block with clang
@@ -49,7 +54,7 @@
 #endif
 
 extern "C" {
-enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio,Spotify};
+enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio,Spotify,ControlPoint};
 
 #ifdef MODULE_LIBRARY
 
@@ -87,6 +92,12 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
 #endif
     case MODUL_TYPE::Spotify:
 #ifdef HAVE_SPOTIFY
+    return true;
+#else
+    return false;
+#endif
+    case MODUL_TYPE::ControlPoint:
+#ifdef HAVE_CONTROL_POINT
     return true;
 #else
     return false;
@@ -138,6 +149,12 @@ bool supportAudio(){return __supportAudio;}
 Modules::SpotifyState __emptySpotifyState;
 Modules::SpotifyState const * spotify = &__emptySpotifyState;
 MODULE_EXPORT void _setSpotifyState(Modules::SpotifyState const * s){spotify = s?s:&__emptySpotifyState;}
+#endif
+
+#ifdef HAVE_CONTROL_POINT
+Modules::ControlPoint __defaultControlPoint;
+Modules::ControlPoint const * controlPoint;
+MODULE_EXPORT void _setControlPoint(Modules::ControlPoint const * s){controlPoint = s?s:&__defaultControlPoint;}
 #endif
 
 }

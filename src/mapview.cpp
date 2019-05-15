@@ -114,6 +114,9 @@ MapView * MapView::lastCreated = nullptr;
 
 MapView::MapView()
 {
+    setKeepMouseGrab(true);
+    setAcceptedMouseButtons(Qt::LeftButton);
+
     lastCreated = this;
     auto p = generateBar();
     p.first->setParentItem(this);
@@ -184,4 +187,39 @@ void MapView::writeJsonObject(QJsonObject &o) const{
     o.insert("polygons",a);
 }
 
+void MapView::mousePressEvent(QMouseEvent *event){
+    if(event->modifiers().testFlag(Qt::AltModifier) || event->modifiers().testFlag(Qt::ShiftModifier)){
+        event->accept();
+    }else{
+        // compute distance to controlPoint:
+        if(std::sqrt((event->pos() - controlPoint).manhattanLength())<9){
+            event->accept();
+        }else{
+            event->ignore();
+        }
+    }
 }
+
+void MapView::mouseMoveEvent(QMouseEvent *event){
+    event->accept();
+    controlPoint = event->pos();
+    controlPoint.setX(controlPoint.x() - 30 - 3);
+    controlPoint.setY(controlPoint.y() - 30 - 3);
+    if(controlPoint.x() < 0){
+        controlPoint.setX(0);
+    }else if(controlPoint.x() > implicitWidth()){
+        controlPoint.setX(implicitWidth());
+    }
+    if(controlPoint.y() < 0){
+        controlPoint.setY(0);
+    }else if(controlPoint.y() > implicitWidth()){
+        controlPoint.setY(implicitWidth());
+    }
+    emit controlPointChanged();
+    Modules::ModuleManager::singletone()->controller().updateControlPoint(controlPoint);
+}
+
+}
+
+
+

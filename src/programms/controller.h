@@ -8,6 +8,8 @@
 #include "programblock.h"
 #include "spotify.hpp"
 #include "spotify/spotify.h"
+#include "controlpoint.hpp"
+#include <QPointF>
 
 namespace Modules {
 
@@ -32,6 +34,8 @@ class Controller
     int lastIndexOfCurrentTatum = -1;
     int lastIndexOfCurrentSection = -1;
     int lastIndexOfCurrentSegment = -1;
+    // Control Point
+    ControlPoint controlPoint;
 
     friend class ProgramBlock;
     void run() noexcept;
@@ -42,10 +46,23 @@ public:
      */
     const SpotifyState & getSpotifyState(){return spotifyState;}
     /**
+     * @brief getControlPoint return the ControlPoint object managed by this controller
+     */
+    const ControlPoint & getControlPoint(){return controlPoint;}
+    /**
      * @brief setSpotify sets the Spotify object for this controller that is used to fill the Spotify state object
      * @param spotify the Spotify object, or a nullptr to unset the Spotify object
      */
     void setSpotify(Spotify::Spotify * spotify);
+    /**
+     * @brief updateControlPoint updates the control point used by the module programs
+     * @param controlPointPosition The new control point position on the map
+     */
+    void updateControlPoint(const QPointF & controlPointPosition){
+        controlPoint.x = controlPointPosition.x();
+        controlPoint.y = controlPointPosition.y();
+        controlPoint.positionChanged = true;
+    }
     void start(){
         if(!run_){
             run_=true;

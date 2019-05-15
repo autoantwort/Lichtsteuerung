@@ -240,6 +240,13 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                     func(&controller_.getSpotifyState());
                 }
             }
+            if(f(MODUL_TYPE::ControlPoint)){
+                typedef void (*SetControlPointFunc)(Modules::ControlPoint const *);
+                SetControlPointFunc func = reinterpret_cast<SetControlPointFunc>(lib.resolve("_setControlPoint"));
+                if(func){
+                    func(&controller_.getControlPoint());
+                }
+            }
 
 
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
