@@ -8,6 +8,7 @@
 //#define HAVE_CONSUMER
 //#define HAVE_SPOTIFY
 //#define HAVE_CONTROL_POINT
+//#define HAVE_ISCANNER
 
 #ifdef HAVE_PROGRAM
 #include "program.hpp"
@@ -38,6 +39,11 @@
 #include "controlpoint.hpp"
 #endif
 
+#ifdef HAVE_ISCANNER
+#include "scanner.hpp"
+#include <functional>
+#endif
+
 #include <string>
 
 //disable Warning for char * as return type in extern "C" Block with clang
@@ -54,7 +60,7 @@
 #endif
 
 extern "C" {
-enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio,Spotify,ControlPoint};
+enum class MODUL_TYPE{Program, LoopProgram,Filter,Consumer,Audio,Spotify,ControlPoint, IScanner};
 
 #ifdef MODULE_LIBRARY
 
@@ -98,6 +104,12 @@ MODULE_EXPORT bool have(MODUL_TYPE t){
 #endif
     case MODUL_TYPE::ControlPoint:
 #ifdef HAVE_CONTROL_POINT
+    return true;
+#else
+    return false;
+#endif
+    case MODUL_TYPE::IScanner:
+#ifdef HAVE_ISCANNER
     return true;
 #else
     return false;
@@ -155,6 +167,27 @@ MODULE_EXPORT void _setSpotifyState(Modules::SpotifyState const * s){spotify = s
 Modules::ControlPoint __defaultControlPoint;
 Modules::ControlPoint const * controlPoint;
 MODULE_EXPORT void _setControlPoint(Modules::ControlPoint const * s){controlPoint = s?s:&__defaultControlPoint;}
+#endif
+
+#ifdef HAVE_ISCANNER
+std::function<Modules::IScanner*(const std::string &)> getScannerByNameCallback;
+std::function<Modules::IScanner*(const std::string &)> getScannerByNameOrCreateCallback;
+MODULE_EXPORT void _setGetScannerByNameCallback(std::function<Modules::IScanner*(const std::string &)> callback){getScannerByNameCallback = callback;}
+MODULE_EXPORT void _setGetScannerByNameOrCreateCallback(std::function<Modules::IScanner*(const std::string &)> callback){getScannerByNameOrCreateCallback = callback;}
+namespace Scanner {
+    Modules::IScanner * getByName(const std::string & name){
+        if(getScannerByNameCallback){
+            return getScannerByNameCallback(name);
+        }
+        return nullptr;
+    }
+    Modules::IScanner * getByNameOrCreate(const std::string & name){
+        if(getScannerByNameOrCreateCallback){
+            return getScannerByNameOrCreateCallback(name);
+        }
+        return nullptr;
+    }
+}
 #endif
 
 }

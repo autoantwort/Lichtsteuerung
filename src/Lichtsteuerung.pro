@@ -44,6 +44,7 @@ SOURCES += \
     programm.cpp \
     programmprototype.cpp \
     programms/dmxconsumer.cpp \
+    scanner.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     test/DriverDummy.cpp \
@@ -102,6 +103,8 @@ HEADERS += \
     namedobject.h \
     dmxchannelfilter.h \
     programms/controlpoint.hpp \
+    programms/scanner.hpp \
+    scanner.h \
     usermanagment.h \
     channelprogrammeditor.h \
     modelmanager.h \

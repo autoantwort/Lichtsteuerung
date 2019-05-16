@@ -258,6 +258,19 @@ void addCompletionsForType(PossibleCodeCompletions & model, QString type){
         model.push_back(new CodeCompletionEntry("y","double","the y position of the control point"));
         model.push_back(new CodeCompletionEntry("positionChanged","bool","A bool that indicates the position change of the control point."));
     }
+    if(type=="IScanner"){
+        model.push_back(new CodeCompletionEntry("setScannerPosition(float x, float y, float z)","void","Setzt die Position des Scanners im Raum. Die Position sollte die des Spiegels des Scanners entsprechen."));
+        model.push_back(new CodeCompletionEntry("setScannerTilt(float tiltInDegree)","void","Setzt die Neigung des Scanners. Wenn dieser auf dem Boden liegt entspricht dies 0 Grad, wenn er aufrecht steht dies 90 Grad."));
+        model.push_back(new CodeCompletionEntry("setScannerRotationInRoom(float scannerRotationInDegrees)","void","Setzt die Scanner Rotation in den Raum rein. Siehe Map für Koordinatensystem. Nach rechts sind 0 Grad, nach links 180, nach oben -90, nach unten -90 Grad."));
+        model.push_back(new CodeCompletionEntry("setDmxValuesForTiltAngles(float angle1, unsigned char dmxValue1,float angle2, unsigned char dmxValue2)","void","Für den Motor der die Neigung des Spiegels bestimmt. Es sollen zwei Wertepaare aus Winkel + DMX-Wert angeben werden, damit lassen sich alle anderen DMX-Werte berechnen."));
+        model.push_back(new CodeCompletionEntry("setDmxValueForRotation(float rotation, unsigned char dmxValue)","void","Für den Motor der die Rotation nach links oder rechts des Spiegels bestimmt. Wenn der Spiegel nicht nach links oder rechts gedreht ist entspricht dies einenm dmxWert von 128 und einer Rotation von 0 Grad. Rotation nach rechts entspricht positiven graden und nach links negativen. Aus einem Winkel und den dazugehörigen DMX-Wert lassen sich alle anderen DMX-Werte berechnen."));
+        model.push_back(new CodeCompletionEntry("computeDmxValuesForPointTo(float x, float y, float z = 0)","PointToResult","Diese Methode bestimmt die DMX-Werte für die beiden Motoren wenn der Scanner auf einen bestimmten Pnkte auf der Karte zeigen soll. Diese Funktion gibt ein PointToResult Objekt zurück."));
+    }
+    if(type=="PointToResult"){
+        model.push_back(new CodeCompletionEntry("dmxValueForTilt","brightness_t","Der DMX-Wert den der Motor der für die Neigung zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
+        model.push_back(new CodeCompletionEntry("dmxValueForRotation","brightness_t","Der DMX-Wert den der Motor der für die Rotation zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
+        model.push_back(new CodeCompletionEntry("canBeReached","bool","Dieser Boolean gibt an, ob der Punkt vom Scanner überhaupt erreicht werden kann."));
+    }
     //model.push_back(new CodeCompletionEntry("","float",""));
 
     qDebug()<<"type" << type;
@@ -273,6 +286,9 @@ void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
     model.push_back(new CodeCompletionEntry("input","unsigned int * ","Der Inputarray"));
     model.push_back(new CodeCompletionEntry("spotify->","SpotifyState","Ein Object, dass alle zu Spotify gehörigen Daten enthält."));
     model.push_back(new CodeCompletionEntry("controlPoint->","ControlPoint","Der ControlPoint der in dem Map View gesetzt werden kann."));
+    model.push_back(new CodeCompletionEntry("Scanner::getByName(\"yourName\")","IScanner","Mit dieser Funktion kann man sich ein Scanner Objekt für einen bestimmten Name geben lassen. Dieses ist über alle Modules das Selbe."));
+    model.push_back(new CodeCompletionEntry("Scanner::getByNameOrCreate(\"yourName\")","IScanner","Mit dieser Funktion kann man sich ein Scanner Objekt für einen bestimmten Name geben lassen, bzw. wenn es dieses nicht gibt, wird eins erzeugt. Dieses ist dann über alle Modules das Selbe."));
+    model.push_back(new CodeCompletionEntry("IScanner * scanner = Scanner::getByName(\"yourName\")","IScanner","Deklariert eine Scanner Variable die einen per Namen referenzierten Scanner speichert."));
 }
 
 void skipWhitespaces(int & cursor, QTextDocument * d){
@@ -520,7 +536,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
                 reverseVariable += document->characterAt(start);
                 --start;
             }
-            if(reverseVariable.back().isNumber()){
+            if(reverseVariable.length() == 0 /*Can be on Objekt, but runs into an endless loop if we dont break here*/|| reverseVariable.back().isNumber()){
                 goto noObject;
             }
             QString variable;
@@ -543,8 +559,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
     }
 }
 
-QString CodeEditorHelper::getType(QString variable, int pos){
-    Q_UNUSED(pos)
+QString CodeEditorHelper::getType(QString variable, int pos){    
     if(variable == "inputLength")
         return "unsigned int";
     if(variable == "outputLength")
@@ -571,6 +586,28 @@ QString CodeEditorHelper::getType(QString variable, int pos){
         return "SpotifyState";
     if(variable == "controlPoint")
         return "ControlPoint";
+    if(variable.toLower().contains("scanner"))
+        return "IScanner";
+    {
+        QString text = document->toPlainText();
+        auto index = text.lastIndexOf(QRegularExpression(variable + " *="),pos);
+        if(index < 0)
+            return "unknown";
+        auto start = std::max(0, text.lastIndexOf('\n',index));
+        start = std::max(start, text.lastIndexOf(';',index));
+        auto end = std::min(text.length(),text.indexOf(";",index));
+        auto line = text.midRef(start,end-start);
+        // get line:
+        if(line.contains("computeDmxValuesForPointTo")){
+            return "PointToResult";
+        }
+        if(line.contains("Scanner::getByNameOrCreate")){
+            return "IScanner";
+        }
+        if(line.contains("Scanner::getByName")){
+            return "IScanner";
+        }
+    }
     return "unknown";
 }
 
@@ -934,6 +971,7 @@ void CodeEditorHelper::compile(){
         stream << "#define HAVE_AUDIO" << endl;
         stream << "#define HAVE_SPOTIFY" << endl;
         stream << "#define HAVE_CONTROL_POINT" << endl;
+        stream << "#define HAVE_ISCANNER" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;

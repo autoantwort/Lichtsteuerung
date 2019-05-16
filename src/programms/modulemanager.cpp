@@ -7,6 +7,8 @@
 #include <QJsonArray>
 #include "audio/audiocapturemanager.h"
 #include "dmxconsumer.h"
+#include "scanner.hpp"
+#include "scanner.h"
 
 namespace Modules {
 
@@ -186,6 +188,42 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 return;
             }
             lastLibraryIdentifier++;
+            SupportAudioFunc supportAudioFunc = nullptr;
+            if(f(MODUL_TYPE::Audio)){
+                supportAudioFunc = loadAudio(lib,&fftOutputView);
+            }
+            if(f(MODUL_TYPE::Spotify)){
+                typedef void (*SetSpotifyFunc)(Modules::SpotifyState const *);
+                SetSpotifyFunc func = reinterpret_cast<SetSpotifyFunc>(lib.resolve("_setSpotifyState"));
+                if(func){
+                    func(&controller_.getSpotifyState());
+                }
+            }
+            if(f(MODUL_TYPE::ControlPoint)){
+                typedef void (*SetControlPointFunc)(Modules::ControlPoint const *);
+                SetControlPointFunc func = reinterpret_cast<SetControlPointFunc>(lib.resolve("_setControlPoint"));
+                if(func){
+                    func(&controller_.getControlPoint());
+                }
+            }
+            if(f(MODUL_TYPE::IScanner)){
+                typedef void (*SetGetScannerByNameCallback)(std::function<IScanner*(const std::string &)>);
+                typedef void (*SetGetScannerByNameOrCreateCallback)(std::function<IScanner*(const std::string &)>);
+                SetGetScannerByNameCallback getFunc = reinterpret_cast<SetGetScannerByNameCallback>(lib.resolve("_setGetScannerByNameCallback"));
+                SetGetScannerByNameOrCreateCallback getOrCreateFunc = reinterpret_cast<SetGetScannerByNameOrCreateCallback>(lib.resolve("_setGetScannerByNameOrCreateCallback"));
+                if(getFunc){
+                    getFunc([](const std::string &name){return Scanner::getByName(name);});
+                }else{
+                    qDebug() << "getFunc is null, abort loading lib";
+                    return;
+                }
+                if(getOrCreateFunc){
+                    getOrCreateFunc([](const std::string &name){return Scanner::getByNameOrCreate(name);});
+                }else{
+                    qDebug() << "getOrCreateFunc is null, abort loading lib";
+                    return;
+                }
+            }
             if(f(MODUL_TYPE::Program)){
                 loadType(lib,programms,"Program",lastLibraryIdentifier,[&](const auto p){
                     if(replaceOldModulesInProgramBlocks){
@@ -227,25 +265,6 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                         }
                     }
                 });
-            }
-            SupportAudioFunc supportAudioFunc = nullptr;
-            if(f(MODUL_TYPE::Audio)){
-                //qDebug()<< "Loading Audio";
-                supportAudioFunc = loadAudio(lib,&fftOutputView);
-            }
-            if(f(MODUL_TYPE::Spotify)){
-                typedef void (*SetSpotifyFunc)(Modules::SpotifyState const *);
-                SetSpotifyFunc func = reinterpret_cast<SetSpotifyFunc>(lib.resolve("_setSpotifyState"));
-                if(func){
-                    func(&controller_.getSpotifyState());
-                }
-            }
-            if(f(MODUL_TYPE::ControlPoint)){
-                typedef void (*SetControlPointFunc)(Modules::ControlPoint const *);
-                SetControlPointFunc func = reinterpret_cast<SetControlPointFunc>(lib.resolve("_setControlPoint"));
-                if(func){
-                    func(&controller_.getControlPoint());
-                }
             }
 
 
