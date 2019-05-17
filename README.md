@@ -8,7 +8,7 @@ Features:
  * Erweiterbar durch Plugins (Modules)
  * Capturing des Windows Outputs zur Weiterverarbeitung 
  * Anmeldung mittels Spotify um auf Informationen vom aktuell gespielten Lied zuzugreifen 
- * Platformunabhängig 
+ * Plattformunabhängig 
 
 ## Installation (zum Entwickeln)
 
@@ -41,11 +41,11 @@ Dieses Projekt enthält den aktuellen Treiber, der es ermöglicht, den USB zu DM
 Ein Consumer für die LEDs für das Module System. Nicht hier im git enthalten.
 
 ## Struktur des Projekts 
-Das Projekt ist aktuell auf Ordnerebene nicht in einzelne Bereiche getrennt, jedoch kann man folgende Bereiche feststellen:
+Das Projekt ist inzwischen auf Ordnerebene in einzelne Bereiche aufgeteilt, einige werden nun genauer erklärt:
 
 ###### DMX
 Hier fallen alle Klassen rein, die sich um DMX kümmern. Die Verwaltung der Geräte und Programme sieht folgendermaßen aus:  
-Es existieren DevicePrototypen, sowas kann z.B. eine Lampe, eine Scanner Art oder ein Stroboskop sein. Diese werden durch einen Namen und durch eine Anzahl an Channels definiert, wobei jeder Channel einen Namen besitzt.  
+Es existieren DevicePrototypen, so was kann z.B. eine Lampe, eine Scanner Art oder ein Stroboskop sein. Diese werden durch einen Namen und durch eine Anzahl an Channels definiert, wobei jeder Channel einen Namen besitzt.  
 Ein Device ist ein real existierendes Gerät (z.B. die Lampe an der Wand über dem Kicker links), es setzt sich zusammen aus einem Namen, einem DevicePrototyp, einem startDMXChannel und einer Position im Raum.  
 Ein ProgrammPrototyp ein ist Programm für ein bestimmten DevicePrototype, es besteht aus Programmen für jeden Channel eines Programmprototypen. So ein Channelprogramm ist definiert durch (Time,Value) Paare. 
 Ein Programm ist eine Sammlung von (Device,ProgrammPrototyp) Paaren(DeviceProgramm), sodass jedem Device in dem Programm ein Programmprototyp zugeordnet ist, welches definiert welcher Channel des Devices zum Zeitpunkt t welchen Wert haben soll. Jedes DeviceProgramm besitzt ein offset, um welchen die Zeit t für dieses DeviceProgramm verschoben wird. Das Programm selbst verfügt noch über eine Geschwindigkeit. 
@@ -58,7 +58,7 @@ Die bestimmung eines Wertes eines DMXChannels sieht als folgendermaßen aus:
  5. Optional: Channelfilter überschreibt ggf. den aktuellen Wert 
 
 ###### GUI Elemente
-Es existieren Klassen, die GUI Elemente repräsentiern, wie z.B. der ChannelProgrammeditor oder der MapView
+Es existieren Klassen, die GUI Elemente repräsentieren, wie z.B. der ChannelProgrammeditor oder der MapView.
 
 ###### Modules 
 Das Modules System befindet sich im Ordner programms/ und ist folgendermaßen Aufgebaut: 
