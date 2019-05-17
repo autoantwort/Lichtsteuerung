@@ -5,6 +5,8 @@
 #include "HardwareInterface.h"
 #include <QAbstractListModel>
 
+namespace DMX{
+
 namespace Driver {
 
     class DMXQMLValue : public QObject{
@@ -83,5 +85,7 @@ namespace Driver {
      */
     void stopAndUnloadDriver();
 }
+
+} // namespace DMX
 
 #endif // DRIVER_H

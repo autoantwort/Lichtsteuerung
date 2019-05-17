@@ -57,12 +57,6 @@
         <file>qml/ControlPane/ControlItem.qml</file>
         <file>qml/components/TextFieldFileChooser.qml</file>
         <file>qml/SpotifyLoginView.qml</file>
-        <file>qml/InformationScreen/InformationWindow.qml</file>
-        <file>qml/InfoScreenPropertiesView.qml</file>
-        <file>qml/InformationScreen/SpotifyTrack.qml</file>
-        <file>qml/InformationScreen/AngebotsModel.qml</file>
-        <file>qml/InformationScreen/AngebotsManagmentComponent.qml</file>
-        <file>qml/InformationScreen/Lauftext.qml</file>
         <file>qml/components/AskWhenRemovePopup.qml</file>
         <file>qml/FFTGraphView.qml</file>
         <file>qml/BarMapView.qml</file>

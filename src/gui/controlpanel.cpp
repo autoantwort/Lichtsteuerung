@@ -66,7 +66,7 @@ void ControlPanel::loadFromJsonObject(const QJsonObject &o){
     }
 }
 
-void ControlPanel::addProgrammControl(Programm *p){
+void ControlPanel::addProgrammControl(DMX::Programm *p){
     if(p==nullptr)
         throw std::runtime_error("Nullpointer für neues Object");
     createControlItem(programm,new ProgrammControlItemData(p));
