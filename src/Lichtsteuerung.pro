@@ -19,28 +19,28 @@ QML_DESIGNER_IMPORT_PATH =
 SOURCES += \
     applicationdata.cpp \
     channel.cpp \
-    channelprogrammeditor.cpp \
-    colorplot.cpp \
-    controlitem.cpp \
-    controlitemdata.cpp \
-    controlpanel.cpp \
+    gui/channelprogrammeditor.cpp \
+    gui/colorplot.cpp \
+    gui/controlitem.cpp \
+    gui/controlitemdata.cpp \
+    gui/controlpanel.cpp \
     device.cpp \
     deviceprototype.cpp \
     dmxchannelfilter.cpp \
     dmxinterface.cpp \
     driver.cpp \
     errornotifier.cpp \
-    graph.cpp \
-    gridbackground.cpp \
+    gui/graph.cpp \
+    gui/gridbackground.cpp \
     id.cpp \
     main.cpp \
-    mapeditor.cpp \
-    mapview.cpp \
+    gui/mapeditor.cpp \
+    gui/mapview.cpp \
     modelmanager.cpp \
     modelvector.cpp \
     namedobject.cpp \
-    oscillogram.cpp \
-    polygon.cpp \
+    gui/oscillogram.cpp \
+    gui/polygon.cpp \
     programm.cpp \
     programmprototype.cpp \
     programms/dmxconsumer.cpp \
@@ -60,7 +60,7 @@ SOURCES += \
     codeeditorhelper.cpp \
     test/testmodulecontroller.cpp \
     test/testprogrammblock.cpp \
-    programblockeditor.cpp \
+    gui/programblockeditor.cpp \
     audio/sample.cpp \
     test/testsampleclass.cpp \
     audio/audiocapturemanager.cpp \
@@ -106,24 +106,24 @@ HEADERS += \
     programms/scanner.hpp \
     scanner.h \
     usermanagment.h \
-    channelprogrammeditor.h \
+    gui/channelprogrammeditor.h \
     modelmanager.h \
-    mapview.h \
-    polygon.h \
-    mapeditor.h \
-    gridbackground.h \
+    gui/mapview.h \
+    gui/polygon.h \
+    gui/mapeditor.h \
+    gui/gridbackground.h \
     modelvector.h \
-    controlpanel.h \
-    controlitem.h \
-    controlitemdata.h \
+    gui/controlpanel.h \
+    gui/controlitem.h \
+    gui/controlitemdata.h \
     HardwareInterface.h \
     errornotifier.h \
     settings.h \
     driver.h \
     test/DriverDummy.h \
-    colorplot.h \
-    graph.h \
-    oscillogram.h \
+    gui/colorplot.h \
+    gui/graph.h \
+    gui/oscillogram.h \
     programms/types.h \
     programms/dmxconsumer.h \
     programms/module.h \
@@ -144,7 +144,7 @@ HEADERS += \
     programms/program.hpp \
     test/testmodulecontroller.h \
     test/testprogrammblock.h \
-    programblockeditor.h \
+    gui/programblockeditor.h \
     audio/sample.h \
     test/testsampleclass.h \
     audio/audiocapturemanager.h \

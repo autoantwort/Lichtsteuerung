@@ -5,6 +5,7 @@
 #include <exception>
 #include <QQmlContext>
 
+namespace GUI{
 
 ControlPanel * ControlPanel::lastCreated = nullptr;
 QQmlEngine * ControlPanel::engine = nullptr;
@@ -100,3 +101,5 @@ void ControlPanel::hoverLeaveEvent(QHoverEvent *event){
     Q_UNUSED(event)
     emit exitMenuArea();
 }
+
+} // namespace GUI

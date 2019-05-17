@@ -5,6 +5,8 @@
 #include <QFlags>
 #include <programmprototype.h>
 
+namespace GUI{
+
 class ChannelProgrammEditor;
 
 class CurrentTimePointWrapper : public QObject{
@@ -117,5 +119,7 @@ signals:
     void click(int x, int y);
     void rightClick(int x, int y);
 };
+
+} // namespace GUI
 
 #endif // CHANNELPROGRAMMEDITOR_H

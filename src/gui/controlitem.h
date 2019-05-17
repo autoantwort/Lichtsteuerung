@@ -4,6 +4,8 @@
 #include <QQuickItem>
 #include "controlitemdata.h"
 
+namespace GUI{
+
 /**
  * @brief The ControlItem class is the base for ControlItems like the SwitchControlItem or the DimmerControlItem
  */
@@ -65,5 +67,7 @@ signals:
     void moveableChanged();
 public slots:
 };
+
+} // namespace GUI
 
 #endif // CONTROLITEM_H

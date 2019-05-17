@@ -4,7 +4,9 @@
 #include "programms/property.hpp"
 #include "errornotifier.h"
 
-QQmlEngine*  ProgramBlockEditor::engine = nullptr;
+QQmlEngine*  GUI::ProgramBlockEditor::engine = nullptr;
+
+namespace GUI{
 
 ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/qml/ProgramBlockEntry.qml")),
     programBlockConnection(engine,QUrl("qrc:/qml/ProgramBlockConnection.qml"))
@@ -68,7 +70,6 @@ ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/qml
     property real targetBaseline
     property real sourceBaseline*/
 }
-Q_DECLARE_METATYPE(Modules::PropertyBase *)
 
 void ProgramBlockEditor::updatePossibleEntries(){
     QStringList l;
@@ -411,7 +412,7 @@ void print(PropertyInformationModel * p){
 }
 
 template<typename TargetType>
-void transferData(::detail::PropertyInformation *pi,Modules::Property * p){
+void transferData(GUI::detail::PropertyInformation *pi,Modules::Property * p){
     p->asNumeric<TargetType>()->setValue(pi->getValue().value<TargetType>());
 }
 
@@ -452,13 +453,13 @@ void detail::PropertyInformation::updateValue(){
 }
 
 template<typename SourceType>
-void transferData(Modules::Property & p, ::detail::PropertyInformation &pi){
+void transferData(Modules::Property & p, GUI::detail::PropertyInformation &pi){
     pi.setValue(p.asNumeric<SourceType>()->getValue());
     pi.setMinValue(p.asNumeric<SourceType>()->getMin());
     pi.setMaxValue(p.asNumeric<SourceType>()->getMax());
 }
 template<>
-void transferData<long>(Modules::Property & p, ::detail::PropertyInformation &pi){
+void transferData<long>(Modules::Property & p, GUI::detail::PropertyInformation &pi){
     pi.setValue(static_cast<qlonglong>(p.asNumeric<long>()->getValue()));
     pi.setMinValue(static_cast<qlonglong>(p.asNumeric<long>()->getMin()));
     pi.setMaxValue(static_cast<qlonglong>(p.asNumeric<long>()->getMax()));
@@ -594,10 +595,10 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
                 propertyInformationModel.erase(propertyInformationModel.cbegin()+pb->getProperties().size(),propertyInformationModel.cend());
             }else{
                 while(propertyInformationModel.size() < pb->getProperties().size()){
-                    propertyInformationModel.push_back(new ::detail::PropertyInformation);
+                    propertyInformationModel.push_back(new GUI::detail::PropertyInformation);
                 }
             }
-            propertyInformationModel.push_back(new ::detail::PropertyInformation);
+            propertyInformationModel.push_back(new GUI::detail::PropertyInformation);
             auto s = pb->getProperties().cbegin();
             for(auto t = propertyInformationModel.cbegin() + 1;t!=propertyInformationModel.cend();++t,++s){
                 auto & tp = **t;
@@ -626,7 +627,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
 
             }
             auto prop = *propertyInformationModel.begin();
-            prop->setType(::detail::PropertyInformation::Type::Int);
+            prop->setType(GUI::detail::PropertyInformation::Type::Int);
             prop->setMinValue(1);
             prop->setMaxValue(1000);
             prop->setForwardProperty(false);
@@ -720,3 +721,7 @@ void ProgramBlockEditor::propertyBaseChanged(Modules::PropertyBase * oldPB, Modu
         }
     }
 }
+
+} // namespace GUI
+
+Q_DECLARE_METATYPE(Modules::PropertyBase *)

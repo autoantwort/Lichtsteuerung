@@ -19,11 +19,11 @@
 #include <QFileInfo>
 #include <limits>
 #include "modelmanager.h"
-#include "channelprogrammeditor.h"
-#include "mapview.h"
-#include "mapeditor.h"
-#include "controlitem.h"
-#include "controlpanel.h"
+#include "gui/channelprogrammeditor.h"
+#include "gui/mapview.h"
+#include "gui/mapeditor.h"
+#include "gui/controlitem.h"
+#include "gui/controlpanel.h"
 #include "errornotifier.h"
 #include <QQuickView>
 #include <QLibrary>
@@ -35,11 +35,11 @@
 #include "test/testmodulsystem.h"
 #include "codeeditorhelper.h"
 #include "programms/programblock.h"
-#include "programblockeditor.h"
-#include "graph.h"
+#include "gui/programblockeditor.h"
+#include "gui/graph.h"
 #include <QTimer>
-#include "oscillogram.h"
-#include "colorplot.h"
+#include "gui/oscillogram.h"
+#include "gui/colorplot.h"
 #include "audio/audiocapturemanager.h"
 #include "test/testsampleclass.h"
 #include "spotify/spotify.h"
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         }
     };
 
-
+    using namespace GUI;
 
 //    auto defaultFormat = QSurfaceFormat::defaultFormat();
 //    defaultFormat.setSamples(8);

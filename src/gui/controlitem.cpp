@@ -1,6 +1,8 @@
 #include "controlitem.h"
 #include <cmath>
 
+namespace GUI{
+
 ControlItem::ControlItem()
 {    
     setAcceptedMouseButtons(Qt::LeftButton|Qt::RightButton);
@@ -124,3 +126,4 @@ void ControlItem::hoverLeaveEvent(QHoverEvent *event){
     emit settingVisibleChange(false);
 }
 
+} // namespace GUI

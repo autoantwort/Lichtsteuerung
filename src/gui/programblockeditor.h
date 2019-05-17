@@ -6,6 +6,8 @@
 #include "programms/modulemanager.h"
 #include <QStringListModel>
 
+namespace GUI{
+
 namespace detail {
     class PropertyInformation : public QObject{
         Q_OBJECT
@@ -256,5 +258,7 @@ signals:
     void askToAddConnection(QString from, QString to);
     void openRightClickEntry(int x, int y);
 };
+
+} // namespace GUI
 
 #endif // PROGRAMBLOCKEDITOR_H

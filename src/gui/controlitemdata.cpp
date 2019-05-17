@@ -1,6 +1,8 @@
 #include "controlitemdata.h"
 #include <QJsonArray>
 
+namespace GUI{
+
 ControlItemData::ControlItemData(Type t,QObject *parent) : QObject(parent),type(t)
 {
 
@@ -290,6 +292,7 @@ ProgramBlockControlItemData::ProgramBlockControlItemData(const QJsonObject &o,QO
             return;
         }
     }
+    throw std::runtime_error("No ProgramBlock with id " + std::to_string(id.value()) + " exists.");
 }
 
 void ProgramBlockControlItemData::writeJsonObject(QJsonObject &o){
@@ -310,3 +313,5 @@ void ProgramBlockControlItemData::setProgramBlock(Modules::ProgramBlock *p){
         emit programBlockChanged();
     }
 }
+
+} // namespace GUI

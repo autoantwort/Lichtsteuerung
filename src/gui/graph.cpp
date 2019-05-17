@@ -3,6 +3,8 @@
 #include <QSGGeometryNode>
 #include <cmath>
 
+namespace GUI{
+
 Graph::Graph():haveNewData(false)
 {
 setFlag(ItemHasContents);
@@ -101,3 +103,5 @@ QSGNode * Graph::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
     return node;
 
 }
+
+} // namespace GUI

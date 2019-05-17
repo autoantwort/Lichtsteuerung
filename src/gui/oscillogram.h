@@ -4,6 +4,8 @@
 #include <QQuickItem>
 #include <queue>
 
+namespace GUI{
+
 class Oscillogram : public QQuickItem
 {
     Q_OBJECT
@@ -45,5 +47,7 @@ signals:
   void lineColorChanged();
 public slots:
 };
+
+} // namespace GUI
 
 #endif // OSCILLOGRAM_H

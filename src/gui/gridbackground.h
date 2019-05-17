@@ -3,6 +3,8 @@
 
 #include <QQuickItem>
 
+namespace GUI{
+
 class GridBackground : public QQuickItem
 {
     int distanceBetweenLines = 15;
@@ -16,5 +18,7 @@ public:
 protected:
     virtual QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
 };
+
+} // namespace GUI
 
 #endif // GRIDBACKGROUND_H

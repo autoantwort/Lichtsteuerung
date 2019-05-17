@@ -3,6 +3,7 @@
 #include <QSGGeometryNode>
 #include <QSGVertexColorMaterial>
 
+namespace GUI{
 
 Colorplot::Colorplot():haveNewData(false)
 {
@@ -92,3 +93,5 @@ QSGNode * Colorplot::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
     return node;
 
 }
+
+} // namespace GUI

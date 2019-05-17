@@ -3,6 +3,8 @@
 
 #include <QQuickItem>
 
+namespace GUI{
+
 class Graph : public QQuickItem
 {
     Q_OBJECT
@@ -34,5 +36,7 @@ signals:
   void lineColorChanged();
 public slots:
 };
+
+} // namespace GUI
 
 #endif // GRAPH_H

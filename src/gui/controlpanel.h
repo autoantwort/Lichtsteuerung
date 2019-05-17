@@ -6,6 +6,8 @@
 #include "programms/programblock.h"
 #include "controlitemdata.h"
 
+namespace GUI{
+
 /**
  * @brief The ControlPanel is the Component, that holds multiple ControlItems
  */
@@ -64,5 +66,7 @@ protected:
 
 public slots:
 };
+
+} // namespace GUI
 
 #endif // CONTROLPANEL_H

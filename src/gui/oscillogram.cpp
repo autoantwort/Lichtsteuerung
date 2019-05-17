@@ -2,6 +2,8 @@
 #include "QSGFlatColorMaterial"
 #include <QSGGeometryNode>
 
+namespace GUI{
+
 Oscillogram::Oscillogram():haveNewData(false)
 {
 setFlag(ItemHasContents);
@@ -55,3 +57,5 @@ QSGNode * Oscillogram::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
     return node;
 
 }
+
+} // namespace GUI

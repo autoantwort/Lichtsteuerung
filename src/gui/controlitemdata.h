@@ -6,6 +6,8 @@
 #include "device.h"
 #include "programms/programblock.h"
 
+namespace GUI{
+
 class ControlItemData : public QObject
 {
     Q_OBJECT
@@ -211,5 +213,7 @@ public:
 signals:
     void programBlockChanged();
 };
+
+} // namespace GUI
 
 #endif // CONTROLITEMDATA_H

@@ -6,6 +6,8 @@
 #include <list>
 #include <mutex>
 
+namespace GUI{
+
 class Colorplot : public QQuickItem
 {
     Q_OBJECT
@@ -75,5 +77,6 @@ signals:
 public slots:
 };
 
+} // namespace GUI
 
 #endif // COLORPLOT_H

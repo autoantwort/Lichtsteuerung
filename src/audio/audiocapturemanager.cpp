@@ -1,7 +1,7 @@
 #include "audiocapturemanager.h"
-#include "graph.h"
-#include "colorplot.h"
-#include "oscillogram.h"
+#include "gui/graph.h"
+#include "gui/colorplot.h"
+#include "gui/oscillogram.h"
 #include <algorithm>
 
 namespace Audio {
@@ -12,8 +12,8 @@ AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
 
 void AudioCaptureManager::initCallback(int channels){
     this->channels = channels;
-    if(Colorplot::getLast())
-        Colorplot::getLast()->setBlockSize(512);
+    if(GUI::Colorplot::getLast())
+        GUI::Colorplot::getLast()->setBlockSize(512);
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){
@@ -39,17 +39,17 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     //db scale
     std::transform(fftoutput.begin(),fftoutput.end(),fftoutput.begin(),[](auto i){return 10*std::log10(1+i);});
 
-    if(Graph::getLast())
-        Graph::getLast()->showData(fftoutput.data(),fftoutput.size());
-    if(Colorplot::getLast()){
-        Colorplot::getLast()->startBlock();
+    if(GUI::Graph::getLast())
+        GUI::Graph::getLast()->showData(fftoutput.data(),fftoutput.size());
+    if(GUI::Colorplot::getLast()){
+        GUI::Colorplot::getLast()->startBlock();
         for (int i = 0; i < 512; ++i) {
-            Colorplot::getLast()->pushDataToBlock(fftoutput.at(i));
+            GUI::Colorplot::getLast()->pushDataToBlock(fftoutput.at(i));
         }
-        Colorplot::getLast()->endBlock();
+        GUI::Colorplot::getLast()->endBlock();
     }
-    if(Oscillogram::getLast())
-        Oscillogram::getLast()->showData(sample.data(),sample.size());
+    if(GUI::Oscillogram::getLast())
+        GUI::Oscillogram::getLast()->showData(sample.data(),sample.size());
 
 }
 

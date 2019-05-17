@@ -2,6 +2,8 @@
 #include "QSGFlatColorMaterial"
 #include <QSGGeometryNode>
 
+namespace GUI{
+
 GridBackground::GridBackground()
 {
     setFlag(ItemHasContents);
@@ -109,3 +111,5 @@ QSGNode * GridBackground::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData 
     return node;
 
 }
+
+} // namespace GUI

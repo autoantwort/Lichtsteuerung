@@ -9,8 +9,8 @@
 #include "programmprototype.h"
 #include "programm.h"
 #include "usermanagment.h"
-#include "controlpanel.h"
-#include "mapview.h"
+#include "gui/controlpanel.h"
+#include "gui/mapview.h"
 #include <QCryptographicHash>
 #include "programms/modulemanager.h"
 #include "programms/programblock.h"
@@ -51,7 +51,7 @@ QByteArray saveData(){
     o.insert("password",QString::fromLatin1(password.toBase64()));
     {
         QJsonObject u;
-        ControlPanel::getLastCreated()->writeJsonObject(u);
+        GUI::ControlPanel::getLastCreated()->writeJsonObject(u);
         o.insert("ControlPanel",u);
     }{
         QJsonObject u;
@@ -117,7 +117,7 @@ std::function<void()> loadData(QByteArray data){
     return [=](){
         GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
         Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());        
-        ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
+        GUI::ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
     };
 
 }

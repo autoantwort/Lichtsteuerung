@@ -4,6 +4,8 @@
 #include <QSGFlatColorMaterial>
 #include <QSGVertexColorMaterial>
 
+namespace GUI{
+
 CurrentTimePointWrapper::CurrentTimePointWrapper(ChannelProgrammEditor *editor):editor(editor){}
 
 void CurrentTimePointWrapper::setValue(unsigned char value){
@@ -660,3 +662,5 @@ TimePoint * ChannelProgrammEditor::getCurrentTimePoint(){
 QString ChannelProgrammEditor::getTooltipText()const{
     return "Hold N and click to create a new TimePoint-\nHold D and click to delete a Timepoint.\nUse dragging to move the time points.";
 }
+
+} // namespace GUI
