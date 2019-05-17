@@ -207,7 +207,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("spotify",&spotify);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty("dmxOutputValues",&Driver::dmxValueModel);
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+    engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
 
 
     // laden erst nach dem laden des qml ausführen

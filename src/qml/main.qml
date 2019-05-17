@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
 import "ControlPane"
+import "components"
 
 ApplicationWindow {
     visible: true

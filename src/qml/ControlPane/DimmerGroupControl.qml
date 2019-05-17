@@ -5,6 +5,7 @@ import QtGraphicalEffects 1.0
 import custom.licht 1.0
 import QtQml 2.11
 import ".."
+import "../components"
 
 ControlItem{
     id:item

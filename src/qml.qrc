@@ -1,15 +1,14 @@
 <RCC>
     <qresource prefix="/">
-        <file>Test.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>main.qml</file>
-        <file>DeviceView.qml</file>
-        <file>TextInputField.qml</file>
-        <file>DevicePrototypeView.qml</file>
-        <file>ProgrammView.qml</file>
-        <file>ProgrammPrototypeView.qml</file>
-        <file>ModelView.qml</file>
-        <file>TextUnderline.qml</file>
+        <file>qml/main.qml</file>
+        <file>qml/DeviceView.qml</file>
+        <file>qml/components/TextInputField.qml</file>
+        <file>qml/DevicePrototypeView.qml</file>
+        <file>qml/ProgrammView.qml</file>
+        <file>qml/ProgrammPrototypeView.qml</file>
+        <file>qml/ModelView.qml</file>
+        <file>qml/components/TextUnderline.qml</file>
         <file>icons/down.svg</file>
         <file>icons/pause.svg</file>
         <file>icons/play.svg</file>
@@ -28,9 +27,9 @@
         <file>icons/ic_stop_black_24px.svg</file>
         <file>icons/ic_pause_black_24px.svg</file>
         <file>icons/ic_play_arrow_black_24px.svg</file>
-        <file>LoginView.qml</file>
-        <file>SettingsView.qml</file>
-        <file>ModuleView.qml</file>
+        <file>qml/LoginView.qml</file>
+        <file>qml/SettingsView.qml</file>
+        <file>qml/ModuleView.qml</file>
         <file>icons/baseline-remove_circle_outline-24px.svg</file>
         <file>icons/baseline-remove_circle-24px.svg</file>
         <file>icons/baseline-add_circle_outline-24px.svg</file>
@@ -39,27 +38,33 @@
         <file>icons/remove.svg</file>
         <file>icons/add.svg</file>
         <file>icons/baseline-add-24px.svg</file>
-        <file>ModuleProgramView.qml</file>
-        <file>ProgramBlockEntry.qml</file>
-        <file>ProgramBlockConnection.qml</file>
-        <file>VerticalTabBar.qml</file>
-        <file>VerticalTabButton.qml</file>
+        <file>qml/ModuleProgramView.qml</file>
+        <file>qml/ProgramBlockEntry.qml</file>
+        <file>qml/ProgramBlockConnection.qml</file>
+        <file>qml/VerticalTabBar.qml</file>
+        <file>qml/VerticalTabButton.qml</file>
         <file>icons/resume.png</file>
         <file>icons/replay.svg</file>
         <file>icons/material-pause.svg</file>
         <file>icons/material-play.svg</file>
         <file>icons/material-stop.svg</file>
-        <file alias="ControlPane/ProgramBlockControl.qml">qml/ProgramBlockControl.qml</file>
-        <file alias="ControlPane/ControlItemBlock.qml">qml/ControlItemBlock.qml</file>
-        <file alias="ControlPane/ProgrammControl.qml">qml/ProgrammControl.qml</file>
-        <file alias="ControlPane/SwitchGroupControl.qml">qml/SwitchGroupControl.qml</file>
-        <file alias="ControlPane/DimmerGroupControl.qml">qml/DimmerGroupControl.qml</file>
-        <file alias="ControlPane/ControlView.qml">qml/ControlView.qml</file>
-        <file alias="ControlPane/ControlItem.qml">qml/ControlItem.qml</file>
-        <file alias="component/TextFieldFileChooser.qml">qml/TextFieldFileChooser.qml</file>
-        <file>SpotifyLoginView.qml</file>
-        <file alias="component/AskWhenRemovePopup.qml">qml/AskWhenRemovePopup.qml</file>
-        <file alias="FFTGraphView.qml">qml/FFTGraphView.qml</file>
-        <file alias="BarMapView.qml">qml/BarMapView.qml</file>
+        <file>qml/ControlPane/ProgramBlockControl.qml</file>
+        <file>qml/ControlPane/ControlItemBlock.qml</file>
+        <file>qml/ControlPane/ProgrammControl.qml</file>
+        <file>qml/ControlPane/SwitchGroupControl.qml</file>
+        <file>qml/ControlPane/DimmerGroupControl.qml</file>
+        <file>qml/ControlPane/ControlView.qml</file>
+        <file>qml/ControlPane/ControlItem.qml</file>
+        <file>qml/components/TextFieldFileChooser.qml</file>
+        <file>qml/SpotifyLoginView.qml</file>
+        <file>qml/InformationScreen/InformationWindow.qml</file>
+        <file>qml/InfoScreenPropertiesView.qml</file>
+        <file>qml/InformationScreen/SpotifyTrack.qml</file>
+        <file>qml/InformationScreen/AngebotsModel.qml</file>
+        <file>qml/InformationScreen/AngebotsManagmentComponent.qml</file>
+        <file>qml/InformationScreen/Lauftext.qml</file>
+        <file>qml/components/AskWhenRemovePopup.qml</file>
+        <file>qml/FFTGraphView.qml</file>
+        <file>qml/BarMapView.qml</file>
     </qresource>
 </RCC>

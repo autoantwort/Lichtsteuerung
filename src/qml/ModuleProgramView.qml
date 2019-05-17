@@ -3,7 +3,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
-import "component"
+import "components"
 
 Item{
     id: root

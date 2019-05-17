@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Controls.Material 2.2
 import QtQuick.Dialogs 1.2
-import "component"
+import "components"
 
 Item{
     id: root
@@ -204,7 +204,7 @@ Item{
                         anchors.verticalCenter: parent.verticalCenter
                         height: 24
                         width: 24
-                        source: "icons/remove.svg"
+                        source: "/icons/remove.svg"
                     }
                 }
                 Button{
@@ -225,7 +225,7 @@ Item{
                         anchors.verticalCenter: parent.verticalCenter
                         height: 24
                         width: 24
-                        source: "icons/add.svg"
+                        source: "/icons/add.svg"
                     }
                 }
             }
@@ -245,7 +245,7 @@ Item{
                     anchors.verticalCenter: parent.verticalCenter
                     height: 24
                     width: 24
-                    source: "icons/add.svg"
+                    source: "/icons/add.svg"
                 }
             }
         }

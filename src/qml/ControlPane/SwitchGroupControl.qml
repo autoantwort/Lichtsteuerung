@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.0
 import QtGraphicalEffects 1.0
 import custom.licht 1.0
 import ".."
+import "../components"
 
 ControlItem{
     id:item

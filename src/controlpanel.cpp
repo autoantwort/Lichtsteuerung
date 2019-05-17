@@ -9,7 +9,7 @@
 ControlPanel * ControlPanel::lastCreated = nullptr;
 QQmlEngine * ControlPanel::engine = nullptr;
 
-ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/ControlPane/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/ControlPane/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/ControlPane/DimmerGroupControl.qml")),programBlock(engine,QUrl("qrc:/ControlPane/ProgramBlockControl.qml"))
+ControlPanel::ControlPanel():programm(engine,QUrl("qrc:/qml/ControlPane/ProgrammControl.qml")),switchGroup(engine,QUrl("qrc:/qml/ControlPane/SwitchGroupControl.qml")),dimmerGroup(engine,QUrl("qrc:/qml/ControlPane/DimmerGroupControl.qml")),programBlock(engine,QUrl("qrc:/qml/ControlPane/ProgramBlockControl.qml"))
 {
     lastCreated = this;
     if(engine==nullptr){

@@ -6,8 +6,8 @@
 
 QQmlEngine*  ProgramBlockEditor::engine = nullptr;
 
-ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/ProgramBlockEntry.qml")),
-    programBlockConnection(engine,QUrl("qrc:/ProgramBlockConnection.qml"))
+ProgramBlockEditor::ProgramBlockEditor():programBlockEntry(engine,QUrl("qrc:/qml/ProgramBlockEntry.qml")),
+    programBlockConnection(engine,QUrl("qrc:/qml/ProgramBlockConnection.qml"))
 {
     setAcceptedMouseButtons(Qt::AllButtons);
     /*QQuickItem *c1 ;
