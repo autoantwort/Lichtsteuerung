@@ -1,12 +1,12 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <id.h>
-#include <device.h>
-#include "channel.h"
+#include "dmx/device.h"
+#include "dmx/channel.h"
 #include "applicationdata.h"
-#include "programm.h"
+#include "dmx/programm.h"
 #include <QMetaProperty>
-#include "dmxchannelfilter.h"
+#include "dmx/dmxchannelfilter.h"
 #include <chrono>
 #include <QEasingCurve>
 #include <cmath>
@@ -14,7 +14,7 @@
 #include "usermanagment.h"
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include "device.h"
+#include "dmx/device.h"
 #include <QQmlContext>
 #include <QFileInfo>
 #include <limits>
@@ -27,10 +27,10 @@
 #include "errornotifier.h"
 #include <QQuickView>
 #include <QLibrary>
-#include "HardwareInterface.h"
+#include "dmx/HardwareInterface.h"
 #include "settings.h"
 #include <QDir>
-#include "driver.h"
+#include "dmx/driver.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
 #include "codeeditorhelper.h"
@@ -81,6 +81,7 @@ int main(int argc, char *argv[])
     };
 
     using namespace GUI;
+    using namespace DMX;
 
 //    auto defaultFormat = QSurfaceFormat::defaultFormat();
 //    defaultFormat.setSamples(8);

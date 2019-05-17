@@ -2,8 +2,8 @@
 #define CONTROLITEMDATA_H
 
 #include <QObject>
-#include "programm.h"
-#include "device.h"
+#include "dmx/programm.h"
+#include "dmx/device.h"
 #include "programms/programblock.h"
 
 namespace GUI{
@@ -37,21 +37,21 @@ signals:
 
 class ProgrammControlItemData : public ControlItemData{
     Q_OBJECT
-    Q_PROPERTY(Programm* programm READ getProgramm WRITE setProgramm NOTIFY programmChanged)
-    Programm * programm=nullptr;
+    Q_PROPERTY(DMX::Programm* programm READ getProgramm WRITE setProgramm NOTIFY programmChanged)
+    DMX::Programm * programm=nullptr;
 public:
-    ProgrammControlItemData(Programm * p,QObject *parent = nullptr);
+    ProgrammControlItemData(DMX::Programm * p,QObject *parent = nullptr);
     ProgrammControlItemData(const QJsonObject &o,QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
-    void setProgramm(Programm * );
-    Programm * getProgramm()const{return programm;}
+    void setProgramm(DMX::Programm * );
+    DMX::Programm * getProgramm()const{return programm;}
 signals:
     void programmChanged();
 };
 
 class GroupModel : public QAbstractListModel{
     Q_OBJECT
-    typedef IDBaseDataModel<Device> DataModel;
+    typedef IDBaseDataModel<DMX::Device> DataModel;
     DataModel * deviceModel;
     std::vector<bool> enabled;
 protected:
@@ -62,7 +62,7 @@ protected:
 public:
     GroupModel(DataModel * deviceModel = DataModel::singletone());
     enum GroupModelRoles{
-        EnableDataRole = IDBaseDataModel<Programm>::ItemDataRole + 1
+        EnableDataRole = IDBaseDataModel<DMX::Programm>::ItemDataRole + 1
     };
     const std::vector<bool>& getEnabledVector()const{return enabled;}
     void setEnabled(int index, bool enabled = true){
@@ -119,7 +119,7 @@ public:
     GroupControlItemData(const QJsonObject &o,QObject *parent = nullptr);
     virtual void writeJsonObject(QJsonObject &o);
     GroupModel * getGroupModel(){return &groupModel;}
-    void forEach(std::function<void(Device*)> f);
+    void forEach(std::function<void(DMX::Device*)> f);
 
     void setName(QString n);
     QString getName()const{return name;}
@@ -160,7 +160,7 @@ class DimmerGroupControlItemData : public GroupControlItemData{
     Q_PROPERTY(unsigned char minValue READ getMinValue WRITE setMinValue NOTIFY minValueChanged)
     Q_PROPERTY(unsigned char value READ getValue WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(bool override READ shouldOverrideValue WRITE shouldOverrideValue NOTIFY shouldOverrideValueChanged)
-    typedef DMXChannelFilter::Operation Operation;
+    typedef DMX::DMXChannelFilter::Operation Operation;
     Operation maxOperation = Operation::CUT;
     Operation minOperation = Operation::CUT;
     unsigned char maxValue = 255;

@@ -6,7 +6,7 @@
 #include "namedobject.h"
 #include "dmxchannelfilter.h"
 
-
+namespace DMX{
 
 /**
  * @brief The Device class Ein "echtes" Gerät, zb der Laser oben rechts über der Bier Theke
@@ -68,5 +68,7 @@ signals:
     void startDMXChannelChanged(unsigned int newStartDMXChannel);
     void positionChanged(const QPoint & newPosition);
 };
+
+} // namespace DMX
 
 #endif // DEVICE_H

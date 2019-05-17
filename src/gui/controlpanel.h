@@ -2,7 +2,7 @@
 #define CONTROLPANEL_H
 
 #include <QQuickItem>
-#include "programm.h"
+#include "dmx/programm.h"
 #include "programms/programblock.h"
 #include "controlitemdata.h"
 
@@ -37,7 +37,7 @@ public:
     static void setQmlEngine(QQmlEngine * e){engine=e;}
     void loadFromJsonObject(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o);
-    Q_INVOKABLE void addProgrammControl(Programm * programm);
+    Q_INVOKABLE void addProgrammControl(DMX::Programm * programm);
     /**
      * @brief addSwitchGroupControl add a SwitchControlItem to enable and disable Devices to the panel
      */

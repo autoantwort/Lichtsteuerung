@@ -3,7 +3,7 @@
 
 #include <QQuickItem>
 #include <QFlags>
-#include <programmprototype.h>
+#include <dmx/programmprototype.h>
 
 namespace GUI{
 
@@ -42,14 +42,14 @@ class ChannelProgrammEditor : public QQuickItem
     Q_PROPERTY(int clickRadius MEMBER clickRadius NOTIFY clickRadiusChanged)
     Q_PROPERTY(QColor graphColor MEMBER graphColor NOTIFY graphColorChanged)
     Q_PROPERTY(QString tooltipText READ getTooltipText CONSTANT)
-    Q_PROPERTY(ChannelProgramm* channelProgramm READ getChannelProgramm WRITE setChannelProgramm NOTIFY channelProgrammChanged)
+    Q_PROPERTY(DMX::ChannelProgramm* channelProgramm READ getChannelProgramm WRITE setChannelProgramm NOTIFY channelProgrammChanged)
 private:
     friend class CurrentTimePointWrapper;
     CurrentTimePointWrapper currentTimePointWrapper;
-    ChannelProgramm * channelProgramm = nullptr;
+    DMX::ChannelProgramm * channelProgramm = nullptr;
     QQuickItem * backgroundItem = nullptr;
     QQuickItem * valueChangeItem = nullptr;
-    decltype(ChannelProgramm::timeline)::iterator currentTimePoint;
+    decltype(DMX::ChannelProgramm::timeline)::iterator currentTimePoint;
     int clickRadius=4;
     double xScale = 4.;
     double totalXOffset = 0;
@@ -60,7 +60,7 @@ private:
 #define INVALID_POS QPoint(std::numeric_limits<int>::max(),std::numeric_limits<int>::max())
     QPoint lastMousePosition = INVALID_POS;
     ulong mousePressTimestamp;
-    decltype(ChannelProgramm::timeline)::iterator getTimePointForPosition(int x, int y);
+    decltype(DMX::ChannelProgramm::timeline)::iterator getTimePointForPosition(int x, int y);
     /**
      * @brief mapToVisualX maps from values/mouse Position to the visual Position of the graph
      * eg: mouse/value = 100
@@ -89,11 +89,11 @@ public:
     void setValueChangeItem(QQuickItem*b);
     QQuickItem* getValueChangeItem()const{return valueChangeItem;}
     int getCurrentChangingValue()const{return haveCurrentTimePoint()?currentTimePoint->value:0;}
-    void setChannelProgramm(ChannelProgramm*p);
-    ChannelProgramm* getChannelProgramm()const{return channelProgramm;}
+    void setChannelProgramm(DMX::ChannelProgramm*p);
+    DMX::ChannelProgramm* getChannelProgramm()const{return channelProgramm;}
     QString getTooltipText()const;
     bool haveCurrentTimePoint()const{return channelProgramm?(currentTimePoint!=channelProgramm->timeline.cend()):false;}
-    TimePoint * getCurrentTimePoint();
+    DMX::TimePoint * getCurrentTimePoint();
     CurrentTimePointWrapper * getCurrentTimePointWrapper(){return &currentTimePointWrapper;}
     Q_INVOKABLE QEasingCurve * getCurveForPoint(int x);
 protected:

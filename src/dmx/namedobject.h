@@ -4,6 +4,8 @@
 #include <QObject>
 #include <QJsonObject>
 
+namespace DMX{
+
 /**
  * @brief The NamedObject class superclass for Every class that will have a name and a description
  */
@@ -39,5 +41,7 @@ signals:
     void nameChanged(const QString &);
     void descriptionChanged(const QString &);
 };
+
+} // namespace DMX
 
 #endif // NAMEDOBJECT_H

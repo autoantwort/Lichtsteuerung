@@ -138,7 +138,7 @@ void ChannelProgrammEditor::setValueChangeItem(QQuickItem *b){
     }
 }
 
-void ChannelProgrammEditor::setChannelProgramm(ChannelProgramm *p){
+void ChannelProgrammEditor::setChannelProgramm(DMX::ChannelProgramm *p){
     if(p!=channelProgramm){
         channelProgramm=p;
         currentTimePoint = channelProgramm->timeline.cend();
@@ -340,7 +340,7 @@ QSGNode * ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNo
     return node;
 }
 
-decltype(ChannelProgramm::timeline)::iterator ChannelProgrammEditor::getTimePointForPosition(int x_, int y_){
+decltype(DMX::ChannelProgramm::timeline)::iterator ChannelProgrammEditor::getTimePointForPosition(int x_, int y_){
     auto x = mapFromVisualX(x_);
     auto y = getScaledY(y_);
     if (channelProgramm->timeline.empty()) {
@@ -401,7 +401,7 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event){
     if(channelProgramm->timeline.empty()){
         if(modifier.testFlag(N_PRESSED)){
             qDebug()<<"Add time point<\n";
-            currentTimePoint = channelProgramm->timeline.insert(TimePoint(mapFromVisualX(event->x()),getScaledY(event->y()),QEasingCurve::Linear)).first;
+            currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->x()),getScaledY(event->y()),QEasingCurve::Linear)).first;
             update();
         }
         return;
@@ -420,7 +420,7 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event){
         if(modifier.testFlag(N_PRESSED)){
             qDebug()<<"Add time point?\n";
             if(getTimePointForPosition(event->x(),event->y())==channelProgramm->timeline.end()){
-                currentTimePoint = channelProgramm->timeline.insert(TimePoint(mapFromVisualX(event->x()),getScaledY(event->y()),QEasingCurve::Linear)).first;
+                currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->x()),getScaledY(event->y()),QEasingCurve::Linear)).first;
                 update();
             }
         }else{
@@ -652,9 +652,9 @@ void ChannelProgrammEditor::mouseReleaseEvent(QMouseEvent *event){
     }
 }
 
-TimePoint * ChannelProgrammEditor::getCurrentTimePoint(){
+DMX::TimePoint * ChannelProgrammEditor::getCurrentTimePoint(){
     if(haveCurrentTimePoint()){
-        return const_cast<TimePoint*>(&*currentTimePoint);
+        return const_cast<DMX::TimePoint*>(&*currentTimePoint);
     }
     return nullptr;
 }

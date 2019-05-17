@@ -8,6 +8,8 @@
 #include <cmath>
 #include "modelvector.h"
 
+namespace DMX{
+
 /**
  * @brief The DeviceProgramm class saves a Device in combination with a ProgrammPrototype and an offset
  */
@@ -56,18 +58,6 @@ public:
     ProgrammPrototype * getProgrammPrototyp()const{return programmPrototype;}
 private slots:
     void programmPrototypeDeleted(QObject *){delete this;}
-public:
-    static void update (const ID &id, const QString &name,const QString &value){
-        auto d = IDBase<DeviceProgramm>::getIDBaseObjectByID(id);
-        if(d){
-            if (name=="offset") {
-                d->setOffset(value.toDouble());
-            }else if(name=="programmPrototype"){
-                auto proto = IDBase<ProgrammPrototype>::getIDBaseObjectByID(value.toLong());
-                if(proto) d->setProgrammPrototype(proto);
-            }
-        }
-    }
 signals:
     void offsetChanged();
     void speedChanged(double speed);
@@ -184,5 +174,7 @@ signals:
     void deviceProgrammAdded(DeviceProgramm*);
     void deviceProgrammRemoved(DeviceProgramm*);
 };
+
+} // namespace DMX
 
 #endif // PROGRAMM_H

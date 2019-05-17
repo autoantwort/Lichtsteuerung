@@ -2,6 +2,7 @@
 #include <cmath>
 #include <QJsonArray>
 
+namespace DMX{
 
 ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString name, QString description):NamedObject(name,description),devicePrototype(devicePrototype){
     setParent(devicePrototype);
@@ -167,3 +168,5 @@ ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
     }
     return nullptr;
 }
+
+} // namespace DMX

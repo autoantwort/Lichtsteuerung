@@ -1,6 +1,8 @@
 #include "device.h"
 #include <QJsonArray>
 
+namespace DMX{
+
 Device::Device(const QJsonObject &o):NamedObject(o),IDBase<Device>(o),
     prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"])),
     startDMXChannel(o["startDMXChannel"].toInt()),
@@ -81,3 +83,5 @@ DMXChannelFilter * Device::getFilterForChannelindex(int index){
     }
     return nullptr;
 }
+
+} // namespace DMX

@@ -4,6 +4,8 @@
 #include "deviceprototype.h"
 #include <QEasingCurve>
 
+namespace DMX{
+
 /**
  * @brief The TimePoint class holds a time and a corresponding value and a QEasingCurve that describe how to interpolate to the next timepoint
  */
@@ -120,5 +122,7 @@ private slots:
     void channelAdded(Channel *);
     void channelRemoved(Channel *);
 };
+
+} // namespace DMX
 
 #endif // PROGRAMMPROTOTYPE_H

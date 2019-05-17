@@ -2,6 +2,8 @@
 #include "programm.h"
 #include "device.h"
 
+namespace DMX{
+
 DMXChannelFilter::DMXChannelFilter(const QJsonObject &o):
     maxOperation(static_cast<Operation>(o["maxOperation"].toInt())),
     minOperation(static_cast<Operation>(o["minOperation"].toInt())),
@@ -89,3 +91,5 @@ void DMXChannelFilter::filterValues(unsigned char *values, unsigned int numberOf
         }
     }
 }
+
+} // namespace DMX

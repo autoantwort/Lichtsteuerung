@@ -1,12 +1,12 @@
 #ifndef DRIVER_DUMMY_H
 #define DRIVER_DUMMY_H
 
-#include "HardwareInterface.h"
+#include "dmx/HardwareInterface.h"
 #include <QDebug>
 #include <iostream>
 
 
-class DriverDummy : public AbstractHardwareInterface
+class DriverDummy : public DMX::AbstractHardwareInterface
 {
     unsigned char data[512];
 public:

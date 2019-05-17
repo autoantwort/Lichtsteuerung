@@ -2,6 +2,7 @@
 #include <QJsonArray>
 #include <unordered_set>
 
+namespace DMX{
 
 TimeDistortion::TimeDistortion(const QJsonObject &o):enabled(o["enable"].toBool()),distortionCurve(QEasingCurve::Type(o["type"].toInt())),intervall(o["intervall"].toDouble()){
 
@@ -150,3 +151,5 @@ void Programm::deviceProgrammDeleted(QObject *d){
         }
     }
 }
+
+} // namespace DMX

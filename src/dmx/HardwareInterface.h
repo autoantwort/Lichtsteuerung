@@ -7,6 +7,8 @@
 #include <condition_variable>
 #include <functional>
 
+namespace DMX{
+
 /**
  * @brief The DMXInterface class soll eine Standard schnittstelle für Treiber bereitstellen
  */
@@ -77,6 +79,6 @@ public:
 
 };
 
-#include "dmxinterface.cpp"
+} // namespace DMX
 
 #endif // DMXINTERFACE_H

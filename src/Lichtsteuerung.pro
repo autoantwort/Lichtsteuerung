@@ -18,17 +18,16 @@ QML_DESIGNER_IMPORT_PATH =
 
 SOURCES += \
     applicationdata.cpp \
-    channel.cpp \
+    dmx/channel.cpp \
     gui/channelprogrammeditor.cpp \
     gui/colorplot.cpp \
     gui/controlitem.cpp \
     gui/controlitemdata.cpp \
     gui/controlpanel.cpp \
-    device.cpp \
-    deviceprototype.cpp \
-    dmxchannelfilter.cpp \
-    dmxinterface.cpp \
-    driver.cpp \
+    dmx/device.cpp \
+    dmx/deviceprototype.cpp \
+    dmx/dmxchannelfilter.cpp \
+    dmx/driver.cpp \
     errornotifier.cpp \
     gui/graph.cpp \
     gui/gridbackground.cpp \
@@ -38,11 +37,11 @@ SOURCES += \
     gui/mapview.cpp \
     modelmanager.cpp \
     modelvector.cpp \
-    namedobject.cpp \
+    dmx/namedobject.cpp \
     gui/oscillogram.cpp \
     gui/polygon.cpp \
-    programm.cpp \
-    programmprototype.cpp \
+    dmx/programm.cpp \
+    dmx/programmprototype.cpp \
     programms/dmxconsumer.cpp \
     scanner.cpp \
     test/testloopprogramm.cpp \
@@ -92,16 +91,16 @@ DEFINES += _USE_MATH_DEFINES
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
-    deviceprototype.h \
-    channel.h \
+    dmx/deviceprototype.h \
+    dmx/channel.h \
     id.h \
-    device.h \
+    dmx/device.h \
     idbase.h \
-    programmprototype.h \
-    programm.h \
+    dmx/programmprototype.h \
+    dmx/programm.h \
     applicationdata.h \
-    namedobject.h \
-    dmxchannelfilter.h \
+    dmx/namedobject.h \
+    dmx/dmxchannelfilter.h \
     programms/controlpoint.hpp \
     programms/scanner.hpp \
     scanner.h \
@@ -116,10 +115,10 @@ HEADERS += \
     gui/controlpanel.h \
     gui/controlitem.h \
     gui/controlitemdata.h \
-    HardwareInterface.h \
+    dmx/HardwareInterface.h \
     errornotifier.h \
     settings.h \
-    driver.h \
+    dmx/driver.h \
     test/DriverDummy.h \
     gui/colorplot.h \
     gui/graph.h \

@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+namespace DMX{
+
 /**
  * @brief The DMXChannelFilter class filter channel values
  * Die Klasse kann einen Default value, einen Override value (überschreibt den value vom Programmen)
@@ -80,5 +82,7 @@ signals:
     void valueChanged(unsigned char);
     void shouldOverrideValueChanged(bool);
 };
+
+} // namespace DMX
 
 #endif // DMXCHANNEL_H

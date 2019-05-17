@@ -3,11 +3,11 @@
 #include "idbase.h"
 #include <QJsonArray>
 
-#include "channel.h"
-#include "deviceprototype.h"
-#include "device.h"
-#include "programmprototype.h"
-#include "programm.h"
+#include "dmx/channel.h"
+#include "dmx/deviceprototype.h"
+#include "dmx/device.h"
+#include "dmx/programmprototype.h"
+#include "dmx/programm.h"
 #include "usermanagment.h"
 #include "gui/controlpanel.h"
 #include "gui/mapview.h"
@@ -43,10 +43,10 @@ void saveIDBaseObjects(QJsonObject &o,QString entryName ){
 QByteArray saveData(){
     qDebug()<<"SAVE DATA";
     QJsonObject o;
-    saveIDBaseObjects<DevicePrototype>(o,"DevicePrototypes");
-    saveIDBaseObjects<Device>(o,"Devices");
-    saveIDBaseObjects<ProgrammPrototype>(o,"ProgrammPrototypes");
-    saveIDBaseObjects<Programm>(o,"Programms");
+    saveIDBaseObjects<DMX::DevicePrototype>(o,"DevicePrototypes");
+    saveIDBaseObjects<DMX::Device>(o,"Devices");
+    saveIDBaseObjects<DMX::ProgrammPrototype>(o,"ProgrammPrototypes");
+    saveIDBaseObjects<DMX::Programm>(o,"Programms");
     saveIDBaseObjects<User>(o,"Users");
     o.insert("password",QString::fromLatin1(password.toBase64()));
     {
@@ -92,10 +92,10 @@ std::function<void()> loadData(QFile &file){
 
 std::function<void()> loadData(QByteArray data){
     const auto o = QJsonDocument::fromJson(data).object();
-    loadIDBaseObjects<DevicePrototype>(o,"DevicePrototypes");
-    loadIDBaseObjects<Device>(o,"Devices");
-    loadIDBaseObjects<ProgrammPrototype>(o,"ProgrammPrototypes");
-    loadIDBaseObjects<Programm>(o,"Programms");
+    loadIDBaseObjects<DMX::DevicePrototype>(o,"DevicePrototypes");
+    loadIDBaseObjects<DMX::Device>(o,"Devices");
+    loadIDBaseObjects<DMX::ProgrammPrototype>(o,"ProgrammPrototypes");
+    loadIDBaseObjects<DMX::Programm>(o,"Programms");
     password = QByteArray::fromBase64(o["password"].toString().toLatin1());
     {//USERS
         for(const auto e : o["Users"].toArray()){

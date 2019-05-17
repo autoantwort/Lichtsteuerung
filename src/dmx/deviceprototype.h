@@ -7,6 +7,8 @@
 #include "channel.h"
 #include "idbase.h"
 
+namespace DMX{
+
 class ChannelVector : public QAbstractListModel{
     std::vector<Channel*> channels;
 public:
@@ -115,5 +117,7 @@ signals:
     void channelRemoved(Channel*);
 
 };
+
+} // namespace DMX
 
 #endif // DEVICEPROTOTYPE_H

@@ -37,13 +37,13 @@ void ControlItemData::setStartYBlock(int i){
 
 // start ProgrammControlItemData
 
-ProgrammControlItemData::ProgrammControlItemData(Programm * p,QObject *parent):ControlItemData(ControlItemData::PROGRAMM,parent),programm(p){
+ProgrammControlItemData::ProgrammControlItemData(DMX::Programm * p,QObject *parent):ControlItemData(ControlItemData::PROGRAMM,parent),programm(p){
 
 }
 
 ProgrammControlItemData::ProgrammControlItemData(const QJsonObject &o, QObject *parent):
     ControlItemData(o,parent),
-    programm(IDBase<Programm>::getIDBaseObjectByID(o["programm"])){
+    programm(IDBase<DMX::Programm>::getIDBaseObjectByID(o["programm"])){
 
 }
 
@@ -51,7 +51,7 @@ void ProgrammControlItemData::writeJsonObject(QJsonObject &o){
     ControlItemData::writeJsonObject(o);
     o.insert("programm",QString::number(programm->getID().value()));
 }
-void ProgrammControlItemData::setProgramm(Programm *p){
+void ProgrammControlItemData::setProgramm(DMX::Programm *p){
     if(p!=programm){
         programm = p;
         emit programmChanged();
@@ -90,12 +90,12 @@ void GroupModel::handleRowsRemoved(const QModelIndex &parent, int first, int las
 // GroupControlItemData
 GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent):ControlItemData(o,parent),name(o["name"].toString()){
     const auto enabled = o["enabledDevices"].toArray();
-    auto iter = IDBase<Device>::getAllIDBases().cbegin();
+    auto iter = IDBase<DMX::Device>::getAllIDBases().cbegin();
     int index = 0;
     for(const auto e_ : enabled){
         const auto e = e_.toString().toLongLong();
         const auto start = iter;
-        while (iter!=IDBase<Device>::getAllIDBases().cend()) {
+        while (iter!=IDBase<DMX::Device>::getAllIDBases().cend()) {
             if((**iter).getID()==e){
                 groupModel.setEnabled(index,true);
                 ++iter;
@@ -105,7 +105,7 @@ GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent
             ++iter;
             ++index;
         }
-        iter = IDBase<Device>::getAllIDBases().cbegin();
+        iter = IDBase<DMX::Device>::getAllIDBases().cbegin();
         index = 0;
         while (iter!=start) {
             if((**iter).getID()==e){
@@ -122,7 +122,7 @@ GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent
 
 void GroupControlItemData::writeJsonObject(QJsonObject &o){
     QJsonArray a;
-    auto prog = IDBase<Device>::getAllIDBases().cbegin();
+    auto prog = IDBase<DMX::Device>::getAllIDBases().cbegin();
     auto en = groupModel.getEnabledVector().cbegin();
     for(;en!=groupModel.getEnabledVector().cend();++prog,++en){
         if(*en){
@@ -134,8 +134,8 @@ void GroupControlItemData::writeJsonObject(QJsonObject &o){
     ControlItemData::writeJsonObject(o);
 }
 
-void GroupControlItemData::forEach(std::function<void (Device *)> f){
-    auto prog = IDBase<Device>::getAllIDBases().cbegin();
+void GroupControlItemData::forEach(std::function<void (DMX::Device *)> f){
+    auto prog = IDBase<DMX::Device>::getAllIDBases().cbegin();
     auto en = groupModel.getEnabledVector().cbegin();
     for(;en!=groupModel.getEnabledVector().cend();++prog,++en){
         if(*en){
@@ -183,7 +183,7 @@ void SwitchGroupControlItemData::setDeactivateCooldown(int c){
 void SwitchGroupControlItemData::setActivated(bool a){
     if(a!=activated){
         activated = a;
-        forEach([this](Device * d){
+        forEach([this](DMX::Device * d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setValue(255*activated);
         });
@@ -217,7 +217,7 @@ void DimmerGroupControlItemData::writeJsonObject(QJsonObject &o){
 void DimmerGroupControlItemData::setMaxOperation(Operation o){
     if(maxOperation!=o){
         maxOperation = o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setMaxOperation(o);
         });
@@ -227,7 +227,7 @@ void DimmerGroupControlItemData::setMaxOperation(Operation o){
 void DimmerGroupControlItemData::setMinOperation(Operation o){
     if(minOperation!=o){
         minOperation = o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setMinOperation(o);
         });
@@ -238,7 +238,7 @@ void DimmerGroupControlItemData::setMinOperation(Operation o){
 void DimmerGroupControlItemData::setMaxValue(unsigned char o){
     if(maxValue!=o){
         maxValue = o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setMaxValue(o);
         });
@@ -248,7 +248,7 @@ void DimmerGroupControlItemData::setMaxValue(unsigned char o){
 void DimmerGroupControlItemData::setMinValue(unsigned char o){
     if(minValue!=o){
         minValue = o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setMinValue(o);
         });
@@ -259,7 +259,7 @@ void DimmerGroupControlItemData::setMinValue(unsigned char o){
 void DimmerGroupControlItemData::setValue(unsigned char o){
     if(value!=o){
         value = o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->setValue(o);
         });
@@ -269,7 +269,7 @@ void DimmerGroupControlItemData::setValue(unsigned char o){
 void DimmerGroupControlItemData::shouldOverrideValue(bool o){
     if(shouldOverrideValue_!=o){
         shouldOverrideValue_=o;
-        forEach([=](Device* d){
+        forEach([=](DMX::Device* d){
             auto filter = d->getFilterForChannelindex(0);
             if(filter)filter->shouldOverrideValue(o);
         });

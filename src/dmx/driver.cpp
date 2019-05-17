@@ -20,12 +20,14 @@
 #include <windows.h>
 #endif
 
-HardwareInterface * driver = nullptr;
+DMX::HardwareInterface * driver = nullptr;
 
 #ifdef LOG_DRIVER
 std::ofstream debugOutput;
 std::vector<unsigned char> oldData;
 #endif
+
+namespace DMX{
 
 namespace Driver {
 
@@ -215,3 +217,5 @@ namespace Driver {
         }
     }
 }
+
+} // namespace DMX

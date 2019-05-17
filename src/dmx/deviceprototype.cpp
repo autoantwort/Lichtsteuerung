@@ -1,6 +1,7 @@
 #include "deviceprototype.h"
 #include <QJsonArray>
 
+namespace DMX{
 
 void ChannelVector::beginPushBack(int length){
     beginInsertRows(QModelIndex(),channels.size(),channels.size()+length);
@@ -95,3 +96,5 @@ void DevicePrototype::writeJsonObject(QJsonObject &o) const{
     }
     o.insert("channels",channels);
 }
+
+} // namespace DMX

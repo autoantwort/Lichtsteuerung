@@ -5,6 +5,8 @@
 #include "idbase.h"
 #include "namedobject.h"
 
+namespace DMX{
+
 /**
  * @brief The Channel class give us information about a channel in a devicePrototype
  * Eine Klasse die die jeweiligen ChannelInformationen für ein deviecPrototype hält
@@ -28,5 +30,7 @@ public:
     void writeJsonObject(QJsonObject &o)const;
 
 };
+
+} // namespace DMX
 
 #endif // CHANNEL_H

@@ -8,7 +8,7 @@
 #include <QJsonObject>
 #include <iostream>
 #include <QAbstractListModel>
-#include "namedobject.h"
+#include "dmx/namedobject.h"
 #include <QQmlEngine>
 
 template<typename Subclass>
