@@ -42,20 +42,20 @@ SOURCES += \
     gui/polygon.cpp \
     dmx/programm.cpp \
     dmx/programmprototype.cpp \
-    programms/dmxconsumer.cpp \
+    modules/dmxconsumer.cpp \
     scanner.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     test/DriverDummy.cpp \
     usermanagment.cpp \
-    programms/modulemanager.cpp \
-    programms/programblock.cpp \
-    programms/compiler.cpp \
+    modules/modulemanager.cpp \
+    modules/programblock.cpp \
+    modules/compiler.cpp \
     test/testmodulsystem.cpp \
-    programms/controller.cpp \
-    programms/dmxprogram.cpp \
-    programms/dmxprogramblock.cpp \
-    programms/json_storage.cpp \
+    modules/controller.cpp \
+    modules/dmxprogram.cpp \
+    modules/dmxprogramblock.cpp \
+    modules/json_storage.cpp \
     codeeditorhelper.cpp \
     test/testmodulecontroller.cpp \
     test/testprogrammblock.cpp \
@@ -63,7 +63,7 @@ SOURCES += \
     audio/sample.cpp \
     test/testsampleclass.cpp \
     audio/audiocapturemanager.cpp \
-    programms/boostloopprogramcontextswitcher.cpp \
+    modules/boostloopprogramcontextswitcher.cpp \
     spotify/spotify.cpp \
     spotify/currentplayingobject.cpp \
     spotify/trackobject.cpp \
@@ -101,8 +101,8 @@ HEADERS += \
     applicationdata.h \
     dmx/namedobject.h \
     dmx/dmxchannelfilter.h \
-    programms/controlpoint.hpp \
-    programms/scanner.hpp \
+    modules/controlpoint.hpp \
+    modules/scanner.hpp \
     scanner.h \
     usermanagment.h \
     gui/channelprogrammeditor.h \
@@ -123,33 +123,33 @@ HEADERS += \
     gui/colorplot.h \
     gui/graph.h \
     gui/oscillogram.h \
-    programms/types.h \
-    programms/dmxconsumer.h \
-    programms/module.h \
+    modules/types.h \
+    modules/dmxconsumer.h \
+    modules/module.h \
     test/testloopprogramm.h \
-    programms/modulemanager.h \
-    programms/programblock.h \
-    programms/property.hpp \
-    programms/filter.hpp \
-    programms/consumer.hpp \
-    programms/compiler.h \
+    modules/modulemanager.h \
+    modules/programblock.h \
+    modules/property.hpp \
+    modules/filter.hpp \
+    modules/consumer.hpp \
+    modules/compiler.h \
     test/testmodulsystem.h \
-    programms/controller.h \
-    programms/dmxprogram.h \
-    programms/dmxprogramblock.h \
-    programms/storage.hpp \
-    programms/json_storage.h \
+    modules/controller.h \
+    modules/dmxprogram.h \
+    modules/dmxprogramblock.h \
+    modules/storage.hpp \
+    modules/json_storage.h \
     codeeditorhelper.h \
-    programms/program.hpp \
+    modules/program.hpp \
     test/testmodulecontroller.h \
     test/testprogrammblock.h \
     gui/programblockeditor.h \
     audio/sample.h \
     test/testsampleclass.h \
     audio/audiocapturemanager.h \
-    programms/fftoutput.hpp \
-    programms/loopprogram.hpp \
-    programms/boostloopprogramcontextswitcher.h \
+    modules/fftoutput.hpp \
+    modules/loopprogram.hpp \
+    modules/boostloopprogramcontextswitcher.h \
     spotify/spotify.h \
     spotify/currentplayingobject.h \
     spotify/trackobject.h \
@@ -163,8 +163,8 @@ HEADERS += \
     spotify/audioanalysisobject.h \
     spotify/userobject.h \
     spotify/util.h \
-    programms/spotifyobjetcs.hpp \
-    programms/spotify.hpp \
+    modules/spotifyobjetcs.hpp \
+    modules/spotify.hpp \
     sortedmodelview.h
 
 

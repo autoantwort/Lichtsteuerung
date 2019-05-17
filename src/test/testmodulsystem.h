@@ -1,7 +1,7 @@
 #ifndef TESTMODULSYSTEM_H
 #define TESTMODULSYSTEM_H
-#include <programms/modulemanager.h>
-#include <programms/compiler.h>
+#include "modules/modulemanager.h"
+#include "modules/compiler.h"
 #include <QDebug>
 #include <iostream>
 #include <chrono>

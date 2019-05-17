@@ -1,9 +1,9 @@
 #ifndef TESTPROGRAMMBLOCK_H
 #define TESTPROGRAMMBLOCK_H
 
-#include <programms/controller.h>
-#include <programms/program.hpp>
-#include <programms/consumer.hpp>
+#include "modules/controller.h"
+#include "modules/program.hpp"
+#include "modules/consumer.hpp"
 #include <cstring>
 
 namespace  Test{

@@ -3,7 +3,7 @@
 
 #include <QQuickItem>
 #include "dmx/programm.h"
-#include "programms/programblock.h"
+#include "modules/programblock.h"
 #include "controlitemdata.h"
 
 namespace GUI{

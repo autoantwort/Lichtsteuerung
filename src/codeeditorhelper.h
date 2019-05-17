@@ -6,7 +6,7 @@
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QRegularExpression>
-#include <programms/modulemanager.h>
+#include "modules/modulemanager.h"
 #include <QSortFilterProxyModel>
 
 // Highlight code from https://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html

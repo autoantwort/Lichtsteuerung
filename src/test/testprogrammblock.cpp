@@ -1,5 +1,5 @@
 #include "testprogrammblock.h"
-#include <programms/programblock.h>
+#include "modules/programblock.h"
 
 namespace Test {
 

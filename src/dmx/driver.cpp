@@ -6,7 +6,7 @@
 #include "dmxchannelfilter.h"
 #include <QDir>
 #include <cstring>
-#include "programms/dmxconsumer.h"
+#include "modules/dmxconsumer.h"
 
 //#define LOG_DRIVER
 
@@ -188,6 +188,7 @@ namespace Driver {
             if(driver){
                 driver->stop();
                 delete driver;
+                driver = nullptr;
             }
             driver=inter;
             return true;
@@ -214,6 +215,7 @@ namespace Driver {
         if (driver) {
             driver->stop();
             delete driver;
+            driver = nullptr;
         }
     }
 }

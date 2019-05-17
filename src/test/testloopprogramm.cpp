@@ -1,7 +1,7 @@
 #include "testloopprogramm.h"
 #include <qdebug.h>
 #include <chrono>
-#include "programms/boostloopprogramcontextswitcher.h"
+#include "modules/boostloopprogramcontextswitcher.h"
 
 namespace Test {
 

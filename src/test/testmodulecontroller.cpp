@@ -1,5 +1,5 @@
 #include "testmodulecontroller.h"
-#include "programms/modulemanager.h"
+#include "modules/modulemanager.h"
 #include <chrono>
 
 

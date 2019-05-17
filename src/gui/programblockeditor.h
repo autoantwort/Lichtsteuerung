@@ -2,8 +2,8 @@
 #define PROGRAMBLOCKEDITOR_H
 
 #include <QQuickItem>
-#include "programms/programblock.h"
-#include "programms/modulemanager.h"
+#include "modules/programblock.h"
+#include "modules/modulemanager.h"
 #include <QStringListModel>
 
 namespace GUI{

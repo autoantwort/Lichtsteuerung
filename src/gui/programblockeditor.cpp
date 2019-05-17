@@ -1,7 +1,7 @@
 #include "programblockeditor.h"
 #include <QQmlEngine>
 #include <QPropertyAnimation>
-#include "programms/property.hpp"
+#include "modules/property.hpp"
 #include "errornotifier.h"
 
 QQmlEngine*  GUI::ProgramBlockEditor::engine = nullptr;

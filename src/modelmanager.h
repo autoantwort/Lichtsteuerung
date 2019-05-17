@@ -5,7 +5,7 @@
 #include "dmx/device.h"
 #include "dmx/programm.h"
 #include "dmx/programmprototype.h"
-#include "programms/modulemanager.h"
+#include "modules/modulemanager.h"
 #include "settings.h"
 #include <QObject>
 

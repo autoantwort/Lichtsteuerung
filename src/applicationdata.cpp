@@ -12,8 +12,8 @@
 #include "gui/controlpanel.h"
 #include "gui/mapview.h"
 #include <QCryptographicHash>
-#include "programms/modulemanager.h"
-#include "programms/programblock.h"
+#include "modules/modulemanager.h"
+#include "modules/programblock.h"
 #include "spotify/spotify.h"
 
 namespace ApplicationData{

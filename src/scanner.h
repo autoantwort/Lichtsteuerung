@@ -3,7 +3,7 @@
 
 #include <QMatrix4x4>
 #include <qmath.h>
-#include "programms/scanner.hpp"
+#include "modules/scanner.hpp"
 #include "modelvector.h"
 
 class Scanner : public QObject, public Modules::IScanner

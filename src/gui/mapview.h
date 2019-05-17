@@ -5,7 +5,7 @@
 #include "gridbackground.h"
 #include <iostream>
 #include "scanner.h"
-#include "programms/modulemanager.h"
+#include "modules/modulemanager.h"
 
 namespace GUI{
 

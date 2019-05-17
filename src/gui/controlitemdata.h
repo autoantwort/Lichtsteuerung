@@ -4,7 +4,7 @@
 #include <QObject>
 #include "dmx/programm.h"
 #include "dmx/device.h"
-#include "programms/programblock.h"
+#include "modules/programblock.h"
 
 namespace GUI{
 

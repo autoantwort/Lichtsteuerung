@@ -5,7 +5,7 @@
 #include <QSettings>
 #include <QFile>
 #include <QDir>
-#include "programms/compiler.h"
+#include "modules/compiler.h"
 
 class Settings : public QObject
 {

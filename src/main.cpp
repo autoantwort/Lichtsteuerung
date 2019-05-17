@@ -34,7 +34,7 @@
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
 #include "codeeditorhelper.h"
-#include "programms/programblock.h"
+#include "modules/programblock.h"
 #include "gui/programblockeditor.h"
 #include "gui/graph.h"
 #include <QTimer>
@@ -231,7 +231,7 @@ int main(int argc, char *argv[])
     driver.setSetValuesCallback([](unsigned char* values, int size, double time){
         std::memset(values,0,size);
         DMXChannelFilter::initValues(values,size);
-        Programm::fill(values,size,time);
+        DMX::Programm::fill(values,size,time);
         Modules::DMXConsumer::fillWithDMXConsumer(values,size);
         DMXChannelFilter::filterValues(values,size);
         Driver::dmxValueModel.setValues(values,size);

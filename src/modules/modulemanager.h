@@ -8,8 +8,8 @@
 #include "consumer.hpp"
 #include <cstring>
 #include "property.hpp"
-#include "programms/loopprogram.hpp"
-#include "programms/boostloopprogramcontextswitcher.h"
+#include "modules/loopprogram.hpp"
+#include "modules/boostloopprogramcontextswitcher.h"
 
 #include <QString>
 #include <QFile>

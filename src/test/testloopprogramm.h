@@ -1,9 +1,9 @@
 #ifndef TESTLOOPPROGRAMM_H
 #define TESTLOOPPROGRAMM_H
 
-#include <programms/types.h>
-#include <programms/program.hpp>
-#include <programms/loopprogram.hpp>
+#include "modules/types.h"
+#include "modules/program.hpp"
+#include "modules/loopprogram.hpp"
 
 #include <iostream>
 #include <qdebug.h>

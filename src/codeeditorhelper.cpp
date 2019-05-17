@@ -2,7 +2,7 @@
 #include <QTextCursor>
 #include <QtQuick>
 #include "settings.h"
-#include "programms/compiler.h"
+#include "modules/compiler.h"
 
 QString toName(Modules::Module::Type t){
     switch (t) {
