@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::ProgramBlock::Status>("Status");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     qRegisterMetaType<Driver::DMXQMLValue*>("DMXQMLValue*");
-    qRegisterMetaType<DMX::DMXChannelFilter*>("DMXChannelFilter*")
+    qRegisterMetaType<DMX::DMXChannelFilter*>("DMXChannelFilter*");
 
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo("settings.ini"));

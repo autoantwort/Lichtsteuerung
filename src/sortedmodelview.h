@@ -17,11 +17,6 @@ class SortedModelVectorView : public QSortFilterProxyModel
 public:
     SortedModelVectorView(QObject *parent = nullptr);
     template<typename T>
-    SortedModelVectorView(IDBaseDataModel<T> * idBaseModel):QSortFilterProxyModel (idBaseModel){
-        QSortFilterProxyModel::setSourceModel(idBaseModel);
-        setSortRole(IDBaseDataModel<T>::ItemDataRole);
-    }
-    template<typename T>
     SortedModelVectorView(ModelVector<T> * modelVector):QSortFilterProxyModel (modelVector){
         QSortFilterProxyModel::setSourceModel(modelVector);
         setSortRole(ModelVector<T>::ModelDataRole);
