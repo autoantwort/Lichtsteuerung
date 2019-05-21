@@ -11,28 +11,29 @@ UserManagment::UserManagment():readUser(new User("Default","")),currentUser(read
     }*/
 }
 
-UserManagment::~UserManagment(){
-    while (!IDBase<User>::getAllIDBases().empty()) {
-        delete *IDBase<User>::getAllIDBases().cbegin();
+User* UserManagment::getUserById(ID::value_type id){
+    for(const auto & d : users){
+        if(d->getID() == id){
+            return d.get();
+        }
     }
+    return nullptr;
 }
 
-
-
 void UserManagment::addUser(const QString &name, const QString &password){
-    new User(name,QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256));
+    users.push_back(std::unique_ptr<User>(new User(name,QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256))));
 }
 
 bool UserManagment::removeUser(User *user, const QString &password){
 
     const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
     if(user->password==hash){
-        delete user;
+        users.remove_if([=](const auto & p){return p.get() == user;});
         return true;
     }
-    for(const auto u : IDBase<User>::getAllIDBases()){
+    for(const auto & u : users){
         if(u->password==hash && u->havePermission(Admin)){
-            delete u;
+            users.remove_if([=](const auto & p){return p.get() == user;});
             return true;
         }
     }
@@ -45,7 +46,7 @@ bool UserManagment::changeUserName(User *user, const QString &newName, const QSt
         user->setUsername(newName);
         return true;
     }
-    for(const auto u : IDBase<User>::getAllIDBases()){
+    for(const auto & u : users){
         if(u->password==hash && u->havePermission(Admin)){
             user->setUsername(newName);
             return true;
@@ -139,11 +140,11 @@ bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &valu
 
 void User::createUser(const QJsonObject &o){
     if(o["password"].toString().length()!=0){// we dont want a user without a password
-        new User(o);
+        UserManagment::get()->users.push_back(std::unique_ptr<User>(new User(o)));
     }
 }
 
-User::User(const QJsonObject &o):username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
+User::User(const QJsonObject &o):QObject(UserManagment::get()),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
     const auto array = o["permissions"].toArray();
     for(const auto & i : array){
         permissions.insert(static_cast<UserManagment::Permission>(i.toInt()));
@@ -161,9 +162,9 @@ void User::writeJsonObject(QJsonObject &o) const{
 }
 
 User * UserManagment::getUserByName(const QString &name) const{
-    for(auto u = IDBase<User>::getAllIDBases().cbegin();u!=IDBase<User>::getAllIDBases().cend();++u){
-        if((**u).getUsername()==name){
-            return *u;
+    for(const auto & u : users){
+        if(u->getUsername()==name){
+            return u.get();
         }
     }
     return nullptr;

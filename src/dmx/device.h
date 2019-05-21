@@ -35,7 +35,7 @@ protected:
     /**
      * @brief filter Für jeden Channel einen Filter, der einen Default Value setzt und endergebnisse des Programms filtert;
      */
-    std::vector<std::pair<Channel*,DMXChannelFilter*>> filter;
+    std::vector<std::pair<Channel*,std::unique_ptr<DMXChannelFilter>>> filter;
 private slots:
     void channelRemoved(Channel *);
     void channelAdded(Channel *);
@@ -45,7 +45,7 @@ public:
     Device(DevicePrototype * prototype, int startDMXChannel, QString name, QString desciption="",QPoint position = QPoint(-1,-1)):NamedObject(name,desciption),prototype(prototype),startDMXChannel(startDMXChannel),position(position){
         connect(prototype,&DevicePrototype::channelAdded,this,&Device::channelAdded);
         for(auto i = prototype->getChannels().cbegin();i != prototype->getChannels().cend();++i){
-            filter.emplace_back(*i,new DMXChannelFilter);
+            filter.emplace_back(i->get(),std::make_unique<DMXChannelFilter>());
         }
     }
 
@@ -57,9 +57,9 @@ public:
     unsigned int getStartDMXChannel()const{return startDMXChannel;}
     Q_SLOT void setStartDMXChannel(unsigned int newStart){if(newStart == startDMXChannel)return;startDMXChannel = newStart; emit startDMXChannelChanged(startDMXChannel);}
 
-    const std::vector<Channel*> & getChannels()const{return prototype->getChannels();}
+    const std::vector<std::unique_ptr<Channel>> & getChannels()const{return prototype->getChannels();}
 
-    const std::vector<std::pair<Channel*,DMXChannelFilter*>> & getChannelFilter()const{return filter;}
+    const std::vector<std::pair<Channel*,std::unique_ptr<DMXChannelFilter>>> & getChannelFilter()const{return filter;}
 
     Q_INVOKABLE DMXChannelFilter * getFilterForChannel( Channel * c);
     Q_INVOKABLE DMXChannelFilter * getFilterForChannelindex(int intdex);

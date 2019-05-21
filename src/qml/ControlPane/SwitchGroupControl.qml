@@ -161,9 +161,9 @@ ControlItem{
                 model: controlData?controlData.groupModel:null
                 delegate: CheckDelegate{
                     width: 200
-                    text: itemData.name
-                    visible: itemData.name.startsWith(search.text,Qt.CaseInsensitive)
-                    height: itemData.name.startsWith(search.text,Qt.CaseInsensitive) ? implicitHeight : 0;
+                    text: modelData.name
+                    visible: modelData.name.startsWith(search.text,Qt.CaseInsensitive)
+                    height: modelData.name.startsWith(search.text,Qt.CaseInsensitive) ? implicitHeight : 0;
                     checked: use
 
                     onCheckedChanged: use = checked

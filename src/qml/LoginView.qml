@@ -44,12 +44,12 @@ Item{
                 swipe.onOpened: {
                     closeTimer.running = true;
                 }
-                swipe.enabled: itemData !== UserManagment.defaultUser && UserManagment.currentUser.havePermission(Permission.Admin);
+                swipe.enabled: modelData !== UserManagment.defaultUser && UserManagment.currentUser.havePermission(Permission.Admin);
                 anchors.margins: 5
                 clip:true
                 width: parent.width
                 Component.onCompleted: {
-                    background.color = Qt.binding(function(){return UserManagment.currentUser === itemData?"lightblue":"white";});
+                    background.color = Qt.binding(function(){return UserManagment.currentUser === modelData?"lightblue":"white";});
                 }
                 Behavior on height {
                     NumberAnimation{
@@ -60,9 +60,9 @@ Item{
                 TextInputField{
                     anchors.verticalCenter: parent.contentItem.verticalCenter
                     x: parent.contentItem.x + 10
-                    text: itemData.name
+                    text: modelData.name
                     width: Math.max(implicitWidth+20,70)
-                    enabled: (UserManagment.currentUser.havePermission(Permission.Admin) || itemData === UserManagment.currentUser)&&itemData!==UserManagment.getDefaultUser()
+                    enabled: (UserManagment.currentUser.havePermission(Permission.Admin) || modelData === UserManagment.currentUser)&&modelData!==UserManagment.getDefaultUser()
                 }
                 Button{
                     visible: UserManagment.currentUser.havePermission(Permission.Admin);
@@ -72,13 +72,13 @@ Item{
                     anchors.bottom: buttonChangePassword.bottom
                     anchors.rightMargin: 5
                     onClicked: {
-                        permissionsView.model = itemData.permissionModel;
+                        permissionsView.model = modelData.permissionModel;
                         permissionDialog.visible = true;
                     }
                 }
                 Button{
                     id:buttonChangePassword
-                    visible: itemData === UserManagment.currentUser && itemData !== UserManagment.defaultUser;
+                    visible: modelData === UserManagment.currentUser && modelData !== UserManagment.defaultUser;
                     text: "Change Password"
                     anchors.right: buttonLogin.left
                     anchors.top: buttonLogin.top
@@ -88,19 +88,19 @@ Item{
                 Button{
                     width: 80
                     id:buttonLogin
-                    enabled: !(itemData===UserManagment.defaultUser&&itemData===UserManagment.currentUser)
-                    text: itemData===UserManagment.currentUser?"Logout":"Login"
+                    enabled: !(modelData===UserManagment.defaultUser&&modelData===UserManagment.currentUser)
+                    text: modelData===UserManagment.currentUser?"Logout":"Login"
                     anchors.right: parent.right
                     anchors.top:parent.top
                     anchors.bottom: parent.bottom
                     anchors.rightMargin: 5
                     onClicked: {
-                        if(itemData===UserManagment.getDefaultUser()){
+                        if(modelData===UserManagment.getDefaultUser()){
                             UserManagment.logout();
-                        }else if(itemData===UserManagment.currentUser){
+                        }else if(modelData===UserManagment.currentUser){
                             UserManagment.logout()
                         }else{
-                            dialog.user = itemData;
+                            dialog.user = modelData;
                             dialog.visible = true;
                         }
                     }

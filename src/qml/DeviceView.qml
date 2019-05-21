@@ -7,7 +7,7 @@ import "components"
 
 ModelView{
     id: deviceModelView
-    model:deviceModel
+    model: deviceModel
     nameFunction: function(modelData){return modelData.name + ", Channel: " + modelData.startDMXChannel + (modelData.prototype.numberOfChannels > 1 ? " - " + (modelData.startDMXChannel + modelData.prototype.numberOfChannels - 1) : "");}
     rows: 7
     onAddClicked:dialog.visible = true
@@ -30,12 +30,12 @@ ModelView{
         Layout.row: 2
         Layout.column: 3
         enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DEVICE_DMX_CHANNEL);
-        text: parent.currentItem.modelData.startDMXChannel
+        text: parent.currentModelData.startDMXChannel
         validator: IntValidator{
             bottom: 0
             top:512
         }
-        onTextChanged: parent.currentItem.modelData.startDMXChannel = text.length?text:0
+        onTextChanged: parent.currentModelData.startDMXChannel = text.length?text:0
     }
     Text{
         Layout.row: 3
@@ -47,7 +47,7 @@ ModelView{
     Text{
         Layout.row: 3
         Layout.column: 3
-        text:parent.currentItem.modelData.prototype.name
+        text:parent.currentModelData.prototype.name
         font.pixelSize: 15
         TextUnderline{
             extendetWidth:1
@@ -71,9 +71,9 @@ ModelView{
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 40
-            text:deviceModelView.currentItem.modelData.position.x
+            text:deviceModelView.currentModelData.position.x
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentItem.modelData.position.x = text.length?text:0
+            onTextChanged: deviceModelView.currentModelData.position.x = text.length?text:0
         }
         Text{
             Layout.leftMargin: 10
@@ -83,14 +83,14 @@ ModelView{
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 40
-            text:deviceModelView.currentItem.modelData.position.y
+            text: deviceModelView.currentItem ? deviceModelView.currentModelData.position.y : ""
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentItem.modelData.position.y = text.length?text:0
+            onTextChanged: deviceModelView.currentModelData.position.y = text.length?text:0
         }
         Button{
-            visible: deviceModelView.placeOnMapCallback && deviceModelView.currentItem.modelData.position.x === -1 || deviceModelView.currentItem.modelData.position.x === -1
+            visible: deviceModelView.currentItem ? deviceModelView.placeOnMapCallback && deviceModelView.currentModelData.position.x === -1 || deviceModelView.currentModelData.position.x === -1 : false
             text: "Place on map"
-            onClicked: deviceModelView.placeOnMapCallback(deviceModelView.currentItem.modelData)
+            onClicked: deviceModelView.placeOnMapCallback(deviceModelView.currentModelData)
             height: implicitHeight - 15
         }
     }

@@ -3,6 +3,8 @@
 #include "idbase.h"
 #include "deviceprototype.h"
 #include <QEasingCurve>
+#include <set>
+#include "modelvector.h"
 
 namespace DMX{
 
@@ -37,7 +39,7 @@ class ChannelProgramm : public QObject{
 private:
     RepeatPolicy repeatPolicy=Continue;
 public:
-    ChannelProgramm(const QJsonObject &o);
+    ChannelProgramm(const DevicePrototype * deviceProtype, const QJsonObject &o);
     ChannelProgramm(const Channel * channel):channel(channel){setParent(getChannel());}
     const Channel * channel;
     Channel * getChannel()const{return const_cast<Channel*>(channel);}
@@ -49,42 +51,8 @@ signals:
     void repeatPolicyChanged();
 };
 
-class ChannelProgrammVector : public QAbstractListModel{
-    std::vector<ChannelProgramm*> channels;
-public:
-    enum{
-        ChannelRole = Qt::UserRole+1,ChannelProgrammRole
-    };
-    const std::vector<ChannelProgramm*>& getChannelProgramms()const{return channels;}
-    std::vector<ChannelProgramm*>& getChannelProgramms(){return channels;}
-    virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(channels.size());}
-    virtual QVariant data(const QModelIndex &index, int role) const override{
-        if(index.row()>=0&&index.row()<int(channels.size())){
-            switch(role){
-            case ChannelRole:
-                return QVariant::fromValue(channels[index.row()]->getChannel());
-            }
-            return QVariant::fromValue(channels[index.row()]);
-        }
-        qDebug()<<"index out\n";
-        return QVariant();
-    }
-    QHash<int,QByteArray> roleNames()const override{
-        QHash<int,QByteArray> r;
-        r[ChannelRole] = "channel";
-        r[ChannelProgrammRole] = "channelProgramm";
-        r[ChannelProgrammRole+1] = "modelData";
-        return r;
-    }
-    ChannelProgramm* erase(std::vector<ChannelProgramm*>::const_iterator i){
-        const auto pos = i-channels.begin();
-        beginRemoveRows(QModelIndex(),pos,pos);
-        auto result = *channels.erase(i);
-        endRemoveRows();
-        return result;
-    }
-    void beginPushBack(int length){beginInsertRows(QModelIndex(),channels.size(),channels.size()+length);}
-    void endPushBack(){endInsertRows();}
+class ChannelProgrammVector : public ModelVector<std::unique_ptr<ChannelProgramm>>{
+    Q_OBJECT
 };
 
 /**
@@ -111,8 +79,8 @@ public:
     ProgrammPrototype(DevicePrototype * devicePrototype, QString name, QString description="");
     ChannelProgramm * getChannelProgramm(const Channel * channel);
     ChannelProgramm * getChannelProgramm(int channelIndex);
-    const std::vector<ChannelProgramm*>& getChannelProgramms()const{return programm.getChannelProgramms();}
-    std::vector<ChannelProgramm*>& getChannelProgramms(){return programm.getChannelProgramms();}
+    const std::vector<std::unique_ptr<ChannelProgramm>>& getChannelProgramms()const{return programm.getVector();}
+    std::vector<std::unique_ptr<ChannelProgramm>>& getChannelProgramms(){return programm.getVector();}
     void writeJsonObject(QJsonObject &o)const;
     ChannelProgrammVector * getChannelProgrammModel(){return &programm;}
 signals:

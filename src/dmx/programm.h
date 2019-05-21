@@ -15,7 +15,7 @@ namespace DMX{
  */
 class DeviceProgramm : public QObject , public IDBase<DeviceProgramm>{
     Q_OBJECT
-    Q_PROPERTY(ProgrammPrototype* programmPrototype READ getProgrammPrototyp WRITE setProgrammPrototype NOTIFY programmPrototypeChanged)
+    Q_PROPERTY(ProgrammPrototype* programmPrototype READ getProgrammPrototyp CONSTANT)
     Q_PROPERTY(double offset READ getOffset WRITE setOffset NOTIFY offsetChanged)
     Q_PROPERTY(double speed READ getSpeed WRITE setSpeed NOTIFY speedChanged)
     Q_PROPERTY(Device* device READ getDevice CONSTANT)
@@ -38,30 +38,16 @@ public:
       */
     Q_SLOT void setSpeed(double s){if(s==speed)return;speed=s;emit speedChanged(speed);}
     double getSpeed()const{return speed;}
-    DeviceProgramm(Device * device,ProgrammPrototype * programmPrototype,double offset):QObject(device),programmPrototype(programmPrototype),offset(offset),device(device){
+    DeviceProgramm(Device * device,ProgrammPrototype * programmPrototype,double offset):programmPrototype(programmPrototype),offset(offset),device(device){
         if(!device)
             throw new std::runtime_error("Nullpointer Exception: device is nullptr");
         if(!programmPrototype)
             throw new std::runtime_error("Nullpointer Exception: programmPrototype is nullptr");
-        connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);
-    }
-    bool setProgrammPrototype(ProgrammPrototype * p){
-        if(p->devicePrototype!=device->prototype){
-            return false;
-        }
-        disconnect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);
-        programmPrototype = p;
-        connect(programmPrototype,&ProgrammPrototype::destroyed,this,&DeviceProgramm::programmPrototypeDeleted);
-        emit programmPrototypeChanged();
-        return true;
     }
     ProgrammPrototype * getProgrammPrototyp()const{return programmPrototype;}
-private slots:
-    void programmPrototypeDeleted(QObject *){delete this;}
 signals:
     void offsetChanged();
     void speedChanged(double speed);
-    void programmPrototypeChanged();
 };
 
 /**
@@ -107,7 +93,7 @@ signals:
     void intervallChanged(double);
 };
 
-class DeviceProgrammVector : public ModelVector<DeviceProgramm*>{
+class DeviceProgrammVector : public ModelVector<std::unique_ptr<DeviceProgramm>>{
     Q_OBJECT
 };
 
@@ -152,7 +138,7 @@ public:
      */
     static void fill(unsigned char * data, size_t length, double time);
     void writeJsonObject(QJsonObject &o)const;
-    const std::vector<DeviceProgramm*>& getDeviceProgramms()const{return programms.getVector();}
+    const std::vector<std::unique_ptr<DeviceProgramm>>& getDeviceProgramms()const{return programms.getVector();}
     DeviceProgrammVector*getProgramms(){return &programms;}
     /**
      * @brief addDeviceProgramm fügt ein Device Programm dem Programm an
@@ -167,7 +153,8 @@ public:
 private:
     void addDeviceProgramm(const QJsonObject &o);
 private slots:
-    void deviceProgrammDeleted(QObject*);
+    void programPrototypeDeleted(QObject *);
+    void deviceDeleted(QObject *);
 signals:
     void runningChanged(bool running);
     void speedChanged(double speed);

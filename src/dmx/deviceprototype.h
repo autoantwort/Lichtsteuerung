@@ -6,63 +6,15 @@
 #include <QVector>
 #include "channel.h"
 #include "idbase.h"
+#include <QAbstractListModel>
+#include <QDebug>
+#include <memory>
+#include "modelvector.h"
 
 namespace DMX{
 
-class ChannelVector : public QAbstractListModel{
-    std::vector<Channel*> channels;
-public:
-    enum{
-        NameRole = Qt::UserRole+1,IndexRole,DescriptionRole
-    };
-    const std::vector<Channel*>& getChannel()const{return channels;}
-    std::vector<Channel*>& getChannel(){return channels;}
-    virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(channels.size());}
-    virtual QVariant data(const QModelIndex &index, int role) const override{
-        if(index.row()>=0&&index.row()<int(channels.size())){
-            switch(role){
-            case Qt::DisplayRole:
-            case NameRole:
-                return channels[index.row()]->getName();
-            case Qt::ToolTipRole:
-            case DescriptionRole:
-                return channels[index.row()]->getDescription();
-            case IndexRole:
-                return channels[index.row()]->getIndex();
-            }
-            return QVariant::fromValue(channels[index.row()]);
-        }
-        qDebug()<<"index out\n";
-        return QVariant();
-    }
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role) override{
-        if(index.row()>=0&&index.row()<int(channels.size())){
-            switch(role){
-            case Qt::DisplayRole:
-            case NameRole:
-                 channels[index.row()]->setName(value.toString());
-                break;
-            case Qt::ToolTipRole:
-            case DescriptionRole:
-                 channels[index.row()]->setDescription(value.toString());
-                break;
-            default:
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
-    QHash<int,QByteArray> roleNames()const override{
-        QHash<int,QByteArray> r;
-        r[NameRole] = "name";
-        r[IndexRole] = "index";
-        r[DescriptionRole] = "description";
-        return r;
-    }
-    void pop_back();
-    void beginPushBack(int length);
-    void endPushBack();
+class ChannelVector : public ModelVector<std::unique_ptr<Channel>>{
+    Q_OBJECT
 };
 
 /** Jedes Gerät(Scanner/Laser/Lampe/...) bekommt ein Device Prototype, wo festgelegt wird, auf welchem Channel welche Daten anliegen
@@ -81,7 +33,7 @@ private:
 public:
     DevicePrototype(const QJsonObject &o);
     DevicePrototype(QString name, QString description=""):NamedObject(name,description){}
-    int getNumberOfChannels()const{return static_cast<int>(channels.getChannel().size());}
+    int getNumberOfChannels()const{return static_cast<int>(channels.getVector().size());}
     /**
      * @brief removeChannels Entfernt Channel bis zu einem bestimmten Index
      * @param newMaxIndex Der neue Maximale Index (Inclusiv)
@@ -101,10 +53,10 @@ public:
     void addChannel(int channel, QString name, QString description="");
 
     const Channel * getChannelByName(const QString &name)const;
-    const Channel * getChannelById(const int id)const;
+    const Channel * getChannelById(const ID::value_type id)const;
     const Channel * getChannelByIndex(const unsigned int channelIndex)const;
 
-    const std::vector<Channel*> & getChannels()const{return channels.getChannel();}
+    const std::vector<std::unique_ptr<Channel>> & getChannels()const{return channels.getVector();}
 
     void writeJsonObject(QJsonObject &o)const;
 

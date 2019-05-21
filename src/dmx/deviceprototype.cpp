@@ -3,20 +3,6 @@
 
 namespace DMX{
 
-void ChannelVector::beginPushBack(int length){
-    beginInsertRows(QModelIndex(),channels.size(),channels.size()+length);
-}
-
-void ChannelVector::endPushBack(){
-    endInsertRows();
-}
-
-void ChannelVector::pop_back(){
-    const auto pos = channels.size()-1;
-    beginRemoveRows(QModelIndex(),pos,pos);
-    channels.pop_back();
-    endRemoveRows();
-}
 
 void DevicePrototype::removeChannels(int newMaxIndex){
     if (newMaxIndex<0||newMaxIndex>getNumberOfChannels()) {
@@ -24,9 +10,8 @@ void DevicePrototype::removeChannels(int newMaxIndex){
     }
     // Elemente ganz hinten löschen
     for (int i = 0; i < getNumberOfChannels() - newMaxIndex; ++i) {
-        channelRemoved(channels.getChannel().back());
-        delete channels.getChannel().back();
-        channels.pop_back();
+        channelRemoved(channels.getVector().back().get());
+        channels.erase(std::next(channels.begin(),static_cast<int>(channels.size())-1));
     }
 }
 
@@ -36,52 +21,52 @@ void DevicePrototype::addChannel(int channel, QString name, QString description)
     if (channel>=getNumberOfChannels()) {
         channels.beginPushBack(getNumberOfChannels()-channel);
         for (int i = getNumberOfChannels(); i < channel; ++i) {
-            channels.getChannel().push_back(new Channel(i));
-            emit channelAdded(channels.getChannel().back());
+            channels.push_back(std::make_unique<Channel>(i));
+            emit channelAdded(channels.getVector().back().get());
             QJsonObject o;
-            channels.getChannel().back()->writeJsonObject(o);
+            channels.back()->writeJsonObject(o);
         }        
-        channels.getChannel().push_back(new Channel(channel,name,description));
+        channels.getVector().push_back(std::make_unique<Channel>(channel,name,description));
         channels.endPushBack();
-        emit channelAdded(channels.getChannel().back());
+        emit channelAdded(channels.getVector().back().get());
         QJsonObject o;
-        channels.getChannel().back()->writeJsonObject(o);
+        channels.getVector().back()->writeJsonObject(o);
     }else{
         // eigenschaften setzten
-        channels.getChannel()[channel]->setName(name);
-        channels.getChannel()[channel]->setDescription(description);
+        channels.getVector()[channel]->setName(name);
+        channels.getVector()[channel]->setDescription(description);
     }
 }
 
-const Channel * DevicePrototype::getChannelById(const int id) const{
-    for(auto c = channels.getChannel().cbegin();c!=channels.getChannel().cend();++c){
+const Channel * DevicePrototype::getChannelById(const ID::value_type id) const{
+    for(auto c = channels.getVector().cbegin();c!=channels.getVector().cend();++c){
         if ((**c).getID().value() == id) {
-            return *c;
+            return c->get();
         }
     }
     return nullptr;
 }
 
 const Channel * DevicePrototype::getChannelByName(const QString &name) const{
-    for(auto c = channels.getChannel().cbegin();c!=channels.getChannel().cend();++c){
+    for(auto c = channels.getVector().cbegin();c!=channels.getVector().cend();++c){
         if ((**c).getName() == name) {
-            return *c;
+            return c->get();
         }
     }
     return nullptr;
 }
 
 const Channel * DevicePrototype::getChannelByIndex(const unsigned int channelIndex) const{
-    if (channelIndex>=channels.getChannel().size()) {
+    if (channelIndex>=channels.getVector().size()) {
         return nullptr;
     }
-    return channels.getChannel()[channelIndex];
+    return channels.getVector()[channelIndex].get();
 }
 
 DevicePrototype::DevicePrototype(const QJsonObject &o):NamedObject(o),IDBase(o){
     auto array = o["channels"].toArray();
     for(const auto c : array){
-        channels.getChannel().push_back(new Channel(c.toObject()));
+        channels.push_back(std::make_unique<Channel>(c.toObject()));
     }
 }
 
@@ -89,7 +74,7 @@ void DevicePrototype::writeJsonObject(QJsonObject &o) const{
     NamedObject::writeJsonObject(o);
     IDBase::writeJsonObject(o);
     QJsonArray channels;
-    for(const auto c : this->channels.getChannel()){
+    for(const auto & c : this->channels.getVector()){
         QJsonObject o;
         c->writeJsonObject(o);
         channels.append(o);

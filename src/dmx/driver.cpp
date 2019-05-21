@@ -7,6 +7,7 @@
 #include <QDir>
 #include <cstring>
 #include "modules/dmxconsumer.h"
+#include <QQmlEngine>
 
 //#define LOG_DRIVER
 

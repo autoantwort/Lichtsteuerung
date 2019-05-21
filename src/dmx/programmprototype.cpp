@@ -1,6 +1,7 @@
 #include "programmprototype.h"
 #include <cmath>
 #include <QJsonArray>
+#include "modelmanager.h"
 
 namespace DMX{
 
@@ -9,39 +10,30 @@ ProgrammPrototype::ProgrammPrototype(DevicePrototype *devicePrototype, QString n
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
     connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
     programm.beginPushBack(devicePrototype->getChannels().size());
-    for(const auto channel : devicePrototype->getChannels()){
-        programm.getChannelProgramms().push_back(new ChannelProgramm(channel));
-        emit channelProgrammAdded(programm.getChannelProgramms().back());
+    for(const auto & channel : devicePrototype->getChannels()){
+        programm.push_back(std::make_unique<ChannelProgramm>(channel.get()));
+        emit channelProgrammAdded(programm.back().get());
     }
     programm.endPushBack();
 }
 
 void ProgrammPrototype::channelProgrammDestroyed(ChannelProgramm * c){
-    for(auto i = programm.getChannelProgramms().cbegin();i!=programm.getChannelProgramms().cend();++i){
-        if(*i==c){
-            programm.erase(i);
-            break;
-        }
-    }
+    programm.remove_if([=](const auto & v){ return v.get() == c;});
     emit channelProgrammRemoved(c);
 }
 
-void ProgrammPrototype::channelAdded(Channel *c){
-    programm.beginPushBack(1);
-    programm.getChannelProgramms().push_back(new ChannelProgramm(c));
-    programm.endPushBack();
-    emit channelProgrammAdded(programm.getChannelProgramms().back());
+void ProgrammPrototype::channelAdded(Channel *c){    
+    programm.push_back(std::make_unique<ChannelProgramm>(c));
+    emit channelProgrammAdded(programm.back().get());
 }
 void ProgrammPrototype::channelRemoved(Channel *c){
-    for(auto i = programm.getChannelProgramms().cbegin();i!=programm.getChannelProgramms().cend();++i){
-        if((**i).getChannel()==c){
-            auto cp = *i;
-            programm.erase(i);
-            emit channelProgrammRemoved(cp);
-            delete cp;
-            return;
+    programm.remove_if([this,c=c](const auto & cp){
+        if(cp->getChannel() == c){
+            emit channelProgrammRemoved(cp.get());
+            return true;
         }
-    }
+        return false;
+    });
 }
 
 
@@ -119,7 +111,7 @@ void ProgrammPrototype::writeJsonObject(QJsonObject &o) const{
     NamedObject::writeJsonObject(o);
     o.insert("devicePrototype",QString::number(devicePrototype->getID().value()));
     QJsonArray array;
-    for(const auto p : programm.getChannelProgramms()){
+    for(const auto & p : programm){
         QJsonObject o;
         p->writeJsonObject(o);
         array.append(o);
@@ -136,7 +128,7 @@ TimePoint::TimePoint(const QJsonObject &o):time(o["time"].toDouble()),value(o["v
     if(c != o.end()) easingCurveToNextPoint.setPeriod(c->toDouble());
 }
 
-ChannelProgramm::ChannelProgramm(const QJsonObject &o):repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())),channel(IDBase<Channel>::getIDBaseObjectByID(o["channel"])){
+ChannelProgramm::ChannelProgramm(const DevicePrototype * devicePrototype, const QJsonObject &o):repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())),channel(devicePrototype->getChannelById(o["channel"].toString().toLongLong())){
     setParent(getChannel());
     for(const auto p : o["timeline"].toArray()){
         timeline.insert(p.toObject());
@@ -144,27 +136,27 @@ ChannelProgramm::ChannelProgramm(const QJsonObject &o):repeatPolicy(RepeatPolicy
 }
 
 ProgrammPrototype::ProgrammPrototype(const QJsonObject &o):NamedObject(o),IDBase<ProgrammPrototype>(o),
-    devicePrototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["devicePrototype"])){
+    devicePrototype(ModelManager::get().getDevicePrototypeById(o["devicePrototype"])){
     setParent(getDevicePrototype());
     connect(devicePrototype,&DevicePrototype::channelAdded,this,&ProgrammPrototype::channelAdded);
     connect(devicePrototype,&DevicePrototype::channelRemoved,this,&ProgrammPrototype::channelRemoved);
     for(const auto p : o["programm"].toArray()){
-        programm.getChannelProgramms().push_back(new ChannelProgramm(p.toObject()));
-        emit channelProgrammAdded(programm.getChannelProgramms().back());
+        programm.push_back(std::make_unique<ChannelProgramm>(devicePrototype,p.toObject()));
+        emit channelProgrammAdded(programm.back().get());
     }
 }
 
 ChannelProgramm * ProgrammPrototype::getChannelProgramm(const Channel * channel){
-    for(auto p = programm.getChannelProgramms().begin() ; p != programm.getChannelProgramms().end() ;++p){
+    for(auto p = programm.begin() ; p != programm.end() ;++p){
         if((**p).channel == channel)
-            return *p;
+            return p->get();
     }
     return nullptr;
 }
 ChannelProgramm * ProgrammPrototype::getChannelProgramm(int index){
-    for(auto p = programm.getChannelProgramms().begin() ; p != programm.getChannelProgramms().end() ;++p){
+    for(auto p = programm.begin() ; p != programm.end() ;++p){
         if((**p).channel->getIndex() == index)
-            return *p;
+            return p->get();
     }
     return nullptr;
 }

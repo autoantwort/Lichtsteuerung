@@ -5,6 +5,7 @@
 #include "dmx/programm.h"
 #include "dmx/device.h"
 #include "modules/programblock.h"
+#include "modelmanager.h"
 
 namespace GUI{
 
@@ -51,8 +52,7 @@ signals:
 
 class GroupModel : public QAbstractListModel{
     Q_OBJECT
-    typedef IDBaseDataModel<DMX::Device> DataModel;
-    DataModel * deviceModel;
+    QAbstractItemModel * deviceModel;
     std::vector<bool> enabled;
 protected:
     void handleRowsAboutToBeInserted(const QModelIndex &parent, int start, int end);
@@ -60,9 +60,9 @@ protected:
     void handleRowsInserted(const QModelIndex &parent, int first, int last);
     void handleRowsRemoved(const QModelIndex &parent, int first, int last);
 public:
-    GroupModel(DataModel * deviceModel = DataModel::singletone());
+    GroupModel(QAbstractItemModel * deviceModel = ModelManager::get().getDeviceModel());
     enum GroupModelRoles{
-        EnableDataRole = IDBaseDataModel<DMX::Programm>::ItemDataRole + 1
+        EnableDataRole = ModelVector<std::unique_ptr<DMX::Device>>::ModelDataRole + 1
     };
     const std::vector<bool>& getEnabledVector()const{return enabled;}
     void setEnabled(int index, bool enabled = true){

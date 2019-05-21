@@ -1,5 +1,6 @@
 #include "controlitemdata.h"
 #include <QJsonArray>
+#include <QQmlEngine>
 
 namespace GUI{
 
@@ -43,7 +44,7 @@ ProgrammControlItemData::ProgrammControlItemData(DMX::Programm * p,QObject *pare
 
 ProgrammControlItemData::ProgrammControlItemData(const QJsonObject &o, QObject *parent):
     ControlItemData(o,parent),
-    programm(IDBase<DMX::Programm>::getIDBaseObjectByID(o["programm"])){
+    programm(ModelManager::get().getProgramById(o["programm"])){
 
 }
 
@@ -60,12 +61,12 @@ void ProgrammControlItemData::setProgramm(DMX::Programm *p){
 
 // Group Model
 
-GroupModel::GroupModel(DataModel *deviceModel):deviceModel(deviceModel){
+GroupModel::GroupModel(QAbstractItemModel* deviceModel):deviceModel(deviceModel){
     assert(deviceModel!=nullptr);
-    QObject::connect(deviceModel,&DataModel::rowsAboutToBeInserted,this,&GroupModel::handleRowsAboutToBeInserted);
-    QObject::connect(deviceModel,&DataModel::rowsAboutToBeRemoved,this,&GroupModel::handleRowsAboutToBeRemoved);
-    QObject::connect(deviceModel,&DataModel::rowsInserted,this,&GroupModel::handleRowsInserted);
-    QObject::connect(deviceModel,&DataModel::rowsRemoved,this,&GroupModel::handleRowsRemoved);
+    QObject::connect(deviceModel,&QAbstractItemModel::rowsAboutToBeInserted,this,&GroupModel::handleRowsAboutToBeInserted);
+    QObject::connect(deviceModel,&QAbstractItemModel::rowsAboutToBeRemoved,this,&GroupModel::handleRowsAboutToBeRemoved);
+    QObject::connect(deviceModel,&QAbstractItemModel::rowsInserted,this,&GroupModel::handleRowsInserted);
+    QObject::connect(deviceModel,&QAbstractItemModel::rowsRemoved,this,&GroupModel::handleRowsRemoved);
     enabled.resize(deviceModel->rowCount(QModelIndex()));
 }
 
@@ -90,12 +91,12 @@ void GroupModel::handleRowsRemoved(const QModelIndex &parent, int first, int las
 // GroupControlItemData
 GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent):ControlItemData(o,parent),name(o["name"].toString()){
     const auto enabled = o["enabledDevices"].toArray();
-    auto iter = IDBase<DMX::Device>::getAllIDBases().cbegin();
+    auto iter = ModelManager::get().getDevices().cbegin();
     int index = 0;
     for(const auto e_ : enabled){
         const auto e = e_.toString().toLongLong();
         const auto start = iter;
-        while (iter!=IDBase<DMX::Device>::getAllIDBases().cend()) {
+        while (iter!=ModelManager::get().getDevices().cend()) {
             if((**iter).getID()==e){
                 groupModel.setEnabled(index,true);
                 ++iter;
@@ -105,7 +106,7 @@ GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent
             ++iter;
             ++index;
         }
-        iter = IDBase<DMX::Device>::getAllIDBases().cbegin();
+        iter = ModelManager::get().getDevices().cbegin();
         index = 0;
         while (iter!=start) {
             if((**iter).getID()==e){
@@ -122,7 +123,7 @@ GroupControlItemData::GroupControlItemData(const QJsonObject &o, QObject *parent
 
 void GroupControlItemData::writeJsonObject(QJsonObject &o){
     QJsonArray a;
-    auto prog = IDBase<DMX::Device>::getAllIDBases().cbegin();
+    auto prog = ModelManager::get().getDevices().cbegin();
     auto en = groupModel.getEnabledVector().cbegin();
     for(;en!=groupModel.getEnabledVector().cend();++prog,++en){
         if(*en){
@@ -135,11 +136,11 @@ void GroupControlItemData::writeJsonObject(QJsonObject &o){
 }
 
 void GroupControlItemData::forEach(std::function<void (DMX::Device *)> f){
-    auto prog = IDBase<DMX::Device>::getAllIDBases().cbegin();
+    auto prog = ModelManager::get().getDevices().cbegin();
     auto en = groupModel.getEnabledVector().cbegin();
     for(;en!=groupModel.getEnabledVector().cend();++prog,++en){
         if(*en){
-            f(*prog);
+            f(prog->get());
         }
     }
 }

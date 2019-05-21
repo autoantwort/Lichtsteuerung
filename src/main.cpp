@@ -118,6 +118,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::ProgramBlock::Status>("Status");
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     qRegisterMetaType<Driver::DMXQMLValue*>("DMXQMLValue*");
+    qRegisterMetaType<DMX::DMXChannelFilter*>("DMXChannelFilter*")
 
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo("settings.ini"));
@@ -188,21 +189,21 @@ int main(int argc, char *argv[])
         Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     });
 
-
-    engine.rootContext()->setContextProperty("ModelManager",new ModelManager(settings));
+    ModelManager::get().setSettings(&settings);
+    engine.rootContext()->setContextProperty("ModelManager",&ModelManager::get());
     engine.rootContext()->setContextProperty("easingModel",dataList);
     engine.rootContext()->setContextProperty("ErrorNotifier",ErrorNotifier::get());
     engine.setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
-    engine.rootContext()->setContextProperty("devicePrototypeModel",IDBaseDataModel<DevicePrototype>::singletone());
+    engine.rootContext()->setContextProperty("devicePrototypeModel",ModelManager::get().getDevicePrototypeModel());
     engine.rootContext()->setContextProperty("modulesModel",Modules::ModuleManager::singletone()->getModules());
     engine.rootContext()->setContextProperty("moduleTypeModel",moduleTypeList);
     engine.rootContext()->setContextProperty("valueTypeList",valueTypeList);
     engine.rootContext()->setContextProperty("modolePropertyTypeList",modolePropertyTypeList);
-    engine.rootContext()->setContextProperty("deviceModel",IDBaseDataModel<Device>::singletone());
-    engine.rootContext()->setContextProperty("programmModel",IDBaseDataModel<Programm>::singletone());
-    engine.rootContext()->setContextProperty("programmPrototypeModel",IDBaseDataModel<ProgrammPrototype>::singletone());
+    engine.rootContext()->setContextProperty("deviceModel",ModelManager::get().getDeviceModel());
+    engine.rootContext()->setContextProperty("programmModel",ModelManager::get().getProgramModel());
+    engine.rootContext()->setContextProperty("programmPrototypeModel",ModelManager::get().getProgramPrototypeModel());
     engine.rootContext()->setContextProperty("programBlocksModel",&Modules::ProgramBlockManager::model);
-    engine.rootContext()->setContextProperty("userModel",IDBaseDataModel<User>::singletone());
+    engine.rootContext()->setContextProperty("userModel",UserManagment::get()->getUserModel());
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
     engine.rootContext()->setContextProperty("Settings",&settings);
     engine.rootContext()->setContextProperty("spotify",&spotify);

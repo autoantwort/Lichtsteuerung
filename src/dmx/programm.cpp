@@ -1,6 +1,7 @@
 #include "programm.h"
 #include <QJsonArray>
 #include <unordered_set>
+#include "modelmanager.h"
 
 namespace DMX{
 
@@ -41,12 +42,13 @@ Programm::Programm(const QJsonObject &o):NamedObject(o),IDBase<Programm>(o),spee
 }
 
 void Programm::addDeviceProgramm(const QJsonObject &o){
-    programms.push_back(new DeviceProgramm(IDBase<Device>::getIDBaseObjectByID(o["device"]),
-                        IDBase<ProgrammPrototype>::getIDBaseObjectByID(o["programmPrototype"]),
+    programms.push_back(std::make_unique<DeviceProgramm>(ModelManager::get().getDeviceById(o["device"]),
+                        ModelManager::get().getProgramPrototypeById(o["programmPrototype"]),
             o["offset"].toDouble()));
-    emit deviceProgrammAdded(programms.back());
-    connect(programms.back(),&DeviceProgramm::destroyed,this,&Programm::deviceProgrammDeleted);
+    emit deviceProgrammAdded(programms.back().get());
 }
+
+
 
 void Programm::writeJsonObject(QJsonObject &o) const{
     NamedObject::writeJsonObject(o);
@@ -71,23 +73,23 @@ std::map<Programm*,std::map<Device*,std::vector<Channel*>>> Programm::run(){
         return std::map<Programm*,std::map<Device*,std::vector<Channel*>>>();
     }
     std::unordered_set<int> newUsedChannels;
-    for(const auto p : this->programms){
-        for(const auto cp : p->getProgrammPrototyp()->getChannelProgramms()){
+    for(const auto & p : this->programms){
+        for(const auto & cp : p->getProgrammPrototyp()->getChannelProgramms()){
             const auto channelNummer = p->device->getStartDMXChannel() + cp->channel->getIndex();
             newUsedChannels.insert(channelNummer);
         }
     }
     std::map<Programm*,std::map<Device*,std::vector<Channel*>>> map;
-    for(const auto p : Programm::getAllIDBases()){
+    for(const auto & p : ModelManager::get().getPrograms()){
         if(p->isRunning()){
             //für jedes Device Programm
             for(auto dp_ = p->programms.cbegin();dp_!=p->programms.cend();++dp_){
-                auto dp = *dp_;
+                auto & dp = *dp_;
                 //für jedes Channel Programm
-                for(const auto cp : dp->getProgrammPrototyp()->getChannelProgramms()){
+                for(const auto & cp : dp->getProgrammPrototyp()->getChannelProgramms()){
                     const auto channelNummer = dp->device->getStartDMXChannel() + cp->channel->getIndex();
                     if(newUsedChannels.find(channelNummer)!=newUsedChannels.end()){
-                        map[p][dp->getDevice()].push_back(cp->getChannel());
+                        map[p.get()][dp->getDevice()].push_back(cp->getChannel());
                     }
                 }
             }
@@ -100,13 +102,13 @@ std::map<Programm*,std::map<Device*,std::vector<Channel*>>> Programm::run(){
 
 void Programm::fill(unsigned char *data, size_t length, double time){
     // für jedes Programm
-    for(const auto p : Programm::getAllIDBases()){
+    for(const auto & p : ModelManager::get().getPrograms()){
         if(p->isRunning()){
             //für jedes Device Programm
             for(auto dp_ = p->programms.cbegin();dp_!=p->programms.cend();++dp_){
-                auto dp = *dp_;
+                auto & dp = *dp_;
                 //für jedes Channel Programm
-                for(const auto cp : dp->getProgrammPrototyp()->getChannelProgramms()){
+                for(const auto & cp : dp->getProgrammPrototyp()->getChannelProgramms()){
                     const auto channelNummer = dp->device->getStartDMXChannel() + cp->channel->getIndex();
                     if(channelNummer<length){
 //#warning Fix distorstion:
@@ -130,26 +132,39 @@ bool Programm::addDeviceProgramm(Device * device, ProgrammPrototype * programmPr
             return false;
         }
     }
-    auto newDeviceProgramm = new DeviceProgramm(device, programmPrototype, offset);
-    programms.push_back(newDeviceProgramm);
-    emit deviceProgrammAdded(newDeviceProgramm);
-    connect(newDeviceProgramm,&DeviceProgramm::destroyed,this,&Programm::deviceProgrammDeleted);
+    programms.push_back(std::make_unique<DeviceProgramm>(device, programmPrototype, offset));
+    emit deviceProgrammAdded(programms.back().get());
+    // if the device or program prototype gets deleted, we should delete the deviceProgram also
+    connect(programmPrototype,&ProgrammPrototype::destroyed,this,&Programm::programPrototypeDeleted);
+    connect(device,&Device::destroyed,this,&Programm::deviceDeleted);
     return true;
 }
 
 void Programm::removeDeviceProgramm(int index){
-    if(static_cast<unsigned int>(index)<programms.size())
+    if(static_cast<unsigned int>(index)<programms.size()){
+        emit deviceProgrammRemoved(programms[index].get());
         programms.erase(programms.cbegin()+index);
+    }
 }
 
-void Programm::deviceProgrammDeleted(QObject *d){
-    for(auto i = programms.cbegin();i!=programms.cend();++i){
-        if(*i == d){
-            programms.erase(i);
-            emit deviceProgrammRemoved(qobject_cast<DeviceProgramm*>(d));
-            return;
+void Programm::programPrototypeDeleted(QObject * p){
+    programms.remove_if([this,p](const auto & dp){
+        if(dp->getProgrammPrototyp() == dynamic_cast<ProgrammPrototype*>(p)){
+            emit deviceProgrammRemoved(dp.get());
+            return true;
         }
-    }
+        return false;
+    });
+}
+
+void Programm::deviceDeleted(QObject * p){
+    programms.remove_if([this,p](const auto & dp){
+        if(dp->getDevice() == dynamic_cast<Device*>(p)){
+            emit deviceProgrammRemoved(dp.get());
+            return true;
+        }
+        return false;
+    });
 }
 
 } // namespace DMX

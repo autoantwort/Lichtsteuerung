@@ -26,17 +26,17 @@ ModelView{
                 x:parent.implicitWidth-15
                 anchors.verticalCenter: parent.verticalCenter
                 visible: true
-                text : name
+                text : modelData.name
                 underlineColor: parent.ListView.isCurrentItem?"lightgreen":"lightgrey"
                 onCursorPositionChanged: {
                     //if(focus)
                         channelView.currentIndex = index;
                     //focus = true;*/
                 }
-                onTextChanged: name = text
+                onTextChanged: modelData.name = text
             }
         }
-        model: modelView.currentItem.modelData.channel
+        model: modelView.currentModelData.channel
     }
 
     onAddClicked: ModelManager.addDevicePrototype("New DevicePrototype");
@@ -50,13 +50,13 @@ ModelView{
             Layout.fillWidth: true
             text:"Add Channel"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.modelData.pushChannel("te34324324327st")
+            onClicked: modelView.currentModelData.pushChannel("te34324324327st")
         }
         Button{
             Layout.fillWidth: true
             text:"Remove Channel"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.modelData.popChannel()
+            onClicked: modelView.currentModelData.popChannel()
         }
     }
 }

@@ -1,6 +1,7 @@
 #include "dmxchannelfilter.h"
 #include "programm.h"
 #include "device.h"
+#include "modelmanager.h"
 
 namespace DMX{
 
@@ -71,8 +72,8 @@ void DMXChannelFilter::initValue(unsigned char *value){
 }
 
 void DMXChannelFilter::initValues(unsigned char *values, unsigned int numberOfChannels){
-    for(const auto d : IDBase<Device>::getAllIDBases()){
-        for(const auto f : d->getChannelFilter()){
+    for(const auto & d : ModelManager::get().getDevices()){
+        for(const auto & f : d->getChannelFilter()){
             const auto index = d->getStartDMXChannel()+f.first->getIndex();
             if(index<numberOfChannels){
                 f.second->initValue(values+index);
@@ -82,8 +83,8 @@ void DMXChannelFilter::initValues(unsigned char *values, unsigned int numberOfCh
 }
 
 void DMXChannelFilter::filterValues(unsigned char *values, unsigned int numberOfChannels){
-    for(const auto d : IDBase<Device>::getAllIDBases()){
-        for(const auto f : d->getChannelFilter()){
+    for(const auto & d : ModelManager::get().getDevices()){
+        for(const auto & f : d->getChannelFilter()){
             const auto index = d->getStartDMXChannel()+f.first->getIndex();
             if(index<numberOfChannels){
                 f.second->filterValue(values+index);

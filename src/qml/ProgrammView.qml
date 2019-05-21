@@ -16,9 +16,9 @@ ModelView{
         text: "Speed : "
     }
     TextInputField{
-        text: modelView.currentItem?modelView.currentItem.modelData.speed:""
+        text: modelView.currentItem?modelView.currentModelData.speed:""
         validator: DoubleValidator{}
-        onTextChanged: modelView.currentItem.modelData.speed = text
+        onTextChanged: modelView.currentModelData.speed = text
     }
     Label{
         text: "Time Distortion:"
@@ -34,8 +34,8 @@ ModelView{
         id:topTD
         Layout.preferredHeight: 25
         Layout.leftMargin: -10
-        checked: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.enabled:false
-        onCheckStateChanged: modelView.currentItem.modelData.timeDistortion.enabled = checked
+        checked: modelView.currentItem?modelView.currentModelData.timeDistortion.enabled:false
+        onCheckStateChanged: modelView.currentModelData.timeDistortion.enabled = checked
     }
     Label{
         Layout.leftMargin: 6
@@ -44,8 +44,8 @@ ModelView{
     TextInputField{
         Layout.fillWidth: true
         validator: DoubleValidator{}
-        text: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.intervall:""
-        onTextChanged: {if(modelView.currentItem!==null)modelView.currentItem.modelData.timeDistortion.intervall = text;}
+        text: modelView.currentItem?modelView.currentModelData.timeDistortion.intervall:""
+        onTextChanged: {if(modelView.currentItem!==null)modelView.currentModelData.timeDistortion.intervall = text;}
     }
     Label{
         Layout.leftMargin: 6
@@ -56,8 +56,8 @@ ModelView{
         Layout.rightMargin: 5
         id:endTD
         model:easingModel
-        currentIndex: modelView.currentItem?modelView.currentItem.modelData.timeDistortion.distortionCurve.type:0
-        onCurrentIndexChanged: {if(modelView.currentItem!==null)modelView.currentItem.modelData.timeDistortion.distortionCurve.type = currentIndex;}
+        currentIndex: modelView.currentItem?modelView.currentModelData.timeDistortion.distortionCurve.type:0
+        onCurrentIndexChanged: {if(modelView.currentItem!==null)modelView.currentModelData.timeDistortion.distortionCurve.type = currentIndex;}
     }
     Rectangle{
         anchors.top: topTD.top
@@ -131,7 +131,7 @@ ModelView{
 
             }
         }
-        model: modelView.currentItem?modelView.currentItem.modelData.programs:null
+        model: modelView.currentItem?modelView.currentModelData.programs:null
         highlight: Rectangle{
             color: "blue"
             opacity: 0.7
@@ -155,7 +155,7 @@ ModelView{
             Layout.fillWidth: true
             text:"Remove Programmprototype"
             font.pixelSize: 15
-            onClicked: modelView.currentItem.modelData.removeDeviceProgramm(channelView.currentIndex)
+            onClicked: modelView.currentModelData.removeDeviceProgramm(channelView.currentIndex)
         }
     }
 
@@ -184,15 +184,15 @@ ModelView{
                         Layout.fillWidth: true
                         id:programmPrototype
                         model: programmPrototypeModel
-                        textRole: "itemData"
+                        textRole: "modelData"
                         function hasProgrammPrototypeSelected(){
                             return programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1).devicePrototype === deviceModel.data(deviceModel.index(device.currentIndex,0),-1).prototype;
                         }
-                        displayText: hasProgrammPrototypeSelected() ? programmPrototypeModel.data(programmPrototypeModel.index(currentIndex,0)):"Keine Auswahl getroffen";
+                        displayText: hasProgrammPrototypeSelected() ? programmPrototypeModel.data(programmPrototypeModel.index(currentIndex,0)).name:"Keine Auswahl getroffen";
                         delegate: ItemDelegate{
-                            text: itemData.name
+                            text: modelData.name
                             width: programmPrototype.popup.contentItem.width
-                            visible: device.model.data(device.model.index(device.currentIndex,0),-1).prototype === itemData.devicePrototype
+                            visible: device.model.data(device.model.index(device.currentIndex,0),-1).prototype === modelData.devicePrototype
                         }
                     }
                     RowLayout{
@@ -221,7 +221,7 @@ ModelView{
                             onClicked: {
                                 dialog.visible = false;
 
-                                modelView.currentItem.modelData.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
+                                modelView.currentModelData.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
 
                             }
                         }

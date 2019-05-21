@@ -2,9 +2,12 @@
 #define USERMANAGMENT_H
 
 #include <QObject>
+#include <QMetaEnum>
 #include <vector>
 #include "idbase.h"
 #include <QJsonObject>
+#include "modelvector.h"
+#include <set>
 
 class User;
 
@@ -16,12 +19,19 @@ class UserManagment : public QObject
     Q_OBJECT
     Q_PROPERTY(User* currentUser READ getCurrentUser NOTIFY currentUserChanged)
     Q_PROPERTY(User* defaultUser READ getCurrentUser CONSTANT)
+    Q_PROPERTY(QAbstractItemModel * users READ getUserModel CONSTANT)
 private:
     User * readUser;
     User * currentUser;
+    ModelVector<std::unique_ptr<User>> users;
     UserManagment();
+    friend class User;
 public:
-    ~UserManagment();
+    ModelVector<std::unique_ptr<User>>& getUsers(){return users;}
+    QAbstractItemModel* getUserModel(){return &users;}
+    User * getUserById(const QJsonValue &id){return getUserById(id.toString().toLongLong());}
+    User * getUserById(ID id){return getUserById(id.value());}
+    User * getUserById(ID::value_type id);
 
     Q_INVOKABLE User * getDefaultUser()const{return readUser;}
     /**

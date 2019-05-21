@@ -4,7 +4,7 @@
 #include <QAbstractListModel>
 #include <QDebug>
 #include <memory>
-
+#include "dmx/namedobject.h"
 
 namespace detail {
 
@@ -22,6 +22,17 @@ template<typename T> //by std::shared_ptr<T>
 T* getPointer(const std::vector<std::shared_ptr<T>> &v, int index){
     return v[index].get();
 }
+
+template<typename T> //by std::shared_ptr<T>
+T* getPointer(const std::vector<std::unique_ptr<T>> &v, int index){
+    return v[index].get();
+}
+
+template< class T > struct is_smart_pointer_helper     : std::false_type {};
+template< class T > struct is_smart_pointer_helper<std::unique_ptr<T>> : std::true_type {};
+template< class T > struct is_smart_pointer_helper<std::shared_ptr<T>> : std::true_type {};
+template< class T > struct is_smart_pointer : is_smart_pointer_helper<typename std::remove_cv<T>::type> {};
+template< class T > inline constexpr bool is_smart_pointer_v = is_smart_pointer<T>::value;
 
 }
 
@@ -73,6 +84,24 @@ public:
         Q_UNUSED(role);
         if(index.row()>=0&&index.row()<int(model.size())){
             //return QVariant::fromValue(get(index.row(),std::is_pointer<Type>()));
+            if(role==Qt::DisplayRole){
+                if constexpr(std::is_pointer_v<Type>){
+                    if constexpr(std::is_base_of_v<DMX::NamedObject,std::remove_pointer<Type>>)
+                        return detail::getPointer(model,index.row())->getName();
+                    else
+                        return "No Display Property available! See ModelVector";
+                }else if constexpr(detail::is_smart_pointer_v<Type>){
+                    if constexpr(std::is_base_of_v<DMX::NamedObject,typename Type::element_type>)
+                        return detail::getPointer(model,index.row())->getName();
+                    else
+                        return "No Display Property available! See ModelVector";
+                }else{
+                    if constexpr(std::is_base_of_v<QObject, Type>)
+                        return model[index.row()].property("name");
+                    else
+                        return "No Display Property available! See ModelVector";
+                }
+            }
             return QVariant::fromValue(detail::getPointer(model,index.row()));
         }
         return QVariant();
@@ -87,17 +116,19 @@ public:
         r[ModelDataRole] = "modelData";
         return r;
     }
-    void erase(typename std::vector<Type>::const_iterator i){
+    typename std::vector<Type>::iterator erase(typename std::vector<Type>::const_iterator i){
         const auto pos = i-model.begin();
         beginRemoveRows(QModelIndex(),pos,pos);
-        model.erase(i);
+        const auto result = model.erase(i);
         endRemoveRows();
+        return result;
     }
-    void erase(const_iterator first, const_iterator last){
+    typename std::vector<Type>::iterator  erase(const_iterator first, const_iterator last){
         const auto pos = std::distance(model.cbegin(),first);
         beginRemoveRows(QModelIndex(),pos,pos + std::distance(first,last) -1);
-        model.erase(first,last);
+        const auto result = model.erase(first,last);
         endRemoveRows();
+        return result;
     }
     Type erase(int i){
         Q_ASSERT(i>=0 && i < static_cast<int>(size()));
@@ -106,6 +137,18 @@ public:
         model.erase(model.cbegin() + i);
         endRemoveRows();
         return result;
+    }
+
+    template<typename Predicate>
+    void remove_if(Predicate p){
+        for (auto i = cbegin();i!=cend();++i) {
+            if(p(*i)){
+                i = erase(i);
+            }
+        }
+    }
+    void removeAll(const Type & value){
+        remove_if([&](const auto & v){return v == value;});
     }
     /**
      * @brief beginPushBack use this function only if you want to push_back at the underlieingvector by your own, if you are finished, you have to call endPushBack()
@@ -138,7 +181,7 @@ public:
      * @brief push_back Adds one Element at the back
      * @param t The Element to add
      */
-    void push_back(Type t){
+    void push_back(const Type& t){
         if(std::is_pointer<Type>()){
             beginPushBack(1);
             model.push_back(t);
@@ -147,6 +190,25 @@ public:
             auto cap = model.capacity();
             beginPushBack(1);
             model.push_back(t);
+            endPushBack();
+            if(cap!=model.capacity()){
+                emit dataChanged(index(0,0),index(model.size()-1,0));
+            }
+        }
+    }
+    /**
+     * @brief push_back Adds one Element at the back
+     * @param t The Element to add
+     */
+    void push_back(Type&& t){
+        if(std::is_pointer<Type>()){
+            beginPushBack(1);
+            model.push_back(std::forward<Type>(t));
+            endPushBack();
+        }else{
+            auto cap = model.capacity();
+            beginPushBack(1);
+            model.push_back(std::forward<Type>(t));
             endPushBack();
             if(cap!=model.capacity()){
                 emit dataChanged(index(0,0),index(model.size()-1,0));
@@ -174,7 +236,11 @@ public:
         return model.back();
     }
 
-    const Type operator[](int index){
+    typename std::vector<Type>::reference operator[](int index){
+        return model[index];
+    }
+
+    typename std::vector<Type>::const_reference operator[](int index)const{
         return model[index];
     }
 

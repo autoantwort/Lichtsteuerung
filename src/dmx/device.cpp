@@ -1,15 +1,17 @@
 #include "device.h"
 #include <QJsonArray>
+#include <QQmlEngine>
+#include <modelmanager.h>
 
 namespace DMX{
 
 Device::Device(const QJsonObject &o):NamedObject(o),IDBase<Device>(o),
-    prototype(IDBase<DevicePrototype>::getIDBaseObjectByID(o["prototype"])),
+    prototype(ModelManager::get().getDevicePrototypeById(o["prototype"])),
     startDMXChannel(o["startDMXChannel"].toInt()),
     position(o["position"].toObject()["x"].toInt(),o["position"].toObject()["y"].toInt()){
     if(prototype==nullptr){
         std::cerr << "Availible Device Prototypes : ";
-        for(const auto & r : IDBase<DevicePrototype>::getAllIDBases()){
+        for(const auto & r : ModelManager::get().getDevicePrototypes()){
             std::cerr << r->getID().value()<<' ';
         }
         std::cerr << "Search for Device Prototype with ID : " << o["prototype"].toString().toLongLong();
@@ -21,7 +23,7 @@ Device::Device(const QJsonObject &o):NamedObject(o),IDBase<Device>(o),
         const auto id = f["channel"].toString().toLongLong();
         for(auto i = getChannels().cbegin();i!=getChannels().cend();++i){
             if((**i).getID()==id){
-                this->filter.emplace_back(*i,new DMXChannelFilter(f["filter"].toObject()));
+                this->filter.emplace_back(i->get(),std::make_unique<DMXChannelFilter>(f["filter"].toObject()));
                 break;
             }
         }
@@ -38,7 +40,7 @@ void Device::writeJsonObject(QJsonObject &o) const{
     o.insert("position",position);
     o.insert("startDMXChannel",static_cast<int>(startDMXChannel));
     QJsonArray filter;
-    for(const auto f : this->filter){
+    for(const auto & f : this->filter){
         QJsonObject o;
         o.insert("channel",QString::number(f.first->getID().value()));
         QJsonObject fil;
@@ -52,7 +54,6 @@ void Device::writeJsonObject(QJsonObject &o) const{
 void Device::channelRemoved(Channel *c){
     for(auto i = filter.cbegin();i!=filter.cend();++i){
         if(i->first==c){
-            delete i->second;
             filter.erase(i);
             return;
         }
@@ -60,25 +61,25 @@ void Device::channelRemoved(Channel *c){
 }
 
 void Device::channelAdded(Channel *c){
-    filter.emplace_back(c,new DMXChannelFilter());
+    filter.emplace_back(c,std::make_unique<DMXChannelFilter>());
 }
 
 DMXChannelFilter * Device::getFilterForChannel( Channel *c){
     for(auto i = filter.cbegin();i!=filter.cend();++i){
         if(i->first==c){
-            QQmlEngine::setObjectOwnership(i->second,QQmlEngine::CppOwnership);
-            return i->second;
+            QQmlEngine::setObjectOwnership(i->second.get(),QQmlEngine::CppOwnership);
+            return i->second.get();
         }
     }
-    filter.emplace_back(c,new DMXChannelFilter);
-    QQmlEngine::setObjectOwnership(filter.back().second,QQmlEngine::CppOwnership);
-    return filter.back().second;
+    filter.emplace_back(c,std::make_unique<DMXChannelFilter>());
+    QQmlEngine::setObjectOwnership(filter.back().second.get(),QQmlEngine::CppOwnership);
+    return filter.back().second.get();
 }
 
 DMXChannelFilter * Device::getFilterForChannelindex(int index){
     for(auto i = getChannels().cbegin();i!=getChannels().cend();++i){
         if((**i).getIndex()==index){
-            return getFilterForChannel(*i);
+            return getFilterForChannel(i->get());
         }
     }
     return nullptr;

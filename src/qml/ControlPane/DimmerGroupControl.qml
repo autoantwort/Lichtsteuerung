@@ -213,9 +213,9 @@ ControlItem{
                 model: controlData?controlData.groupModel:null
                 delegate: CheckDelegate{
                     width: 200
-                    text: itemData.name
+                    text: modelData.name
                     visible: height !== 0
-                    height: itemData.name.startsWith(search.text,Qt.CaseInsensitive) * implicitHeight
+                    height: modelData.name.startsWith(search.text,Qt.CaseInsensitive) * implicitHeight
                     checked: use
                     clip:true
                     Behavior on height {

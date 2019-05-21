@@ -27,6 +27,7 @@ Item{
                 anchors.left: parent.left
                 anchors.right:  parent.right
                 anchors.bottom: parent.bottom
+                property var currentModelData : currentItem.itemData
                 id:listView
                 delegate: ItemDelegate{
                     property var itemData : modelData
@@ -105,8 +106,8 @@ Item{
         TextInputField{
             Layout.fillWidth: true
             enabled: listView.currentIndex !== -1
-            text: listView.currentItem ? listView.currentItem.itemData.name : "Select one Module"
-            onTextChanged: listView.currentItem.itemData.name = text;
+            text: listView.currentItem ? listView.currentModelData.name : "Select one Module"
+            onTextChanged: if(listView.currentItem)listView.currentModelData.name = text;
             validator: RegExpValidator{
                 regExp: /[^\s]+/
             }
@@ -118,8 +119,8 @@ Item{
         TextInputField{
             Layout.fillWidth: true
             enabled: listView.currentIndex !== -1
-            text: listView.currentItem ? listView.currentItem.itemData.description : "Select one Module"
-            onTextChanged: listView.currentItem.itemData.description = text;
+            text: listView.currentItem ? listView.currentModelData.description : "Select one Module"
+            onTextChanged: if(listView.currentItem)listView.currentModelData.description = text;
         }
 
         Label{
@@ -129,9 +130,9 @@ Item{
             ComboBox{
                 model: moduleTypeModel
                 Layout.preferredWidth: implicitWidth+5
-                currentIndex: listView.currentItem.itemData.type
+                currentIndex: listView.currentModelData.type
                 onCurrentIndexChanged: {
-                    listView.currentItem.itemData.type = currentIndex;
+                    if(listView.currentItem)listView.currentModelData.type = currentIndex;
                     if(currentIndex == 0/*Program*/ || currentIndex == 1/*LoopProgram*/){
                         outputType.visible = true;
                         inputType.visible = false;
@@ -148,9 +149,9 @@ Item{
             ComboBox{
                 id: inputType
                 model: valueTypeList
-                currentIndex: listView.currentItem.itemData.inputType
+                currentIndex: listView.currentModelData.inputType
                 Layout.preferredWidth: implicitWidth+5
-                onCurrentIndexChanged: listView.currentItem.itemData.inputType = currentIndex;
+                onCurrentIndexChanged: if(listView.currentItem)listView.currentModelData.inputType = currentIndex;
             }
             Label{text: "Output:"
                 visible: outputType.visible
@@ -158,9 +159,9 @@ Item{
             ComboBox{
                 id:outputType
                 model: valueTypeList
-                currentIndex: listView.currentItem.itemData.outputType
+                currentIndex: listView.currentModelData.outputType
                 Layout.preferredWidth: implicitWidth+5
-                onCurrentIndexChanged: listView.currentItem.itemData.outputType = currentIndex;
+                onCurrentIndexChanged: if(listView.currentItem)listView.currentModelData.outputType = currentIndex;
             }
         }
 
@@ -177,7 +178,7 @@ Item{
                                 print(prop += " (" + typeof(model[prop]) + ") = " + model[prop]);
                             }
             }*/
-            model: listView.currentItem.itemData.properties
+            model: listView.currentModelData.properties
             maximumFlickVelocity: 400
             delegate: ItemDelegate{
                 id:delegate
@@ -198,7 +199,7 @@ Item{
                     anchors.bottomMargin: -4
                     Material.elevation: 0
                     width: height
-                    onClicked: listView.currentItem.itemData.removeProperty(delegate.modelEntry)
+                    onClicked: listView.currentModelData.removeProperty(delegate.modelEntry)
                     Image {
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
@@ -217,7 +218,7 @@ Item{
                     width: height
                     Material.elevation: 0
                     onClicked: {
-                        dialog.prop = listView.currentItem.itemData.createNewProperty();
+                        dialog.prop = listView.currentModelData.createNewProperty();
                         dialog.visible = true;
                     }
                     Image {
@@ -237,7 +238,7 @@ Item{
                 width: height
                 Material.elevation: 0
                 onClicked: {
-                    dialog.prop = listView.currentItem.itemData.createNewProperty();
+                    dialog.prop = listView.currentModelData.createNewProperty();
                     dialog.visible = true;
                 }
                 Image {
@@ -253,8 +254,8 @@ Item{
             text: "Spotify responder:"
         }
         CheckBox{
-            checked: listView.currentItem.itemData.spotifyResponder;
-            onCheckStateChanged: listView.currentItem.itemData.spotifyResponder = checked;
+            checked: listView.currentModelData.spotifyResponder;
+            onCheckStateChanged: listView.currentModelData.spotifyResponder = checked;
             Layout.preferredHeight: 29
         }
 
@@ -267,20 +268,20 @@ Item{
             Layout.columnSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
-            onHoveredChanged: if(!hovered)listView.currentItem.itemData.code = codeEditor.text
+            onHoveredChanged: if(!hovered)listView.currentModelData.code = codeEditor.text
             TextArea{
                 font.family: "Liberation Mono"
                 font.pointSize: 10
                 tabStopDistance: 16
                 id: codeEditor
                 selectByMouse: true
-                text: listView.currentItem.itemData.code
+                text: listView.currentModelData.code
                 onCursorPositionChanged: {
                     if(codeCompletionPopup.visible){
                         codeEditorHelper.updateCodeCompletionModel(codeEditor.cursorPosition);
                     }
                 }
-                //onTextChanged: listView.currentItem.itemData.code = text
+                //onTextChanged: listView.currentModelData.code = text
                 Keys.onDownPressed: {
                     if(codeCompletionPopup.visible){
                         event.accepted = true;
@@ -331,7 +332,7 @@ Item{
                             anchors.fill: parent
                             id: descriptionLabel
                             wrapMode: "WordWrap"
-                            text: codeCompletionListView.currentItem.itemData.description
+                            text: codeCompletionListView.currentItem ? odeCompletionListView.currentModelData.description : "Keine Beschreibung"
                             background: null
                         }
                         color: "beige"
@@ -357,7 +358,7 @@ Item{
                         id: codeCompletionListView
                         model: codeEditorHelper.codeCompletions                        
                         delegate: ItemDelegate {
-                            property var itemData: modelData
+                            property var modelData: modelData
                             text: modelData.completion.replace(/\n*\t*/g,"")
                             onClicked: codeCompletionListView.clickCurrentItem()
                             highlighted: ListView.isCurrentItem
@@ -390,8 +391,8 @@ Item{
                         }
                         function clickCurrentItem(){
                             if(codeCompletionListView.currentIndex!==-1){
-                                console.log("close after " + codeCompletionListView.currentItem.itemData.closeAfterCompletion);
-                                if(codeCompletionListView.currentItem.itemData.closeAfterCompletion){
+                                console.log("close after " + codeCompletionListView.currentModelData.closeAfterCompletion);
+                                if(codeCompletionListView.currentModelData.closeAfterCompletion){
                                     codeCompletionPopup.visible = false;
                                     descriptionPopup.visible = false;
                                 }
@@ -401,7 +402,7 @@ Item{
                                     --start;
                                 }
                                 // wenn wir uns in dem zu vervollständigem Wort befinden und das Wort schon vervollständigt im code steht, springen wir mit dem Cursor zum Ende des Wortes
-                                var completion = codeCompletionListView.currentItem.itemData.completion;
+                                var completion = codeCompletionListView.currentModelData.completion;
                                 if(codeEditor.text.substr(start+1,completion.length) === codeCompletionListView.completion){
                                     codeEditor.cursorPosition += completion.length - (codeEditor.cursorPosition-start) + 1;
                                     return;
@@ -414,7 +415,7 @@ Item{
 
                 CodeEditorHelper{
                     id:codeEditorHelper
-                    module: listView.currentItem.itemData
+                    module: listView.currentModelData
                     document: codeEditor.textDocument
                     onInsertText: {
                         console.log(newText);
@@ -532,8 +533,8 @@ Item{
                     id:defaultVal
                     enabled: type.currentIndex !== 5
                     validator: IntValidator{
-                        top:  maxVal.text
-                        bottom: minVal.text
+                        top:  Number(maxVal.text)
+                        bottom: Number(minVal.text)
                     }
                 }
                 RowLayout{

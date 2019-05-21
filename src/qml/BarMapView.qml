@@ -124,19 +124,19 @@ ColumnLayout{
                         Repeater{
                             model: deviceModel
                             Rectangle{
-                                visible: itemData.position.x !== -1 && itemData.position.y !== -1
-                                property int selectScale: 1+(deviceInfo.device === itemData)
+                                visible: modelData.position.x !== -1 && modelData.position.y !== -1
+                                property int selectScale: 1+(deviceInfo.device === modelData)
                                 width: 5 * selectScale
                                 height: 5 * selectScale
                                 radius: 5 * selectScale
                                 color: "yellow"
-                                x: itemData.position.x - 2 * selectScale + 30
-                                y: itemData.position.y - 2 * selectScale + 30
+                                x: modelData.position.x - 2 * selectScale + 30
+                                y: modelData.position.y - 2 * selectScale + 30
                                 RadialGradient{
                                     anchors.fill: parent
                                     anchors.margins: -10
                                     gradient: Gradient {
-                                        GradientStop { position: 0.2; color: Qt.rgba(1.,1.,1.,itemData.prototype.channel.rowCount() > 0 ? dmxOutputValues.values ? dmxOutputValues.values.value(itemData.startDMXChannel).value/255. : 0 : 0) }
+                                        GradientStop { position: 0.2; color: Qt.rgba(1.,1.,1.,modelData.prototype.channel.rowCount() > 0 ? dmxOutputValues.values ? dmxOutputValues.values.value(modelData.startDMXChannel).value/255. : 0 : 0) }
                                         GradientStop { position: 0.5; color: Qt.rgba(1,1,1,0) }
                                     }
                                     z: parent.z - 1
@@ -147,7 +147,7 @@ ColumnLayout{
                                     anchors.fill: parent
                                     anchors.margins: -5
                                     hoverEnabled: true
-                                    onClicked: deviceInfo.device = itemData
+                                    onClicked: deviceInfo.device = modelData
                                     drag.target: parent
                                     drag.minimumX: 0
                                     drag.minimumY: 0
@@ -155,17 +155,17 @@ ColumnLayout{
                                     drag.maximumY: map.height - 5
                                     drag.threshold: 0
                                     onReleased: {
-                                        // If we dont use variables the y coordinate gets resetted after setting itemData.position.x
+                                        // If we dont use variables the y coordinate gets resetted after setting modelData.position.x
                                         var newX = parent.x + 2 * parent.selectScale - 30;
                                         var newY = parent.y + 2 * parent.selectScale - 30;
-                                        itemData.position.x = newX;
-                                        itemData.position.y = newY;
+                                        modelData.position.x = newX;
+                                        modelData.position.y = newY;
                                     }
                                 }
 
                                 ToolTip.visible: mouseArea.containsMouse
                                 ToolTip.delay: 500
-                                ToolTip.text: itemData.name + "\nDmx Addess: " + itemData.startDMXChannel
+                                ToolTip.text: modelData.name + "\nDmx Addess: " + modelData.startDMXChannel
                             }
                         }
 

@@ -29,10 +29,10 @@ bool saveData(QFile &file){
     return true;
 }
 
-template<typename Subclass>
-void saveIDBaseObjects(QJsonObject &o,QString entryName ){
+template<typename Vector>
+void saveIDBaseObjects(QJsonObject &o,const Vector & vector, QString entryName ){
     QJsonArray array;
-    for(const auto p : IDBase<Subclass>::getAllIDBases()){
+    for(const auto & p : vector){
         QJsonObject o;
         p->writeJsonObject(o);
         array.append(o);
@@ -43,11 +43,11 @@ void saveIDBaseObjects(QJsonObject &o,QString entryName ){
 QByteArray saveData(){
     qDebug()<<"SAVE DATA";
     QJsonObject o;
-    saveIDBaseObjects<DMX::DevicePrototype>(o,"DevicePrototypes");
-    saveIDBaseObjects<DMX::Device>(o,"Devices");
-    saveIDBaseObjects<DMX::ProgrammPrototype>(o,"ProgrammPrototypes");
-    saveIDBaseObjects<DMX::Programm>(o,"Programms");
-    saveIDBaseObjects<User>(o,"Users");
+    saveIDBaseObjects(o,ModelManager::get().getDevicePrototypes(),"DevicePrototypes");
+    saveIDBaseObjects(o,ModelManager::get().getDevices(),"Devices");
+    saveIDBaseObjects(o,ModelManager::get().getProgramPrototypes(),"ProgrammPrototypes");
+    saveIDBaseObjects(o,ModelManager::get().getPrograms(),"Programms");
+    saveIDBaseObjects(o,UserManagment::get()->getUsers(),"Users");
     o.insert("password",QString::fromLatin1(password.toBase64()));
     {
         QJsonObject u;
@@ -73,13 +73,6 @@ QByteArray saveData(){
     return QJsonDocument(o).toJson();
 }
 
-template<typename Subclass>
-void loadIDBaseObjects(const QJsonObject &o,QString entryName ){
-    for(const auto e : o[entryName].toArray()){
-        new Subclass(e.toObject());
-    }
-}
-
 std::function<void()> loadData(QFile &file){
     if(!file.open(QIODevice::ReadOnly)){
         return [](){qDebug()<<"Error: can not open file";};
@@ -92,10 +85,18 @@ std::function<void()> loadData(QFile &file){
 
 std::function<void()> loadData(QByteArray data){
     const auto o = QJsonDocument::fromJson(data).object();
-    loadIDBaseObjects<DMX::DevicePrototype>(o,"DevicePrototypes");
-    loadIDBaseObjects<DMX::Device>(o,"Devices");
-    loadIDBaseObjects<DMX::ProgrammPrototype>(o,"ProgrammPrototypes");
-    loadIDBaseObjects<DMX::Programm>(o,"Programms");
+    for(const auto e : o["DevicePrototypes"].toArray()){
+        ModelManager::get().addNewDevicePrototype(e.toObject());
+    }
+    for(const auto e : o["Devices"].toArray()){
+        ModelManager::get().addNewDevice(e.toObject());
+    }
+    for(const auto e : o["ProgrammPrototypes"].toArray()){
+        ModelManager::get().addNewProgramPrototype(e.toObject());
+    }
+    for(const auto e : o["Programms"].toArray()){
+        ModelManager::get().addNewProgram(e.toObject());
+    }
     password = QByteArray::fromBase64(o["password"].toString().toLatin1());
     {//USERS
         for(const auto e : o["Users"].toArray()){

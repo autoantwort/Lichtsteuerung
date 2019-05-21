@@ -22,6 +22,7 @@ Item{
                 anchors.left: parent.left
                 anchors.right:  parent.right
                 anchors.bottom: parent.bottom
+                property var currentModelData: currentItem ? currentItem.itemData : null
                 id:listView
                 delegate: ItemDelegate{
                     property var itemData : modelData
@@ -105,8 +106,8 @@ Item{
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 id: programEditor
-                programBlock: listView.currentItem.itemData;
-                property var status: programBlock.status;
+                programBlock: listView.currentItem ? listView.currentModelData : null;
+                property var status: programBlock?programBlock.status:0;
                 onShowPropertiesChanged: propertiesView.update()
                 onOpenRightClickEntry: {
                     rightClickMenu.x = x;
@@ -246,7 +247,7 @@ Item{
                     id: propertiesView
                     model: programEditor.propertyInformationModel
                     delegate: ItemDelegate{
-                        property var itemData : modelData
+                        property var modelData : modelData
                         width: parent.width
                         text: modelData.name
                         onClicked: propertiesView.currentIndex = index
@@ -257,15 +258,15 @@ Item{
                     }
                     onCurrentItemChanged: update()
                     function intHandler() {
-                        propertiesView.currentItem.itemData.value = spinBox.value;
+                        propertiesView.currentItem.modelData.value = spinBox.value;
                     }
                     function doubleHandler() {
-                        propertiesView.currentItem.itemData.value = spinBox.value/1000;
+                        propertiesView.currentItem.modelData.value = spinBox.value/1000;
                     }
                     function update(){
                         if(propertiesView.currentIndex<0)
                             return;
-                        var data = propertiesView.currentItem.itemData;
+                        var data = propertiesView.currentItem.modelData;
                         if(data.type>=0&&data.type<=3){
                             spinBox.onValueChanged.disconnect(intHandler);
                             spinBox.onValueChanged.disconnect(doubleHandler);
@@ -318,7 +319,7 @@ Item{
                         Layout.preferredWidth: 190
                         clip:true
                         wrapMode: Text.WordWrap
-                        text:propertiesView.currentItem.itemData.description
+                        text: propertiesView.currentItem ? propertiesView.currentModelData.description : "Select one Property"
                     }
                     SpinBox{
                         id:spinBox

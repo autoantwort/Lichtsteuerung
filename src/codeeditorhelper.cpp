@@ -108,7 +108,11 @@ bool CodeCompletions::filterAcceptsRow(int sourceRow,
   {
       QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
       CodeCompletionEntry* data = sourceModel()->data(index).value<CodeCompletionEntry*>();
-      return data->completion.contains(this->filterRegExp());
+      if(data) {
+          return data->completion.contains(this->filterRegExp());
+      } else {
+          return false;
+      }
   }
 
 

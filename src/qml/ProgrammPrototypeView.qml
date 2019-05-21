@@ -94,7 +94,7 @@ ModelView{
 
         }
 
-        model: modelView.currentItem.modelData.channelProgramms
+        model: modelView.currentModelData.channelProgramms
     }
 
 
