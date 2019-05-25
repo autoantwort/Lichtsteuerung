@@ -43,6 +43,7 @@
 #include "audio/audiocapturemanager.h"
 #include "test/testsampleclass.h"
 #include "spotify/spotify.h"
+#include "modules/dmxconsumer.h"
 
 int main(int argc, char *argv[])
 {
