@@ -1,0 +1,33 @@
+image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_12_3:latest
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  script:
+    - mkdir -p build
+    - cd build
+    - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
+    - make -j$(nproc)
+    - cd ..
+  artifacts:
+    paths:
+      - build/release/Lichtsteuerung.exe
+ 
+
+deploy:
+  stage: deploy
+  only:
+    refs:
+      - windows-release
+  script: 
+    - cp build/release/Lichtsteuerung.exe windows-release-5.12.3
+    - mkdir -p windows-release-5.12.3/modules/include
+    - cp -r src/modules windows-release-5.12.3/modules/include
+    - echo "includePath=modules/include" >> windows-release-5.12.3/settings.ini
+    - echo "moduleDirPath=modules" >> windows-release-5.12.3/settings.ini
+  artifacts:
+    paths:
+      - windows-release-5.12.3
