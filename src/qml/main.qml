@@ -27,6 +27,11 @@ ApplicationWindow {
             }
         }
 
+        ToolTip.visible: updater.progress >= 0 && updater.progress <= 100
+        ToolTip.delay: 0
+        ToolTip.timeout: 20000
+        ToolTip.text: updater.progress < 100 ? "Downloading update. Progress : " + updater.progress + "%" : "Downloading update finished. Restart to update."
+
         VerticalTabBar{
 
             id: tabBar
