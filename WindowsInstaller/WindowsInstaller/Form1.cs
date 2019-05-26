@@ -18,6 +18,9 @@ namespace WindowsInstaller
         string from;
         string to;
 
+        enum Progress{ Wait, Remove, Copy};
+        Progress progress = Progress.Wait;
+
         public Form1(string[] args)
         {
             from = args[0].Replace('/','\\');
@@ -27,10 +30,18 @@ namespace WindowsInstaller
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (!to.EndsWith("\\"))
-                to += "\\";
-            Process.Start(to + "Lichtsteuerung.exe");
-            this.Dispose();
+            if(progress == Progress.Copy)
+            {
+                if (!to.EndsWith("\\"))
+                    to += "\\";
+                Process.Start(to + "Lichtsteuerung.exe");
+                this.Dispose();
+            }
+            else
+            {
+                button_start.Enabled = false;
+                Form1_Shown(null, null);
+            }
         }
 
         private void button_close_Click(object sender, EventArgs e)
@@ -67,45 +78,63 @@ namespace WindowsInstaller
                 label_info_delete.Invoke((MethodInvoker)delegate {
                     label_info_delete.ForeColor = Color.Black;
                 });
-                try
+                if(progress == Progress.Wait)
                 {
-                    Directory.Delete(to, true);
-                }
-                catch (Exception ex)
-                {
+                    try
+                    {
+                        Directory.Delete(to, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        label_delete.Invoke((MethodInvoker)delegate {
+                            label_delete.Text = "\u274C";
+                        });
+                        MessageBox.Show(ex.Message, "Fehler beim löschen.");
+                        button_start.Invoke((MethodInvoker)delegate {
+                            button_start.Enabled = true;
+                            button_start.Text = "Nochmal probieren";
+                        });
+                        return;
+                    }
+                    progress = Progress.Remove;
                     label_delete.Invoke((MethodInvoker)delegate {
-                        label_delete.Text = "\u274C";
+                        label_delete.Text = "\u2713";
                     });
-                    MessageBox.Show(ex.Message, "Fehler beim löschen.");
-                    return;
+                    label_info_copy.Invoke((MethodInvoker)delegate {
+                        label_info_copy.ForeColor = Color.Black;
+                    });
                 }
-                label_delete.Invoke((MethodInvoker)delegate {
-                    label_delete.Text = "\u2713";
-                });
-                label_info_copy.Invoke((MethodInvoker)delegate {
-                    label_info_copy.ForeColor = Color.Black;
-                });
-                string rootDir = to.Substring(0, to.LastIndexOf('\\'));
-                string targetName = to.Substring(to.LastIndexOf('\\') + 1);
-                string fromName = from.Substring(from.LastIndexOf('\\') + 1);
-                try
+                if(progress == Progress.Remove)
                 {
-                    Directory.Move(from, to);
-                }
-                catch (Exception ex)
-                {
+                    string rootDir = to.Substring(0, to.LastIndexOf('\\'));
+                    string targetName = to.Substring(to.LastIndexOf('\\') + 1);
+                    string fromName = from.Substring(from.LastIndexOf('\\') + 1);
+                    try
+                    {
+                        Directory.Move(from, to);
+                    }
+                    catch (Exception ex)
+                    {
+                        label_copy.Invoke((MethodInvoker)delegate {
+                            label_copy.Text = "\u274C";
+                        });
+                        MessageBox.Show(ex.Message, "Fehler beim kopieren.");
+                        button_start.Invoke((MethodInvoker)delegate {
+                            button_start.Enabled = true;
+                            button_start.Text = "Nochmal probieren";
+                        });
+                        return;
+                    }
                     label_copy.Invoke((MethodInvoker)delegate {
-                        label_copy.Text = "\u274C";
+                        label_copy.Text = "\u2713";
                     });
-                    MessageBox.Show(ex.Message, "Fehler beim kopieren.");
-                    return;
+                    button_start.Invoke((MethodInvoker)delegate {
+                        button_start.Enabled = true;
+                        button_start.Text = "Lichtsteuerung starten";
+                    });
+                    progress = Progress.Copy;
                 }
-                label_copy.Invoke((MethodInvoker)delegate {
-                    label_copy.Text = "\u2713";
-                });
-                button_start.Invoke((MethodInvoker)delegate {
-                    button_start.Enabled = true;
-                });
+                
             });
             thread.IsBackground = true;
             thread.Start();

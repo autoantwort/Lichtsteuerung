@@ -116,7 +116,16 @@ void Updater::update(){
                     return;
                 }
                 deployPath = QFileInfo(*deploy).absolutePath() + "/" + NAME_OF_DEPLOY_FOLDER;
-                if(!QFile::rename(deployPath + "/" + WINDOWS_INSTALLER_NAME,QFileInfo(*deploy).absolutePath() + "/" + WINDOWS_INSTALLER_NAME)){
+                // if old installer exists, delete these
+                QString targetInstallerPath = QFileInfo(*deploy).absolutePath() + "/" + WINDOWS_INSTALLER_NAME;
+                if(QFile::exists(targetInstallerPath)){
+                    if(!QFile::remove(targetInstallerPath)){
+                        qWarning() << "Failed to remove old Windows Installer";
+                        state = UpdaterState::DownloadUpdateFailed;
+                        return;
+                    }
+                }
+                if(!QFile::rename(deployPath + "/" + WINDOWS_INSTALLER_NAME,targetInstallerPath)){
                     qWarning() << "Failed to rename Windows Installer";
                     state = UpdaterState::DownloadUpdateFailed;
                     return;
