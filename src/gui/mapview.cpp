@@ -161,6 +161,8 @@ MapView::MapView()
     setImplicitHeight(maxY-minY);
     p.first->translatePoints(-minX,-minY);
     p.second->translatePoints(-minX,-minY);
+    translation = {-minX, -minY};
+    emit translationChanged();
 
 }
 
@@ -202,21 +204,7 @@ void MapView::mousePressEvent(QMouseEvent *event){
 
 void MapView::mouseMoveEvent(QMouseEvent *event){
     event->accept();
-    controlPoint = event->pos();
-    controlPoint.setX(controlPoint.x() - 30 - 3);
-    controlPoint.setY(controlPoint.y() - 30 - 3);
-    if(controlPoint.x() < 0){
-        controlPoint.setX(0);
-    }else if(controlPoint.x() > implicitWidth()){
-        controlPoint.setX(implicitWidth());
-    }
-    if(controlPoint.y() < 0){
-        controlPoint.setY(0);
-    }else if(controlPoint.y() > implicitWidth()){
-        controlPoint.setY(implicitWidth());
-    }
-    emit controlPointChanged();
-    Modules::ModuleManager::singletone()->controller().updateControlPoint(controlPoint);
+    setControlPoint(event->pos());
 }
 
 }

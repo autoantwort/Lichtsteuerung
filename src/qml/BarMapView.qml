@@ -95,8 +95,8 @@ ColumnLayout{
                             enabled: root.toPlacedDevice !== null
                             onClicked: {
                                 if(root.toPlacedDevice && mouse.button === Qt.LeftButton){
-                                    root.toPlacedDevice.position.x = mouse.x - 30;
-                                    root.toPlacedDevice.position.y = mouse.y - 30;
+                                    root.toPlacedDevice.position.x = mouse.x + map.translation.x;
+                                    root.toPlacedDevice.position.y = mouse.y + map.translation.y;
                                 }else{
                                     mouse.accepted = false;
                                 }
@@ -130,8 +130,8 @@ ColumnLayout{
                                 height: 5 * selectScale
                                 radius: 5 * selectScale
                                 color: "yellow"
-                                x: modelData.position.x - 2 * selectScale + 30
-                                y: modelData.position.y - 2 * selectScale + 30
+                                x: modelData.position.x - 2 * selectScale + map.translation.x
+                                y: modelData.position.y - 2 * selectScale + map.translation.y
                                 RadialGradient{
                                     anchors.fill: parent
                                     anchors.margins: -10
@@ -156,8 +156,8 @@ ColumnLayout{
                                     drag.threshold: 0
                                     onReleased: {
                                         // If we dont use variables the y coordinate gets resetted after setting modelData.position.x
-                                        var newX = parent.x + 2 * parent.selectScale - 30;
-                                        var newY = parent.y + 2 * parent.selectScale - 30;
+                                        var newX = parent.x + 2 * parent.selectScale - map.translation.x;
+                                        var newY = parent.y + 2 * parent.selectScale - map.translation.y;
                                         modelData.position.x = newX;
                                         modelData.position.y = newY;
                                     }
@@ -171,8 +171,8 @@ ColumnLayout{
 
                         Rectangle{
                             id: controlPoint
-                            x: parent.controlPoint.x + 30 - 3
-                            y: parent.controlPoint.y + 30 - 3
+                            x: parent.controlPoint.x + map.translation.x - 3
+                            y: parent.controlPoint.y + map.translation.y - 3
                             width: 7
                             height: 7
                             radius: 7
