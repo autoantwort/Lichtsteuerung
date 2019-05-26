@@ -44,9 +44,15 @@
 #include "test/testsampleclass.h"
 #include "spotify/spotify.h"
 #include "modules/dmxconsumer.h"
+#include "updater.h"
 
 int main(int argc, char *argv[])
 {
+    Updater updater;
+    QObject::connect(&updater,&Updater::needUpdate,[&](){
+        updater.update();
+    });
+    updater.checkForUpdate();
     /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
     return 0;*/
@@ -171,6 +177,7 @@ int main(int argc, char *argv[])
         QFile savePath(settings.getJsonSettingsFilePath());
         ApplicationData::saveData(savePath);
         Driver::stopAndUnloadDriver();
+        updater.runUpdateInstaller();
     });
     settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
@@ -208,6 +215,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
     engine.rootContext()->setContextProperty("Settings",&settings);
     engine.rootContext()->setContextProperty("spotify",&spotify);
+    engine.rootContext()->setContextProperty("updater",&updater);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty("dmxOutputValues",&Driver::dmxValueModel);
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
