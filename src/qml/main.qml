@@ -137,7 +137,11 @@ ApplicationWindow {
             Oscillogram{
             }
 
-            Colorplot{}
+            Page{
+                contentItem: Label{
+                    text: "The ColorPlot is currently not supported"
+                }
+            }
         }
     }
 

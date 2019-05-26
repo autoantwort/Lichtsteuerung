@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     // init the rand function for different random numbers each startup
     srand(static_cast<unsigned int>(time(nullptr)));
 
-    Test::testSampleClass();
+    //Test::testSampleClass();
 
     class CatchingErrorApplication : public QGuiApplication{
     public:
@@ -143,8 +143,8 @@ int main(int argc, char *argv[])
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
-    std::thread t(Test::testLoopProgramm);
-    t.join();
+    //std::thread t(Test::testLoopProgramm);
+    //t.join();
 
     auto & spotify = Spotify::get();
     Modules::ModuleManager::singletone()->setSpotify(&spotify);
@@ -228,7 +228,7 @@ int main(int argc, char *argv[])
 
 
     // Treiber laden
-#define USE_DUMMY_DRIVER
+//#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
     if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
         ErrorNotifier::showError("Cant start driver.");
