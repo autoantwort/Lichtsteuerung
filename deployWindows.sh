@@ -81,7 +81,7 @@ cp "$1/QTJSONFile.json" "$target_folder"
 
 #copy header files for modules and update settings.ini
 mkdir -p "$target_folder/modules"
-cp -r "src/programms" "$target_folder/modules/include"
+cp -r "src/modules" "$target_folder/modules/include"
 echo "includePath=modules/include" >> "$settings_file"
 echo "moduleDirPath=modules" >> "$settings_file"
 
