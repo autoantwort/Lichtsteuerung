@@ -74,6 +74,11 @@ void Updater::update(){
     qDebug() << "Update";
     state = UpdaterState::DownloadingUpdate;
     auto redirect = http->get(QNetworkRequest(QUrl(deployDownloadURL)));
+    QObject::connect(redirect,static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),[this,redirect](auto error){
+        qWarning() << "Error while redirecting to deploy.zip! " << error << redirect->errorString();
+        redirect->deleteLater();
+        state = UpdaterState::DownloadUpdateFailed;
+    });
     QObject::connect(redirect,&QNetworkReply::finished,[this,redirect](){
         redirect->deleteLater();
         auto redirectURL = redirect->header(QNetworkRequest::KnownHeaders::LocationHeader);
