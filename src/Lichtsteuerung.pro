@@ -47,6 +47,7 @@ SOURCES += \
     test/testloopprogramm.cpp \
     settings.cpp \
     test/DriverDummy.cpp \
+    updater.cpp \
     usermanagment.cpp \
     modules/modulemanager.cpp \
     modules/programblock.cpp \
@@ -76,7 +77,8 @@ SOURCES += \
     spotify/segmentobject.cpp \
     spotify/audioanalysisobject.cpp \
     spotify/userobject.cpp \
-    sortedmodelview.cpp
+    sortedmodelview.cpp \
+    zip.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -104,6 +106,7 @@ HEADERS += \
     modules/controlpoint.hpp \
     modules/scanner.hpp \
     scanner.h \
+    updater.h \
     usermanagment.h \
     gui/channelprogrammeditor.h \
     modelmanager.h \
@@ -165,7 +168,8 @@ HEADERS += \
     spotify/util.h \
     modules/spotifyobjetcs.hpp \
     modules/spotify.hpp \
-    sortedmodelview.h
+    sortedmodelview.h \
+    zip.h
 
 
 # Default rules for deployment.
