@@ -116,6 +116,11 @@ void Updater::update(){
                     return;
                 }
                 deployPath = QFileInfo(*deploy).absolutePath() + "/" + NAME_OF_DEPLOY_FOLDER;
+                if(!QFile::rename(deployPath + "/" + WINDOWS_INSTALLER_NAME,QFileInfo(*deploy).absolutePath() + "/" + WINDOWS_INSTALLER_NAME)){
+                    qWarning() << "Failed to rename Windows Installer";
+                    state = UpdaterState::DownloadUpdateFailed;
+                    return;
+                }
                 // all important files like QTJSONFile.json
                 auto entries = QDir(QDir::currentPath()).entryInfoList(QStringList() << QStringLiteral("QTJSONFile.json*"),QDir::Filter::Files);
                 for(const auto & e : entries){
@@ -133,43 +138,8 @@ void Updater::runUpdateInstaller(){
     if(state != UpdaterState::UpdateDownloaded){
         return;
     }
-    QFile batchFile(QDir::tempPath() + "/installLichtsteuerung.bat");
-    batchFile.open(QFile::WriteOnly);
-    //https://stackoverflow.com/questions/1894967/how-to-request-administrator-access-inside-a-batch-file
-    auto content = "@echo off\r\n"
-                ":: BatchGotAdmin\r\n"
-                ":-------------------------------------\r\n"
-                "REM  --> Check for permissions\r\n"
-                "    IF \"%PROCESSOR_ARCHITECTURE%\" EQU \"amd64\" (\r\n"
-                ">nul 2>&1 \"%SYSTEMROOT%\\SysWOW64\\cacls.exe\" \"%SYSTEMROOT%\\SysWOW64\\config\\system\"\r\n"
-                ") ELSE (\r\n"
-                ">nul 2>&1 \"%SYSTEMROOT%\\system32\\cacls.exe\" \"%SYSTEMROOT%\\system32\\config\\system\"\r\n"
-                ")\r\n"
-                "\r\n"
-                "REM --> If error flag set, we do not have admin.\r\n"
-                "if '%errorlevel%' NEQ '0' (\r\n"
-                "    echo Requesting administrative privileges...\r\n"
-                "    goto UACPrompt\r\n"
-                ") else ( goto gotAdmin )\r\n"
-                "\r\n"
-                ":UACPrompt\r\n"
-                "    echo Set UAC = CreateObject^(\"Shell.Application\"^) > \"%temp%\\getadmin.vbs\"\r\n"
-                "    set params= %*\r\n"
-                "    echo UAC.ShellExecute \"cmd.exe\", \"/c \"\"%~s0\"\" %params:\"=\"\"%\", \"\", \"runas\", 1 >> \"%temp%\\getadmin.vbs\"\r\n"
-                "\r\n"
-                "    \"%temp%\\getadmin.vbs\"\r\n"
-                "    del \"%temp%\\getadmin.vbs\"\r\n"
-                "    exit /B\r\n"
-                "\r\n"
-                ":gotAdmin\r\n"
-                "    pushd \"%CD%\"\r\n"
-                "    CD /D \"%~dp0\"\r\n"
-                ":-------------------------------------- \r\n"
-                ": Own Code\r\n"
-                   "RMDIR /s /q \"" + QFileInfo(QDir::currentPath()).absoluteFilePath() + "\"\r\n"
-                 "move \"" + deployPath + "\" \"" + QFileInfo(QDir::currentPath()).absoluteFilePath() + "\"\r\n";
-                 batchFile.write(content.toUtf8());
-                 batchFile.close();
-                 qDebug () << "run " << QFileInfo(batchFile).absoluteFilePath();
-                 QProcess::startDetached(QStringLiteral("cmd"), QStringList() << QStringLiteral("/c") << QFileInfo(batchFile).absoluteFilePath());
+    QString from = deployPath;
+    QString to = QFileInfo(QDir::currentPath()).absoluteFilePath();
+    QString installer = deployPath.left(deployPath.lastIndexOf(QLatin1String("/"))) + "/" + WINDOWS_INSTALLER_NAME;
+    QProcess::startDetached(installer, QStringList() << from << to);
 }
