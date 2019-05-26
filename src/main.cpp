@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
     QObject::connect(&updater,&Updater::needUpdate,[&](){
         updater.update();
     });
-    updater.checkForUpdate();
     /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
     return 0;*/
@@ -126,6 +125,9 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     qRegisterMetaType<Driver::DMXQMLValue*>("DMXQMLValue*");
     qRegisterMetaType<DMX::DMXChannelFilter*>("DMXChannelFilter*");
+
+
+    updater.checkForUpdate();
 
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo("settings.ini"));
