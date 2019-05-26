@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace WindowsInstaller
 {
@@ -14,7 +15,9 @@ namespace WindowsInstaller
         [STAThread]
         static void Main(string[] args)
         {
-            if(args.Length != 2)
+            // we have an open handle to the current dir. If the current dir in the release folder we can not delete this
+            Environment.CurrentDirectory = "C:\\";
+            if (args.Length != 2)
             {
                 MessageBox.Show("Programm mit den falschen Parametern gestartet, diese sind 'from' 'to'", "Fehler");
                 return;

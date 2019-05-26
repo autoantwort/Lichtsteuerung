@@ -64,6 +64,28 @@ namespace WindowsInstaller
             return false;
         }
 
+        // https://stackoverflow.com/questions/329355/cannot-delete-directory-with-directory-deletepath-true
+        public static void DeleteDirectory(string path)
+        {
+            foreach (string directory in Directory.GetDirectories(path))
+            {
+                DeleteDirectory(directory);
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (IOException)
+            {
+                Directory.Delete(path, true);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                Directory.Delete(path, true);
+            }
+        }
+
         private void Form1_Shown(object sender, EventArgs e)
         {
             var thread = new Thread(() =>
@@ -82,7 +104,7 @@ namespace WindowsInstaller
                 {
                     try
                     {
-                        Directory.Delete(to, true);
+                        DeleteDirectory(to);
                     }
                     catch (Exception ex)
                     {
