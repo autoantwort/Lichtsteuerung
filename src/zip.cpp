@@ -69,9 +69,6 @@ bool Zip::unzip(const QFileInfo& zip, const QFileInfo& unzip){
     if(unzip7Zip(zip,unzip)){
         return true;
     }
-    if(unzipWinrar(zip,unzip)){
-        return true;
-    }
     if(unzipPowershellNew(zip,unzip)){
         return true;
     }
