@@ -17,7 +17,7 @@ bool unzipPowershellNew(const QFileInfo& zip, const QFileInfo& unzip){
         qDebug().noquote() << "stderr : " << p.readAllStandardError();
         qDebug().noquote() << "stdout : " << p.readAllStandardOutput();
     }
-    return !p.exitCode();
+    return p.error() == QProcess::ProcessError::UnknownError ? !p.exitCode() : false;
 }
 bool unzipPowershell(const QFileInfo& zip, const QFileInfo& unzip){
     // from https://stackoverflow.com/questions/17546016/how-can-you-zip-or-unzip-from-the-script-using-only-windows-built-in-capabiliti/26843122#26843122
@@ -30,21 +30,21 @@ bool unzipPowershell(const QFileInfo& zip, const QFileInfo& unzip){
         qDebug().noquote() << "stderr : " << p.readAllStandardError();
         qDebug().noquote() << "stdout : " << p.readAllStandardOutput();
     }
-    return !p.exitCode();
+    return p.error() == QProcess::ProcessError::UnknownError ? !p.exitCode() : false;
 }
 
 bool unzipWinrar(const QFileInfo& zip, const QFileInfo& unzip){
     // from https://stackoverflow.com/questions/1315662/how-to-extract-zip-files-with-winrar-command-line
     // "%ProgramFiles%\WinRAR\winrar.exe" x -ibck c:\file.zip *.* c:\folder
     QProcess p;
-    p.start(QStringLiteral("C:\\Program Files\\WinRAR\\winrar.exe"), QStringList() << QStringLiteral("x") << QStringLiteral("-ibck") << zip.absoluteFilePath() << QStringLiteral("*.*") << unzip.absoluteFilePath());
+    p.start(QStringLiteral("C:\\Program Files\\WinRAR\\winrar.exe"), QStringList() << QStringLiteral("x") << QStringLiteral("-ibck") << QStringLiteral("-o+") << zip.absoluteFilePath() << QStringLiteral("*.*") << unzip.absoluteFilePath());
     p.waitForFinished();
     if(p.exitCode() != 0){
         qDebug() << "Failed to unzip " << zip << " to " << unzip << " with winrar";
         qDebug().noquote() << "stderr : " << p.readAllStandardError();
         qDebug().noquote() << "stdout : " << p.readAllStandardOutput();
     }
-    return !p.exitCode();
+    return p.error() == QProcess::ProcessError::UnknownError ? !p.exitCode() : false;
 }
 
 bool unzip7Zip(const QFileInfo& zip, const QFileInfo& unzip){
@@ -58,7 +58,7 @@ bool unzip7Zip(const QFileInfo& zip, const QFileInfo& unzip){
         qDebug().noquote() << "stderr : " << p.readAllStandardError();
         qDebug().noquote() << "stdout : " << p.readAllStandardOutput();
     }
-    return !p.exitCode();
+    return p.error() == QProcess::ProcessError::UnknownError ? !p.exitCode() : false;
 }
 
 bool Zip::unzip(const QFileInfo& zip, const QFileInfo& unzip){
@@ -66,6 +66,9 @@ bool Zip::unzip(const QFileInfo& zip, const QFileInfo& unzip){
         return false;
     }
     QDir().mkpath(unzip.absoluteFilePath());
+    if(unzipWinrar(zip,unzip)){
+        return true;
+    }
     if(unzip7Zip(zip,unzip)){
         return true;
     }
