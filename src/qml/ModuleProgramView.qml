@@ -246,8 +246,11 @@ Item{
                     Layout.preferredWidth: parent.width
                     id: propertiesView
                     model: programEditor.propertyInformationModel
+
+                    property var currentModelData : propertiesView.currentItem ? propertiesView.currentItem.modelItemData : null
+
                     delegate: ItemDelegate{
-                        property var modelData : modelData
+                        property var modelItemData: modelData
                         width: parent.width
                         text: modelData.name
                         onClicked: propertiesView.currentIndex = index
@@ -256,17 +259,17 @@ Item{
                     highlight: Rectangle{
                         color: "lightgrey"
                     }
-                    onCurrentItemChanged: update()
+                    onCurrentModelDataChanged: update()
                     function intHandler() {
-                        propertiesView.currentItem.modelData.value = spinBox.value;
+                        propertiesView.currentModelData.value = spinBox.value;
                     }
                     function doubleHandler() {
-                        propertiesView.currentItem.modelData.value = spinBox.value/1000;
+                        propertiesView.currentModelData.value = spinBox.value/1000;
                     }
                     function update(){
-                        if(propertiesView.currentIndex<0)
+                        if(propertiesView.currentModelData === null)
                             return;
-                        var data = propertiesView.currentItem.modelData;
+                        var data = propertiesView.currentModelData;
                         if(data.type>=0&&data.type<=3){
                             spinBox.onValueChanged.disconnect(intHandler);
                             spinBox.onValueChanged.disconnect(doubleHandler);
@@ -319,7 +322,7 @@ Item{
                         Layout.preferredWidth: 190
                         clip:true
                         wrapMode: Text.WordWrap
-                        text: propertiesView.currentItem ? propertiesView.currentModelData.description : "Select one Property"
+                        text: propertiesView.currentModelData ? propertiesView.currentModelData.description : "Select one Property"
                     }
                     SpinBox{
                         id:spinBox
