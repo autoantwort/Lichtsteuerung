@@ -7,8 +7,15 @@
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QTemporaryFile>
-#include <thread>
 
+QByteArray getFileContent(const QString & filename){
+    QFile file(filename);
+    if(!file.open(QIODevice::ReadOnly)){
+        qWarning() <<  "Failed to open file " << filename;
+        return {"Failed to open file"};
+    }
+    return file.readAll();
+}
 
 Updater::Updater(){
     if(!QFile::exists(QDir::currentPath() + "/Lichtsteuerung.exe")){
@@ -36,32 +43,29 @@ void Updater::checkForUpdate(){
         }
         auto response = http->get(QNetworkRequest(redirectURL.toUrl()));
         QObject::connect(response,&QNetworkReply::finished,[this,response](){
-            std::thread thread([this,response](){
-
-                QFile version(QDir::tempPath() + QStringLiteral("/version.zip"));
-                version.open(QFile::WriteOnly);
-                version.write(response->readAll());
-                version.close();
-                response->deleteLater();
-                if(!Zip::unzip(QFileInfo(version),QFileInfo(version).absolutePath())){
-                    qDebug() << "not successful when unzipping";
+            QFile version(QDir::tempPath() + QStringLiteral("/version.zip"));
+            version.open(QFile::WriteOnly);
+            version.write(response->readAll());
+            version.close();
+            response->deleteLater();
+            Zip::unzip(QFileInfo(version),QFileInfo(version).absolutePath(),[this,version = QFileInfo(version)](auto success){
+                if(!success){
+                    qDebug() << "not successful when unzipping version.zip";
                     state = UpdaterState::NoUpdateAvailible;
                     return;
                 }
-                if(!QFile::exists(QFileInfo(version).absolutePath() + "/" + VERSION_FILE_NAME)){
+                if(!QFile::exists(version.absolutePath() + "/" + VERSION_FILE_NAME)){
                     qDebug() << "version file does not exists in version.zip";
                     state = UpdaterState::NoUpdateAvailible;
                     return;
                 }
-                if(QFile(VERSION_FILE_NAME).readAll() != QFile(QFileInfo(version).absolutePath() + "/" + VERSION_FILE_NAME).readAll()){
+                if(getFileContent(VERSION_FILE_NAME) != getFileContent(version.absolutePath() + "/" + VERSION_FILE_NAME)){
                     state = UpdaterState::UpdateAvailible;
                     emit needUpdate();
                 }else{
                     state = UpdaterState::NoUpdateAvailible;
                 }
-
             });
-            thread.detach();
         });
     });
 }
@@ -71,7 +75,6 @@ void Updater::update(){
         qDebug() << "we are not in a state to make updates";
         return;
     }
-    qDebug() << "Update";
     state = UpdaterState::DownloadingUpdate;
     auto redirect = http->get(QNetworkRequest(QUrl(deployDownloadURL)));
     QObject::connect(redirect,static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),[this,redirect](auto error){
@@ -105,12 +108,12 @@ void Updater::update(){
             emit updateProgressChanged();
         });
         QObject::connect(response,&QNetworkReply::finished,[this,response,deploy](){
-            std::thread thread([this,response,deploy](){
-                qDebug() << response->atEnd();
-                deploy->close();
+            qDebug() << response->atEnd();
+            response->deleteLater();
+            deploy->close();
+            Zip::unzip(QFileInfo(*deploy),QFileInfo(*deploy).absolutePath(),[this,deploy](auto success){
                 std::unique_ptr<QFile> deleteMe(deploy);
-                response->deleteLater();
-                if(!Zip::unzip(QFileInfo(*deploy),QFileInfo(*deploy).absolutePath())){
+                if(!success){
                     qDebug() << "not successful when unzipping deploy.zip";
                     state = UpdaterState::DownloadUpdateFailed;
                     return;
@@ -137,7 +140,6 @@ void Updater::update(){
                 }
                 state = UpdaterState::UpdateDownloaded;
             });
-            thread.detach();
         });
     });
 

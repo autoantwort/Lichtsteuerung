@@ -2,9 +2,10 @@
 #define UZIP_H
 
 #include <QFileInfo>
+#include <functional>
 
 namespace Zip {
-    bool unzip(const QFileInfo& zip, const QFileInfo& unzip);
+    void unzip(const QFileInfo& zip, const QFileInfo& unzip, const std::function<void(bool)>& callback);
 } // namespace Zip
 
 
