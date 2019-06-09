@@ -6,7 +6,7 @@
 namespace Spotify::Objects{
 
 
-CurrentPlayingObject::CurrentPlayingObject(const QJsonObject &object, const long receivedTimestamp) : timestamp(static_cast<long>(object["timestamp"].toDouble())),receivedTimestamp(receivedTimestamp),progress_ms(getOptional<int>(object, "progress_ms")), is_playing(object["is_playing"].toBool()), item(getOptional<TrackObject_full>(object,"item")), currently_playing_type(object["currently_playing_type"].toString())
+CurrentPlayingObject::CurrentPlayingObject(const QJsonObject &object, std::optional<TrackObject_full> & item, const long receivedTimestamp) : timestamp(static_cast<long>(object["timestamp"].toDouble())),receivedTimestamp(receivedTimestamp),progress_ms(getOptional<int>(object, "progress_ms")), is_playing(object["is_playing"].toBool()), item(item), currently_playing_type(object["currently_playing_type"].toString())
 {
 
 }
@@ -23,6 +23,20 @@ int CurrentPlayingObject::getProgressInMs()const{
         }
     }
     return -1;
+}
+
+QVariant CurrentPlayingObject::getProgressAsVariant() const{
+    if(int res = getProgressInMs();res>=0){
+        return res;
+    }
+    return {};
+}
+
+Objects::TrackObject_full  * CurrentPlayingObject::getCurrentTrackAsPointer() {
+    if(item){
+        return &*item;
+    }
+    return nullptr;
 }
 
 }

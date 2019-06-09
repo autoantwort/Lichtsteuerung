@@ -9,18 +9,24 @@
 namespace Spotify::Objects{
 
 // https://developer.spotify.com/documentation/web-api/reference/object-model/#track-object-full
-class TrackObject_full
+class TrackObject_full : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(AlbumObject_simplified * album READ getAlbum CONSTANT)
+    Q_PROPERTY(ArtistVector * artists READ getArtists CONSTANT)
+    Q_PROPERTY(int durationMs MEMBER duration_ms CONSTANT)
+    Q_PROPERTY(int popularity MEMBER popularity CONSTANT)
+    Q_PROPERTY(QString id MEMBER id CONSTANT)
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
 public:
     /**
      * @brief album The album on which the track appears. The album object includes a link in href to full information about the album.
      */
-    const AlbumObject_simplified album;
+    AlbumObject_simplified album;
     /**
      * @brief artists The artists who performed the track. Each artist object includes a link in href to more detailed information about the artist.
      */
-    const ArtistVector artists;
+    ArtistVector artists;
     /**
      * @brief duration_ms The track length in milliseconds.
      */
@@ -40,7 +46,10 @@ public:
      */
     const int popularity;
 public:
+    TrackObject_full() = default;
     TrackObject_full(const QJsonObject &object);
+    AlbumObject_simplified * getAlbum(){return &album;}
+    ArtistVector * getArtists(){return &artists;}
 };
 
 }

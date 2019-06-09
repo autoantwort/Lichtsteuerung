@@ -60,6 +60,12 @@
         <file>qml/components/AskWhenRemovePopup.qml</file>
         <file>qml/FFTGraphView.qml</file>
         <file>qml/BarMapView.qml</file>
+        <file>qml/InformationScreen/InformationWindow.qml</file>
+        <file>qml/InfoScreenPropertiesView.qml</file>
+        <file>qml/InformationScreen/SpotifyTrack.qml</file>
+        <file>qml/InformationScreen/AngebotsModel.qml</file>
+        <file>qml/InformationScreen/AngebotsManagmentComponent.qml</file>
+        <file>qml/InformationScreen/Lauftext.qml</file>
         <file>icons/sort_order/sort-by-alphabet.svg</file>
         <file>icons/sort_order/sort-by-alphabet_16px.png</file>
         <file>icons/sort_order/sort-by-alphabet_24px.png</file>

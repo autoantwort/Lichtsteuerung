@@ -15,7 +15,7 @@
 namespace Spotify {
 
 namespace detail{
-    class KnownUserVector : public ModelVector<Objects::UserObject>{
+    class KnownUserVector : public ModelVector<std::unique_ptr<Objects::UserObject>>{
         Q_OBJECT
     };
 }
@@ -26,12 +26,16 @@ namespace detail{
 class Spotify : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariant currentUser READ getCurrentUserAsVariant NOTIFY currentUserChanged)
+    Q_PROPERTY(Objects::UserObject * currentUser READ getCurrentUserAsPointer NOTIFY currentUserChanged)
     Q_PROPERTY(QAbstractListModel * knownUser READ getKnownUserForQML CONSTANT)
+    Q_PROPERTY(Objects::TrackObject_full * currentTrack READ getCurrentTrackAsPointer NOTIFY currentTrackChanged)
+    Q_PROPERTY(Objects::CurrentPlayingObject * currentPlayingStatus READ getCurrentPlayingObjectAsPointer NOTIFY currentPlayingObjectChanged)
+    //Q_PROPERTY(QAbstractListModel * knownUser READ getKnownUserForQML CONSTANT)
     std::optional<Objects::CurrentPlayingObject> currentPlayingObject;
+    std::optional<Objects::TrackObject_full> currentTrack;
     std::optional<Objects::AudioAnalysisObject> currentAudioAnalysis;
     std::optional<Objects::AudioFeaturesObject> currentAudioFeatures;
-    std::optional<Objects::UserObject> currentUser;
+    std::unique_ptr<Objects::UserObject> currentUser = nullptr;
     QOAuth2AuthorizationCodeFlow spotify;
     detail::KnownUserVector knownUser;
 
@@ -51,10 +55,12 @@ public:
     const std::optional<Objects::CurrentPlayingObject>& getCurrentPlayingObject(){return currentPlayingObject;}
     const std::optional<Objects::AudioAnalysisObject>& getCurrentAudioAnalysis(){return currentAudioAnalysis;}
     const std::optional<Objects::AudioFeaturesObject>& getCurrentAudioFeatures(){return currentAudioFeatures;}
-    QVariant getCurrentUserAsVariant()const;
+    Objects::UserObject * getCurrentUserAsPointer();
     QAbstractListModel * getKnownUserForQML(){return &knownUser;}
-    const std::vector<Objects::UserObject> & getKnownUser()const{return knownUser.getVector();}
-    const std::optional<Objects::UserObject>& getCurrentUser()const{return currentUser;}
+    const std::vector<std::unique_ptr<Objects::UserObject>> & getKnownUser()const{return knownUser.getVector();}
+    const std::unique_ptr<Objects::UserObject> & getCurrentUser()const{return currentUser;}
+    Objects::TrackObject_full * getCurrentTrackAsPointer();
+    Objects::CurrentPlayingObject * getCurrentPlayingObjectAsPointer();
 signals:
     void currentPlayingObjectChanged();
     void currentTrackChanged();

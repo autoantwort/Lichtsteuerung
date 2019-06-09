@@ -127,6 +127,11 @@ int main(int argc, char *argv[])
     qRegisterMetaType<Modules::PropertiesVector*>("PropertiesVector*");
     qRegisterMetaType<Driver::DMXQMLValue*>("DMXQMLValue*");
     qRegisterMetaType<DMX::DMXChannelFilter*>("DMXChannelFilter*");
+    qRegisterMetaType<Spotify::Objects::TrackObject_full*>("Spotify::Objects::TrackObject_full*");
+    qRegisterMetaType<Spotify::Objects::CurrentPlayingObject*>("Spotify::Objects::CurrentPlayingObject*");
+    qRegisterMetaType<Spotify::Objects::UserObject*>("Spotify::Objects::UserObject*");
+    qRegisterMetaType<Spotify::Objects::ImageObject>("Spotify::Objects::ImageObject");
+    qRegisterMetaType<Spotify::Objects::ImageObject*>("Spotify::Objects::ImageObject*");
 
 
     updater.checkForUpdate();

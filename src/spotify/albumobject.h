@@ -16,9 +16,14 @@ namespace Spotify::Objects{
 /**
  * @brief The AlbumObject_simplified class https://developer.spotify.com/documentation/web-api/reference/object-model/#album-object-simplified
  */
-class AlbumObject_simplified
+class AlbumObject_simplified : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
+    Q_PROPERTY(QString albumType MEMBER album_type CONSTANT)
+    Q_PROPERTY(QString releaseDate MEMBER release_date CONSTANT)
+    Q_PROPERTY(QAbstractListModel * images READ getImages CONSTANT)
+    Q_PROPERTY(QAbstractListModel * artists READ getArtists CONSTANT)
 public:
     /**
      * @brief album_group The field is present when getting an artist’s albums. Possible values are “album”, “single”, “compilation”, “appears_on”. Compare to album_type this field represents relationship between the artist and the album.
@@ -31,7 +36,7 @@ public:
     /**
      * @brief artists The artists of the album. Each artist object includes a link in href to more detailed information about the artist.
      */
-    const ArtistVector artists;
+    ArtistVector artists;
     /**
      * @brief id The [/documentation/web-api/#spotify-uris-and-ids) for the album.
      */
@@ -39,14 +44,19 @@ public:
     /**
      * @brief images The cover art for the album in various sizes, widest first.
      */
-    const ImageVector images;
+    ImageVector images;
     /**
      * @brief name The name of the album. In case of an album takedown, the value may be an empty string.
      */
     const QString name;
-
+    /**
+     * @brief release_date TODO
+     */
+    const QString release_date;
 public:
     AlbumObject_simplified(const QJsonObject& object);
+    QAbstractListModel * getImages(){return &images;}
+    QAbstractListModel * getArtists(){return &artists;}
 };
 
 }

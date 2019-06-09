@@ -11,9 +11,9 @@ namespace Spotify::Objects{
 /**
  * @brief The UserObject class https://developer.spotify.com/documentation/web-api/reference/users-profile/get-current-users-profile/#user-object-private
  */
-class UserObject
+class UserObject : public QObject
 {
-    Q_GADGET
+    Q_OBJECT
     Q_PROPERTY(QString email MEMBER email CONSTANT)
     Q_PROPERTY(QString id MEMBER id CONSTANT)
     Q_PROPERTY(QVariant userName READ getDisplayName)
@@ -37,6 +37,8 @@ public:
 public:
     UserObject() = default;
     UserObject(const QJsonObject & object);
+    template<typename Pointer>
+    UserObject(Pointer p):display_name(p->display_name),email(p->email),refreshToken(p->refreshToken),id(p->id){}
     UserObject(const QJsonObject & object, const QString & refreshToken);
     void writeToJsonObject(QJsonObject & object)const;
     /**

@@ -14,6 +14,8 @@ namespace Spotify::Objects{
 class ArtistObject_simplified
 {
     Q_GADGET
+    Q_PROPERTY(QString name MEMBER name CONSTANT)
+    Q_PROPERTY(QString id MEMBER id CONSTANT)
 public:
     /**
      * @brief href A link to the Web API endpoint providing full details of the artist.
@@ -38,13 +40,6 @@ class ArtistVector : public ModelVector<ArtistObject_simplified>{
 public:
     ArtistVector() = default;
     ArtistVector(const QJsonArray & array);
-    virtual QVariant data(const QModelIndex &index, int role) const override{
-        Q_UNUSED(role);
-        if(index.row()>=0&&index.row()<int(getVector().size())){
-            return QVariant::fromValue(&(getVector()[index.row()]));
-        }
-        return QVariant();
-    }
 };
 
 }

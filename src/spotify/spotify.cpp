@@ -49,10 +49,10 @@ Spotify::Spotify(QObject *parent) : QObject(parent)
             const auto data = reply->readAll();
             const auto document = QJsonDocument::fromJson(data);
             const auto root = document.object();
-            currentUser.emplace(Objects::UserObject(root,spotify.refreshToken()));
+            currentUser = std::make_unique<Objects::UserObject>(root,spotify.refreshToken());
             emit currentUserChanged();
-            if(std::all_of(knownUser.cbegin(),knownUser.cend(),[&](const auto & uo){return uo.id != currentUser->id;})){
-                knownUser.emplace_back(*currentUser);
+            if(std::all_of(knownUser.cbegin(),knownUser.cend(),[&](const auto & uo){return uo->id != currentUser->id;})){
+                knownUser.emplace_back(std::unique_ptr<Objects::UserObject>(new Objects::UserObject(currentUser.get())));
             }
 
             reply->deleteLater();
@@ -73,7 +73,7 @@ Spotify::Spotify(QObject *parent) : QObject(parent)
 void Spotify::loadFromJsonObject(const QJsonObject &object){
     QJsonArray a = object["knownUser"].toArray();
     for (const auto o : a) {
-        knownUser.emplace_back(o.toObject());
+        knownUser.emplace_back(std::make_unique<Objects::UserObject>(o.toObject()));
     }
 }
 
@@ -81,7 +81,7 @@ void Spotify::writeToJsonObject(QJsonObject &object){
     QJsonArray a;
     for (const auto & u : knownUser) {
         QJsonObject o;
-        u.writeToJsonObject(o);
+        u->writeToJsonObject(o);
         a.push_back(o);
     }
     object["knownUser"] = a;
@@ -98,10 +98,20 @@ void Spotify::loginUser(const Objects::UserObject & user){
     }
 }
 
-QVariant Spotify::getCurrentUserAsVariant() const{
+Objects::UserObject  * Spotify::getCurrentUserAsPointer() {
     if(currentUser)
-        return QVariant::fromValue(*currentUser);
-    return {};
+        return &*currentUser;
+    return nullptr;
+}
+Objects::TrackObject_full  * Spotify::getCurrentTrackAsPointer() {
+    if(currentTrack)
+        return &*currentTrack;
+    return nullptr;
+}
+Objects::CurrentPlayingObject  * Spotify::getCurrentPlayingObjectAsPointer() {
+    if(currentPlayingObject)
+        return &*currentPlayingObject;
+    return nullptr;
 }
 
 void Spotify::updateAudioAnalysis(){
@@ -172,15 +182,18 @@ void Spotify::updatePlayer(){
                     }
                 }
                 const auto body = reply->readAll();
-                currentPlayingObject.emplace(QJsonDocument::fromJson(body).object(),std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+                const auto json = QJsonDocument::fromJson(body).object();
+                if(!json["item"].isObject()&&currentTrack.has_value()){
+                    currentTrack.reset();
+                    emit currentTrackChanged();
+                }else if(json["item"].isObject()&&(!currentTrack.has_value() || json["item"].toObject()["id"] != currentTrack->id)){
+                    currentTrack.emplace(json["item"].toObject());
+                    emit currentTrackChanged();
+                }
+                currentPlayingObject.emplace(json,currentTrack,std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
                 emit currentPlayingObjectChanged();
                 if(wasPlaying != currentPlayingObject->is_playing){
                     emit playingStatusChanged();
-                }
-                if(currentPlayingObject->item.has_value()){
-                    if(currentPlayingObject->item->id != trackID){
-                        emit currentTrackChanged();
-                    }
                 }
             }
             reply->deleteLater();

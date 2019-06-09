@@ -1,5 +1,5 @@
 
-import QtQuick 2.7
+import QtQuick 2.12
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
@@ -67,6 +67,9 @@ ApplicationWindow {
                 text: qsTr("Map View")
             }
             VerticalTabButton {
+                text: qsTr("Info Screen")
+            }
+            VerticalTabButton {
                 text: qsTr("Login")
             }
             VerticalTabButton {
@@ -124,6 +127,8 @@ ApplicationWindow {
                 id: mapView
             }
             
+            InfoScreenPropertiesView{}
+
             LoginView{}
 
             SettingsView{}
