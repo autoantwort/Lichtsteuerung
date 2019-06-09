@@ -10,7 +10,8 @@ ModelView{
     model: deviceModel
     nameFunction: function(modelData){return modelData.name + ", Channel: " + modelData.startDMXChannel + (modelData.prototype.numberOfChannels > 1 ? " - " + (modelData.startDMXChannel + modelData.prototype.numberOfChannels - 1) : "");}
     rows: 7
-    onAddClicked:dialog.visible = true
+    onAddClicked: dialog.visible = true
+    onRemoveClicked: ModelManager.removeDmxDevice(remove);
     addButtonEnabled: UserManagment.currentUser.havePermission(Permission.ADD_DEVICE)
     removeButtonEnabled: UserManagment.currentUser.havePermission(Permission.REMOVE_DEVICE)
     nameInputEnabled: UserManagment.currentUser.havePermission(Permission.CHANGE_NAME)

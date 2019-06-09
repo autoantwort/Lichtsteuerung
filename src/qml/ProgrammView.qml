@@ -11,6 +11,8 @@ ModelView{
     rowSpacing: 2
     addButton.text: "Add Programm"
     removeButton.text: "Remove Programm"
+    onAddClicked: ModelManager.addProgramm("New Programm");
+    onRemoveClicked: ModelManager.removeDmxProgram(remove);
 
     Label{
         text: "Speed : "
@@ -138,7 +140,6 @@ ModelView{
         }
     }
 
-    onAddClicked: ModelManager.addProgramm("New Programm");
 
     RowLayout{
         Layout.row: 8

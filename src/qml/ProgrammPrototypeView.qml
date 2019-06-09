@@ -11,6 +11,8 @@ ModelView{
 
     addButton.text: "Add Prototype"
     removeButton.text: "Remove Prototype"
+    onAddClicked: dialog.visible = true
+    onRemoveClicked: ModelManager.removeDmxProgramPrototype(remove);
 
     ListView{
         clip:true
@@ -98,7 +100,6 @@ ModelView{
     }
 
 
-    onAddClicked: dialog.visible = true
 
     Dialog{
         modality: Qt.WindowModal

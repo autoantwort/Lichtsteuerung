@@ -40,6 +40,7 @@ ModelView{
     }
 
     onAddClicked: ModelManager.addDevicePrototype("New DevicePrototype");
+    onRemoveClicked: ModelManager.removeDmxDevicePrototype(remove);
 
     RowLayout{
         Layout.row: 3

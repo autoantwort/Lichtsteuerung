@@ -10,6 +10,7 @@ GridLayout{
     columns: 4
     rows: 4
     signal addClicked()
+    signal removeClicked(var remove)
     property alias model : listView.model
     property alias currentItem : listView.currentItem
     property var currentModelData : listView.currentItem ? listView.currentItem.modelItemData : null
@@ -59,7 +60,7 @@ GridLayout{
         id: buttonRemove
         text:"Remove"
         font.pixelSize: 15
-        onClicked: ModelManager.remove(currentModelData)
+        onClicked: removeClicked(currentModelData)
     }
 
 

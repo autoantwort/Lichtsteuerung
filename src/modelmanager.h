@@ -69,19 +69,19 @@ public:
         programs.push_back(std::make_unique<DMX::Programm>(std::forward<Args>(args)...));
         QQmlEngine::setObjectOwnership(programs.back().get(),QQmlEngine::CppOwnership);
     }
-    Q_INVOKABLE void remove(DMX::Device* device){
+    Q_INVOKABLE void removeDmxDevice(DMX::Device* device){
         if(device)
             devices.remove_if([=](const auto & p){return p.get() == device;});
     }
-    Q_INVOKABLE void remove(DMX::DevicePrototype* devicePrototype){
+    Q_INVOKABLE void removeDmxDevicePrototype(DMX::DevicePrototype* devicePrototype){
         if(devicePrototype)
             devicePrototypes.remove_if([=](const auto & p){return p.get() == devicePrototype;});
     }
-    Q_INVOKABLE void remove(DMX::Programm* program){
+    Q_INVOKABLE void removeDmxProgram(DMX::Programm* program){
         if(program)
             programs.remove_if([=](const auto & p){return p.get() == program;});
     }
-    Q_INVOKABLE void remove(DMX::ProgrammPrototype* programPrototype){
+    Q_INVOKABLE void removeDmxProgramPrototype(DMX::ProgrammPrototype* programPrototype){
         if(programPrototype)
             programPrototypes.remove_if([=](const auto & p){return p.get() == programPrototype;});
     }
