@@ -10,6 +10,17 @@ ModelView{
 
     addButton.text: "Add Prototype"
     removeButton.text: "Remove Prototype"
+    sortModel: ListModel{
+        ListElement{
+            name: "Creation Date"
+            sortPropertyName: ""
+        }
+        ListElement{
+            name: "Name"
+            sortPropertyName: "name"
+        }
+    }
+
     ListView{
         clip:true
         Layout.column: 2
@@ -36,7 +47,7 @@ ModelView{
                 onTextChanged: modelData.name = text
             }
         }
-        model: modelView.currentModelData.channel
+        model: modelView.currentModelData ? modelView.currentModelData.channel : null
     }
 
     onAddClicked: ModelManager.addDevicePrototype("New DevicePrototype");

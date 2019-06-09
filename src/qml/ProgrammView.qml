@@ -13,14 +13,23 @@ ModelView{
     removeButton.text: "Remove Programm"
     onAddClicked: ModelManager.addProgramm("New Programm");
     onRemoveClicked: ModelManager.removeDmxProgram(remove);
-
+    sortModel: ListModel{
+        ListElement{
+            name: "Creation Date"
+            sortPropertyName: ""
+        }
+        ListElement{
+            name: "Name"
+            sortPropertyName: "name"
+        }
+    }
     Label{
         text: "Speed : "
     }
     TextInputField{
-        text: modelView.currentItem?modelView.currentModelData.speed:""
+        text: modelView.currentModelData ? modelView.currentModelData.speed:""
         validator: DoubleValidator{}
-        onTextChanged: modelView.currentModelData.speed = text
+        onTextChanged: if(modelView.currentModelData) modelView.currentModelData.speed = text
     }
     Label{
         text: "Time Distortion:"
@@ -36,8 +45,8 @@ ModelView{
         id:topTD
         Layout.preferredHeight: 25
         Layout.leftMargin: -10
-        checked: modelView.currentItem?modelView.currentModelData.timeDistortion.enabled:false
-        onCheckStateChanged: modelView.currentModelData.timeDistortion.enabled = checked
+        checked: modelView.currentModelData?modelView.currentModelData.timeDistortion.enabled:false
+        onCheckStateChanged: if(modelView.currentModelData) modelView.currentModelData.timeDistortion.enabled = checked
     }
     Label{
         Layout.leftMargin: 6
@@ -46,8 +55,8 @@ ModelView{
     TextInputField{
         Layout.fillWidth: true
         validator: DoubleValidator{}
-        text: modelView.currentItem?modelView.currentModelData.timeDistortion.intervall:""
-        onTextChanged: {if(modelView.currentItem!==null)modelView.currentModelData.timeDistortion.intervall = text;}
+        text: modelView.currentModelData ? modelView.currentModelData.timeDistortion.intervall:""
+        onTextChanged: {if(modelView.currentModelData!==null)modelView.currentModelData.timeDistortion.intervall = text;}
     }
     Label{
         Layout.leftMargin: 6
@@ -58,8 +67,8 @@ ModelView{
         Layout.rightMargin: 5
         id:endTD
         model:easingModel
-        currentIndex: modelView.currentItem?modelView.currentModelData.timeDistortion.distortionCurve.type:0
-        onCurrentIndexChanged: {if(modelView.currentItem!==null)modelView.currentModelData.timeDistortion.distortionCurve.type = currentIndex;}
+        currentIndex: modelView.currentModelData?modelView.currentModelData.timeDistortion.distortionCurve.type:0
+        onCurrentIndexChanged: {if(modelView.currentModelData!==null)modelView.currentModelData.timeDistortion.distortionCurve.type = currentIndex;}
     }
     Rectangle{
         anchors.top: topTD.top
@@ -133,7 +142,7 @@ ModelView{
 
             }
         }
-        model: modelView.currentItem?modelView.currentModelData.programs:null
+        model: modelView.currentModelData ? modelView.currentModelData.programs:null
         highlight: Rectangle{
             color: "blue"
             opacity: 0.7

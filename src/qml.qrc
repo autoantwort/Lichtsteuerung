@@ -60,5 +60,17 @@
         <file>qml/components/AskWhenRemovePopup.qml</file>
         <file>qml/FFTGraphView.qml</file>
         <file>qml/BarMapView.qml</file>
+        <file>icons/sort_order/sort-by-alphabet.svg</file>
+        <file>icons/sort_order/sort-by-alphabet_16px.png</file>
+        <file>icons/sort_order/sort-by-alphabet_24px.png</file>
+        <file>icons/sort_order/sort-by-alphabet_32px.png</file>
+        <file>icons/sort_order/sort-by-alphabet_64px.png</file>
+        <file>icons/sort_order/sort-by-alphabet_source</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order.svg</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order_16px.png</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order_24px.png</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order_32px.png</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order_64px.png</file>
+        <file>icons/sort_order/sort-reverse-alphabetical-order_source</file>
     </qresource>
 </RCC>

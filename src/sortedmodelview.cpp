@@ -1,18 +1,24 @@
 #include "sortedmodelview.h"
-
+#include <dmx/device.h>
 SortedModelVectorView::SortedModelVectorView(QObject *parent):QSortFilterProxyModel (parent)
 {
-
+    // Used by Modelvector
+    setSortRole(Qt::UserRole + 1);    
 }
 
 void SortedModelVectorView::setSortPropertyName(const QString &sortPropertyName){
     this->sortPropertyName.clear();
     sortPropertyNameAsStdStrings.clear();
     for(const auto & s : sortPropertyName.split(".")){
+        if(s.isEmpty())
+            continue;
         this->sortPropertyName.push_back(s);
         sortPropertyNameAsStdStrings.push_back(s.toStdString());
     }
-    sort(0);
+    invalidate();
+    if(!sortCalled){
+        sort();
+    }
 }
 
 QString SortedModelVectorView::getSortPropertyName() const{
@@ -33,10 +39,19 @@ inline QVariant getValue(QObject * start, const std::vector<std::string> names){
     return QVariant();
 }
 
+void SortedModelVectorView::setSortOrder(Qt::SortOrder order){
+    if(order != sortOrder){
+        sortOrder = order;
+        emit sortOrderChanged();
+        sort();
+    }
+}
+
 void SortedModelVectorView::sort(int column, Qt::SortOrder order){
     //check if we can sort
-    if(sortPropertyName.empty()){
-        qWarning("For a SortedModelVectorView no sortPropertyName is set!");
+    if(sortPropertyNameAsStdStrings.empty()){
+        QSortFilterProxyModel::sort(column,order);
+        sortCalled = true;
         return;
     }
     if(rowCount()<1)
@@ -49,8 +64,9 @@ void SortedModelVectorView::sort(int column, Qt::SortOrder order){
     if(auto p = value.value<QObject*>(); p != nullptr){
         if(getValue(p,sortPropertyNameAsStdStrings).isValid()){
             QSortFilterProxyModel::sort(column,order);
+            sortCalled = true;
         }else{
-            qWarning("For a SortedModelVectorView the sortPropertyName does not exists!");
+            qWarning() << "For a SortedModelVectorView the sortPropertyName does not exists : " << getSortPropertyNameAsString();
         }
     }else{
         qWarning("For a SortedModelVectorView the data for the current sortRole is not a QObject* !");
@@ -58,7 +74,22 @@ void SortedModelVectorView::sort(int column, Qt::SortOrder order){
 }
 
 bool SortedModelVectorView::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const{
+    if(sortPropertyNameAsStdStrings.empty()){
+        return source_left.row() < source_right.row();
+    }
     const auto left = getValue(source_left.data(sortRole()).value<QObject*>(),sortPropertyNameAsStdStrings);
     const auto right = getValue(source_right.data(sortRole()).value<QObject*>(),sortPropertyNameAsStdStrings);
     return left < right;
+}
+
+QString SortedModelVectorView::getSortPropertyNameAsString() const{
+    QString name;
+    for(const auto & s : sortPropertyName){
+        name += s;
+        name += ".";
+    }
+    if(name.isEmpty()){
+        return name;
+    }
+    return name.left(name.length()-1);
 }

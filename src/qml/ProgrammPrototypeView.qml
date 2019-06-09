@@ -13,7 +13,20 @@ ModelView{
     removeButton.text: "Remove Prototype"
     onAddClicked: dialog.visible = true
     onRemoveClicked: ModelManager.removeDmxProgramPrototype(remove);
-
+    sortModel: ListModel{
+        ListElement{
+            name: "Creation Date"
+            sortPropertyName: ""
+        }
+        ListElement{
+            name: "Name"
+            sortPropertyName: "name"
+        }
+        ListElement{
+            name: "Device Prototype"
+            sortPropertyName: "devicePrototype.name"
+        }
+    }
     ListView{
         clip:true
         Layout.column: 2
@@ -96,7 +109,7 @@ ModelView{
 
         }
 
-        model: modelView.currentModelData.channelProgramms
+        model: modelView.currentModelData ? modelView.currentModelData.channelProgramms : null
     }
 
 
