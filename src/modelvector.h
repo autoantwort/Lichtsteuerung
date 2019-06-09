@@ -117,7 +117,7 @@ public:
         return r;
     }
     typename std::vector<Type>::iterator erase(typename std::vector<Type>::const_iterator i){
-        const auto pos = i-model.begin();
+        const auto pos = std::distance(model.cbegin(),i);
         beginRemoveRows(QModelIndex(),pos,pos);
         const auto result = model.erase(i);
         endRemoveRows();
@@ -141,9 +141,11 @@ public:
 
     template<typename Predicate>
     void remove_if(Predicate p){
-        for (auto i = cbegin();i!=cend();++i) {
+        for (auto i = cbegin();i!=cend();) {
             if(p(*i)){
                 i = erase(i);
+            }else{
+                ++i;
             }
         }
     }
