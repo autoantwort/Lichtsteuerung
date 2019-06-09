@@ -19,18 +19,12 @@ void DevicePrototype::removeChannels(int newMaxIndex){
 void DevicePrototype::addChannel(int channel, QString name, QString description){
     // dummy Channels einfügen
     if (channel>=getNumberOfChannels()) {
-        channels.beginPushBack(getNumberOfChannels()-channel);
         for (int i = getNumberOfChannels(); i < channel; ++i) {
             channels.push_back(std::make_unique<Channel>(i));
             emit channelAdded(channels.getVector().back().get());
-            QJsonObject o;
-            channels.back()->writeJsonObject(o);
         }        
-        channels.getVector().push_back(std::make_unique<Channel>(channel,name,description));
-        channels.endPushBack();
+        channels.push_back(std::make_unique<Channel>(channel,name,description));
         emit channelAdded(channels.getVector().back().get());
-        QJsonObject o;
-        channels.getVector().back()->writeJsonObject(o);
     }else{
         // eigenschaften setzten
         channels.getVector()[channel]->setName(name);

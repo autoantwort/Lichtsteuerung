@@ -27,12 +27,11 @@ Item{
                 anchors.left: parent.left
                 anchors.right:  parent.right
                 anchors.bottom: parent.bottom
-                property var currentModelData : currentItem.itemData
+                property var currentModelData : currentItem ? currentItem.itemData : null
                 id:listView
                 delegate: ItemDelegate{
                     property var itemData : modelData
                     width: parent.width
-                    height: 60
                     text: modelData.name +  " (" + moduleTypeModel[modelData.type] + ')'
                     onClicked: {
                         listView.currentIndex = index;
@@ -54,7 +53,78 @@ Item{
                     color: "blue"
                     opacity: 0.7
                 }
-                model: modulesModel
+                model: SortedModelVectorView{
+                    id: sortedView
+                    sourceModel: modulesModel
+                }
+                headerPositioning: ListView.OverlayHeader
+                Component{
+                    id: header
+                    Pane {
+                        Component.onCompleted: {
+                            background.radius = 0;
+                        }
+
+                        width: listView.width
+                        padding: 6
+                        z: 2
+                        Material.elevation: 4
+                        RowLayout {
+                            anchors.fill: parent
+                            spacing: 6
+                            Label{
+                                text: "Sort by:"
+                            }
+                            ComboBox{
+                                id: sortCommboBox
+                                Layout.fillWidth: true
+                                textRole: "name"
+                                model: ListModel{
+                                    ListElement{
+                                        name: "Creation Date"
+                                        sortPropertyName: ""
+                                    }
+                                    ListElement{
+                                        name: "Name"
+                                        sortPropertyName: "name"
+                                    }
+                                    ListElement{
+                                        name: "Type"
+                                        sortPropertyName: "type"
+                                    }
+                                    ListElement{
+                                        name: "Spotify Responder"
+                                        sortPropertyName: "spotifyResponder"
+                                    }
+                                    ListElement{
+                                        name: "Input Type"
+                                        sortPropertyName: "inputType"
+                                    }
+                                    ListElement{
+                                        name: "Output Type"
+                                        sortPropertyName: "outputType"
+                                    }
+                                }
+                                property bool _firstTime: true
+                                onCurrentIndexChanged: {
+                                    if(_firstTime){ // if we dont do that, we geht a weird bug that said we cant load a component (testet 5.12.3)
+                                        _firstTime = false;
+                                        return;
+                                    }
+                                    listView.model.sortPropertyName = model.get(currentIndex).sortPropertyName;
+                                }
+                            }
+                            Button{
+                                icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
+                                icon.color: Qt.rgba(.25,.25,.25,1)
+                                onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
+                                Layout.preferredWidth: 40
+                            }
+                        }
+                    }
+                }
+
+                header: header
                 Menu{
                     id:duplicateMenu
                     property int index;
@@ -105,9 +175,9 @@ Item{
         }
         TextInputField{
             Layout.fillWidth: true
-            enabled: listView.currentIndex !== -1
-            text: listView.currentItem ? listView.currentModelData.name : "Select one Module"
-            onTextChanged: if(listView.currentItem)listView.currentModelData.name = text;
+            enabled: listView.currentModelData
+            text: listView.currentModelData ? listView.currentModelData.name : "Select one Module"
+            onTextChanged: if(listView.currentModelData)listView.currentModelData.name = text;
             validator: RegExpValidator{
                 regExp: /[^\s]+/
             }
@@ -118,9 +188,9 @@ Item{
         }
         TextInputField{
             Layout.fillWidth: true
-            enabled: listView.currentIndex !== -1
-            text: listView.currentItem ? listView.currentModelData.description : "Select one Module"
-            onTextChanged: if(listView.currentItem)listView.currentModelData.description = text;
+            enabled: listView.currentModelData
+            text: listView.currentModelData ? listView.currentModelData.description : "Select one Module"
+            onTextChanged: if(listView.currentModelData)listView.currentModelData.description = text;
         }
 
         Label{
@@ -130,7 +200,8 @@ Item{
             ComboBox{
                 model: moduleTypeModel
                 Layout.preferredWidth: implicitWidth+5
-                currentIndex: listView.currentModelData.type
+                currentIndex: listView.currentModelData ? listView.currentModelData.type : 0;
+                enabled: listView.currentModelData
                 onCurrentIndexChanged: {
                     if(listView.currentItem)listView.currentModelData.type = currentIndex;
                     if(currentIndex == 0/*Program*/ || currentIndex == 1/*LoopProgram*/){
@@ -149,7 +220,8 @@ Item{
             ComboBox{
                 id: inputType
                 model: valueTypeList
-                currentIndex: listView.currentModelData.inputType
+                currentIndex: listView.currentModelData ? listView.currentModelData.inputType : 0;
+                enabled: listView.currentModelData
                 Layout.preferredWidth: implicitWidth+5
                 onCurrentIndexChanged: if(listView.currentItem)listView.currentModelData.inputType = currentIndex;
             }
@@ -159,7 +231,8 @@ Item{
             ComboBox{
                 id:outputType
                 model: valueTypeList
-                currentIndex: listView.currentModelData.outputType
+                currentIndex: listView.currentModelData ? listView.currentModelData.outputType : 0
+                enabled: listView.currentModelData;
                 Layout.preferredWidth: implicitWidth+5
                 onCurrentIndexChanged: if(listView.currentItem)listView.currentModelData.outputType = currentIndex;
             }
@@ -173,12 +246,13 @@ Item{
             Layout.fillWidth: true
             anchors.bottomMargin: -20
             clip: true
-            Layout.preferredHeight: Math.max(50,Math.min(model.rowCount() * 20,120))
+            enabled: listView.currentModelData
+            Layout.preferredHeight: model ? Math.max(50,Math.min(model.rowCount() * 20,120)) : 50
             /*onModelChanged:{ for (var prop in model) {
                                 print(prop += " (" + typeof(model[prop]) + ") = " + model[prop]);
                             }
             }*/
-            model: listView.currentModelData.properties
+            model: listView.currentModelData ? listView.currentModelData.properties : null
             maximumFlickVelocity: 400
             delegate: ItemDelegate{
                 id:delegate
@@ -254,7 +328,8 @@ Item{
             text: "Spotify responder:"
         }
         CheckBox{
-            checked: listView.currentModelData.spotifyResponder;
+            checked: listView.currentModelData ? listView.currentModelData.spotifyResponder : false;
+            enabled: listView.currentModelData
             onCheckStateChanged: listView.currentModelData.spotifyResponder = checked;
             Layout.preferredHeight: 29
         }
@@ -268,14 +343,15 @@ Item{
             Layout.columnSpan: 2
             Layout.fillHeight: true
             Layout.fillWidth: true
-            onHoveredChanged: if(!hovered)listView.currentModelData.code = codeEditor.text
+            onHoveredChanged: if(!hovered && listView.currentModelData)listView.currentModelData.code = codeEditor.text
             TextArea{
                 font.family: "Liberation Mono"
                 font.pointSize: 10
                 tabStopDistance: 16
                 id: codeEditor
                 selectByMouse: true
-                text: listView.currentModelData.code
+                text: listView.currentModelData ? listView.currentModelData.code : "No Module selected"
+                enabled: listView.currentModelData
                 onCursorPositionChanged: {
                     if(codeCompletionPopup.visible){
                         codeEditorHelper.updateCodeCompletionModel(codeEditor.cursorPosition);
@@ -309,7 +385,7 @@ Item{
                     }else{
                         event.accepted = false;
                     }
-                }                
+                }
                 Keys.onReturnPressed: {
                     if(codeCompletionPopup.visible){
                         event.accepted = true;
@@ -342,7 +418,7 @@ Item{
 
                 Popup{
                     padding: 0
-                    id:codeCompletionPopup                    
+                    id:codeCompletionPopup
                     x: codeEditor.cursorRectangle.x
                     y: codeEditor.cursorRectangle.y + codeEditor.cursorRectangle.height
                     width: contentItem.implicitWidth
@@ -356,7 +432,7 @@ Item{
                     contentItem: ListView{
                         clip: true
                         id: codeCompletionListView
-                        model: codeEditorHelper.codeCompletions                        
+                        model: codeEditorHelper.codeCompletions
                         delegate: ItemDelegate {
                             property var modelData: modelData
                             text: modelData.completion.replace(/\n*\t*/g,"")
@@ -410,7 +486,7 @@ Item{
                                 codeEditor.insert(codeEditor.cursorPosition,completion.substring(codeEditor.cursorPosition-start-1));
                             }
                         }
-                    }                    
+                    }
                 }
 
                 CodeEditorHelper{
@@ -499,8 +575,8 @@ Item{
                     Layout.fillWidth: true
                     onCurrentIndexChanged: {
                         // "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
-                            minVal.enabled = currentIndex>=0 && currentIndex <=3;
-                            maxVal.enabled = currentIndex>=0 && currentIndex <=3;
+                        minVal.enabled = currentIndex>=0 && currentIndex <=3;
+                        maxVal.enabled = currentIndex>=0 && currentIndex <=3;
                         defaultVal.enabled = currentIndex>=0 && currentIndex <=4;
                     }
                 }

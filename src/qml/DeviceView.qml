@@ -10,7 +10,8 @@ ModelView{
     model: deviceModel
     nameFunction: function(modelData){return modelData.name + ", Channel: " + modelData.startDMXChannel + (modelData.prototype.numberOfChannels > 1 ? " - " + (modelData.startDMXChannel + modelData.prototype.numberOfChannels - 1) : "");}
     rows: 7
-    onAddClicked:dialog.visible = true
+    onAddClicked: dialog.visible = true
+    onRemoveClicked: ModelManager.removeDmxDevice(remove);
     addButtonEnabled: UserManagment.currentUser.havePermission(Permission.ADD_DEVICE)
     removeButtonEnabled: UserManagment.currentUser.havePermission(Permission.REMOVE_DEVICE)
     nameInputEnabled: UserManagment.currentUser.havePermission(Permission.CHANGE_NAME)
@@ -18,6 +19,24 @@ ModelView{
     addButton.text: "Add Device"
     removeButton.text: "Remove Device"
     property var placeOnMapCallback
+    sortModel: ListModel{
+        ListElement{
+            name: "Creation Date"
+            sortPropertyName: ""
+        }
+        ListElement{
+            name: "DMX Channel"
+            sortPropertyName: "startDMXChannel"
+        }
+        ListElement{
+            name: "Name"
+            sortPropertyName: "name"
+        }
+        ListElement{
+            name: "Prototype Name"
+            sortPropertyName: "prototype.name"
+        }
+    }
 
     Text{
         Layout.row: 2
@@ -30,12 +49,12 @@ ModelView{
         Layout.row: 2
         Layout.column: 3
         enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DEVICE_DMX_CHANNEL);
-        text: parent.currentModelData.startDMXChannel
+        text: parent.currentModelData ? parent.currentModelData.startDMXChannel : ""
         validator: IntValidator{
             bottom: 0
             top:512
         }
-        onTextChanged: parent.currentModelData.startDMXChannel = text.length?text:0
+        onTextChanged: if(parent.currentModelData) parent.currentModelData.startDMXChannel = text.length?text:0
     }
     Text{
         Layout.row: 3
@@ -47,7 +66,7 @@ ModelView{
     Text{
         Layout.row: 3
         Layout.column: 3
-        text:parent.currentModelData.prototype.name
+        text: parent.currentModelData ? parent.currentModelData.prototype.name : ""
         font.pixelSize: 15
         TextUnderline{
             extendetWidth:1
@@ -71,9 +90,9 @@ ModelView{
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 40
-            text:deviceModelView.currentModelData.position.x
+            text:deviceModelView.currentModelData ? deviceModelView.currentModelData.position.x : ""
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentModelData.position.x = text.length?text:0
+            onTextChanged: if(deviceModelView.currentModelData) deviceModelView.currentModelData.position.x = text.length?text:0
         }
         Text{
             Layout.leftMargin: 10
@@ -83,12 +102,12 @@ ModelView{
         TextInputField{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             Layout.minimumWidth: 40
-            text: deviceModelView.currentItem ? deviceModelView.currentModelData.position.y : ""
+            text: deviceModelView.currentModelData ? deviceModelView.currentModelData.position.y : ""
             validator: IntValidator{}
-            onTextChanged: deviceModelView.currentModelData.position.y = text.length?text:0
+            onTextChanged: if(deviceModelView.currentModelData) deviceModelView.currentModelData.position.y = text.length?text:0
         }
         Button{
-            visible: deviceModelView.currentItem ? deviceModelView.placeOnMapCallback && deviceModelView.currentModelData.position.x === -1 || deviceModelView.currentModelData.position.x === -1 : false
+            visible: deviceModelView.currentModelData ? deviceModelView.placeOnMapCallback && deviceModelView.currentModelData.position.x === -1 || deviceModelView.currentModelData.position.x === -1 : false
             text: "Place on map"
             onClicked: deviceModelView.placeOnMapCallback(deviceModelView.currentModelData)
             height: implicitHeight - 15

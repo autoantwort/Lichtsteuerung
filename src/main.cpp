@@ -44,6 +44,7 @@
 #include "test/testsampleclass.h"
 #include "spotify/spotify.h"
 #include "modules/dmxconsumer.h"
+#include "sortedmodelview.h"
 #include "updater.h"
 
 int main(int argc, char *argv[])
@@ -116,6 +117,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
     qmlRegisterType<CodeEditorHelper>("custom.licht",1,0,"CodeEditorHelper");
     qmlRegisterType<ProgramBlockEditor>("custom.licht",1,0,"ProgramBlockEditor");
+    qmlRegisterType<SortedModelVectorView>("custom.licht",1,0,"SortedModelVectorView");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qRegisterMetaType<UserManagment::Permission>("Permission");
