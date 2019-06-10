@@ -1,9 +1,9 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
 import custom.licht 1.0
-import QtQml 2.11
+import QtQml 2.12
 import ".."
 import "../components"
 
@@ -183,6 +183,28 @@ ControlItem{
             }
 
             ComboBox{
+                hoverEnabled: true
+                id: valueComboBox
+                onHoveredChanged: hovered ? showInfoPopup.visible = hovered : hideTooltipTimer.start()
+                ToolTip{
+                    Timer{
+                        id: hideTooltipTimer
+                        interval: 500
+                        onTriggered: showInfoPopup.visible = false;
+                        repeat: false;
+                    }
+                    id: showInfoPopup
+                    text: "The value of a DMX channel, e.g. the brightness of a lamp, can be determined in two ways. Either a default value is set, then programs run and then the result gets mapped to a different range. Alternatively, the value can simply be set to a specific value that overwrites alternative 1. 'Use value as default' describes alternative 1, 'Override with value' alternative 2."
+                    delay: 1000
+                    Component.onCompleted: contentItem.wrapMode = Label.Wrap
+                }
+                Component.onCompleted: {
+                    valueComboBox.popup.onOpenedChanged.connect( () => {
+                                                                    hideTooltipTimer.stop();
+                                                                    showInfoPopup.visible = valueComboBox.popup.opened;
+                                                                });
+                }
+
                 enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MIN_MAX_MAPPING);
                 model: ["Use value as default","Override with value"]
                 currentIndex: controlData?controlData.override:0
