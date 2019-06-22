@@ -46,13 +46,69 @@
 #include "modules/dmxconsumer.h"
 #include "sortedmodelview.h"
 #include "updater.h"
+#include "exchndl.h"
+#include <QNetworkReply>
 
 int main(int argc, char *argv[])
 {
+#ifdef DrMinGW
+    ExcHndlInit();
+    auto path = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation);
+    path += QLatin1String("/Lichtsteuerung");
+    QDir dir(path);
+    if(!dir.mkpath(path)){
+        qWarning() << "Error creating dirs : " << path;
+    }
+    path += QLatin1String("/crash_dump_");
+    path += QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss"));
+    path += QLatin1String(".txt");
+    qDebug() << "The crash report file is : " << path;
+    ExcHndlSetLogFileNameA(path.toStdString().c_str());
+#endif
+
     Updater updater;
     QObject::connect(&updater,&Updater::needUpdate,[&](){
         updater.update();
     });
+#ifdef DrMinGW
+    // send crash reports
+    auto files = dir.entryInfoList(QDir::Filter::Files);
+    for(auto & file : files){
+        if(file.fileName().startsWith(QLatin1String("crash_dump"))){
+            auto newFileName = file.absolutePath() + "/sended_" +file.fileName();
+            if(!QFile::rename(file.absoluteFilePath(),newFileName)){
+                qWarning() << "Failed to rename file from " << file.absoluteFilePath() << " to " << newFileName;
+                continue;
+            }
+            auto upload = [newFileName,&updater](){
+                // we only want to report Bugs for new versions
+                if(updater.getState() == Updater::UpdaterState::NoUpdateAvailible){
+                    QFile file(newFileName);
+                    if(!file.open(QIODevice::ReadOnly)){
+                        qWarning() <<  "Failed to open file " << newFileName;
+                        return;
+                    }
+                    auto request = QNetworkRequest(QUrl(QStringLiteral("https://orga.symposion.hilton.rwth-aachen.de/send_crash_report")));
+                    request.setHeader(QNetworkRequest::KnownHeaders::ContentTypeHeader,"text/plain");
+                    auto response = updater.getQNetworkAccessManager()->post(request,file.readAll());
+                    QObject::connect(response,&QNetworkReply::finished,[=](){
+                        if(response->error() == QNetworkReply::NoError){
+                            qDebug() << "crash report erfolgreich hochlgeladen";
+                        }else{
+                            qWarning() << "Fehler beim hochladen des crash reports : " << response->errorString();
+                        }
+                        response->deleteLater();
+                    });
+                }
+            };
+            if(updater.getState() == Updater::UpdaterState::NotChecked){
+                QObject::connect(&updater,&Updater::stateChanged,upload);
+            }else{
+                upload();
+            }
+        }
+    }
+#endif
     /*Test::TestModulSystem testModulSystem;
     testModulSystem.runTest();
     return 0;*/

@@ -1,6 +1,6 @@
-QT += qml quick networkauth
+QT += qml quick networkauth network
 
-CONFIG += c++1z
+CONFIG += c++1z force_debug_info
 
 TARGET = Lichtsteuerung
 
@@ -235,6 +235,16 @@ win32-g++{
         LIBS += -L$$PWD/'lib/AudioFFT/dll/win64' -lAudioFFT
     }
     INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
+}
+
+win32-g++{
+    #DrMinGW
+    #LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    !contains(QT_ARCH, i386){ # 64 bit
+        LIBS += -L$$PWD/'lib/DrMinGW/bin/' -lexchndl
+        INCLUDEPATH += $$PWD/'lib/DrMinGW/include'
+        DEFINES += DrMinGW
+    }
 }
 
 win32-msvc{

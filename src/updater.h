@@ -15,7 +15,10 @@ class Updater : public QObject{
     QString versionDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=version");
     QString deployDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=deploy");
     std::unique_ptr<QNetworkAccessManager> http = std::make_unique<QNetworkAccessManager>();
-    enum class UpdaterState {IDE_ENV, NotChecked, NoUpdateAvailible, UpdateAvailible, DownloadingUpdate, UpdateDownloaded, DownloadUpdateFailed} state = UpdaterState::NotChecked;
+public:
+    enum class UpdaterState {IDE_ENV, NotChecked, NoUpdateAvailible, UpdateAvailible, DownloadingUpdate, UpdateDownloaded, DownloadUpdateFailed};
+private:
+    UpdaterState state = UpdaterState::NotChecked;
     int progress = -1;
     QString deployPath;
 public:
@@ -28,9 +31,11 @@ public:
      */
     void runUpdateInstaller();
     int getUpdateProgress()const{return progress;}
+    QNetworkAccessManager * getQNetworkAccessManager(){return http.get();}
 signals:
     void needUpdate();
     void updateProgressChanged();
+    void stateChanged();
 };
 
 #endif // UPDATER_H
