@@ -40,6 +40,14 @@ bool UserManagment::removeUser(User *user, const QString &password){
     return false;
 }
 
+bool UserManagment::removeUser(User *user){
+    if (currentUser->havePermission(Admin) && user != currentUser) {
+        users.remove_if([=](const auto & p){return p.get() == user;});
+        return true;
+    }
+    return false;
+}
+
 bool UserManagment::changeUserName(User *user, const QString &newName, const QString &password){
     const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
     if(user->password==hash){

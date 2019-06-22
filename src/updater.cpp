@@ -20,6 +20,7 @@ QByteArray getFileContent(const QString & filename){
 Updater::Updater(){
     if(!QFile::exists(QDir::currentPath() + "/Lichtsteuerung.exe")){
         state = UpdaterState::IDE_ENV;
+        emit stateChanged();
     }
 }
 
@@ -30,6 +31,7 @@ void Updater::checkForUpdate(){
     if(!QFile::exists(VERSION_FILE_NAME)){
         qDebug() << "version file does not exists in application folder";
         state = UpdaterState::UpdateAvailible;
+        emit stateChanged();
         emit needUpdate();
         return;
     }
@@ -52,18 +54,22 @@ void Updater::checkForUpdate(){
                 if(!success){
                     qDebug() << "not successful when unzipping version.zip";
                     state = UpdaterState::NoUpdateAvailible;
+                    emit stateChanged();
                     return;
                 }
                 if(!QFile::exists(version.absolutePath() + "/" + VERSION_FILE_NAME)){
                     qDebug() << "version file does not exists in version.zip";
                     state = UpdaterState::NoUpdateAvailible;
+                    emit stateChanged();
                     return;
                 }
                 if(getFileContent(VERSION_FILE_NAME) != getFileContent(version.absolutePath() + "/" + VERSION_FILE_NAME)){
                     state = UpdaterState::UpdateAvailible;
+                    emit stateChanged();
                     emit needUpdate();
                 }else{
                     state = UpdaterState::NoUpdateAvailible;
+                    emit stateChanged();
                 }
             });
         });
@@ -76,11 +82,13 @@ void Updater::update(){
         return;
     }
     state = UpdaterState::DownloadingUpdate;
+    emit stateChanged();
     auto redirect = http->get(QNetworkRequest(QUrl(deployDownloadURL)));
     QObject::connect(redirect,static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),[this,redirect](auto error){
         qWarning() << "Error while redirecting to deploy.zip! " << error << redirect->errorString();
         redirect->deleteLater();
         state = UpdaterState::DownloadUpdateFailed;
+        emit stateChanged();
     });
     QObject::connect(redirect,&QNetworkReply::finished,[this,redirect](){
         redirect->deleteLater();
@@ -98,6 +106,7 @@ void Updater::update(){
             deploy->deleteLater();
             response->deleteLater();
             state = UpdaterState::DownloadUpdateFailed;
+            emit stateChanged();
         });
         QObject::connect(response,&QNetworkReply::readyRead,[response,deploy](){
             deploy->write(response->readAll());
@@ -116,6 +125,7 @@ void Updater::update(){
                 if(!success){
                     qDebug() << "not successful when unzipping deploy.zip";
                     state = UpdaterState::DownloadUpdateFailed;
+                    emit stateChanged();
                     return;
                 }
                 deployPath = QFileInfo(*deploy).absolutePath() + "/" + NAME_OF_DEPLOY_FOLDER;
@@ -125,12 +135,14 @@ void Updater::update(){
                     if(!QFile::remove(targetInstallerPath)){
                         qWarning() << "Failed to remove old Windows Installer";
                         state = UpdaterState::DownloadUpdateFailed;
+                        emit stateChanged();
                         return;
                     }
                 }
                 if(!QFile::rename(deployPath + "/" + WINDOWS_INSTALLER_NAME,targetInstallerPath)){
                     qWarning() << "Failed to rename Windows Installer";
                     state = UpdaterState::DownloadUpdateFailed;
+                    emit stateChanged();
                     return;
                 }
                 // all important files like QTJSONFile.json
@@ -139,6 +151,7 @@ void Updater::update(){
                     QFile::copy(e.absoluteFilePath() , deployPath + "/" + e.fileName());
                 }
                 state = UpdaterState::UpdateDownloaded;
+                emit stateChanged();
             });
         });
     });

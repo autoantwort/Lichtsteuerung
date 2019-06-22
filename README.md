@@ -22,6 +22,9 @@ Features:
      * Qt Network Authorization (egal welches OS)
 5. Drücke _Next_ und beende die Installation. 
 
+## Docker/GitlabCI/Cross-Compilation 
+Siehe [hier](Docker.md).
+
 ## Abhängigkeiten 
 Die Lichtsteuerung hängt von ein paar anderen Projekten ab. 
 #### [Boost](https://www.boost.org/)

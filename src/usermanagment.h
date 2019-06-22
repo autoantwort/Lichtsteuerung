@@ -72,6 +72,12 @@ public:
      */
     Q_INVOKABLE bool removeUser(User * user,const QString &password);
     /**
+     * @brief removeUser Removes an user, only successfull if the current user is an admin
+     * @param user the user to remove, not the current user
+     * @return  true for success, false for failure
+     */
+    Q_INVOKABLE bool removeUser(User * user);
+    /**
      * @brief changeUserName change the username of a user
      * @param user the User where to change the username
      * @param newName the new Username

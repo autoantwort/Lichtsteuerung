@@ -33,7 +33,13 @@ Item{
                     height: parent.height
                     //SwipeDelegate.onClicked:
                     background: Rectangle {
-                        color: deleteLabel.SwipeDelegate.pressed ? Qt.darker("tomato", 1.1) : "tomato"
+                        color: deleteMouseArea.pressed ? Qt.darker("tomato", 1.1) : "tomato"
+                    }
+                    MouseArea{
+                        id: deleteMouseArea
+                        anchors.fill: parent
+                        acceptedButtons: Qt.LeftButton
+                        onClicked: askToDeletePopup.deleteUser(modelData)
                     }
                 }
                 Timer{
@@ -298,7 +304,16 @@ Item{
         }
     }
 
-
+    AskWhenRemovePopup{
+        id: askToDeletePopup
+        property var _user
+        text: "Do you really want to delete the user " + (_user ? '"' + _user.name + '"' : "error")
+        function deleteUser(user){
+            _user = user;
+            open();
+        }
+        onYesClicked: UserManagment.removeUser(_user);
+    }
 
     Dialog{
         modality: Qt.WindowModal
