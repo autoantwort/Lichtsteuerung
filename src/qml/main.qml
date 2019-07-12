@@ -61,7 +61,6 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Control Pane")
-                Component.onCompleted: tabBar.setCurrentIndex(4)
             }
             VerticalTabButton {
                 text: qsTr("Map View")
@@ -87,6 +86,7 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Colorplot")
+                Component.onCompleted: tabBar.setCurrentIndex(12)
             }
         }
 
