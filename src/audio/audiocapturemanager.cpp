@@ -12,8 +12,6 @@ AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
 
 void AudioCaptureManager::initCallback(int channels){
     this->channels = channels;
-    if(GUI::Colorplot::getLast())
-        GUI::Colorplot::getLast()->setBlockSize(512);
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){
@@ -42,11 +40,6 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     if(GUI::Graph::getLast())
         GUI::Graph::getLast()->showData(fftoutput.data(),fftoutput.size());
     if(GUI::Colorplot::getLast()){
-        GUI::Colorplot::getLast()->startBlock();
-        for (int i = 0; i < 512; ++i) {
-            GUI::Colorplot::getLast()->pushDataToBlock(fftoutput.at(i));
-        }
-        GUI::Colorplot::getLast()->endBlock();
     }
     if(GUI::Oscillogram::getLast())
         GUI::Oscillogram::getLast()->showData(sample.data(),sample.size());

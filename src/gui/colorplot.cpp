@@ -5,7 +5,7 @@
 
 namespace GUI{
 
-Colorplot::Colorplot():haveNewData(false)
+Colorplot::Colorplot()
 {
 setFlag(ItemHasContents);
 lastCreated = this;
