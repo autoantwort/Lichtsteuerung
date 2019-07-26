@@ -107,6 +107,7 @@ ModelView{
             onTextChanged: if(deviceModelView.currentModelData) deviceModelView.currentModelData.position.y = text.length?text:0
         }
         Button{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
             visible: deviceModelView.currentModelData ? deviceModelView.placeOnMapCallback && deviceModelView.currentModelData.position.x === -1 || deviceModelView.currentModelData.position.x === -1 : false
             text: "Place on map"
             onClicked: deviceModelView.placeOnMapCallback(deviceModelView.currentModelData)

@@ -153,7 +153,7 @@ ColumnLayout{
                                     drag.minimumY: 0
                                     drag.maximumX: map.width - 5
                                     drag.maximumY: map.height - 5
-                                    drag.threshold: 0
+                                    drag.threshold: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION) ? 0 : 999999; // "disable dragging"
                                     onReleased: {
                                         // If we dont use variables the y coordinate gets resetted after setting modelData.position.x
                                         var newX = parent.x + 2 * parent.selectScale - map.translation.x;
@@ -230,6 +230,7 @@ ColumnLayout{
                     text:"x:"
                 }
                 TextInputField{
+                    enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
                     Layout.minimumWidth: 50
                     text: deviceInfo.device ? deviceInfo.device.position.x : ""
                     validator: IntValidator{}
@@ -240,6 +241,7 @@ ColumnLayout{
                     text:"y:"
                 }
                 TextInputField{
+                    enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_POSITION);
                     text: deviceInfo.device ? deviceInfo.device.position.y : ""
                     validator: IntValidator{}
                     onTextChanged:if(deviceInfo.device) deviceInfo.device.position.y = text.length?text:-1
