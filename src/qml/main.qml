@@ -75,9 +75,11 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Modules")
+                enabled: UserManagment.currentUser.havePermission(Permission.MODULES_TAB);
             }
             VerticalTabButton {
                 text: qsTr("Module\nPrograms")
+                enabled: UserManagment.currentUser.havePermission(Permission.MODULE_PROGRAMS_TAB);
             }
             VerticalTabButton {
                 text: qsTr("Graph")
@@ -128,9 +130,13 @@ ApplicationWindow {
 
             SettingsView{}
 
-            ModuleView{}
+            ModuleView{
+                enabled: UserManagment.currentUser.havePermission(Permission.MODULES_TAB);
+            }
 
-            ModuleProgramView{}
+            ModuleProgramView{
+                enabled: UserManagment.currentUser.havePermission(Permission.MODULE_PROGRAMS_TAB);
+            }
 
             FFTGraphView{}
 
