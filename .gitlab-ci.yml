@@ -42,7 +42,7 @@ deploy:
     - cp -r src/modules windows-release-5.13.0/modulesHeader
     - echo "includePath=modulesHeader" >> windows-release-5.13.0/settings.ini
 #   - echo "moduleDirPath=modules" >> windows-release-5.13.0/settings.ini
-    - cp version.txt windows-release-5.12.3
+    - cp version.txt windows-release-5.13.0
   artifacts:
     paths:
       - windows-release-5.13.0
