@@ -1,7 +1,8 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_12_3:latest
+image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_13_0:latest
 
 stages:
   - build
+  - version
   - deploy
 
 build:
@@ -15,7 +16,20 @@ build:
   artifacts:
     paths:
       - build/release/Lichtsteuerung.exe
- 
+
+# we use this version file to check if a new version exists 
+version:
+  stage: version
+  only:
+    refs:
+      - windows-release
+  script:
+    - echo $(git rev-parse --short HEAD) > version.txt
+  artifacts:
+    name: version
+    paths:
+      - version.txt
+
 
 deploy:
   stage: deploy
@@ -23,11 +37,12 @@ deploy:
     refs:
       - windows-release
   script: 
-    - cp build/release/Lichtsteuerung.exe windows-release-5.12.3
-    - mkdir -p windows-release-5.12.3/modules/include
-    - cp -r src/modules windows-release-5.12.3/modules/include
-    - echo "includePath=modules/include" >> windows-release-5.12.3/settings.ini
-    - echo "moduleDirPath=modules" >> windows-release-5.12.3/settings.ini
+    - cp build/release/Lichtsteuerung.exe windows-release-5.13.0
+    - mkdir -p windows-release-5.13.0/modulesHeader
+    - cp -r src/modules windows-release-5.13.0/modulesHeader
+    - echo "includePath=modulesHeader" >> windows-release-5.13.0/settings.ini
+#   - echo "moduleDirPath=modules" >> windows-release-5.13.0/settings.ini
+    - cp version.txt windows-release-5.12.3
   artifacts:
     paths:
-      - windows-release-5.12.3
+      - windows-release-5.13.0
