@@ -64,7 +64,10 @@ ControlItemTemplate{
             onEntered: settings.rotation=90
             onExited: settings.rotation=0
             onClicked: {
-                var pos = mapToItem(parent.parent,mouse.x,mouse.y);
+                var pos = mapToItem(item.parent,mouse.x,mouse.y);
+                // do not move the popup out of the viewport
+                pos.x = Math.min(pos.x,item.parent.width-popup.width-5);
+                pos = item.mapFromItem(item.parent,pos.x,pos.y);
                 popup.x = pos.x;
                 popup.y = pos.y;
                 popup.open();
