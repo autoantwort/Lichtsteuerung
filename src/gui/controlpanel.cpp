@@ -4,6 +4,7 @@
 #include <QJsonArray>
 #include <exception>
 #include <QQmlContext>
+#include "errornotifier.h"
 
 namespace GUI{
 
@@ -54,14 +55,19 @@ void ControlPanel::loadFromJsonObject(const QJsonObject &o){
     const auto array = o["ControlItems"].toArray();
     for(const auto o_ : array){
         const auto o = o_.toObject();
-        if(o["type"].toInt()==ControlItemData::PROGRAMM){
-            createControlItem(programm,new ProgrammControlItemData(o));
-        }else if(o["type"].toInt()==ControlItemData::SWITCH_GROUP){
-            createControlItem(switchGroup,new SwitchGroupControlItemData(o));
-        }else if(o["type"].toInt()==ControlItemData::DIMMER_GROUP){
-            createControlItem(dimmerGroup,new DimmerGroupControlItemData(o));
-        }else if(o["type"].toInt()==ControlItemData::PROGRAM_BLOCK){
-            createControlItem(programBlock,new ProgramBlockControlItemData(o));
+        try {
+            if(o["type"].toInt()==ControlItemData::PROGRAMM){
+                createControlItem(programm,new ProgrammControlItemData(o));
+            }else if(o["type"].toInt()==ControlItemData::SWITCH_GROUP){
+                createControlItem(switchGroup,new SwitchGroupControlItemData(o));
+            }else if(o["type"].toInt()==ControlItemData::DIMMER_GROUP){
+                createControlItem(dimmerGroup,new DimmerGroupControlItemData(o));
+            }else if(o["type"].toInt()==ControlItemData::PROGRAM_BLOCK){
+                createControlItem(programBlock,new ProgramBlockControlItemData(o));
+            }
+        } catch (const std::runtime_error &e) {
+            const auto typeNames = {"Program","SwitchGroup","DimmerGroup","ProgramBlock"};
+            ErrorNotifier::showError(QString("Error while creating a ControlItem of Type ") + typeNames.begin()[o["type"].toInt()] + "\nCause: " + e.what());
         }
     }
 }
