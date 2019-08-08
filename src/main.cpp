@@ -46,8 +46,11 @@
 #include "modules/dmxconsumer.h"
 #include "sortedmodelview.h"
 #include "updater.h"
+
+#ifdef DrMinGW
 #include "exchndl.h"
 #include <QNetworkReply>
+#endif
 
 int main(int argc, char *argv[])
 {

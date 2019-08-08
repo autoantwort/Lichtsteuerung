@@ -343,7 +343,7 @@ namespace Modules {
     public:
         virtual QVariant data(const QModelIndex &index, int role) const override{
             auto res = ModelVector<std::shared_ptr<ProgramBlock>>::data(index,role);
-            if(res.isValid() && role == Qt::DisplayRole){
+            if(res.isValid() && res.type() != QVariant::String && role == Qt::DisplayRole){
                 return res.value<ProgramBlock*>()->getName();
             }
             return res;
