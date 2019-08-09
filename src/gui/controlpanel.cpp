@@ -48,9 +48,9 @@ void ControlPanel::writeJsonObject(QJsonObject &o){
 }
 
 void ControlPanel::createControlItem(QQmlComponent &component, ControlItemData *data){
-    QQmlContext context(engine->rootContext(),engine);
-    context.setContextProperty(QStringLiteral("__controlData"),data);
-    auto * item = qobject_cast<ControlItem*>(component.create(&context));
+    auto * context = new QQmlContext(engine->rootContext(),engine);
+    context->setContextProperty(QStringLiteral("__controlData"),data);
+    auto * item = qobject_cast<ControlItem*>(component.create(context));
     item->setParentItem(this);
     data->setParent(item);
     QQmlEngine::setObjectOwnership(item,QQmlEngine::JavaScriptOwnership);
