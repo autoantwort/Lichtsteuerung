@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import QtGraphicalEffects 1.0
+import QtQuick.Shapes 1.13
 import custom.licht 1.0
 import QtQml 2.12
 import ".."
@@ -123,17 +123,22 @@ ControlItem{
             RowLayout{
                 enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MIN_MAX_MAPPING);
                 ColumnLayout{
+                    spacing: 2
                     Text {
                         text: qsTr("Min")
                         font.underline: true
                         Layout.alignment: Qt.AlignHCenter
                     }
                     RadioButton{
+                        topPadding: 2
+                        bottomPadding: 2
                         text: "Remap"
                         checked: controlData?controlData.minOperation==1/*REMAP*/:false
                         onCheckedChanged: controlData.minOperation = 1
                     }
                     RadioButton{
+                        topPadding: 2
+                        bottomPadding: 2
                         text: "Cut"
                         checked: controlData?controlData.minOperation==0/*CUT*/:false
                         onCheckedChanged: controlData.minOperation = 0
@@ -147,15 +152,50 @@ ControlItem{
                         Layout.alignment: Qt.AlignHCenter
                     }
                     RadioButton{
+                        topPadding: 2
+                        bottomPadding: 2
                         text: "Remap"
                         checked: controlData?controlData.maxOperation==1/*REMAP*/:false
                         onCheckedChanged: controlData.maxOperation = 1
                     }
                     RadioButton{
+                        topPadding: 2
+                        bottomPadding: 2
                         text: "Cut"
                         checked: controlData?controlData.maxOperation==0/*CUT*/:false
                         onCheckedChanged: controlData.maxOperation = 0
                     }
+                }
+            }
+            Shape {
+                Layout.fillWidth: true
+                height: 30
+                id: shape
+                ShapePath {
+                    strokeWidth: 1
+                    strokeColor: "black"
+                    joinStyle: ShapePath.MiterJoin
+                    fillGradient: LinearGradient {
+                        property bool minRemap: controlData.minOperation==1/*REMAP*/
+                        property bool maxRemap: controlData.maxOperation==1/*REMAP*/
+                        property double from: rangeSlider.first.value/255.;
+                        property double to: rangeSlider.second.value/255.;
+                        function getColor(value){
+                            return Qt.rgba(value, value, 0, 1);
+                        }
+                        id: data
+                        x1: 0; y1:shape.height/2;
+                        x2: shape.width; y2: shape.height/2;
+                        GradientStop { position: -1; color: data.getColor(data.from)}
+                        GradientStop { position: data.minRemap ? 0 : data.from; color: data.getColor(data.from) }
+                        GradientStop { position: data.maxRemap ? 1 : data.to; color: data.getColor(data.to) }
+                        GradientStop { position: 2; color: data.getColor(data.to) }
+                    }
+                    startX: 0; startY: 0
+                    PathLine { x: shape.width; y: 0 }
+                    PathLine { x: shape.width; y: shape.height }
+                    PathLine { x: 0; y: shape.height }
+                    PathLine { x: 0; y: 0 }
                 }
             }
             RangeSlider{

@@ -1,10 +1,10 @@
 #ifndef CONTROLPANEL_H
 #define CONTROLPANEL_H
 
-#include <QQuickItem>
+#include "controlitemdata.h"
 #include "dmx/programm.h"
 #include "modules/programblock.h"
-#include "controlitemdata.h"
+#include <QQuickItem>
 
 namespace GUI{
 
@@ -22,8 +22,8 @@ class ControlPanel : public QQuickItem
     QQmlComponent switchGroup;
     QQmlComponent dimmerGroup;
     QQmlComponent programBlock;
-    int menuHeight;
-    int menuWidth;
+    int menuHeight{};
+    int menuWidth{};
 protected:
     /**
      * @brief createControlItem creates an ControlItem defined by component and set the ControlItemData field of the ControlData to data
@@ -60,9 +60,9 @@ signals:
     void menuWidthChanged();
     void exitMenuArea();
 protected:
-    virtual void hoverEnterEvent(QHoverEvent * event)override;
-    virtual void hoverMoveEvent(QHoverEvent * event)override;
-    virtual void hoverLeaveEvent(QHoverEvent * event)override;
+    void hoverEnterEvent(QHoverEvent * event)override;
+    void hoverMoveEvent(QHoverEvent * event)override;
+    void hoverLeaveEvent(QHoverEvent * event)override;
 
 public slots:
 };
