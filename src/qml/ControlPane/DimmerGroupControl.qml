@@ -2,6 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Shapes 1.13
+import QtQuick.Controls.Material 2.12
 import custom.licht 1.0
 import QtQml 2.12
 import ".."
@@ -146,6 +147,7 @@ ControlItem{
 
                 }
                 ColumnLayout{
+                    spacing: 2
                     Text {
                         text: qsTr("Max")
                         font.underline: true
@@ -169,6 +171,9 @@ ControlItem{
             }
             Shape {
                 Layout.fillWidth: true
+                Layout.leftMargin: 12
+                Layout.rightMargin: 12
+                Layout.topMargin: 10
                 height: 30
                 id: shape
                 ShapePath {
@@ -176,20 +181,14 @@ ControlItem{
                     strokeColor: "black"
                     joinStyle: ShapePath.MiterJoin
                     fillGradient: LinearGradient {
-                        property bool minRemap: controlData.minOperation==1/*REMAP*/
-                        property bool maxRemap: controlData.maxOperation==1/*REMAP*/
-                        property double from: rangeSlider.first.value/255.;
-                        property double to: rangeSlider.second.value/255.;
                         function getColor(value){
                             return Qt.rgba(value, value, 0, 1);
                         }
                         id: data
                         x1: 0; y1:shape.height/2;
                         x2: shape.width; y2: shape.height/2;
-                        GradientStop { position: -1; color: data.getColor(data.from)}
-                        GradientStop { position: data.minRemap ? 0 : data.from; color: data.getColor(data.from) }
-                        GradientStop { position: data.maxRemap ? 1 : data.to; color: data.getColor(data.to) }
-                        GradientStop { position: 2; color: data.getColor(data.to) }
+                        GradientStop { position: 0; color: data.getColor(0) }
+                        GradientStop { position: 1; color: data.getColor(1) }
                     }
                     startX: 0; startY: 0
                     PathLine { x: shape.width; y: 0 }
@@ -197,7 +196,59 @@ ControlItem{
                     PathLine { x: 0; y: shape.height }
                     PathLine { x: 0; y: 0 }
                 }
-            }
+                Rectangle{
+                    color: Material.accentColor;
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    width: 1
+                    id: positionRectangle
+                    Text{
+                        textFormat: Text.PlainText
+                        font.family: "Courier New"
+                        font.bold: true
+                        text: parent.position
+                        anchors.bottom: parent.top
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+
+                    property int position: 0;
+                    onPositionChanged: {
+                        var minCut = controlData.minOperation==0;
+                        var maxCut = controlData.maxOperation==0;
+                        //code from DXMChannelFilter:
+                        if(!minCut&&!maxCut){
+                            x = (position * (rangeSlider.second.value-rangeSlider.first.value)/255.) + rangeSlider.first.value;
+                        }else if(minCut&&!maxCut){
+                            x = (position * rangeSlider.second.value/255.);
+                            if(x<rangeSlider.first.value)
+                                x = rangeSlider.first.value;
+                        }else if(!minCut&&maxCut){
+                            x = (position * (255-rangeSlider.first.value)/255.) + rangeSlider.first.value;
+                            if(x>rangeSlider.second.value)
+                                x = rangeSlider.second.value;
+                        }else /*if(minOperation==CUT&&maxOperation==CUT)*/{
+                            x = position;
+                            if(x<rangeSlider.first.value)
+                                x = rangeSlider.first.value;
+                            if(x>rangeSlider.second.value)
+                                x = rangeSlider.second.value;
+                        }
+                        x /= 255;
+                        x *= (parent.width-2);
+                    }
+
+                    NumberAnimation {
+                        target: positionRectangle
+                        property: "position"
+                        duration: 6000
+                        easing.type: Easing.SineCurve
+                        from: 0
+                        to: 255
+                        loops: Animation.Infinite
+                        running: popup.visible
+                    }
+                }
+            }            
             RangeSlider{
                 enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MIN_MAX_MAPPING);
                 id: rangeSlider

@@ -1,9 +1,8 @@
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
-import QtQuick.Dialogs 1.2
 import "ControlPane"
 import "components"
 
@@ -151,13 +150,18 @@ ApplicationWindow {
         }
     }
 
-    MessageDialog{
-        text: ErrorNotifier.errorMessage
-        modality: "WindowModal"
-        icon: "Critical"
+    Dialog{
+        modal: true
         title: "Error"
-        standardButtons: "Ok"
-        onTextChanged: visible = true;
-
+        standardButtons: Dialog.Ok
+        width: 300
+        y: 50
+        x: (root.width-width)/2;
+        contentItem: Text{
+            text: ErrorNotifier.errorMessage
+            wrapMode: "WrapAtWordBoundaryOrAnywhere"
+        }
+        onAccepted: ErrorNotifier.errorMessage = "";
+        visible: ErrorNotifier.errorMessage.length !== 0
     }
 }
