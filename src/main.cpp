@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     ExcHndlSetLogFileNameA(path.toStdString().c_str());
 #endif
 
-    if (!QSslSocket::supportsSsl()||true) {
+    if (!QSslSocket::supportsSsl()) {
         ErrorNotifier::showError("No OpenSSL library found!\nUpdates are not possible and the Spotify support does not work.");
     }
 
