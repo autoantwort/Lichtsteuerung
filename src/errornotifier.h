@@ -25,12 +25,15 @@ public:
      * @brief newError notify qml to show the error
      * @param errorMessage The Message to show
      */
-    void newError(QString errorMessage){
+    void newError(const QString &errorMessage){
         this->errorMessage += errorMessage;
-        this->errorMessage += ". \n";
+        if(!this->errorMessage.endsWith(".")){
+            this->errorMessage += ".";
+        }
+        this->errorMessage += "\n";
         emit errorMessageChanged();
     }
-    static void showError(QString errorMessage){
+    static void showError(const QString &errorMessage){
         get()->newError(errorMessage);
     }
 signals:

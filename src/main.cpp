@@ -46,6 +46,7 @@
 #include "modules/dmxconsumer.h"
 #include "sortedmodelview.h"
 #include "updater.h"
+#include <QSslSocket>
 
 #ifdef DrMinGW
 #include "exchndl.h"
@@ -68,6 +69,10 @@ int main(int argc, char *argv[])
     qDebug() << "The crash report file is : " << path;
     ExcHndlSetLogFileNameA(path.toStdString().c_str());
 #endif
+
+    if (!QSslSocket::supportsSsl()||true) {
+        ErrorNotifier::showError("No OpenSSL library found!\nUpdates are not possible and the Spotify support does not work.");
+    }
 
     Updater updater;
     QObject::connect(&updater,&Updater::needUpdate,[&](){
