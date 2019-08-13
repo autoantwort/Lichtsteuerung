@@ -72,14 +72,13 @@ Item{
                 }
                 Button{
                     visible: UserManagment.currentUser.havePermission(Permission.Admin);
-                    text:"Change Permissions"
+                    text:"Change Permissions and Auto-Login"
                     anchors.right: buttonChangePassword.left
                     anchors.top: buttonChangePassword.top
                     anchors.bottom: buttonChangePassword.bottom
                     anchors.rightMargin: 5
                     onClicked: {
-                        permissionsView.model = modelData.permissionModel;
-                        permissionDialog.visible = true;
+                        userSettingsPopup.show(modelData);
                     }
                 }
                 Button{
@@ -315,32 +314,8 @@ Item{
         onYesClicked: UserManagment.removeUser(_user);
     }
 
-    Dialog{
-        modality: Qt.WindowModal
-        id:permissionDialog
-        title: "Chnage Permissions."
-        width:350
-        height: 400
-        contentItem: ListView{
-            id:permissionsView
-            delegate: SwitchDelegate{
-                width: permissionsView.width
-                checked: havePermission
-                onCheckedChanged: havePermission = checked
-                text: permissionName
-            }
-            anchors.bottomMargin: 40
-            Layout.bottomMargin: 40
-            Button{
-                text:"Ok"
-                anchors.margins: 5
-                anchors.left: permissionsView.left
-                anchors.right: permissionsView.right
-                anchors.bottom: permissionsView.bottom
-                onClicked: permissionDialog.visible=false
-            }
-        }
-
+    UserSettingsPopup{
+        id: userSettingsPopup
     }
 
 }
