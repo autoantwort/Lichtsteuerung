@@ -178,7 +178,7 @@ void User::createUser(const QJsonObject &o){
     }
 }
 
-User::User(const QJsonObject &o):QObject(UserManagment::get()),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
+User::User(const QJsonObject &o):QObject(UserManagment::get()),IDBase(o),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
     const auto array = o["permissions"].toArray();
     for(const auto & i : array){
         permissions.insert(static_cast<UserManagment::Permission>(i.toInt()));
@@ -202,6 +202,7 @@ void User::writeJsonObject(QJsonObject &o) const{
         names.push_back(i);
     }
     o.insert("autologinUsernames",names);
+    IDBase::writeJsonObject(o);
 }
 
 User * UserManagment::getUserByName(const QString &name) const{

@@ -4,23 +4,99 @@
 
 namespace GUI{
 
-ControlItemData::ControlItemData(Type t,QObject *parent) : QObject(parent),type(t)
-{
 
+///////////////////////////////////////////////////
+//////////   UserVisibilityModel   ////////////////
+///////////////////////////////////////////////////
+
+UserVisibilityModel::UserVisibilityModel(const QJsonObject &o){
+    const auto array = o["excludedUserIDs"].toArray();
+    for(const auto o : array){
+        const auto obj = o.toObject();
+        excudedUsers.emplace(obj);
+    }
+}
+
+void UserVisibilityModel::writeJsonObject(QJsonObject &o)const{
+    QJsonArray a;
+    for(const auto & id : excudedUsers){
+        QJsonObject o;
+        id.writeJsonObject(o);
+        a.push_back(o);
+    }
+    o["excludedUserIDs"] = a;
+}
+
+bool UserVisibilityModel::isVisibleForCurrentUser() const{
+    if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Admin)) {
+        return true;
+    }
+    return excudedUsers.find(UserManagment::get()->getCurrentUser()->getID()) == excudedUsers.end();
+}
+
+QVariant UserVisibilityModel::data(const QModelIndex &index, int role) const{
+    if(index.row()<0 && index.row()>=rowCount(index)){
+        return QVariant("Index Out of Range");
+    }
+    switch (role) {
+    case VisibilityRole:
+    case Qt::EditRole:
+        return QVariant(excudedUsers.find(UserManagment::get()->getUsers()[index.row()]->getID()) == excudedUsers.end());
+    case Qt::DisplayRole:
+    case UserNameRole:
+        return QVariant(UserManagment::get()->getUsers()[index.row()]->getUsername());
+    default:
+        return QVariant("Unknown role!");
+    }
+}
+
+bool UserVisibilityModel::setData(const QModelIndex &index, const QVariant &value, int role){
+    if(role==VisibilityRole){
+        if(index.row()>=0 && index.row()<rowCount(index)){
+            const auto id = UserManagment::get()->getUsers()[index.row()]->getID();
+            if (value.toBool()) {
+                excudedUsers.erase(excudedUsers.find(id));
+            }else{
+                const bool isAdmin = UserManagment::get()->getUsers()[index.row()]->havePermission(UserManagment::Admin);
+                if(!isAdmin){
+                    excudedUsers.insert(id);
+                }else{
+                    emit dataChanged(this->index(index.row()),this->index(index.row()),{VisibilityRole});
+                }
+            }
+            return true;
+        }
+    }
+    return false;
+}
+
+///////////////////////////////////////////////////
+////////////   ControlItemData   //////////////////
+///////////////////////////////////////////////////
+
+ControlItemData::ControlItemData(Type t,QObject *parent) : QObject(parent),  type(t)
+{
+    QObject::connect(UserManagment::get(),&UserManagment::currentUserChanged,[this](){
+        emit isVisibleForUserChanged();
+    });
 }
 
 ControlItemData::ControlItemData(const QJsonObject &o, QObject *parent):
     QObject(parent),
     startXBlock(o["startXBlock"].toInt()),
     startYBlock(o["startYBlock"].toInt()),
+    userVisibilityModel(o),
     type(static_cast<Type>(o["type"].toInt())){
-
+    QObject::connect(UserManagment::get(),&UserManagment::currentUserChanged,[this](){
+        emit isVisibleForUserChanged();
+    });
 }
 
 void ControlItemData::writeJsonObject(QJsonObject &o){
     o.insert("type",type);
     o.insert("startXBlock",startXBlock);
     o.insert("startYBlock",startYBlock);
+    userVisibilityModel.writeJsonObject(o);
 }
 
 void ControlItemData::setStartXBlock(int i){

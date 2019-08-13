@@ -9,14 +9,45 @@
 
 namespace GUI{
 
+class UserVisibilityModel : public QAbstractListModel{
+    Q_OBJECT
+    std::set<ID> excudedUsers;
+public:
+    UserVisibilityModel() = default;
+    UserVisibilityModel(const QJsonObject&);
+    void writeJsonObject(QJsonObject &o)const;
+    bool isVisibleForCurrentUser()const;
+    enum UserVisibilityModelRoles{
+        UserNameRole = Qt::UserRole+1,
+        VisibilityRole
+    };
+    virtual int rowCount(const QModelIndex & = QModelIndex())const override {return UserManagment::get()->getUsers().ssize();}
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const override;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override{
+        auto r = QAbstractListModel::flags(index);
+        r.setFlag(Qt::ItemIsEditable);
+        return r;
+    }
+    QHash<int,QByteArray> roleNames() const override{
+        auto r = QAbstractListModel::roleNames();
+        r[UserNameRole] = "userName";
+        r[VisibilityRole] = "isVisible";
+        return r;
+    }
+};
+
 class ControlItemData : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int startXBlock READ getStartXBlock WRITE setStartXBlock NOTIFY startXBlockChanged)
     Q_PROPERTY(int startYBlock READ getStartYBlock WRITE setStartYBlock NOTIFY startYBlockChanged)
+    Q_PROPERTY(bool isVisibleForUser READ isVisibleForUser NOTIFY isVisibleForUserChanged)
+    Q_PROPERTY(QAbstractListModel* userVisibilityModel READ getUserVisibilityModel CONSTANT)
 private:
     int startXBlock=0;
     int startYBlock=0;
+    UserVisibilityModel userVisibilityModel;
 public:
     enum Type{PROGRAMM, SWITCH_GROUP, DIMMER_GROUP, PROGRAM_BLOCK};
 private:
@@ -31,9 +62,12 @@ public:
     int getStartYBlock()const{return startYBlock;}
     void setStartXBlock(int);
     void setStartYBlock(int);
+    QAbstractListModel* getUserVisibilityModel(){return &userVisibilityModel;}
+    bool isVisibleForUser()const{return userVisibilityModel.isVisibleForCurrentUser();}
 signals:
     void startXBlockChanged();
     void startYBlockChanged();
+    void isVisibleForUserChanged();
 };
 
 class ProgrammControlItemData : public ControlItemData{
