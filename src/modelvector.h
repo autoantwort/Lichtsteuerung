@@ -73,6 +73,7 @@ public:
     const std::vector<Type>& getVector()const{return model;}
     std::vector<Type>& getVector(){return model;}
     typename std::vector<Type>::size_type size()const{return model.size();}
+    int ssize()const{return static_cast<int>(size());}
     virtual int rowCount(const QModelIndex &) const override{return static_cast<int>(model.size());}
     /**
      * @brief data Return always, if the index is valid, a QVarient that contains the data at the vector
@@ -194,7 +195,7 @@ public:
             model.push_back(t);
             endPushBack();
             if(cap!=model.capacity()){
-                emit dataChanged(index(0,0),index(model.size()-1,0));
+                emit QAbstractItemModel::dataChanged(index(0,0),index(model.size()-1,0));
             }
         }
     }
@@ -213,7 +214,7 @@ public:
             model.push_back(std::forward<Type>(t));
             endPushBack();
             if(cap!=model.capacity()){
-                emit dataChanged(index(0,0),index(model.size()-1,0));
+                emit QAbstractItemModel::dataChanged(index(0,0),index(model.size()-1,0));
             }
         }
     }
@@ -230,7 +231,7 @@ public:
             model.emplace_back(std::forward<_Args>(__args)...);
             endPushBack();
             if(cap!=model.capacity()){
-                emit dataChanged(index(0,0),index(model.size()-1,0));
+                emit QAbstractItemModel::dataChanged(index(0,0),index(model.size()-1,0));
             }
         }
     }
@@ -240,6 +241,10 @@ public:
 
     typename std::vector<Type>::reference operator[](int index){
         return model[index];
+    }
+
+    void dataChanged(int index_){
+        emit QAbstractItemModel::dataChanged(index(index_), index(index_));
     }
 
     typename std::vector<Type>::const_reference operator[](int index)const{

@@ -72,5 +72,6 @@
         <file>icons/sort_order/sort-reverse-alphabetical-order_32px.png</file>
         <file>icons/sort_order/sort-reverse-alphabetical-order_64px.png</file>
         <file>icons/sort_order/sort-reverse-alphabetical-order_source</file>
+        <file>qml/UserSettingsPopup.qml</file>
     </qresource>
 </RCC>

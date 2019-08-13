@@ -9,6 +9,7 @@ ControlItemTemplate{
 
     controlData: __controlData
     moveable: UserManagment.currentUser.havePermission(Permission.MOVE_CONTROL_ITEM);
+    visible: controlData.isVisibleForUser
     id:item
     property bool pressed: false
     onPressedChanged:{
@@ -108,6 +109,16 @@ ControlItemTemplate{
             }
         }
         MenuItem{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_CONTROL_ITEM_VISIBILITY);
+            text: "Visibility"
+            onClicked: {
+                visibilityPopup.x = menu.x;
+                visibilityPopup.y = menu.y;
+                visibilityPopup.visible = true;
+            }
+
+        }
+        MenuItem{
             enabled: UserManagment.currentUser.havePermission(Permission.REMOVE_CONTROL_ITEM);
             text: "Delete"
             onClicked: {
@@ -118,4 +129,35 @@ ControlItemTemplate{
         }
     }
     property Popup popup;
+
+    Popup{
+        id: visibilityPopup
+        width: 200
+        implicitHeight: visibilityListView.contentHeight + 20 + label.height + 10
+        padding: 0
+        contentItem: ColumnLayout{
+            spacing: 0
+            Label{
+                id: label
+                Layout.margins: 10
+                Layout.fillWidth: true
+                wrapMode: "WordWrap"
+                text: "Which user should see this control item?"
+            }
+            ListView{
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.bottomMargin: 10
+                id: visibilityListView
+                clip: true
+                model: controlData.userVisibilityModel
+                delegate: CheckDelegate{
+                    width: visibilityListView.width
+                    checked: isVisible
+                    text: userName
+                    onCheckedChanged: if(checked !== isVisible) isVisible = checked
+                }
+            }
+        }
+    }
 }

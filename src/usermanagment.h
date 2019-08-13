@@ -20,9 +20,11 @@ class UserManagment : public QObject
     Q_PROPERTY(User* currentUser READ getCurrentUser NOTIFY currentUserChanged)
     Q_PROPERTY(User* defaultUser READ getCurrentUser CONSTANT)
     Q_PROPERTY(QAbstractItemModel * users READ getUserModel CONSTANT)
+    Q_PROPERTY(QString currentOsUserName READ getCurrentOsUserName CONSTANT)
 private:
     User * readUser;
     User * currentUser;
+    QString currentOsUserName;
     ModelVector<std::unique_ptr<User>> users;
     UserManagment();
     friend class User;
@@ -47,8 +49,8 @@ public:
         ADD_DEVICE=3,REMOVE_DEVICE=4,CHANGE_POSITION=5, CHANGE_NAME=6,CHANGE_DEVICE_DMX_CHANNEL=7,
         DEVICE_TAB=8,DEVICE_PROTOTYPE_TAB=9,PROGRAMM_PROTOTYPE_TAY=10,PROGRAMM_TAB=11,
         MOVE_CONTROL_ITEM=12, ADD_CONTROL_ITEM=13, CHANGE_GROUP_NAME=14, CHANGE_GROUP_DEVICES=15, CHANGE_MIN_MAX_MAPPING=16, CHANGE_TIMEOUTS=17, REMOVE_CONTROL_ITEM=18,
-        SETTINGS_TAB=19, MODULES_TAB=20, MODULE_PROGRAMS_TAB=21,
-        LAST_PERMISSION=22
+        SETTINGS_TAB=19, MODULES_TAB=20, MODULE_PROGRAMS_TAB=21, CHANGE_CONTROL_ITEM_VISIBILITY=22,
+        LAST_PERMISSION=23
     };
     Q_ENUM(Permission)
     /**
@@ -102,6 +104,10 @@ public:
      */
     Q_INVOKABLE bool login(User * user, const QString &passwort);
     /**
+     * @brief autoLoginUser checks if the autologin user name of one user matches the currentOsUserName and login the user where the name match
+     */
+    void autoLoginUser();
+    /**
      * @brief logout logout the current User
      */
     Q_INVOKABLE void logout();
@@ -121,6 +127,11 @@ public:
      * @return The currently logined user
      */
     User * getCurrentUser()const{return currentUser;}
+    /**
+     * @brief getCurrentOsUserName returns the username of the current os user that is logged in
+     * @return the username of the currently logged in os user
+     */
+    QString getCurrentOsUserName()const{return currentOsUserName;}
 signals:
     void currentUserChanged();
 };
@@ -161,12 +172,14 @@ class User : public QObject, public IDBase<User>{
     Q_OBJECT
     Q_PROPERTY(QString name READ getUsername NOTIFY usernameChanged)
     Q_PROPERTY(QAbstractListModel * permissionModel READ getPermissionModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel * autologinUsernames READ getAutoLoginUserNameModel CONSTANT)
     friend class UserManagment;
     friend class UserPermissionModel;
 private:
     QString username;
     QByteArray password;
     std::set<UserManagment::Permission> permissions;
+    ModelVector<QString> autologinUsernames;
     UserPermissionModel permissionModel;
     void setUsername(const QString &u){if(u==username)return;username = u;emit usernameChanged(username);}
     void setPermission(UserManagment::Permission p,bool get = true);
@@ -189,6 +202,22 @@ public:
      */
     Q_INVOKABLE bool havePermission(UserManagment::Permission p){return permissions.find(p)!=permissions.cend();}
     UserPermissionModel * getPermissionModel(){return &permissionModel;}
+    QAbstractListModel * getAutoLoginUserNameModel(){return &autologinUsernames;}
+    const ModelVector<QString>& getAutoLoginUserNames()const{return autologinUsernames;}
+    Q_INVOKABLE void removeAutologinUsername(int index){
+        if (index >= 0 && index < autologinUsernames.ssize()) {
+            autologinUsernames.erase(index);
+        }
+    }
+    Q_INVOKABLE void changeAutologinUsername(int index, const QString &newUserName){
+        if (index >= 0 && index < autologinUsernames.ssize()) {
+            autologinUsernames[index] = newUserName;
+            autologinUsernames.dataChanged(index);
+        }
+    }
+    Q_INVOKABLE void addAutologinUsername(const QString &newUserName){
+        autologinUsernames.push_back(newUserName);
+    }
 signals:
     void usernameChanged(QString);
     void permissionChanged(UserManagment::Permission,bool);

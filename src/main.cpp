@@ -206,6 +206,8 @@ int main(int argc, char *argv[])
         file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss"));
     }
     auto after = ApplicationData::loadData(file);
+    // nachdem die Benutzer geladen wurden, auto login durchführen
+    UserManagment::get()->autoLoginUser();
 
 //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 

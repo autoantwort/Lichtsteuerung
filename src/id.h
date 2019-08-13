@@ -35,6 +35,7 @@ public:
     bool operator ==(const ID other)const{return other.id==id;}
     bool operator !=(const value_type other)const{return other!=id;}
     bool operator ==(const value_type other)const{return other==id;}
+    bool operator  <(const ID other)const{return other.id<id;}
 public:
     ID(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;

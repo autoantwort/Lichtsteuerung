@@ -9,6 +9,12 @@ UserManagment::UserManagment():readUser(new User("Default","")),currentUser(read
     for(int i = 0 ; i< LAST_PERMISSION;++i){
         admin->setPermission(static_cast<Permission>(i));
     }*/
+#ifdef Q_OS_UNIX
+    currentOsUserName = qgetenv("USER");
+#else
+    // Windows:
+    currentOsUserName = qgetenv("UserName");
+#endif
 }
 
 User* UserManagment::getUserById(ID::value_type id){
@@ -98,6 +104,21 @@ bool UserManagment::login(User *user, const QString &password){
     return false;
 }
 
+void UserManagment::autoLoginUser(){
+    if (currentOsUserName.isEmpty()) {
+        return;
+    }
+    for(const auto & user : users){
+        for(const auto & name : user->getAutoLoginUserNames()){
+            if(name == currentOsUserName){
+                currentUser = user.get();
+                emit currentUserChanged();
+                return;
+            }
+        }
+    }
+}
+
 void UserManagment::logout(User *user){
     if(currentUser==user){
         currentUser = readUser;
@@ -132,13 +153,18 @@ bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &valu
         if(UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Admin)){
             if(index.row()>=0 && index.row()<rowCount(index)){
                 const UserManagment::Permission p = static_cast<UserManagment::Permission>(index.row());
-                if(user->havePermission(p)!=value.toBool()){
-                    user->setPermission(p,value.toBool());
-                    emit dataChanged(index,index,{HavePermissionRole});
-                    return true;
+                // ein admin darf sich nicht selber entmachten:
+                if(p != UserManagment::Admin || UserManagment::get()->getCurrentUser() != user){
+                    if(user->havePermission(p)!=value.toBool()){
+                        user->setPermission(p,value.toBool());
+                        emit dataChanged(index,index,{HavePermissionRole});
+                        return true;
+                    }
                 }
             }
         }
+        // you cant change the setting, notify all bindings
+        emit dataChanged(index,index,{HavePermissionRole});
     }
     return false;
 }
@@ -152,10 +178,14 @@ void User::createUser(const QJsonObject &o){
     }
 }
 
-User::User(const QJsonObject &o):QObject(UserManagment::get()),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
+User::User(const QJsonObject &o):QObject(UserManagment::get()),IDBase(o),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
     const auto array = o["permissions"].toArray();
     for(const auto & i : array){
         permissions.insert(static_cast<UserManagment::Permission>(i.toInt()));
+    }
+    const auto arrayNames = o["autologinUsernames"].toArray();
+    for(const auto & i : arrayNames){
+        autologinUsernames.push_back(i.toString());
     }
 }
 
@@ -167,6 +197,12 @@ void User::writeJsonObject(QJsonObject &o) const{
         a.push_back(*i);
     }
     o.insert("permissions",a);
+    QJsonArray names;
+    for(const auto & i : autologinUsernames){
+        names.push_back(i);
+    }
+    o.insert("autologinUsernames",names);
+    IDBase::writeJsonObject(o);
 }
 
 User * UserManagment::getUserByName(const QString &name) const{
