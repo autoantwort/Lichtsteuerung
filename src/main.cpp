@@ -184,6 +184,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<SortedModelVectorView>("custom.licht",1,0,"SortedModelVectorView");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
+    qmlRegisterUncreatableMetaObject(Updater::staticMetaObject,"custom.licht",1,0,"UpdaterState",QStringLiteral("Enum in c++"));
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
     qRegisterMetaType<Modules::ValueType>("ValueType");

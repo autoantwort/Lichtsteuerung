@@ -26,10 +26,35 @@ ApplicationWindow {
             }
         }
 
-        ToolTip.visible: updater.progress >= 0 && updater.progress <= 100
+        ToolTip.visible: updater.progress >= 0 && updater.progress <= 100 || updater.state === UpdaterState.DownloadUpdateFailed
         ToolTip.delay: 0
         ToolTip.timeout: 20000
-        ToolTip.text: updater.progress < 100 ? "Downloading update. Progress : " + updater.progress + "%" : "Downloading update finished. Restart to update."
+        function getText(state, progress){
+            // enum UpdaterState {IDE_ENV, NotChecked, NoUpdateAvailible, UpdateAvailible, DownloadingUpdate, UnzippingUpdate, UnzippingFailed, PreparationForInstallationFailed, ReadyToInstall, DownloadUpdateFailed};
+            switch(state){
+            case UpdaterState.IDE_ENV:
+                return "You are running the light control in an IDE, make no update";
+            case UpdaterState.NotChecked:
+            case UpdaterState.NoUpdateAvailible:
+                return "";
+            case UpdaterState.UpdateAvailible:
+                return "Update availible";
+            case UpdaterState.DownloadingUpdate:
+                return "Downloading update. Progress : " + updater.progress + "%";
+            case UpdaterState.UnzippingUpdate:
+                return "Unzipping update ...";
+            case UpdaterState.ReadyToInstall:
+                return "Close this application to install the update";
+            case UpdaterState.DownloadUpdateFailed:
+                return "Error while downloading the update";
+            case UpdaterState.UnzippingFailed:
+                return "Error while unzipping the update";
+            case UpdaterState.PreparationForInstallationFailed:
+                return "Error while preparation for the installation of the update";
+            }
+            return "Unknown update state";
+        }
+        ToolTip.text: getText(updater.state, updater.progress)
 
         VerticalTabBar{
 
