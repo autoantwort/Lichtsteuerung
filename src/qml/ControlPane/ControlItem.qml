@@ -91,6 +91,7 @@ ControlItemTemplate{
             easing.type: Easing.OutExpo
         }
     }
+    property Menu menu: menu
     onOpenPopup: {
         menu.x = x;
         menu.y = y;
@@ -129,6 +130,7 @@ ControlItemTemplate{
         }
     }
     property Popup popup;
+    property Popup visibilityPopup: visibilityPopup;
 
     Popup{
         id: visibilityPopup

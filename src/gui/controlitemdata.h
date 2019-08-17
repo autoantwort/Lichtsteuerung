@@ -44,12 +44,14 @@ class ControlItemData : public QObject
     Q_PROPERTY(int startYBlock READ getStartYBlock WRITE setStartYBlock NOTIFY startYBlockChanged)
     Q_PROPERTY(bool isVisibleForUser READ isVisibleForUser NOTIFY isVisibleForUserChanged)
     Q_PROPERTY(QAbstractListModel* userVisibilityModel READ getUserVisibilityModel CONSTANT)
+    Q_PROPERTY(Type type MEMBER type CONSTANT)
 private:
     int startXBlock=0;
     int startYBlock=0;
     UserVisibilityModel userVisibilityModel;
 public:
     enum Type{PROGRAMM, SWITCH_GROUP, DIMMER_GROUP, PROGRAM_BLOCK};
+    Q_ENUM(Type)
 private:
     Type type;
 public:

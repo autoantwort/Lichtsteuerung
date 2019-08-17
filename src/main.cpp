@@ -47,6 +47,7 @@
 #include "sortedmodelview.h"
 #include "updater.h"
 #include <QSslSocket>
+#include "gui/controlitemdata.h"
 
 #ifdef DrMinGW
 #include "exchndl.h"
@@ -185,6 +186,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
     qmlRegisterUncreatableMetaObject(Updater::staticMetaObject,"custom.licht",1,0,"UpdaterState",QStringLiteral("Enum in c++"));
+    qmlRegisterUncreatableMetaObject(ControlItemData::staticMetaObject,"custom.licht",1,0,"ControlType",QStringLiteral("Enum in c++"));
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
     qRegisterMetaType<Modules::ValueType>("ValueType");
