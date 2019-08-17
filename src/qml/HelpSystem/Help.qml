@@ -20,6 +20,7 @@ Popup {
     property bool allowEntryJumping: true
     property bool enableAnimations: true
     property HelpEntry currentEntry: null
+    property int defaultPosition: HelpEntry.Position.East
     property point currentPosition: Qt.point(0,0);
     signal start;
     signal end;
@@ -166,13 +167,13 @@ Popup {
                     }
                     PropertyChanges {
                         target: arrow
-                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2)
+                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2  + currentEntry.yShift )
                     }
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
-                        x: currentEntry ? currentPosition.x + currentEntry.component.width + 20 : x
-                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2) : y
+                        x: currentEntry ? currentPosition.x + currentEntry.component.width + 20 + currentEntry.xShift : x
+                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift) : y
                     }
                 },
                 State {
@@ -185,8 +186,8 @@ Popup {
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
-                        x: currentEntry ? currentPosition.x + (currentEntry.component.width - width)/2 : x
-                        y: currentEntry ? currentPosition.y - page.implicitHeight - 20 : y
+                        x: currentEntry ? currentPosition.x + (currentEntry.component.width - width)/2 + currentEntry.xShift : x
+                        y: currentEntry ? currentPosition.y - page.implicitHeight - 20 + currentEntry.yShift : y
                     }
                 },
                 State {
@@ -198,13 +199,13 @@ Popup {
                     }
                     PropertyChanges {
                         target: arrow
-                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2)
+                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift )
                     }
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
-                        x: currentEntry ? currentPosition.x - width - 20 : x
-                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2) : y
+                        x: currentEntry ? currentPosition.x - width - 20 + currentEntry.xShift : x
+                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift) : y
                     }
                 },
                 State {
@@ -217,8 +218,8 @@ Popup {
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
-                        x: currentEntry ? currentPosition.x + (currentEntry.component.width - width)/2 : x
-                        y: currentEntry ? currentPosition.y + currentEntry.component.height + 20 : y
+                        x: currentEntry ? currentPosition.x + (currentEntry.component.width - width)/2 + currentEntry.xShift : x
+                        y: currentEntry ? currentPosition.y + currentEntry.component.height + 20 + currentEntry.yShift : y
                     }
                 }
             ]
