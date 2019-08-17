@@ -40,6 +40,8 @@ void Updater::checkForUpdate(){
         redirect->deleteLater();
         auto redirectURL = redirect->header(QNetworkRequest::KnownHeaders::LocationHeader);
         if(!redirectURL.isValid()){
+            state = UpdaterState::DownloadUpdateFailed;
+            emit stateChanged();
             qDebug() << "can not redirect version.zip";
             return;
         }
@@ -95,6 +97,8 @@ void Updater::update(){
         auto redirectURL = redirect->header(QNetworkRequest::KnownHeaders::LocationHeader);
         if(!redirectURL.isValid()){
             qDebug() << "can not redirect deploy.zip";
+            state = UpdaterState::DownloadUpdateFailed;
+            emit stateChanged();
             return;
         }
         auto response = http->get(QNetworkRequest(redirectURL.toUrl()));
@@ -120,11 +124,13 @@ void Updater::update(){
             qDebug() << response->atEnd();
             response->deleteLater();
             deploy->close();
+            state = UpdaterState::UnzippingUpdate;
+            emit stateChanged();
             Zip::unzip(QFileInfo(*deploy),QFileInfo(*deploy).absolutePath(),[this,deploy](auto success){
                 std::unique_ptr<QFile> deleteMe(deploy);
                 if(!success){
                     qDebug() << "not successful when unzipping deploy.zip";
-                    state = UpdaterState::DownloadUpdateFailed;
+                    state = UpdaterState::UnzippingFailed;
                     emit stateChanged();
                     return;
                 }
@@ -134,14 +140,14 @@ void Updater::update(){
                 if(QFile::exists(targetInstallerPath)){
                     if(!QFile::remove(targetInstallerPath)){
                         qWarning() << "Failed to remove old Windows Installer";
-                        state = UpdaterState::DownloadUpdateFailed;
+                        state = UpdaterState::PreparationForInstallationFailed;
                         emit stateChanged();
                         return;
                     }
                 }
                 if(!QFile::rename(deployPath + "/" + WINDOWS_INSTALLER_NAME,targetInstallerPath)){
                     qWarning() << "Failed to rename Windows Installer";
-                    state = UpdaterState::DownloadUpdateFailed;
+                    state = UpdaterState::PreparationForInstallationFailed;
                     emit stateChanged();
                     return;
                 }
@@ -150,7 +156,7 @@ void Updater::update(){
                 for(const auto & e : entries){
                     QFile::copy(e.absoluteFilePath() , deployPath + "/" + e.fileName());
                 }
-                state = UpdaterState::UpdateDownloaded;
+                state = UpdaterState::ReadyToInstall;
                 emit stateChanged();
             });
         });
@@ -159,7 +165,7 @@ void Updater::update(){
 }
 
 void Updater::runUpdateInstaller(){
-    if(state != UpdaterState::UpdateDownloaded){
+    if(state != UpdaterState::ReadyToInstall){
         return;
     }
     QString from = deployPath;

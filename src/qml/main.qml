@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import "ControlPane"
 import "components"
+import "HelpSystem"
 
 ApplicationWindow {
     visible: true
@@ -26,10 +27,35 @@ ApplicationWindow {
             }
         }
 
-        ToolTip.visible: updater.progress >= 0 && updater.progress <= 100
+        ToolTip.visible: updater.progress >= 0 && updater.progress <= 100 || updater.state === UpdaterState.DownloadUpdateFailed
         ToolTip.delay: 0
         ToolTip.timeout: 20000
-        ToolTip.text: updater.progress < 100 ? "Downloading update. Progress : " + updater.progress + "%" : "Downloading update finished. Restart to update."
+        function getText(state, progress){
+            // enum UpdaterState {IDE_ENV, NotChecked, NoUpdateAvailible, UpdateAvailible, DownloadingUpdate, UnzippingUpdate, UnzippingFailed, PreparationForInstallationFailed, ReadyToInstall, DownloadUpdateFailed};
+            switch(state){
+            case UpdaterState.IDE_ENV:
+                return "You are running the light control in an IDE, make no update";
+            case UpdaterState.NotChecked:
+            case UpdaterState.NoUpdateAvailible:
+                return "";
+            case UpdaterState.UpdateAvailible:
+                return "Update availible";
+            case UpdaterState.DownloadingUpdate:
+                return "Downloading update. Progress : " + updater.progress + "%";
+            case UpdaterState.UnzippingUpdate:
+                return "Unzipping update ...";
+            case UpdaterState.ReadyToInstall:
+                return "Close this application to install the update";
+            case UpdaterState.DownloadUpdateFailed:
+                return "Error while downloading the update";
+            case UpdaterState.UnzippingFailed:
+                return "Error while unzipping the update";
+            case UpdaterState.PreparationForInstallationFailed:
+                return "Error while preparation for the installation of the update";
+            }
+            return "Unknown update state";
+        }
+        ToolTip.text: getText(updater.state, updater.progress)
 
         VerticalTabBar{
 
@@ -88,6 +114,64 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Colorplot")
+            }
+            Help{
+                helpButton.anchors.left: parent.left
+                helpButton.anchors.right: undefined
+                tooltipText: "Tab Explanation"
+                enableAnimations: false
+                HelpEntry{
+                    titel: "Device Tab"
+                    explanation: "Here you can manage all DMX devices, their adress, position, name, ..."
+                    component: tabBar.contentChildren[0]
+                    onEnter: tabBar.setCurrentIndex(0)
+                    visible: UserManagment.currentUser.havePermission(Permission.DEVICE_TAB)
+                }
+                HelpEntry{
+                    titel: "Device Prototype Tab"
+                    explanation: "Here you can manage prototypes for DMX devices. A Prototype is for example a scanner or a lamp. You can specify the channels of a device prototype."
+                    component: tabBar.contentChildren[1]
+                    onEnter: tabBar.setCurrentIndex(1)
+                    visible: UserManagment.currentUser.havePermission(Permission.DEVICE_PROTOTYPE_TAB)
+                }
+                HelpEntry{
+                    titel: "Program Prototype Tab"
+                    explanation: "Here you can create a program for a specific type of a device, like a lamp or a scanner."
+                    component: tabBar.contentChildren[2]
+                    onEnter: tabBar.setCurrentIndex(2)
+                    visible: UserManagment.currentUser.havePermission(Permission.PROGRAMM_PROTOTYPE_TAY)
+                }
+                HelpEntry{
+                    titel: "Program Tab"
+                    explanation: "Here you can manage programs. A program is a collection of pairs of program prototypes and devices."
+                    component: tabBar.contentChildren[3]
+                    onEnter: tabBar.setCurrentIndex(3)
+                    visible: UserManagment.currentUser.havePermission(Permission.PROGRAMM_PROTOTYPE_TAY)
+                }
+                HelpEntry{
+                    titel: "Control Pane"
+                    explanation: "Here you can control all lights and other devices."
+                    component: tabBar.contentChildren[4]
+                    onEnter: tabBar.setCurrentIndex(4)
+                }
+                HelpEntry{
+                    titel: "Map View"
+                    explanation: "You can see a map of the bar with all devices on the map. You can select a device and change the brightness of the selected device."
+                    component: tabBar.contentChildren[5]
+                    onEnter: tabBar.setCurrentIndex(5)
+                }
+                HelpEntry{
+                    titel: "Login"
+                    explanation: "Here you can log into and manage the light control users. You can change the permissions for a user and log in to spotify so that the light can be controlled by the music."
+                    component: tabBar.contentChildren[6]
+                    onEnter: tabBar.setCurrentIndex(6)
+                }
+                HelpEntry{
+                    titel: "Graph"
+                    explanation: "The graph shows a spectrum analysis of the currently played music (the whole windows output is captured)."
+                    component: tabBar.contentChildren[10]
+                    onEnter: tabBar.setCurrentIndex(10)
+                }
             }
         }
 

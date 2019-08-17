@@ -27,6 +27,7 @@ private:
     QString currentOsUserName;
     ModelVector<std::unique_ptr<User>> users;
     UserManagment();
+    ~UserManagment()override{currentUser = nullptr;}
     friend class User;
 public:
     ModelVector<std::unique_ptr<User>>& getUsers(){return users;}
