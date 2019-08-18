@@ -98,8 +98,8 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
 }
 
 bool CodeCompletions::lessThan(const QModelIndex &left, const QModelIndex &right)const{
-    CodeCompletionEntry* leftData = sourceModel()->data(left).value<CodeCompletionEntry*>();
-    CodeCompletionEntry* rightData = sourceModel()->data(right).value<CodeCompletionEntry*>();
+    CodeCompletionEntry* leftData = sourceModel()->data(left, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
+    CodeCompletionEntry* rightData = sourceModel()->data(right, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
     return leftData->completion < rightData->completion;
 }
 
@@ -107,7 +107,7 @@ bool CodeCompletions::filterAcceptsRow(int sourceRow,
           const QModelIndex &sourceParent) const
   {
       QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-      CodeCompletionEntry* data = sourceModel()->data(index).value<CodeCompletionEntry*>();
+      CodeCompletionEntry* data = sourceModel()->data(index, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
       if(data) {
           return data->completion.contains(this->filterRegExp());
       } else {

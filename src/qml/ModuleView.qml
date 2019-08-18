@@ -408,7 +408,7 @@ Item{
                             anchors.fill: parent
                             id: descriptionLabel
                             wrapMode: "WordWrap"
-                            text: codeCompletionListView.currentItem ? odeCompletionListView.currentModelData.description : "Keine Beschreibung"
+                            text: codeCompletionListView.currentModelData ? codeCompletionListView.currentModelData.description : "Keine Beschreibung"
                             background: null
                         }
                         color: "beige"
@@ -433,8 +433,9 @@ Item{
                         clip: true
                         id: codeCompletionListView
                         model: codeEditorHelper.codeCompletions
+                        property var currentModelData: currentItem ? currentItem.itemData : null;
                         delegate: ItemDelegate {
-                            property var modelData: modelData
+                            property var itemData: modelData
                             text: modelData.completion.replace(/\n*\t*/g,"")
                             onClicked: codeCompletionListView.clickCurrentItem()
                             highlighted: ListView.isCurrentItem
