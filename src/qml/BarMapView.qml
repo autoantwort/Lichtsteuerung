@@ -95,8 +95,8 @@ ColumnLayout{
                             enabled: root.toPlacedDevice !== null
                             onClicked: {
                                 if(root.toPlacedDevice && mouse.button === Qt.LeftButton){
-                                    root.toPlacedDevice.position.x = mouse.x + map.translation.x;
-                                    root.toPlacedDevice.position.y = mouse.y + map.translation.y;
+                                    root.toPlacedDevice.position.x = mouse.x - map.translation.x;
+                                    root.toPlacedDevice.position.y = mouse.y - map.translation.y;
                                 }else{
                                     mouse.accepted = false;
                                 }
