@@ -263,6 +263,9 @@ Popup {
     Component.onCompleted: {
         for(var i in contentData){
             if(contentData[i] instanceof HelpEntry){
+                if(contentData[i].position === HelpEntry.Position.NotSet){
+                    contentData[i].position = defaultPosition;
+                }
                 entries.push(contentData[i]);
             }
         }
