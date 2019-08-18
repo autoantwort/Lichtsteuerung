@@ -346,7 +346,7 @@ Popup {
                     radius: width / 2
                     color: pageIndicator.enabled ? pageIndicator.Material.foreground : pageIndicator.Material.hintTextColor
 
-                    opacity: index === currentIndex ? 0.95 : pressed ? 0.7 : 0.45
+                    opacity: index === pageIndicator.currentIndex ? 0.95 : pressed ? 0.7 : 0.45
                     Behavior on opacity { OpacityAnimator { duration: 100 } }
                 }
             }
