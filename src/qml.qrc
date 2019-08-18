@@ -76,5 +76,7 @@
         <file>qml/HelpSystem/Help.qml</file>
         <file>qml/HelpSystem/HelpButton.qml</file>
         <file>qml/HelpSystem/HelpEntry.qml</file>
+        <file>qml/LedVisualisation/LedWindow.qml</file>
+        <file>qml/LedVisualisation/LedVisualisationView.qml</file>
     </qresource>
 </RCC>

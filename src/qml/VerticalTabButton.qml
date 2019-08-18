@@ -4,5 +4,5 @@ import QtQuick.Controls 2.4
 TabButton {
     topPadding: 6
     bottomPadding: 6
-    width: parent.width
+    width: parent ? parent.width : 100
 }

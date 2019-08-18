@@ -43,6 +43,7 @@ SOURCES += \
     dmx/programm.cpp \
     dmx/programmprototype.cpp \
     modules/dmxconsumer.cpp \
+    modules/ledconsumer.cpp \
     scanner.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
@@ -104,6 +105,7 @@ HEADERS += \
     dmx/namedobject.h \
     dmx/dmxchannelfilter.h \
     modules/controlpoint.hpp \
+    modules/ledconsumer.h \
     modules/scanner.hpp \
     scanner.h \
     updater.h \

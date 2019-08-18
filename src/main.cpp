@@ -48,6 +48,7 @@
 #include "updater.h"
 #include <QSslSocket>
 #include "gui/controlitemdata.h"
+#include "modules/ledconsumer.h"
 
 #ifdef DrMinGW
 #include "exchndl.h"
@@ -289,6 +290,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("Settings",&settings);
     engine.rootContext()->setContextProperty("spotify",&spotify);
     engine.rootContext()->setContextProperty("updater",&updater);
+    engine.rootContext()->setContextProperty("ledConsumer",&Modules::LedConsumer::allLedConsumer);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty("dmxOutputValues",&Driver::dmxValueModel);
     engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));

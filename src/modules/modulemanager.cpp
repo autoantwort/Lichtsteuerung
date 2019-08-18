@@ -9,6 +9,7 @@
 #include "dmxconsumer.h"
 #include "scanner.hpp"
 #include "scanner.h"
+#include "ledconsumer.h"
 
 namespace Modules {
 
@@ -84,6 +85,10 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         // add the DMXConsumer for the old driver
         consumer.emplace("DMXConsumer","With the DMXConsumer class you can write to the DMX Channels",-1,[](){
             return new DMXConsumer;
+        });
+        // add virtual led consumer to test
+        consumer.emplace("Virtual LED Consumer","With this led consumer you can view the led stripes in the light control application",-1,[](){
+            return new LedConsumer;
         });
     }
 
