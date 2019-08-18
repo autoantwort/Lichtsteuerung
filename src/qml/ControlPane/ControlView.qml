@@ -283,7 +283,7 @@ ControlPanel{
         }
         HelpEntry{
             titel: "Switch Group Settings"
-            explanation: "Here you can change the name and the timeouts of the group. You can also select the devices that should be switched on and off."
+            explanation: "Here you can change the name and the timeouts of the group. You can also select the devices that should be switched on and off. You can use regular expressions while searching for devices."
             component: help.switchControl ? help.switchControl.popup.contentItem : null
             visible: help.switchControl !== null && (UserManagment.currentUser.havePermission(Permission.CHANGE_TIMEOUTS) || UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_NAME) || UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_DEVICES));
             onEnter: {
@@ -337,7 +337,7 @@ ControlPanel{
         }
         HelpEntry{
             titel: "Dimmer Group Devices"
-            explanation: "Here you can select the devices that are affected by this dimmer group."
+            explanation: "Here you can select the devices that are affected by this dimmer group. You can use regular expressions while searching."
             component: help.dimmerControl ? help.dimmerControl.popup.background : null
             yShift: 65
             visible: help.dimmerControl !== null && (UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_DEVICES));
