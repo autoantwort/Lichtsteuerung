@@ -34,7 +34,8 @@ class Spotify : public QObject
     std::optional<Objects::UserObject> currentUser;
     QOAuth2AuthorizationCodeFlow spotify;
     detail::KnownUserVector knownUser;
-
+    bool isAutoLoginingUser = false;
+    int currentAutoLoginedUser;
     explicit Spotify(QObject *parent = nullptr);
 public:
     static Spotify& get(){static Spotify s; return s;}
@@ -48,6 +49,10 @@ public:
      * @brief loginUser log in a user that already exists
      */
     void loginUser(const Objects::UserObject &);
+    /**
+     * @brief autoLoginUser log in the first user where music is played
+     */
+    void autoLoginUser();
     const std::optional<Objects::CurrentPlayingObject>& getCurrentPlayingObject(){return currentPlayingObject;}
     const std::optional<Objects::AudioAnalysisObject>& getCurrentAudioAnalysis(){return currentAudioAnalysis;}
     const std::optional<Objects::AudioFeaturesObject>& getCurrentAudioFeatures(){return currentAudioFeatures;}
@@ -65,6 +70,7 @@ signals:
 protected slots:
     void updateAudioAnalysis();
     void updateAudioFeatures();
+    void checkLoginNextUser();
 protected:
     void updatePlayer();
 };

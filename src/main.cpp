@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
     auto & spotify = Spotify::get();
     Modules::ModuleManager::singletone()->setSpotify(&spotify);
-
+    spotify.autoLoginUser();
 
     QStringList dataList;
     const QMetaObject &mo = QEasingCurve::staticMetaObject;
