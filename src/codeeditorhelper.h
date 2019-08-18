@@ -69,6 +69,24 @@ protected:
     virtual bool filterAcceptsRow(int sourceRow,const QModelIndex &sourceParent) const override;
 };
 
+class CodeMarkup : public QObject{
+    Q_OBJECT
+    Q_PROPERTY(int row MEMBER row NOTIFY rowChanged)
+    Q_PROPERTY(int column MEMBER column NOTIFY columnChanged)
+    Q_PROPERTY(int markupLength MEMBER markupLength CONSTANT)
+    Q_PROPERTY(bool error MEMBER error CONSTANT)
+    Q_PROPERTY(QString message MEMBER message CONSTANT)
+public:
+    int row = 0, column = 0;
+    const QString message;
+    const int markupLength = 1;
+    const bool error;
+    CodeMarkup(int row, int column, int markupLength, bool error,const QString &message):row(row), column(column), markupLength(markupLength), error(error), message(message){}
+signals:
+    void rowChanged();
+    void columnChanged();
+};
+
 class CodeEditorHelper : public QObject
 {
     QQuickTextDocument* documentWrapper = nullptr;
@@ -76,16 +94,21 @@ class CodeEditorHelper : public QObject
     QMetaObject::Connection typeConnection;
     QMetaObject::Connection spotifyResponderConnection;
     CodeCompletions codeCompletions;
+    ModelVector<std::unique_ptr<CodeMarkup>> codeMarkups;
+    int lastLineCount;
 
     Q_PROPERTY(QQuickTextDocument* document READ getDocument WRITE setDocument NOTIFY documentChanged)
     Q_PROPERTY(Modules::Module* module READ getModule WRITE setModule NOTIFY moduleChanged)
     Q_PROPERTY(QAbstractItemModel * codeCompletions READ getCodeCompletions CONSTANT)
+    Q_PROPERTY(QAbstractItemModel * codeMarkups READ getCodeMarkups CONSTANT)
     Q_OBJECT
     /** Wird automatisch gelöscht, wenn das textdocument zerstört wird
      * @brief highlighter
      */
     CodeHighlighter * highlighter = nullptr;
     Modules::Module * module = nullptr;
+private:
+    void extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer);
 
 protected:
     int countTabs(int startPos);
@@ -93,6 +116,9 @@ protected:
 public:
     QAbstractItemModel * getCodeCompletions(){
         return &codeCompletions;
+    }
+    QAbstractItemModel * getCodeMarkups(){
+        return &codeMarkups;
     }
 
     void setModule(  Modules::Module* _module);
@@ -112,6 +138,7 @@ public:
              if(documentWrapper){
                 QObject::connect(documentWrapper->textDocument(),&QTextDocument::contentsChange,this,&CodeEditorHelper::contentsChange);
                 document = documentWrapper->textDocument();
+                lastLineCount = document->lineCount();
              }else
                 document = nullptr;
              if(document && !highlighter){

@@ -1,7 +1,9 @@
 #ifndef COMPILER_H
 #define COMPILER_H
+
 #include <QFileInfo>
 #include <functional>
+#include <utility>
 
 namespace Modules {
 
@@ -14,8 +16,7 @@ public:
     static QString includePath;
 
 public:
-    Compiler();
-    static void setCompilerCommand(QString s){compilerCmd = s;}
+    static void setCompilerCommand(QString s){compilerCmd = std::move(s);}
 
     /**
      * @brief Compiler::compileAndLoadModule compiles the code in the file to a module Library and load the module(and unload the old)
@@ -32,6 +33,5 @@ public:
     static std::pair<int,QString> compileToLibrary(const QString &code,const QString &newLibraryFile);
 };
 
-
-}
+}  // namespace Modules
 #endif // COMPILER_H
