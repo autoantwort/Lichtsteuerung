@@ -1,38 +1,29 @@
 #include "settings.h"
 
-QFileInfo Settings::localSettingsFile;
-
-Settings::Settings(QObject *parent) : QObject(parent), settings("Turmstraße 1 e.V.","Lichtsteuerung")
+Settings::Settings(QObject *parent) : QObject(parent), settings(QStringLiteral("Turmstraße 1 e.V."),QStringLiteral("Lichtsteuerung"))
 {
     if(localSettingsFile.exists()){
-        localSettings = QVariant::fromValue(new QSettings(localSettingsFile.filePath(),QSettings::IniFormat));
-        localSettings.value<QSettings*>()->setIniCodec("UTF-8");
+        localSettings.emplace(localSettingsFile.filePath(),QSettings::IniFormat);
+        localSettings->setIniCodec("UTF-8");
     }
-    Modules::Compiler::compilerCmd = value("compilerCmd",Modules::Compiler::compilerCmd).toString();
-    Modules::Compiler::compilerFlags = value("compilerFlags",Modules::Compiler::compilerFlags).toString();
-    Modules::Compiler::compilerLibraryFlags = value("compilerLibraryFlags",Modules::Compiler::compilerLibraryFlags).toString();
-    Modules::Compiler::includePath = value("includePath",Modules::Compiler::includePath).toString();
-}
-
-
-Settings::~Settings(){
-    if(localSettings.isValid()){
-        delete localSettings.value<QSettings*>();
-    }
+    Modules::Compiler::compilerCmd = value(QStringLiteral("compilerCmd"),Modules::Compiler::compilerCmd).toString();
+    Modules::Compiler::compilerFlags = value(QStringLiteral("compilerFlags"),Modules::Compiler::compilerFlags).toString();
+    Modules::Compiler::compilerLibraryFlags = value(QStringLiteral("compilerLibraryFlags"),Modules::Compiler::compilerLibraryFlags).toString();
+    Modules::Compiler::includePath = value(QStringLiteral("includePath"),Modules::Compiler::includePath).toString();
 }
 
 void Settings::setValue(const QString &key, const QVariant &value){
-    if(localSettings.isValid()){
-        if(localSettings.value<QSettings*>()->contains(key)){
-            localSettings.value<QSettings*>()->setValue(key,value);
+    if(localSettings){
+        if(localSettings->contains(key)){
+            localSettings->setValue(key,value);
         }
     }
     settings.setValue(key,value);
 }
 QVariant Settings::value(const QString &key, const QVariant &defaultValue) const{
-    if(localSettings.isValid()){
-        if(localSettings.value<QSettings*>()->contains(key)){
-            return localSettings.value<QSettings*>()->value(key,defaultValue);
+    if(localSettings){
+        if(localSettings->contains(key)){
+            return localSettings->value(key,defaultValue);
         }
     }
     return settings.value(key,defaultValue);

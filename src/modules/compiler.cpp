@@ -1,25 +1,20 @@
 #include "compiler.h"
+#include "modelmanager.h"
+#include <QDebug>
+#include <QDir>
+#include <QProcess>
 #include <QTemporaryFile>
 #include <QTextStream>
-#include <QProcess>
-#include <QDebug>
 #include <iostream>
-#include <QDir>
-#include "modelmanager.h"
+#include <utility>
 namespace Modules{
 
 
 
-QString Compiler::compilerCmd = "g++";
-QString Compiler::compilerLibraryFlags = "-shared -fPIC";
-QString Compiler::compilerFlags = "-std=c++14 -O3";
+QString Compiler::compilerCmd = QStringLiteral("g++");
+QString Compiler::compilerLibraryFlags = QStringLiteral("-shared -fPIC");
+QString Compiler::compilerFlags = QStringLiteral("-std=c++14 -O3 -Wextra -Wall");
 QString Compiler::includePath = QDir::currentPath();
-
-
-Compiler::Compiler()
-{
-
-}
 
 
 std::pair<int,QString> Compiler::compileAndLoadModule(const QFileInfo &sourceCode, const QString &moduleName, const QString &oldModuleName, std::function<std::string(const std::string&)> replaceOldModulesInProgramBlocks){
@@ -28,7 +23,7 @@ std::pair<int,QString> Compiler::compileAndLoadModule(const QFileInfo &sourceCod
     auto result = compileToLibrary(sourceCode,moduleFilePath);
     if(result.first == 0){
         ModuleManager::singletone()->unloadLibrary(oldModuleFilePath);
-        ModuleManager::singletone()->loadModule(ModuleManager::singletone()->getFreeAbsoluteFilePathForModule(moduleFilePath),replaceOldModulesInProgramBlocks);
+        ModuleManager::singletone()->loadModule(ModuleManager::singletone()->getFreeAbsoluteFilePathForModule(moduleFilePath),std::move(replaceOldModulesInProgramBlocks));
     }
     return result;
 }
@@ -43,7 +38,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+QFileInfo(includePath).absoluteFilePath() + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
 #elif defined(Q_OS_WIN)
-    tempOutputFileName+=".dll"; // we have to add .dll, otherwise the compiler will add .exe itselves
+    tempOutputFileName+=QLatin1String(".dll"); // we have to add .dll, otherwise the compiler will add .exe itselves
     QString tempName=tempOutputFileName + ".o";
     QString compilerCMD = compilerCmd.right(compilerCmd.length()-compilerCmd.lastIndexOf('/')-1);
     QString cmd = /*".\\" + */ compilerCMD + " -c \"" + file.absoluteFilePath() + "\" " + compilerFlags + " -o \"" + tempName+"\" -I\"" + QFileInfo(includePath).absoluteFilePath() + "\" ";
@@ -57,16 +52,13 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
     //p.setWorkingDirectory(compilerCmd.left(compilerCmd.lastIndexOf('/')));
 
     QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
-    env.insert("PATH", env.value("Path") + ";" +compilerCmd.left(compilerCmd.lastIndexOf('/')));
+    env.insert(QStringLiteral("PATH"), env.value(QStringLiteral("Path")) + ";" +compilerCmd.left(compilerCmd.lastIndexOf('/')));
     p.setProcessEnvironment(env);
    // p.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
     p.start("cmd /c " + cmd);
 #endif
     p.waitForFinished();
     auto err = p.readAllStandardError();
-    auto out = p.readAllStandardError();
-    if(err.length()>0)qDebug().noquote() <<"ERR : "<< QString(err);
-    if(out.length()>0)qDebug().noquote() <<"OuT : "<< QString(out);
     if(p.exitCode() != 0){
         qDebug() << p.errorString();
         qDebug() << p.error();
@@ -75,12 +67,12 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
         // we only have a .o ans need a .dll
         // cmd: g++ -shared -o foo.dll foo.dll.o
         QProcess oToDll;
-        oToDll.setEnvironment(QStringList() <<"PATH"<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
+        oToDll.setEnvironment(QStringList() <<QStringLiteral("PATH")<< compilerCmd.left(compilerCmd.lastIndexOf('/')));
         oToDll.start("cmd /c \" " + compilerCMD + " " + compilerLibraryFlags + " -o \"" + tempOutputFileName +"\"  \""+ tempName +"\" \"");
         oToDll.waitForFinished();
         QFile::rename(tempOutputFileName,absoluteNewLibraryFilePath);
         QFile::remove(tempName);
-        return{oToDll.exitCode(),oToDll.readAllStandardError()};
+        return{oToDll.exitCode(),err + oToDll.readAllStandardError()};
 
 #endif
 #ifdef Q_OS_MAC
@@ -108,4 +100,5 @@ std::pair<int,QString> Compiler::compileToLibrary(const QString &code, const QSt
     file.close();
     return compileToLibrary(file,newLibraryFile);
 }
-}
+
+}  // namespace Modules

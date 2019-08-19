@@ -8,9 +8,9 @@ QtObject {
     property real xShift: 0
     property real yShift: 0
     enum Position{
-        East, South, North, West
+        East, South, North, West, NotSet
     }
-    property int position: parent.defaultPosition ? parent.defaultPosition : HelpEntry.Position.East
+    property int position: HelpEntry.Position.NotSet
     signal leave;
     signal enter;
 }

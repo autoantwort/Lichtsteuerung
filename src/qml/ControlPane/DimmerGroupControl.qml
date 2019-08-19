@@ -324,11 +324,13 @@ ControlItem{
                 height: 125
                 clip:true
                 model: controlData?controlData.groupModel:null
+                id: deviceList
+                property var regex: new RegExp(search.text,"i");
                 delegate: CheckDelegate{
                     width: 200
                     text: modelData.name
                     visible: height !== 0
-                    height: modelData.name.startsWith(search.text,Qt.CaseInsensitive) * implicitHeight
+                    height: deviceList.regex.test(modelData.name) * implicitHeight
                     checked: use
                     clip:true
                     Behavior on height {

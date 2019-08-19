@@ -294,16 +294,14 @@ Item{
                             }
                             spinBoxValidator.bottom = data.minValue;
                             spinBoxValidator.top = data.maxValue;
-                            spinBox.visible = true;
-                        }else{
-                            if(data.type===4){
-                                checkBox.checked = data.value
-                            }
-
-                            spinBox.visible = false;
+                        }else if(data.type==4/*bool*/){
+                            checkBox.checked = data.value
+                        }else if(data.type==5/*string*/){
+                            textInput.text = data.value
                         }
-                        checkBox.visible = data.type === 4;
-
+                        spinBox.visible = data.type <= 3;
+                        checkBox.visible = data.type == 4;
+                        textInput.visible = data.type == 5;
                     }
                 }
 
@@ -333,6 +331,11 @@ Item{
                     }
                     CheckBox{
                         id:checkBox
+                    }
+                    TextInputField{
+                        Layout.margins: 10
+                        id:textInput
+                        onTextChanged: propertiesView.currentModelData.value = text;
                     }
                     Rectangle{
                         height: 1

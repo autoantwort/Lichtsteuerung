@@ -246,9 +246,30 @@ public:
     void dataChanged(int index_){
         emit QAbstractItemModel::dataChanged(index(index_), index(index_));
     }
+    void dataChanged(int index_, int length){
+        emit QAbstractItemModel::dataChanged(index(index_), index(index_ + length - 1));
+    }
 
     typename std::vector<Type>::const_reference operator[](int index)const{
         return model[index];
+    }
+
+    void resize(typename std::vector<Type>::size_type size){
+        auto diff = static_cast<int>(size) - ssize();
+        if(diff == 0){
+            return;
+        }
+        if(diff > 0) {
+            beginPushBack(diff);
+        } else {
+            beginRemoveRows(QModelIndex(),ssize()+diff, ssize()-1);
+        }
+        model.resize(size);
+        if(diff > 0) {
+            endPushBack();
+        } else {
+            endRemoveRows();
+        }
     }
 
     void clear(){

@@ -30,25 +30,48 @@ ControlPanel{
         anchors.margins: 5
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        onHoveredChanged: if(hovered)width=150;
+        onHoveredChanged: {
+            if(hovered){
+                width=150;
+            }
+            // if you hover only a very short time about the button, we have to redo the animation
+            const newText = programm.hovered ? "Add Programm" : "+";
+            if(newText !== textAnimation.newText && textAnimation.running){
+                textAnimation.newText = newText;
+                textAnimation.stop();
+                if(programm.text !== newText){
+                    textAnimation.start();
+                }else{
+                    programm.contentItem.opacity = 1;
+                }
+            }
+        }
+
         Behavior on width {
             NumberAnimation{
                 duration: 150
                 easing.type: Easing.OutQuad
                 onRunningChanged: {
-                    if(running)
-                        textAnimation.start();
                     if(running&&!programm.hovered){
-                        textAnimation.newText="Add Programm";
                         dimmerGroup.y = programm.y;
                         switchGroup.y = programm.y;
                         programBlock.y = programm.y;
                     }else if(!running&&programm.hovered){
-                        textAnimation.newText="+";
                         dimmerGroup.y = programm.y-programm.height;
                         switchGroup.y = programm.y-programm.height*2;
                         switchGroup.y = programm.y-programm.height*2;
                         programBlock.y = programm.y-programm.height*3;
+                    }
+                    const newText = programm.hovered ? "Add Programm" : "+";
+                    if(newText !== textAnimation.newText){
+                        textAnimation.newText = newText;
+                        textAnimation.stop();
+                        if(programm.text !== newText){
+                            textAnimation.start();
+                        }
+                    }
+                    if(running){
+                        textAnimation.start();
                     }
                 }
             }
@@ -260,7 +283,7 @@ ControlPanel{
         }
         HelpEntry{
             titel: "Switch Group Settings"
-            explanation: "Here you can change the name and the timeouts of the group. You can also select the devices that should be switched on and off."
+            explanation: "Here you can change the name and the timeouts of the group. You can also select the devices that should be switched on and off. You can use regular expressions while searching for devices."
             component: help.switchControl ? help.switchControl.popup.contentItem : null
             visible: help.switchControl !== null && (UserManagment.currentUser.havePermission(Permission.CHANGE_TIMEOUTS) || UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_NAME) || UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_DEVICES));
             onEnter: {
@@ -314,7 +337,7 @@ ControlPanel{
         }
         HelpEntry{
             titel: "Dimmer Group Devices"
-            explanation: "Here you can select the devices that are affected by this dimmer group."
+            explanation: "Here you can select the devices that are affected by this dimmer group. You can use regular expressions while searching."
             component: help.dimmerControl ? help.dimmerControl.popup.background : null
             yShift: 65
             visible: help.dimmerControl !== null && (UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_DEVICES));

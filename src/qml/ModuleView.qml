@@ -344,10 +344,42 @@ Item{
             Layout.fillHeight: true
             Layout.fillWidth: true
             onHoveredChanged: if(!hovered && listView.currentModelData)listView.currentModelData.code = codeEditor.text
+            clip: true
+            Rectangle{
+                anchors.fill: codeEditor
+                anchors.topMargin: codeEditor.topPadding
+                TextMetrics{
+                    font: codeEditor.font
+                    text: "M"
+                    id: textMetrics
+                }
+
+                Repeater{
+                    model: codeEditorHelper.codeMarkups
+                    Rectangle{
+                        x: modelData.column * (textMetrics.width+1)
+                        y: modelData.row * height
+                        width: modelData.markupLength * (textMetrics.width+1)
+                        height: codeEditor.lineHeight
+                        color: modelData.error ? "red" : "orange"
+                        MouseArea{
+                            anchors.fill: parent
+                            id: mouseArea
+                            acceptedButtons: Qt.NoButton
+                            hoverEnabled: true
+                        }
+                        ToolTip.text: modelData.message
+                        ToolTip.visible: mouseArea.containsMouse
+                    }
+                }
+            }
             TextArea{
+                property real lineHeight: contentHeight/lineCount
                 font.family: "Liberation Mono"
                 font.pointSize: 10
                 tabStopDistance: 16
+                hoverEnabled: false
+
                 id: codeEditor
                 selectByMouse: true
                 text: listView.currentModelData ? listView.currentModelData.code : "No Module selected"
@@ -408,7 +440,7 @@ Item{
                             anchors.fill: parent
                             id: descriptionLabel
                             wrapMode: "WordWrap"
-                            text: codeCompletionListView.currentItem ? odeCompletionListView.currentModelData.description : "Keine Beschreibung"
+                            text: codeCompletionListView.currentModelData ? codeCompletionListView.currentModelData.description : "Keine Beschreibung"
                             background: null
                         }
                         color: "beige"
@@ -433,8 +465,9 @@ Item{
                         clip: true
                         id: codeCompletionListView
                         model: codeEditorHelper.codeCompletions
+                        property var currentModelData: currentItem ? currentItem.itemData : null;
                         delegate: ItemDelegate {
-                            property var modelData: modelData
+                            property var itemData: modelData
                             text: modelData.completion.replace(/\n*\t*/g,"")
                             onClicked: codeCompletionListView.clickCurrentItem()
                             highlighted: ListView.isCurrentItem

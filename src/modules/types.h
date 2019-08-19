@@ -41,6 +41,12 @@ namespace Modules {
             this->b *= b / 255.f;
             return *this;
         }
+        bool operator==(rgb_t other)const{
+            return r == other.r && g == other.g && b == other.b;
+        }
+        bool operator!=(rgb_t other)const{
+            return !(*this==other);
+        }
     };
     static_assert (sizeof (rgb_t)==3, "size of rgb_t is not 3");
 

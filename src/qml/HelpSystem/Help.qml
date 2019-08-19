@@ -100,6 +100,12 @@ Popup {
             currentPosition = currentEntry.component.mapToItem(popup.parent,0,0);
         }
     }
+    Timer{
+        interval: 15
+        onTriggered: if(currentEntry)currentPosition = currentEntry.component.mapToItem(popup.parent,0,0);
+        repeat: true
+        running: popup.visible
+    }
 
     function computeRealIndex(index){
         if(index < 0 || index >= entries.length)
@@ -155,11 +161,11 @@ Popup {
             rotation: 45
             width: 20
             height: 20
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.horizontalCenter: parent.right
             states: [
                 State {
                     name: "east"
+                    id: ifHorizontal
+                    property real yPosition: currentEntry ? currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2  + currentEntry.yShift : yPosition
                     AnchorChanges {
                         target: arrow
                         anchors.verticalCenter: parent.verticalCenter
@@ -167,13 +173,13 @@ Popup {
                     }
                     PropertyChanges {
                         target: arrow
-                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2  + currentEntry.yShift )
+                        anchors.verticalCenterOffset: Math.min(0, -3 + ifHorizontal.yPosition) - (Overlay.overlay ? Math.min(0,Overlay.overlay.height - (ifHorizontal.yPosition + page.implicitHeight + popup.padding*2 - 3)) : 0)
                     }
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
                         x: currentEntry ? currentPosition.x + currentEntry.component.width + 20 + currentEntry.xShift : x
-                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift) : y
+                        y: Math.min(Overlay.overlay.height - page.implicitHeight - popup.padding*2 - 3, Math.max(3, ifHorizontal.yPosition))
                     }
                 },
                 State {
@@ -199,13 +205,13 @@ Popup {
                     }
                     PropertyChanges {
                         target: arrow
-                        anchors.verticalCenterOffset: Math.min(0, -3 + currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift )
+                        anchors.verticalCenterOffset: Math.min(0, -3 + ifHorizontal.yPosition) - (Overlay.overlay ? Math.min(0,Overlay.overlay.height - (ifHorizontal.yPosition + page.implicitHeight + popup.padding*2 - 3)) : 0)
                     }
                     PropertyChanges {
                         target: popup
                         restoreEntryValues: false
                         x: currentEntry ? currentPosition.x - width - 20 + currentEntry.xShift : x
-                        y: currentEntry ? Math.max(3, currentPosition.y + (currentEntry.component.height - page.implicitHeight)/2 + currentEntry.yShift) : y
+                        y: Math.min(Overlay.overlay.height - page.implicitHeight - popup.padding*2 - 3, Math.max(3, ifHorizontal.yPosition))
                     }
                 },
                 State {
@@ -257,6 +263,9 @@ Popup {
     Component.onCompleted: {
         for(var i in contentData){
             if(contentData[i] instanceof HelpEntry){
+                if(contentData[i].position === HelpEntry.Position.NotSet){
+                    contentData[i].position = defaultPosition;
+                }
                 entries.push(contentData[i]);
             }
         }
@@ -314,7 +323,7 @@ Popup {
                     Layout.fillWidth: true
                     Layout.preferredHeight: implicitHeight - 10
                     Layout.bottomMargin: -5
-                    onClicked: ++currentIndex
+                    onClicked: hasNextEntry ? ++currentIndex : currentIndex = -1
                 }
             }
             PageIndicator{
@@ -340,7 +349,7 @@ Popup {
                     radius: width / 2
                     color: pageIndicator.enabled ? pageIndicator.Material.foreground : pageIndicator.Material.hintTextColor
 
-                    opacity: index === currentIndex ? 0.95 : pressed ? 0.7 : 0.45
+                    opacity: index === pageIndicator.currentIndex ? 0.95 : pressed ? 0.7 : 0.45
                     Behavior on opacity { OpacityAnimator { duration: 100 } }
                 }
             }

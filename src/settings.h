@@ -1,17 +1,18 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "modules/compiler.h"
+#include <QDir>
+#include <QFile>
 #include <QObject>
 #include <QSettings>
-#include <QFile>
-#include <QDir>
-#include "modules/compiler.h"
+#include <optional>
 
 class Settings : public QObject
 {
     Q_OBJECT
     QSettings settings;
-    QVariant localSettings; //TODO replace with std::optionl when using c++17
+    std::optional<QSettings> localSettings;
     Q_PROPERTY(QString jsonSettingsFilePath READ getJsonSettingsFilePath WRITE setJsonSettingsFilePath NOTIFY jsonSettingsFilePathChanged)
     Q_PROPERTY(QString driverFilePath READ getDriverFilePath WRITE setDriverFilePath NOTIFY driverFilePathChanged)
     Q_PROPERTY(QString moduleDirPath READ getModuleDirPath WRITE setModuleDirPath NOTIFY moduleDirPathChanged)
@@ -21,7 +22,7 @@ class Settings : public QObject
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
     Q_PROPERTY(QString audioCaptureFilePath READ getAudioCaptureFilePath WRITE setAudioCaptureFilePath NOTIFY audioCaptureFilePathChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
-    static QFileInfo localSettingsFile;
+    static inline QFileInfo localSettingsFile;
 public:
     /**
      * @brief setLocalSettingFile sets a localSetting file that is loaded and preferred everytime a Settings object is created
@@ -35,54 +36,59 @@ protected:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant())const;
 public:
     explicit Settings(QObject *parent = nullptr);
-    ~Settings();
-    void setJsonSettingsFilePath(QString file){
-        if(file == getJsonSettingsFilePath())return;
+    void setJsonSettingsFilePath(const QString& file){
+        if(file == getJsonSettingsFilePath()) {
+            return;
+        }
         if(QFile::exists(file)){
-            setValue("jsonSettingsFilePath",file);
+            setValue(QStringLiteral("jsonSettingsFilePath"),file);
             emit jsonSettingsFilePathChanged();
         }
     }
-    QString getJsonSettingsFilePath()const{return value("jsonSettingsFilePath").toString();}
+    QString getJsonSettingsFilePath()const{return value(QStringLiteral("jsonSettingsFilePath")).toString();}
 
-    void setDriverFilePath(QString file){
-        if(file == getDriverFilePath())return;
+    void setDriverFilePath(const QString& file){
+        if(file == getDriverFilePath()) {
+            return;
+        }
         if(QFile::exists(file)){
-            setValue("driverFilePath",file);
+            setValue(QStringLiteral("driverFilePath"),file);
             emit driverFilePathChanged();
         }
     }
-    QString getDriverFilePath()const{return value("driverFilePath").toString();}
+    QString getDriverFilePath()const{return value(QStringLiteral("driverFilePath")).toString();}
 
-    void setAudioCaptureFilePath(QString file){
+    void setAudioCaptureFilePath(const QString& file){
         if(file == getAudioCaptureFilePath()){
             return;
         }
         if(QFile::exists(file)){
-            setValue("audioCaptureFilePath",file);
+            setValue(QStringLiteral("audioCaptureFilePath"),file);
             emit audioCaptureFilePathChanged();
         }
     }
-    QString getAudioCaptureFilePath()const{return value("audioCaptureFilePath").toString();}
+    QString getAudioCaptureFilePath()const{return value(QStringLiteral("audioCaptureFilePath")).toString();}
 
-    void setUpdatePauseInMs(unsigned int pause){setValue("updatePauseInMs",pause);emit updatePauseInMsChanged();}
-    unsigned int getUpdatePauseInMs()const{return value("updatePauseInMs").toUInt();}
+    void setUpdatePauseInMs(unsigned int pause){setValue(QStringLiteral("updatePauseInMs"),pause);emit updatePauseInMsChanged();}
+    unsigned int getUpdatePauseInMs()const{return value(QStringLiteral("updatePauseInMs")).toUInt();}
     void setModuleDirPath( const QString &_moduleDirPath){
-        if(_moduleDirPath == getModuleDirPath())
+        if(_moduleDirPath == getModuleDirPath()) {
             return;
-        if(!QDir(_moduleDirPath).exists())
+        }
+        if(!QDir(_moduleDirPath).exists()) {
             return;
-        setValue("moduleDirPath",_moduleDirPath);
+        }
+        setValue(QStringLiteral("moduleDirPath"),_moduleDirPath);
         emit moduleDirPathChanged();
     }
 
     QString getModuleDirPath() const {
-        return value("moduleDirPath").toString();
+        return value(QStringLiteral("moduleDirPath")).toString();
     }
 
     void setCompilerPath( const QString &_compilerPath){
         if(_compilerPath != Modules::Compiler::compilerCmd){
-            setValue("compilerCmd",_compilerPath);
+            setValue(QStringLiteral("compilerCmd"),_compilerPath);
             Modules::Compiler::compilerCmd = _compilerPath;
             emit compilerPathChanged();
         }
@@ -93,7 +99,7 @@ public:
     void setIncludePath( const QString &_includePath){
             if(_includePath != Modules::Compiler::includePath){
                     Modules::Compiler::includePath = _includePath;
-                    setValue("includePath",_includePath);
+                    setValue(QStringLiteral("includePath"),_includePath);
                     emit includePathChanged();
             }
     }
@@ -103,7 +109,7 @@ public:
 
     void setCompilerFlags( const QString &_compilerFlags){
       if(_compilerFlags != Modules::Compiler::compilerFlags){
-          setValue("compilerFlags",_compilerFlags);
+          setValue(QStringLiteral("compilerFlags"),_compilerFlags);
         Modules::Compiler::compilerFlags = _compilerFlags;
         emit compilerFlagsChanged();
       }
@@ -114,7 +120,7 @@ public:
 
     void setCompilerLibraryFlags( const QString &_compilerLibraryFlags){
         if(_compilerLibraryFlags != Modules::Compiler::compilerLibraryFlags){
-            setValue("compilerLibraryFlags",_compilerLibraryFlags);
+            setValue(QStringLiteral("compilerLibraryFlags"),_compilerLibraryFlags);
             Modules::Compiler::compilerLibraryFlags = _compilerLibraryFlags; emit compilerLibraryFlagsChanged();
         }
     }

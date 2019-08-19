@@ -98,8 +98,8 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
 }
 
 bool CodeCompletions::lessThan(const QModelIndex &left, const QModelIndex &right)const{
-    CodeCompletionEntry* leftData = sourceModel()->data(left).value<CodeCompletionEntry*>();
-    CodeCompletionEntry* rightData = sourceModel()->data(right).value<CodeCompletionEntry*>();
+    CodeCompletionEntry* leftData = sourceModel()->data(left, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
+    CodeCompletionEntry* rightData = sourceModel()->data(right, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
     return leftData->completion < rightData->completion;
 }
 
@@ -107,7 +107,7 @@ bool CodeCompletions::filterAcceptsRow(int sourceRow,
           const QModelIndex &sourceParent) const
   {
       QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-      CodeCompletionEntry* data = sourceModel()->data(index).value<CodeCompletionEntry*>();
+      CodeCompletionEntry* data = sourceModel()->data(index, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
       if(data) {
           return data->completion.contains(this->filterRegExp());
       } else {
@@ -740,6 +740,37 @@ int CodeEditorHelper::countTabs(int startPos){
 
 void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded){
     qDebug() << "pos " << from << " removed : " << charsRemoved << " added : " << charsAdded;
+    // remove all markups thats gets modified and move the others
+    const int lineDiff = document->lineCount() - lastLineCount;
+    for(auto i = codeMarkups.cbegin(); i != codeMarkups.cend();++i){
+        const auto & m = *i;
+        const auto block = document->findBlockByLineNumber(m->row);
+        const auto pos = block.position() + m->column;
+        if(pos >= from && pos <= from + std::max(charsAdded, charsRemoved)){
+            i = codeMarkups.erase(i);
+            --i;
+            continue;
+        }
+        const auto line = document->findBlock(from).firstLineNumber();
+        if(line == m->row){
+            if(from < pos){
+                // chars added/removed in same line before markup
+                m->column += charsAdded-charsRemoved - lineDiff;
+                emit m->columnChanged();
+            }
+        }
+        if(from < pos){
+            // check if lines gets added before position
+            if(lineDiff){
+                m->row += lineDiff;
+                emit m->rowChanged();
+            }
+
+        }
+    }
+    lastLineCount = document->lineCount();
+
+
     if(charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator){
         qDebug() << "Enter pressed :  " << document->characterAt(from-1);
         /*if(document->characterAt(from-1) == '{'){
@@ -967,6 +998,7 @@ void CodeEditorHelper::compile(){
     file.remove();
     if ( file.open(QIODevice::ReadWrite) )
     {
+        int lineCounter = 0;
         QString typeName = toName(module->getType());
         QString inputType = toName(module->getInputType());
         QString outputType = toName(module->getOutputType());
@@ -997,26 +1029,33 @@ void CodeEditorHelper::compile(){
         stream << "using namespace Modules;" << endl;
         stream << "using namespace std;" << endl;
         stream << "" << endl;
+        lineCounter += 15;
         stream << externCode << endl;
+        lineCounter += externCode.count("\n") + 1;
         stream << "" << endl;
         if(module->getType() == Modules::Module::Filter){
             stream << "class Impl : public Typed" << typeName << "<"<<inputType<<","<<outputType<<">{"<< endl;
         }else{
             stream << "class Impl : public Typed" << typeName << "<"<<outputType<<">{"<< endl;
         }
+        lineCounter += 2;
         for(const auto &p : module->getProperties()){
             writeDeclaration(stream,p);
+            ++lineCounter;
         }
         stream << "public:" << endl;
         stream << "Impl()" << getPropertiesNumericContructors(module->getProperties()) <<"{" << endl;
+        lineCounter += 2;
         for(const auto &p : module->getProperties()){
             writeConstructor(stream,p);
+            lineCounter += 3;
         }
         stream << "}" << endl;
         stream << "const char* getName()const final override{" << endl;
         stream <<   "return \"" << module->getName()<< "\";" << endl;
         stream << "}" << endl;
         stream << "" << endl;
+        lineCounter += 5;
         stream << userCode << endl; // write Code from document
         stream << "" << endl;
         stream << "};" << endl; // class end
@@ -1072,8 +1111,9 @@ void CodeEditorHelper::compile(){
 
         auto result = Modules::Compiler::compileAndLoadModule(file,module->getName(),module->getCompiledName(),[&](auto){return module->getCompiledName().toStdString();});
 
+        QFileInfo finfo = file;
+        extractErrors(result.second, finfo.absoluteFilePath(), lineCounter);
         if(result.first){
-            QFileInfo finfo = file;
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
         }else{
             emit information("Compilieren erfolgreich.");
@@ -1081,5 +1121,43 @@ void CodeEditorHelper::compile(){
         }
     }else{
         emit information("Cant open file : " + s.getModuleDirPath() + "/" + module->getName() + ".cpp");
+    }
+}
+
+void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer){
+    codeMarkups.clear();
+    for(const auto & line : compilerOutput.splitRef('\n')){
+        if(line.startsWith(absoluteFilePath)){
+            auto error = line.mid(absoluteFilePath.length() + 1);
+            if(!error.at(0).isNumber()){
+                continue;
+            }
+            // error is like: 26:7: error: 'const ...
+            int index = error.indexOf(':');
+            int row = error.mid(0,index).toInt();
+            error = error.mid(index + 1);
+            index = error.indexOf(':');
+            int column = error.mid(0,index).toInt();
+            error = error.mid(index+2);
+            bool isError = error.startsWith(QStringLiteral("error"));
+            index = error.indexOf(':');
+            const QString message = error.mid(index+1).toString();
+            index = message.lastIndexOf('\'');
+            int markupLength = 2;
+            if(index >= 0){
+                int firstIndex = message.lastIndexOf('\'',index-1);
+                if(firstIndex >= 0){
+                    markupLength = std::max(index-firstIndex-1,1);
+                }
+            }
+            // check if there are tabs in the row
+            const auto block = document->findBlockByLineNumber(row - startLineNumer);
+            for(int i = block.position(), end = block.position() + column;i < end;++i){
+                if(document->characterAt(i) == '\t'){
+                    ++column;
+                }
+            }
+            codeMarkups.push_back(std::make_unique<CodeMarkup>(row - startLineNumer, column - 1, markupLength, isError, message));
+        }
     }
 }

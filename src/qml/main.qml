@@ -1,11 +1,12 @@
 
-import QtQuick 2.7
+import QtQuick 2.12
 import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.0
+import QtQuick.Layouts 1.12
 import custom.licht 1.0
 import "ControlPane"
 import "components"
 import "HelpSystem"
+import "LedVisualisation"
 
 ApplicationWindow {
     visible: true
@@ -105,6 +106,9 @@ ApplicationWindow {
             VerticalTabButton {
                 text: qsTr("Module\nPrograms")
                 enabled: UserManagment.currentUser.havePermission(Permission.MODULE_PROGRAMS_TAB);
+            }
+            VerticalTabButton {
+                text: qsTr("LED\nVisualisations")
             }
             VerticalTabButton {
                 text: qsTr("Graph")
@@ -221,6 +225,10 @@ ApplicationWindow {
                 enabled: UserManagment.currentUser.havePermission(Permission.MODULE_PROGRAMS_TAB);
             }
 
+            LedVisualisationView{
+                onMoveToOwnWindow: ledWindow.moveToWindow(SwipeView.index);
+            }
+
             FFTGraphView{}
 
             Oscillogram{
@@ -232,6 +240,32 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    LedWindow{
+        id: ledWindow
+        property int insertAtIndex
+        function moveToWindow(index){
+            let wasNeverVisible = x === 0;
+            const globalPos = swipeView.itemAt(index).mapToGlobal(0,0);
+            if(wasNeverVisible) x = globalPos.x
+            view = swipeView.takeItem(index);
+            if(wasNeverVisible){
+                width = view.width;
+                y = globalPos.y + view.visibleChildren[0].height + 15 /*margin + spacing*/;
+            }
+            view.inOwnWindow = true;
+            if(wasNeverVisible) height = Math.min(view.height, view.implicitHeight);
+            visible = true;
+            insertAtIndex = index;
+            button = tabBar.takeItem(index);
+        }
+        onClosing: {
+            view.inOwnWindow = false;
+            swipeView.insertItem(insertAtIndex,view);
+            tabBar.insertItem(insertAtIndex, button);
+        }
+
     }
 
     Dialog{

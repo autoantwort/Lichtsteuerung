@@ -7,7 +7,7 @@ RoundButton {
     property double defaultOpacity: 0.7
     ToolTip.visible: hovered
     ToolTip.text: tooltipText
-    ToolTip.delay: 1000
+    ToolTip.delay: 500
 
     anchors.right: parent.right
     anchors.bottom: parent.bottom

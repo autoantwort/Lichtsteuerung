@@ -60,6 +60,7 @@ Spotify::Spotify(QObject *parent) : QObject(parent)
     });
     connect(this, &Spotify::currentTrackChanged,this, &Spotify::updateAudioAnalysis);
     connect(this, &Spotify::currentTrackChanged,this, &Spotify::updateAudioFeatures);
+    connect(this, &Spotify::currentPlayingObjectChanged,this, &Spotify::checkLoginNextUser);
     /**
      * @brief timer a timer to poll the spotify player status every 2.5 seconds
      */
@@ -96,6 +97,15 @@ void Spotify::loginUser(const Objects::UserObject & user){
         spotify.setRefreshToken(user.refreshToken);
         spotify.refreshAccessToken();
     }
+}
+
+void Spotify::autoLoginUser(){
+    if(isAutoLoginingUser || getKnownUser().size()==0){
+        return;
+    }
+    isAutoLoginingUser = true;
+    currentAutoLoginedUser = 0;
+    getKnownUser()[0].login();
 }
 
 QVariant Spotify::getCurrentUserAsVariant() const{
@@ -140,6 +150,24 @@ void Spotify::updateAudioFeatures(){
         if(currentAudioFeatures){
             currentAudioFeatures.reset();
             emit audioFeaturesChanged();
+        }
+    }
+}
+
+void Spotify::checkLoginNextUser(){
+    if (!isAutoLoginingUser) {
+        return;
+    }
+    if(currentPlayingObject){
+        if(currentPlayingObject->is_playing){
+            isAutoLoginingUser = false;
+        }else{
+            ++currentAutoLoginedUser;
+            if(currentAutoLoginedUser < getKnownUser().size()){
+                getKnownUser()[currentAutoLoginedUser].login();
+            }else {
+                isAutoLoginingUser = false;
+            }
         }
     }
 }

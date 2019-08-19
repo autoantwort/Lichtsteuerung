@@ -157,17 +157,24 @@ ControlItem{
                 Layout.columnSpan: 2
                 width: 200
                 height: 125
-                clip:true
+                clip: true
+                id: deviceList
+                property var regex: new RegExp(search.text,"i");
                 model: controlData?controlData.groupModel:null
                 delegate: CheckDelegate{
                     width: 200
                     text: modelData.name
-                    visible: modelData.name.startsWith(search.text,Qt.CaseInsensitive)
-                    height: modelData.name.startsWith(search.text,Qt.CaseInsensitive) ? implicitHeight : 0;
+                    visible: height !== 0
+                    height: deviceList.regex.test(modelData.name) ? implicitHeight : 0;
                     checked: use
-
                     onCheckedChanged: use = checked
-
+                    clip: true
+                    Behavior on height {
+                        NumberAnimation{
+                            duration: 250
+                            easing.type: "OutQuad"
+                        }
+                    }
                 }
             }
         }
