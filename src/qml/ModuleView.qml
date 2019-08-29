@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Controls.Material 2.2
 import QtQuick.Dialogs 1.2
+import QtQml 2.12
 import "components"
 
 Item{
@@ -527,16 +528,31 @@ Item{
                     module: listView.currentModelData
                     document: codeEditor.textDocument
                     onInsertText: {
-                        console.log(newText);
-                        codeEditor.insert(codeEditor.cursorPosition,newText);
-                        // Hack to display all new text, sometimes new text disappear
-                        //codeEditor.selectAll();
-                        //codeEditor.deselect();
-                        codeEditor.cursorPosition = pos;
+                        // deplay code and run at next iteration
+                        timer.setTimeout(function(){
+                            codeEditor.insert(codeEditor.cursorPosition,newText);
+                            codeEditor.cursorPosition = pos;
+                        }, 0);
+
                     }
                     onInformation:{
                         informationDialog.text = text
                         informationDialog.visible = true;
+                    }
+                }
+
+                Timer {
+                    // from https://stackoverflow.com/a/50224584/10162645
+                    id: timer
+                    function setTimeout(cb, delayTime) {
+                        timer.interval = delayTime;
+                        timer.repeat = false;
+                        timer.triggered.connect(cb);
+                        timer.triggered.connect(function release () {
+                            timer.triggered.disconnect(cb); // This is important
+                            timer.triggered.disconnect(release); // This is important as well
+                        });
+                        timer.start();
                     }
                 }
             }
