@@ -249,6 +249,14 @@ win32-g++{
     }
 }
 
+win32-g++{
+    #Aubio
+    !contains(QT_ARCH, i386){ # 64 bit
+        LIBS += -L$$PWD/'lib/aubio/lib/' -laubio-5
+        INCLUDEPATH += $$PWD/'lib/aubio/include'
+    }
+}
+
 win32-msvc{
     #AudioFFT
     LIBS += -L$$PWD/'lib/AudioFFT/dll/AudioFFT.dll'
