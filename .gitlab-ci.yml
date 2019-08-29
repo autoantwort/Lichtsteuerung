@@ -8,6 +8,8 @@ stages:
 build:
   stage: build
   script:
+    - chmod +x build_aubio.sh
+    - ./build_aubio.sh
     - mkdir -p build
     - cd build
     - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
