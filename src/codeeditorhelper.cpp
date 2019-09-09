@@ -1141,7 +1141,7 @@ void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QStrin
             error = error.mid(index+2);
             bool isError = error.startsWith(QStringLiteral("error"));
             index = error.indexOf(':');
-            const QString message = error.mid(index+1).toString();
+            const QString message = error.mid(index + 1).toString().trimmed();
             index = message.lastIndexOf('\'');
             int markupLength = 2;
             if(index >= 0){
@@ -1157,7 +1157,15 @@ void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QStrin
                     ++column;
                 }
             }
-            codeMarkups.push_back(std::make_unique<CodeMarkup>(row - startLineNumer, column - 1, markupLength, isError, message));
+            const auto realRow = row - startLineNumer;
+            const auto realColumn = column - 1;
+            if (codeMarkups.size() != 0 && codeMarkups.back()->row == realRow && codeMarkups.back()->column == realColumn) {
+                // there is already a code markup
+                auto &old = codeMarkups[codeMarkups.size() - 1];
+                codeMarkups.push_back(std::make_unique<CodeMarkup>(realRow, realColumn, markupLength, isError | old->error, old->message + "\n" + message));
+            } else {
+                codeMarkups.push_back(std::make_unique<CodeMarkup>(realRow, realColumn, markupLength, isError, message));
+            }
         }
     }
 }
