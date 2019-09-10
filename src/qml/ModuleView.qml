@@ -390,6 +390,11 @@ Item{
                         codeEditorHelper.updateCodeCompletionModel(codeEditor.cursorPosition);
                     }
                 }
+                cursorDelegate: Rectangle{
+                    width: 2;
+                    color: Qt.rgba(.2,.2,.2,1);
+                }
+
                 //onTextChanged: listView.currentModelData.code = text
                 Keys.onDownPressed: {
                     if(codeCompletionPopup.visible){
