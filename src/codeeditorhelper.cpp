@@ -860,7 +860,7 @@ QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyI
     if(p->getType() == Property::Bool){
         out << "BoolProperty _"<< p->getName()<< ';' << endl;
     }else if(p->getType() == Property::String){
-        out << "StringProperty _"<< p->getName()<< " = \"\";" << endl;
+        out << "StringProperty _" << p->getName() << ";" << endl;
     }else{
         out << "NumericProperty<"<< toName(p->getType())<<"> _"<<p->getName()<<";"<<endl;
     }
@@ -960,8 +960,8 @@ QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
         case Modules::Property::Long:
             s += "_" + p->getName() + "("+ QString::number(p->getMinValue())+","+QString::number(p->getMaxValue())+","+QString::number(p->getDefaultValue()) +"),";
             break;
-        case Modules::Property::Bool:
-            s += "_" + p->getName() + "("+ QString::number(p->getDefaultValue()) +"),";
+        case Modules::Property::Bool: s += "_" + p->getName() + "(" + QString::number(p->getDefaultValue()) + "),";
+        case Modules::Property::String: s += "_" + p->getName() + "(\"\"),";
         }
     }
     if(s.length()==1)

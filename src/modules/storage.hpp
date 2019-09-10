@@ -1,6 +1,9 @@
 #ifndef STORAGE_HPP
 #define STORAGE_HPP
 
+#include <cstdint>
+#include <string>
+
 namespace Modules {
 
 /**
@@ -9,12 +12,12 @@ namespace Modules {
 class SaveObject
 {
 public:
-    virtual void saveInt(const char*name,int) = 0;
-    virtual void saveFloat(const char*name,float) = 0;
-    virtual void saveDouble(const char*name,double) = 0;
-    virtual void saveBool(const char*name,bool) = 0;
-    virtual void saveLong(const char*name,long) = 0;
-    virtual void saveString(const char*name,const char * c) = 0;
+    virtual void saveInt(const char *name, int) = 0;
+    virtual void saveFloat(const char *name, float) = 0;
+    virtual void saveDouble(const char *name, double) = 0;
+    virtual void saveBool(const char *name, bool) = 0;
+    virtual void saveLong(const char *name, int64_t) = 0;
+    virtual void saveString(const char *name, const char *c) = 0;
 };
 
 /**
@@ -23,17 +26,17 @@ public:
 class LoadObject
 {
 public:
-    virtual int loadInt(const char*name, int defaultValue) const = 0;
-    virtual float loadFloat(const char*name, float defaultValue) const  = 0;
-    virtual double loadDouble(const char*name, double defaultValue)  const = 0;
-    virtual bool loadBool(const char*name, bool defaultValue)  const = 0;
-    virtual long loadLong(const char*name, long defaultValue)  const = 0;
+    virtual int loadInt(const char *name, int defaultValue) const = 0;
+    virtual float loadFloat(const char *name, float defaultValue) const = 0;
+    virtual double loadDouble(const char *name, double defaultValue) const = 0;
+    virtual bool loadBool(const char *name, bool defaultValue) const = 0;
+    virtual int64_t loadLong(const char *name, int64_t defaultValue) const = 0;
     /**
      * @brief loadStringOwn loads a string, the caller own the string and have to delete it
      * @param name the name of the property
      * @return the string or a nullptr if the property does not exist
      */
-    virtual char* loadStringOwn(const char*name, char* defaultValue)  const = 0;
+    virtual std::string loadStringOwn(const char *name, std::string defaultValue) const = 0;
 };
 
 /**
@@ -41,10 +44,10 @@ public:
  */
 class Serilerizeable{
 public:
-    virtual void save(SaveObject &s)const=0;
-    virtual void load(const LoadObject &l)=0;
+    virtual void save(SaveObject &s) const = 0;
+    virtual void load(const LoadObject &l) = 0;
 };
 
-}
+} // namespace Modules
 
 #endif // STORAGE_HPP
