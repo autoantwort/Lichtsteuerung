@@ -149,7 +149,7 @@ protected:
 public:
     explicit StringProperty(std::string value) : Property(Property::String), value(std::move(value)) {}
     void save(SaveObject &o) const override { o.saveString(name.c_str(), value.c_str()); }
-    void load(const LoadObject &l) override { value = l.loadStringOwn(name.c_str(), value); }
+    void load(const LoadObject &l) override { value = l.loadString(name.c_str(), value); }
     /**
      * @brief setValuetry to set the value, if that fails, false is returned
      * @param value the new value

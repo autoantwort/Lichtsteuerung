@@ -32,11 +32,12 @@ public:
     virtual bool loadBool(const char *name, bool defaultValue) const = 0;
     virtual int64_t loadLong(const char *name, int64_t defaultValue) const = 0;
     /**
-     * @brief loadStringOwn loads a string, the caller own the string and have to delete it
+     * @brief loadString loads a string
      * @param name the name of the property
-     * @return the string or a nullptr if the property does not exist
+     * @param defaultValue the value that is returned if the property with name name does not exists
+     * @return the string or the default value if the property does not exist
      */
-    virtual std::string loadStringOwn(const char *name, std::string defaultValue) const = 0;
+    virtual std::string loadString(const char *name, std::string defaultValue) const = 0;
 };
 
 /**

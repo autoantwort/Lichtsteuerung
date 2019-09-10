@@ -26,7 +26,7 @@ namespace Modules {
             auto r = o[name].toString().toLongLong(&ok);
             return ok ? r : defaultValue;
         }
-        std::string loadStringOwn(const char *name, std::string defaultValue) const override {
+        std::string loadString(const char *name, std::string defaultValue) const override {
             if(o.contains(name)){
                 return o[name].toString().toStdString();
             }
