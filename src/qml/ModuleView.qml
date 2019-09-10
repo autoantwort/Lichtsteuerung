@@ -396,6 +396,9 @@ Item{
                 }
 
                 //onTextChanged: listView.currentModelData.code = text
+                Keys.onTabPressed: {
+                    insert(cursorPosition,"  ");
+                }
                 Keys.onDownPressed: {
                     if(codeCompletionPopup.visible){
                         event.accepted = true;

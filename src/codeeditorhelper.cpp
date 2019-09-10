@@ -159,13 +159,13 @@ void addAudioTypes(PossibleCodeCompletions & model){
     model.push_back(new CodeCompletionEntry("fftOutput.","const Modules::FFTOutputView<float>&","Über fftOutput kann man auf die Analyse des AudioOuputs zugreifen. Diese besteht darin, das Audiosignal in einzele Frequenzbereiche einzuteilen.",false));
 }
 
-void addForLoops(PossibleCodeCompletions & model, int tabs){
+QString getSpaces(int count) { return QString(" ").repeated(count); }
+
+void addForLoops(PossibleCodeCompletions &model, int spaces) {
     QString brackets = "{\n";
-    for(int i=-1;i<=tabs;++i)
-        brackets.append('\t');
+    brackets.append(getSpaces(spaces + 2));
     brackets.append('\n');
-    for(int i=-1;i<tabs;++i)
-        brackets.append('\t');
+    brackets.append(getSpaces(spaces));
     brackets.append('}');
 
     model.push_back(new CodeCompletionEntry("for (int i = 0; i < ... ; ++i)"+brackets,"","Eine normale for schleife, die bis ... zählt."));
@@ -558,7 +558,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
         addDefaultVariables(codeCompletions.model,module);
         addArrayTypes(codeCompletions.model,module);
         addAudioTypes(codeCompletions.model);
-        addForLoops(codeCompletions.model,countTabs(cursorPos));
+        addForLoops(codeCompletions.model, countSpaces(cursorPos));
         addUserVariables(codeCompletions.model,cursorPos,module,document);
     }
 }
@@ -708,30 +708,31 @@ void CodeEditorHelper::spotifyResponderChanged(){
     QRegularExpression track("void +newTrack\\( *const *TrackObject *& *[a-zA-Z0-9_]+ *\\) *{");
     if(module->isSpotifyResponder()){
         if(text.indexOf(track)<0){
-            emit insertText("void newTrack(const TrackObject& track){\n\t\n}\n",0);
+            emit insertText("void newTrack(const TrackObject& track){\n  \n}\n", 0);
         }
         if(text.indexOf(section)<0){
-            emit insertText("void onSection(const SectionObject& section){\n\t\n}\n",0);
+            emit insertText("void onSection(const SectionObject& section){\n  \n}\n", 0);
         }
         if(text.indexOf(segment)<0){
-            emit insertText("void onSegment(const SegmentObject& segment){\n\t\n}\n",0);
+            emit insertText("void onSegment(const SegmentObject& segment){\n  \n}\n", 0);
         }
         if(text.indexOf(tatum)<0){
-            emit insertText("void onTatum(const TimeIntervalObject& tatum){\n\t\n}\n",0);
+            emit insertText("void onTatum(const TimeIntervalObject& tatum){\n  \n}\n", 0);
         }
         if(text.indexOf(bar)<0){
-            emit insertText("void onBar(const TimeIntervalObject& bar){\n\t\n}\n",0);
+            emit insertText("void onBar(const TimeIntervalObject& bar){\n  \n}\n", 0);
         }
         if(text.indexOf(beat)<0){
-            emit insertText("void onBeat(const TimeIntervalObject& beat){\n\t\n}\n",0);
+            emit insertText("void onBeat(const TimeIntervalObject& beat){\n  \n}\n", 0);
         }
     }
 }
 
-int CodeEditorHelper::countTabs(int startPos){
+int CodeEditorHelper::countSpaces(int startPos) {
     int counter = 0;
+    --startPos;
     while (startPos>=0 && document->characterAt(startPos) != QChar::ParagraphSeparator) {
-        if(document->characterAt(startPos) == QChar::Tabulation)
+        if (document->characterAt(startPos).isSpace())
             ++counter;
         --startPos;
     }
@@ -785,17 +786,15 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
             newText += '}';
             emit insertText(newText,from + tabs+ 2);
         }else{*/
-            int tabs = countTabs(from-1);
-            if(document->characterAt(from-1) == '{'){
-                tabs += 1;
-            }
-            if(tabs==0)
-                return;
-            QString newText;
-            qDebug()<<"write2 : "<<tabs;
-            for(int i = 0 ; i< tabs;++i)
-                newText += (QString(QChar::Tabulation));
-            emit insertText(newText,from + tabs +1);
+        int spaces = countSpaces(from);
+        if (document->characterAt(from - 1) == '{') {
+            spaces += 2;
+            // check if we should insert a closing }
+        }
+        if (spaces == 0) {
+            return;
+        }
+        emit insertText(QString(" ").repeated(spaces), from + spaces + 1);
         //}
     }
     if(charsAdded==1 && document->characterAt(from).isSpace() &&
@@ -803,14 +802,12 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
             document->characterAt(from-2) == 'o' &&
             document->characterAt(from-3) == 'f'){
         QString variableName = "i";
-        int tabs = countTabs(from-1);
+        int spaces = countSpaces(from - 1);
         QString newText = "(int " + variableName + " = 0; "+variableName+" < 10; ++"+variableName + "){\n";
-        for(int i = 0 ; i<= tabs;++i)
-            newText  += (QString(QChar::Tabulation));
+        newText += QString(" ").repeated(spaces + 2);
         auto pos = newText.length();
         newText += '\n';
-        for(int i = 0 ; i< tabs;++i)
-            newText += (QString(QChar::Tabulation));
+        newText += QString(" ").repeated(spaces);
         newText += '}';
         emit insertText(newText,from + pos + 1);
     }

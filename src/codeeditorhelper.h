@@ -111,7 +111,7 @@ private:
     void extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer);
 
 protected:
-    int countTabs(int startPos);
+    int countSpaces(int startPos);
     QString getType(QString variable, int pos);
 public:
     QAbstractItemModel * getCodeCompletions(){
