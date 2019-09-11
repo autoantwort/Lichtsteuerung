@@ -730,11 +730,16 @@ void CodeEditorHelper::spotifyResponderChanged(){
 
 int CodeEditorHelper::countSpaces(int startPos) {
     int counter = 0;
-    --startPos;
-    while (startPos>=0 && document->characterAt(startPos) != QChar::ParagraphSeparator) {
-        if (document->characterAt(startPos).isSpace())
-            ++counter;
-        --startPos;
+    int i = startPos - 1;
+    // find start of line
+    while (i >= 0 && document->characterAt(i) != QChar::ParagraphSeparator) {
+        --i;
+    }
+    ++i;
+    // count number of spaces at the beginning of the line
+    while (i < startPos && document->characterAt(i).isSpace()) {
+        ++i;
+        ++counter;
     }
     return counter;
 }
@@ -771,31 +776,64 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
     }
     lastLineCount = document->lineCount();
 
-
-    if(charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator){
-        qDebug() << "Enter pressed :  " << document->characterAt(from-1);
-        /*if(document->characterAt(from-1) == '{'){
-            qDebug()<<"write";
-            int tabs = countTabs(from-1);
-            QString newText;
-            for(int i = 0 ; i<= tabs;++i)
-                newText  += (QString(QChar::Tabulation));
-            newText += '\n';
-            for(int i = 0 ; i< tabs;++i)
-                newText += (QString(QChar::Tabulation));
-            newText += '}';
-            emit insertText(newText,from + tabs+ 2);
-        }else{*/
-        int spaces = countSpaces(from);
+    if (charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator) {
+        const int spaces = countSpaces(from);
+        int cursorOffset = spaces + 1;
+        QString text = QStringLiteral(" ").repeated(spaces);
         if (document->characterAt(from - 1) == '{') {
-            spaces += 2;
+            text += "  ";
+            cursorOffset += 2;
             // check if we should insert a closing }
+            bool insideString = false;
+            QChar stringChar;
+            int openBrackets = 0;
+            for (int i = 0; i < document->characterCount(); ++i) {
+                auto currentChar = document->characterAt(i);
+                if (!insideString) {
+                    if (currentChar == '\'' || currentChar == '"') {
+                        int escapeChars = 0;
+                        int ei = i - 1;
+                        while (ei >= 0 && document->characterAt(ei) == '\\') {
+                            --ei;
+                            ++escapeChars;
+                        }
+                        // something like \\\"
+                        if (escapeChars % 2 == 1) {
+                            continue;
+                        }
+                        stringChar = currentChar;
+                        insideString = true;
+                    }
+                    if (currentChar == '{')
+                        ++openBrackets;
+                    else if (currentChar == '}')
+                        --openBrackets;
+                } else {
+                    if (currentChar == stringChar) {
+                        int escapeChars = 0;
+                        int ei = i - 1;
+                        while (ei >= 0 && document->characterAt(ei) == '\\') {
+                            --ei;
+                            ++escapeChars;
+                        }
+                        // something like \\\"
+                        if (escapeChars % 2 == 1) {
+                            continue;
+                        }
+                        insideString = false;
+                    }
+                }
+            }
+            if (openBrackets >= 1) {
+                text += '\n';
+                text += QStringLiteral(" ").repeated(spaces);
+                text += '}';
+            }
         }
-        if (spaces == 0) {
+        if (text.length() == 0) {
             return;
         }
-        emit insertText(QString(" ").repeated(spaces), from + spaces + 1);
-        //}
+        emit insertText(text, from + cursorOffset);
     }
     if(charsAdded==1 && document->characterAt(from).isSpace() &&
             document->characterAt(from-1) == 'r' &&
