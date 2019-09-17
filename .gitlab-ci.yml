@@ -9,7 +9,6 @@ build:
   stage: build
   script:
     - cd src/lib
-    - chmod +x build_libs.sh
     - ./build_libs.sh
     - cd ../..
     - mkdir -p build

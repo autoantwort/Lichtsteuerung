@@ -22,11 +22,7 @@ make
 cd ..
 # move important files to new folder
 mkdir -p lib
-echo "$GIT_DIR:"
-ls -al $GIT_DIR
-echo "$GIT_DIR/.libs:"
-ls -al $GIT_DIR/.libs
-mv $GIT_DIR/.libs/libbacktrace.a lib
+cp $GIT_DIR/.libs/libbacktrace.a lib
 mkdir -p include
-mv $GIT_DIR/backtrace.h include
+cp $GIT_DIR/backtrace.h include
 echo "Installation complete"

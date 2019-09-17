@@ -26,6 +26,6 @@ else
     # we are on linux and cross compile
 fi
 cd ..
-mv segvcatch.git/release/$EXTRA_DIR/libsegvcatch.a lib
-mv segvcatch.git/lib/segvcatch.h include
+cp segvcatch.git/release/$EXTRA_DIR/libsegvcatch.a lib
+cp segvcatch.git/lib/segvcatch.h include
 echo "Installation complete"
