@@ -22,9 +22,10 @@ else
     cmake ..
     make 
     cd ..
+    EXTRA_DIR="lib"
     # we are on linux and cross compile
 fi
 cd ..
-mv segvcatch.git/release/libsegvcatch.a lib
+mv segvcatch.git/release/$EXTRA_DIR/libsegvcatch.a lib
 mv segvcatch.git/lib/segvcatch.h include
 echo "Installation complete"

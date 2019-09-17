@@ -8,6 +8,10 @@ stages:
 build:
   stage: build
   script:
+    - cd src/lib
+    - chmod +x build_libs.sh
+    - ./build_libs.sh
+    - cd ../..
     - mkdir -p build
     - cd build
     - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
