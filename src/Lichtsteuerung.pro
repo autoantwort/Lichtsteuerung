@@ -45,6 +45,7 @@ SOURCES += \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
     scanner.cpp \
+    system_error_handler.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     test/DriverDummy.cpp \
@@ -108,6 +109,7 @@ HEADERS += \
     modules/ledconsumer.h \
     modules/scanner.hpp \
     scanner.h \
+    system_error_handler.h \
     updater.h \
     usermanagment.h \
     gui/channelprogrammeditor.h \
@@ -248,6 +250,18 @@ win32-g++{
         DEFINES += DrMinGW
     }
 }
+
+    #segvcatch
+    LIBS += -L$$PWD/'lib/segvcatch/lib' -lsegvcatch
+    INCLUDEPATH += $$PWD/'lib/segvcatch/include'
+
+
+    #boost stacktrace / libbacktrace
+    #see https://www.boost.org/doc/libs/1_66_0/doc/html/stacktrace/configuration_and_build.html
+    DEFINES += BOOST_STACKTRACE_USE_BACKTRACE
+    LIBS += -L$$PWD/'lib/libbacktrace/lib' -lbacktrace
+    INCLUDEPATH += $$PWD/'lib/libbacktrace/include'
+
 
 win32-msvc{
     #AudioFFT
