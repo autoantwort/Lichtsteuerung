@@ -13,7 +13,7 @@ namespace Modules{
 
 QString Compiler::compilerCmd = QStringLiteral("g++");
 QString Compiler::compilerLibraryFlags = QStringLiteral("-shared -fPIC");
-QString Compiler::compilerFlags = QStringLiteral("-std=c++14 -O3 -Wextra -Wall");
+QString Compiler::compilerFlags = QStringLiteral("-std=c++17 -g -O3 -Wextra -Wall");
 QString Compiler::includePath = QDir::currentPath();
 
 
