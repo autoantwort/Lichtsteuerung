@@ -140,10 +140,10 @@ namespace Modules {
     inline rgb_t::rgb_t(const hsl_t hsl) {
         // see https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative
         const auto kf = [&](const auto n) { return std::fmod(n + hsl.h / 30, 12.f); };
-        const auto a = [&](const auto n) { return hsl.s * std::min(hsl.l, 1 - hsl.l); };
+        const auto a = [&]() { return hsl.s * std::min(hsl.l, 1 - hsl.l); };
         const auto f = [&](const auto n) {
             const auto k = kf(n);
-            return hsl.l - a(n) * std::max(std::min(1.f, std::min(k - 3, 9 - k)), -1.f);
+            return hsl.l - a() * std::max(std::min(1.f, std::min(k - 3, 9 - k)), -1.f);
         };
         r = static_cast<brightness_t>(f(0) * 255.f);
         g = static_cast<brightness_t>(f(8) * 255.f);

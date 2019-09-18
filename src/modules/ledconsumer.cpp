@@ -12,6 +12,7 @@ LedConsumer::LedConsumer():Consumer(ValueType::RGB),name("No Name"){
 }
 
 void LedConsumer::timerEvent(QTimerEvent *event){
+    Q_UNUSED(event)
     if(lastName != name.getString()){
         emit nameChanged();
         lastName = name.getString();
