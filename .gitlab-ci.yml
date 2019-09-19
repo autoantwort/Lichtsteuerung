@@ -16,6 +16,10 @@ build:
     - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
     - make -j$(nproc)
     - cd ..
+  cache:
+    key: build_boost
+    paths:
+      - src/lib/boost/
   artifacts:
     paths:
       - build/release/Lichtsteuerung.exe

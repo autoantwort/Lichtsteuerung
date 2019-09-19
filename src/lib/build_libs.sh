@@ -10,4 +10,9 @@ cd libbacktrace
 ./build.sh
 cd ..
 
+echo $'\n\nBuild boost'
+cd boost
+./installOrBuild.sh
+cd ..
+
 echo "Lib installation complete"
