@@ -189,35 +189,20 @@ DISTFILES +=
 # QMAKE_CXXFLAGS += -lasan
 # LIBS += -lasan
 
-INCLUDEPATH += $$PWD/../
-
-win32-msvc{
-    LIBS += -L$$PWD/lib/boost/
-}
-
 win32-g++{
+    # boost
     CONFIG(debug, debug|release){
         DEBUG = d-
     } else {
         DEBUG =
     }
-    contains(QT_ARCH, i386){ # 32 bit
-        BITS = 32
-        LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
-    } else { # 64 bit
-        BITS = 64
-        # use the mingw73 builds
-        LIBS += -L$$PWD/'lib/boost/mingw73'  -lboost_coroutine-mgw73-mt-$${DEBUG}x64-1_69 -lboost_context-mgw73-mt-$${DEBUG}x64-1_69
-    }
-    INCLUDEPATH += $$PWD/'boost'
+    LIBS += -L$$PWD/'lib/boost/lib' -lboost_coroutine-mt-$${DEBUG}x64 -lboost_context-mt-$${DEBUG}x64
+    INCLUDEPATH += $$PWD/'lib/boost/include'
 }
 
 unix{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
-}
-win32-msvc{
-    LIBS += -L$$PWD/lib/boost/
 }
 
 macx{

@@ -26,10 +26,10 @@ Features:
 Siehe [hier](Docker.md).
 
 ## Abhängigkeiten 
-Die Lichtsteuerung hängt von ein paar anderen Projekten ab. 
+Die Lichtsteuerung hängt von ein paar anderen Projekten ab.  
+**Abhängigkeiten bauen:** im Ordner `src/lib` befindet sich die Datei `build_libs.sh`, dise muss vor dem ersten Bauen ausgeführt werden um alle Abhängigkeiten zu installieren. 
 #### [Boost](https://www.boost.org/)
-Boost wird benötigt, um bei Modules nicht lineare Codeausführung zu ermöglichen (Corotines). Boost läst sich unter Linux und Windows durch einen beliebigen Paketmanager installieren, für Windows ist die Anleitung [hier](boost.md) zu finden.  
-Hinweis für Windows: Im git liegen schon alle benötigten Header und libs, man muss boost nicht neu kompilieren. Man muss dies nur machen um boost zu updaten (dann bitte neue libs und header ins git pushen).
+Boost wird benötigt, um bei Modules nicht lineare Codeausführung zu ermöglichen (Corotines) und wird genutzt, um Stacktraces auszugeben. 
 
 #### [Capture_Windows_SoundOutput](https://git.rwth-aachen.de/leander.schulten/Capture_Windows_SoundOutput)
 Dieses Project ermöglicht das abfangen des Windows Audioausgangs. Für andere Plattformen ligen keine implementierungen vor, diese sind aber herzlich willkommen. Die kompilierte Version ist hier im git vorhanden.
