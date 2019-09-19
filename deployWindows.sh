@@ -41,25 +41,16 @@ echo "Finish running windeployqt"
 #copy boost libs
 
 if [[ $bit == "32" ]]; then
-	if [[ $biuld_type == "debug" ]]; then
-		boost_context_lib="libboost_contextd.dll"
-		boost_coroutine_lib="libboost_coroutined.dll"
-	else
-		boost_context_lib="libboost_context.dll"
-		boost_coroutine_lib="libboost_coroutine.dll"
-	fi
+	echo "32-Bit boost build are no longer supported!"
 else
 	if [[ $biuld_type == "debug" ]]; then
 		debug_infix="d-"
 	else
 		debug_infix=''
 	fi
-	boost_context_lib="mingw73/libboost_context-mgw73-mt-${debug_infix}x64-1_69.dll"
-	boost_coroutine_lib="mingw73/libboost_coroutine-mgw73-mt-${debug_infix}x64-1_69.dll"
-
+	cp "src/lib/boost/lib/libboost_coroutine-mt-${debug_infix}x64.dll" "$target_folder/"
+	cp "src/lib/boost/lib/libboost_context-mt-${debug_infix}x64.dll" "$target_folder/"
 fi
-cp "src/lib/boost/$boost_context_lib" "$target_folder/"
-cp "src/lib/boost/$boost_coroutine_lib" "$target_folder/"
 
 #copy AudioFFT
 cp "src/lib/AudioFFT/dll/win${bit}/AudioFFT.dll" "$target_folder"

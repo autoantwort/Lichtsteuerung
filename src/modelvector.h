@@ -134,7 +134,7 @@ public:
     Type erase(int i){
         Q_ASSERT(i>=0 && i < static_cast<int>(size()));
         beginRemoveRows(QModelIndex(),i,i);
-        auto result = model[i];
+        auto result = std::move(model[i]);
         model.erase(model.cbegin() + i);
         endRemoveRows();
         return result;

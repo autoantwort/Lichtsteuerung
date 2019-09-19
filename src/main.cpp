@@ -1,62 +1,62 @@
-#include <QCoreApplication>
-#include <QDebug>
-#include <id.h>
-#include "dmx/device.h"
-#include "dmx/channel.h"
 #include "applicationdata.h"
-#include "dmx/programm.h"
-#include <QMetaProperty>
-#include "dmx/dmxchannelfilter.h"
-#include <chrono>
-#include <QEasingCurve>
-#include <cmath>
-#include <QCryptographicHash>
-#include "usermanagment.h"
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
-#include "dmx/device.h"
-#include <QQmlContext>
-#include <QFileInfo>
-#include <limits>
-#include "modelmanager.h"
-#include "gui/channelprogrammeditor.h"
-#include "gui/mapview.h"
-#include "gui/mapeditor.h"
-#include "gui/controlitem.h"
-#include "gui/controlpanel.h"
-#include "errornotifier.h"
-#include <QQuickView>
-#include <QLibrary>
+#include "audio/audiocapturemanager.h"
+#include "codeeditorhelper.h"
 #include "dmx/HardwareInterface.h"
-#include "settings.h"
-#include <QDir>
+#include "dmx/channel.h"
+#include "dmx/device.h"
+#include "dmx/dmxchannelfilter.h"
 #include "dmx/driver.h"
+#include "dmx/programm.h"
+#include "errornotifier.h"
+#include "gui/channelprogrammeditor.h"
+#include "gui/colorplot.h"
+#include "gui/controlitem.h"
+#include "gui/controlitemdata.h"
+#include "gui/controlpanel.h"
+#include "gui/graph.h"
+#include "gui/mapeditor.h"
+#include "gui/mapview.h"
+#include "gui/oscillogram.h"
+#include "gui/programblockeditor.h"
+#include "modelmanager.h"
+#include "modules/dmxconsumer.h"
+#include "modules/ledconsumer.h"
+#include "modules/programblock.h"
+#include "settings.h"
+#include "sortedmodelview.h"
+#include "spotify/spotify.h"
+#include "system_error_handler.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
-#include "codeeditorhelper.h"
-#include "modules/programblock.h"
-#include "gui/programblockeditor.h"
-#include "gui/graph.h"
-#include <QTimer>
-#include "gui/oscillogram.h"
-#include "gui/colorplot.h"
-#include "audio/audiocapturemanager.h"
 #include "test/testsampleclass.h"
-#include "spotify/spotify.h"
-#include "modules/dmxconsumer.h"
-#include "sortedmodelview.h"
 #include "updater.h"
+#include "usermanagment.h"
+#include <QCoreApplication>
+#include <QCryptographicHash>
+#include <QDebug>
+#include <QDir>
+#include <QEasingCurve>
+#include <QFileInfo>
+#include <QGuiApplication>
+#include <QLibrary>
+#include <QMetaProperty>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
+#include <QQuickView>
 #include <QSslSocket>
-#include "gui/controlitemdata.h"
-#include "modules/ledconsumer.h"
+#include <QTimer>
+#include <chrono>
+#include <cmath>
+#include <id.h>
+#include <limits>
 
 #ifdef DrMinGW
 #include "exchndl.h"
 #include <QNetworkReply>
 #endif
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    error::initErrorHandler();
 #ifdef DrMinGW
     ExcHndlInit();
     auto path = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 #endif
 
     if (!QSslSocket::supportsSsl()) {
-        ErrorNotifier::showError("No OpenSSL library found!\nUpdates are not possible and the Spotify support does not work.");
+        ErrorNotifier::showError(QStringLiteral("No OpenSSL library found!\nUpdates are not possible and the Spotify support does not work."));
     }
 
     Updater updater;
@@ -130,8 +130,7 @@ int main(int argc, char *argv[])
     class CatchingErrorApplication : public QGuiApplication{
     public:
         CatchingErrorApplication(int &argc, char **argv):QGuiApplication(argc,argv){}
-        virtual ~CatchingErrorApplication(){}
-        virtual bool notify(QObject* receiver, QEvent* event)
+        bool notify(QObject* receiver, QEvent* event) override
         {
             try {
                 return QGuiApplication::notify(receiver, event);
@@ -139,13 +138,13 @@ int main(int argc, char *argv[])
                 qCritical("Error %s sending event %s to object %s (%s)",
                     e.what(), typeid(*event).name(), qPrintable(receiver->objectName()),
                     receiver->metaObject()->className());
-                QString error = QString("Error ") +e.what()+"sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
+                QString error = QStringLiteral("Error ") +e.what()+"sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
                 ErrorNotifier::get()->newError(error);
             } catch (...) {
                 qCritical("Error <unknown> sending event %s to object %s (%s)",
                     typeid(*event).name(), qPrintable(receiver->objectName()),
                     receiver->metaObject()->className());
-                QString error = QString("Error ") + "<unknown> sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
+                QString error = QStringLiteral("Error ") + "<unknown> sending event "+typeid(*event).name()+" to object "+ qPrintable(receiver->objectName())+" "+ receiver->metaObject()->className();
                 ErrorNotifier::get()->newError(error);
             }
 
@@ -185,7 +184,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ProgramBlockEditor>("custom.licht",1,0,"ProgramBlockEditor");
     qmlRegisterType<SortedModelVectorView>("custom.licht",1,0,"SortedModelVectorView");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
-    qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission","Singletone in c++");
+    qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission",QStringLiteral("Singletone in c++"));
     qmlRegisterUncreatableMetaObject(Updater::staticMetaObject,"custom.licht",1,0,"UpdaterState",QStringLiteral("Enum in c++"));
     qmlRegisterUncreatableMetaObject(ControlItemData::staticMetaObject,"custom.licht",1,0,"ControlType",QStringLiteral("Enum in c++"));
     qRegisterMetaType<UserManagment::Permission>("Permission");
@@ -200,14 +199,14 @@ int main(int argc, char *argv[])
     updater.checkForUpdate();
 
     // Load Settings and ApplicationData
-    Settings::setLocalSettingFile(QFileInfo("settings.ini"));
+    Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
-    QFile file("QTJSONFile.json");
+    QFile file(QStringLiteral("QTJSONFile.json"));
     if(!file.exists()){
         file.setFileName(settings.getJsonSettingsFilePath());
     }
     if(file.exists()){
-        file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss"));
+        file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
     }
     auto after = ApplicationData::loadData(file);
     // nachdem die Benutzer geladen wurden, auto login durchführen
@@ -235,10 +234,10 @@ int main(int argc, char *argv[])
         moduleTypeList.append(_metaEnum.key(i));
     }
     QStringList valueTypeList;
-    valueTypeList << "Brightness" << "RGB" ;
+    valueTypeList << QStringLiteral("Brightness") << QStringLiteral("RGB") ;
 
     QStringList modolePropertyTypeList;
-    modolePropertyTypeList << "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
+    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String");
     // Does not work: do it manually
     /*const QMetaObject &_momProp = Modules::detail::PropertyInformation::staticMetaObject;
     qDebug() << "Enum count" <<_momProp.enumeratorCount();
@@ -247,53 +246,53 @@ int main(int argc, char *argv[])
         modolePropertyTypeList.append(_metaEnumP.key(i));
     }*/
 
-    app.connect(&app,&QGuiApplication::lastWindowClosed,[&](){
+    CatchingErrorApplication::connect(&app,&QGuiApplication::lastWindowClosed,[&](){
         QFile savePath(settings.getJsonSettingsFilePath());
         ApplicationData::saveData(savePath);
         Driver::stopAndUnloadDriver();
         updater.runUpdateInstaller();
     });
-    settings.connect(&settings,&Settings::driverFilePathChanged,[&](){
+    Settings::connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
-    settings.connect(&settings,&Settings::audioCaptureFilePathChanged,[&](){
-        if(Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath())==false){
-            ErrorNotifier::get()->newError("Failed to load Audio Capture Library");
+    Settings::connect(&settings,&Settings::audioCaptureFilePathChanged,[&](){
+        if(!Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath())){
+            ErrorNotifier::get()->newError(QStringLiteral("Failed to load Audio Capture Library"));
         }
     });
-    settings.connect(&settings,&Settings::updatePauseInMsChanged,[&](){
+    Settings::connect(&settings,&Settings::updatePauseInMsChanged,[&](){
         if(Driver::getCurrentDriver()){
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
     });
     Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
-    settings.connect(&settings,&Settings::moduleDirPathChanged,[&](){
+    Settings::connect(&settings,&Settings::moduleDirPathChanged,[&](){
         Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     });
 
     ModelManager::get().setSettings(&settings);
-    engine.rootContext()->setContextProperty("ModelManager",&ModelManager::get());
-    engine.rootContext()->setContextProperty("easingModel",dataList);
-    engine.rootContext()->setContextProperty("ErrorNotifier",ErrorNotifier::get());
-    engine.setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
-    engine.rootContext()->setContextProperty("devicePrototypeModel",ModelManager::get().getDevicePrototypeModel());
-    engine.rootContext()->setContextProperty("modulesModel",Modules::ModuleManager::singletone()->getModules());
-    engine.rootContext()->setContextProperty("moduleTypeModel",moduleTypeList);
-    engine.rootContext()->setContextProperty("valueTypeList",valueTypeList);
-    engine.rootContext()->setContextProperty("modolePropertyTypeList",modolePropertyTypeList);
-    engine.rootContext()->setContextProperty("deviceModel",ModelManager::get().getDeviceModel());
-    engine.rootContext()->setContextProperty("programmModel",ModelManager::get().getProgramModel());
-    engine.rootContext()->setContextProperty("programmPrototypeModel",ModelManager::get().getProgramPrototypeModel());
-    engine.rootContext()->setContextProperty("programBlocksModel",&Modules::ProgramBlockManager::model);
-    engine.rootContext()->setContextProperty("userModel",UserManagment::get()->getUserModel());
-    engine.rootContext()->setContextProperty("UserManagment",UserManagment::get());
-    engine.rootContext()->setContextProperty("Settings",&settings);
-    engine.rootContext()->setContextProperty("spotify",&spotify);
-    engine.rootContext()->setContextProperty("updater",&updater);
-    engine.rootContext()->setContextProperty("ledConsumer",&Modules::LedConsumer::allLedConsumer);
+    engine.rootContext()->setContextProperty(QStringLiteral("ModelManager"),&ModelManager::get());
+    engine.rootContext()->setContextProperty(QStringLiteral("easingModel"),dataList);
+    engine.rootContext()->setContextProperty(QStringLiteral("ErrorNotifier"),ErrorNotifier::get());
+    QQmlApplicationEngine::setObjectOwnership(ErrorNotifier::get(),QQmlEngine::CppOwnership);
+    engine.rootContext()->setContextProperty(QStringLiteral("devicePrototypeModel"),ModelManager::get().getDevicePrototypeModel());
+    engine.rootContext()->setContextProperty(QStringLiteral("modulesModel"),Modules::ModuleManager::singletone()->getModules());
+    engine.rootContext()->setContextProperty(QStringLiteral("moduleTypeModel"),moduleTypeList);
+    engine.rootContext()->setContextProperty(QStringLiteral("valueTypeList"),valueTypeList);
+    engine.rootContext()->setContextProperty(QStringLiteral("modolePropertyTypeList"),modolePropertyTypeList);
+    engine.rootContext()->setContextProperty(QStringLiteral("deviceModel"),ModelManager::get().getDeviceModel());
+    engine.rootContext()->setContextProperty(QStringLiteral("programmModel"),ModelManager::get().getProgramModel());
+    engine.rootContext()->setContextProperty(QStringLiteral("programmPrototypeModel"),ModelManager::get().getProgramPrototypeModel());
+    engine.rootContext()->setContextProperty(QStringLiteral("programBlocksModel"),&Modules::ProgramBlockManager::model);
+    engine.rootContext()->setContextProperty(QStringLiteral("userModel"),UserManagment::get()->getUserModel());
+    engine.rootContext()->setContextProperty(QStringLiteral("UserManagment"),UserManagment::get());
+    engine.rootContext()->setContextProperty(QStringLiteral("Settings"),&settings);
+    engine.rootContext()->setContextProperty(QStringLiteral("spotify"),&spotify);
+    engine.rootContext()->setContextProperty(QStringLiteral("updater"),&updater);
+    engine.rootContext()->setContextProperty(QStringLiteral("ledConsumer"),&Modules::LedConsumer::allLedConsumer);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
-    engine.rootContext()->setContextProperty("dmxOutputValues",&Driver::dmxValueModel);
-    engine.load(QUrl(QLatin1String("qrc:/qml/main.qml")));
+    engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
+    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
 
     // laden erst nach dem laden des qml ausführen
@@ -330,12 +329,15 @@ int main(int argc, char *argv[])
     timer.setInterval(15);
     QObject::connect(&timer,&QTimer::timeout,[&](){
         if(Audio::AudioCaptureManager::get().isCapturing()){
-            if(Graph::getLast())
+            if(Graph::getLast()) {
                 Graph::getLast()->update();
-            if(Oscillogram::getLast())
+            }
+            if(Oscillogram::getLast()) {
                 Oscillogram::getLast()->update();
-            if(Colorplot::getLast())
+            }
+            if(Colorplot::getLast()) {
                 Colorplot::getLast()->update();
+            }
         }
     });
     timer.start();
@@ -344,5 +346,5 @@ int main(int argc, char *argv[])
 
     Modules::ModuleManager::singletone()->controller().start();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
-    return app.exec();
+    return CatchingErrorApplication::exec();
 }

@@ -442,8 +442,7 @@ void detail::PropertyInformation::updateValue(){
             break;
         case Property::Int: transferData<int>(this,property);
             break;
-        case Property::Long: transferData<long>(this,property);
-            break;
+        case Property::Long: transferData<int64_t>(this, property); break;
         case Property::Bool:
             property->asBool()->setValue(getValue().toBool());
             break;
@@ -457,12 +456,6 @@ void transferData(Modules::Property & p, GUI::detail::PropertyInformation &pi){
     pi.setValue(p.asNumeric<SourceType>()->getValue());
     pi.setMinValue(p.asNumeric<SourceType>()->getMin());
     pi.setMaxValue(p.asNumeric<SourceType>()->getMax());
-}
-template<>
-void transferData<long>(Modules::Property & p, GUI::detail::PropertyInformation &pi){
-    pi.setValue(static_cast<qlonglong>(p.asNumeric<long>()->getValue()));
-    pi.setMinValue(static_cast<qlonglong>(p.asNumeric<long>()->getMin()));
-    pi.setMaxValue(static_cast<qlonglong>(p.asNumeric<long>()->getMax()));
 }
 
 QQuickItem * ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event){
@@ -614,8 +607,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
                         break;
                     case Property::Int: transferData<int>(sp,tp);
                         break;
-                    case Property::Long: transferData<long>(sp,tp);
-                        break;
+                    case Property::Long: transferData<int64_t>(sp, tp); break;
                     case Property::Bool:
                         tp.setMinValue(0);
                         tp.setMaxValue(1);

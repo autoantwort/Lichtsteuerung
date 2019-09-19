@@ -159,13 +159,13 @@ void addAudioTypes(PossibleCodeCompletions & model){
     model.push_back(new CodeCompletionEntry("fftOutput.","const Modules::FFTOutputView<float>&","Über fftOutput kann man auf die Analyse des AudioOuputs zugreifen. Diese besteht darin, das Audiosignal in einzele Frequenzbereiche einzuteilen.",false));
 }
 
-void addForLoops(PossibleCodeCompletions & model, int tabs){
+QString getSpaces(int count) { return QString(" ").repeated(count); }
+
+void addForLoops(PossibleCodeCompletions &model, int spaces) {
     QString brackets = "{\n";
-    for(int i=-1;i<=tabs;++i)
-        brackets.append('\t');
+    brackets.append(getSpaces(spaces + 2));
     brackets.append('\n');
-    for(int i=-1;i<tabs;++i)
-        brackets.append('\t');
+    brackets.append(getSpaces(spaces));
     brackets.append('}');
 
     model.push_back(new CodeCompletionEntry("for (int i = 0; i < ... ; ++i)"+brackets,"","Eine normale for schleife, die bis ... zählt."));
@@ -558,7 +558,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
         addDefaultVariables(codeCompletions.model,module);
         addArrayTypes(codeCompletions.model,module);
         addAudioTypes(codeCompletions.model);
-        addForLoops(codeCompletions.model,countTabs(cursorPos));
+        addForLoops(codeCompletions.model, countSpaces(cursorPos));
         addUserVariables(codeCompletions.model,cursorPos,module,document);
     }
 }
@@ -708,32 +708,38 @@ void CodeEditorHelper::spotifyResponderChanged(){
     QRegularExpression track("void +newTrack\\( *const *TrackObject *& *[a-zA-Z0-9_]+ *\\) *{");
     if(module->isSpotifyResponder()){
         if(text.indexOf(track)<0){
-            emit insertText("void newTrack(const TrackObject& track){\n\t\n}\n",0);
+            emit insertText("void newTrack(const TrackObject& track){\n  \n}\n", 0);
         }
         if(text.indexOf(section)<0){
-            emit insertText("void onSection(const SectionObject& section){\n\t\n}\n",0);
+            emit insertText("void onSection(const SectionObject& section){\n  \n}\n", 0);
         }
         if(text.indexOf(segment)<0){
-            emit insertText("void onSegment(const SegmentObject& segment){\n\t\n}\n",0);
+            emit insertText("void onSegment(const SegmentObject& segment){\n  \n}\n", 0);
         }
         if(text.indexOf(tatum)<0){
-            emit insertText("void onTatum(const TimeIntervalObject& tatum){\n\t\n}\n",0);
+            emit insertText("void onTatum(const TimeIntervalObject& tatum){\n  \n}\n", 0);
         }
         if(text.indexOf(bar)<0){
-            emit insertText("void onBar(const TimeIntervalObject& bar){\n\t\n}\n",0);
+            emit insertText("void onBar(const TimeIntervalObject& bar){\n  \n}\n", 0);
         }
         if(text.indexOf(beat)<0){
-            emit insertText("void onBeat(const TimeIntervalObject& beat){\n\t\n}\n",0);
+            emit insertText("void onBeat(const TimeIntervalObject& beat){\n  \n}\n", 0);
         }
     }
 }
 
-int CodeEditorHelper::countTabs(int startPos){
+int CodeEditorHelper::countSpaces(int startPos) {
     int counter = 0;
-    while (startPos>=0 && document->characterAt(startPos) != QChar::ParagraphSeparator) {
-        if(document->characterAt(startPos) == QChar::Tabulation)
-            ++counter;
-        --startPos;
+    int i = startPos - 1;
+    // find start of line
+    while (i >= 0 && document->characterAt(i) != QChar::ParagraphSeparator) {
+        --i;
+    }
+    ++i;
+    // count number of spaces at the beginning of the line
+    while (i < startPos && document->characterAt(i).isSpace()) {
+        ++i;
+        ++counter;
     }
     return counter;
 }
@@ -770,47 +776,76 @@ void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded
     }
     lastLineCount = document->lineCount();
 
-
-    if(charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator){
-        qDebug() << "Enter pressed :  " << document->characterAt(from-1);
-        /*if(document->characterAt(from-1) == '{'){
-            qDebug()<<"write";
-            int tabs = countTabs(from-1);
-            QString newText;
-            for(int i = 0 ; i<= tabs;++i)
-                newText  += (QString(QChar::Tabulation));
-            newText += '\n';
-            for(int i = 0 ; i< tabs;++i)
-                newText += (QString(QChar::Tabulation));
-            newText += '}';
-            emit insertText(newText,from + tabs+ 2);
-        }else{*/
-            int tabs = countTabs(from-1);
-            if(document->characterAt(from-1) == '{'){
-                tabs += 1;
+    if (charsAdded == 1 && document->characterAt(from) == QChar::ParagraphSeparator) {
+        const int spaces = countSpaces(from);
+        int cursorOffset = spaces + 1;
+        QString text = QStringLiteral(" ").repeated(spaces);
+        if (document->characterAt(from - 1) == '{') {
+            text += "  ";
+            cursorOffset += 2;
+            // check if we should insert a closing }
+            bool insideString = false;
+            QChar stringChar;
+            int openBrackets = 0;
+            for (int i = 0; i < document->characterCount(); ++i) {
+                auto currentChar = document->characterAt(i);
+                if (!insideString) {
+                    if (currentChar == '\'' || currentChar == '"') {
+                        int escapeChars = 0;
+                        int ei = i - 1;
+                        while (ei >= 0 && document->characterAt(ei) == '\\') {
+                            --ei;
+                            ++escapeChars;
+                        }
+                        // something like \\\"
+                        if (escapeChars % 2 == 1) {
+                            continue;
+                        }
+                        stringChar = currentChar;
+                        insideString = true;
+                    }
+                    if (currentChar == '{')
+                        ++openBrackets;
+                    else if (currentChar == '}')
+                        --openBrackets;
+                } else {
+                    if (currentChar == stringChar) {
+                        int escapeChars = 0;
+                        int ei = i - 1;
+                        while (ei >= 0 && document->characterAt(ei) == '\\') {
+                            --ei;
+                            ++escapeChars;
+                        }
+                        // something like \\\"
+                        if (escapeChars % 2 == 1) {
+                            continue;
+                        }
+                        insideString = false;
+                    }
+                }
             }
-            if(tabs==0)
-                return;
-            QString newText;
-            qDebug()<<"write2 : "<<tabs;
-            for(int i = 0 ; i< tabs;++i)
-                newText += (QString(QChar::Tabulation));
-            emit insertText(newText,from + tabs +1);
-        //}
+            if (openBrackets >= 1) {
+                text += '\n';
+                text += QStringLiteral(" ").repeated(spaces);
+                text += '}';
+            }
+        }
+        if (text.length() == 0) {
+            return;
+        }
+        emit insertText(text, from + cursorOffset);
     }
     if(charsAdded==1 && document->characterAt(from).isSpace() &&
             document->characterAt(from-1) == 'r' &&
             document->characterAt(from-2) == 'o' &&
             document->characterAt(from-3) == 'f'){
         QString variableName = "i";
-        int tabs = countTabs(from-1);
+        int spaces = countSpaces(from - 1);
         QString newText = "(int " + variableName + " = 0; "+variableName+" < 10; ++"+variableName + "){\n";
-        for(int i = 0 ; i<= tabs;++i)
-            newText  += (QString(QChar::Tabulation));
+        newText += QString(" ").repeated(spaces + 2);
         auto pos = newText.length();
         newText += '\n';
-        for(int i = 0 ; i< tabs;++i)
-            newText += (QString(QChar::Tabulation));
+        newText += QString(" ").repeated(spaces);
         newText += '}';
         emit insertText(newText,from + pos + 1);
     }
@@ -860,7 +895,7 @@ QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyI
     if(p->getType() == Property::Bool){
         out << "BoolProperty _"<< p->getName()<< ';' << endl;
     }else if(p->getType() == Property::String){
-        out << "StringProperty _"<< p->getName()<< " = \"\";" << endl;
+        out << "StringProperty _" << p->getName() << ";" << endl;
     }else{
         out << "NumericProperty<"<< toName(p->getType())<<"> _"<<p->getName()<<";"<<endl;
     }
@@ -960,8 +995,8 @@ QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
         case Modules::Property::Long:
             s += "_" + p->getName() + "("+ QString::number(p->getMinValue())+","+QString::number(p->getMaxValue())+","+QString::number(p->getDefaultValue()) +"),";
             break;
-        case Modules::Property::Bool:
-            s += "_" + p->getName() + "("+ QString::number(p->getDefaultValue()) +"),";
+        case Modules::Property::Bool: s += "_" + p->getName() + "(" + QString::number(p->getDefaultValue()) + "),";
+        case Modules::Property::String: s += "_" + p->getName() + "(\"\"),";
         }
     }
     if(s.length()==1)
@@ -1141,7 +1176,7 @@ void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QStrin
             error = error.mid(index+2);
             bool isError = error.startsWith(QStringLiteral("error"));
             index = error.indexOf(':');
-            const QString message = error.mid(index+1).toString();
+            const QString message = error.mid(index + 1).toString().trimmed();
             index = message.lastIndexOf('\'');
             int markupLength = 2;
             if(index >= 0){
@@ -1157,7 +1192,15 @@ void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QStrin
                     ++column;
                 }
             }
-            codeMarkups.push_back(std::make_unique<CodeMarkup>(row - startLineNumer, column - 1, markupLength, isError, message));
+            const auto realRow = row - startLineNumer;
+            const auto realColumn = column - 1;
+            if (codeMarkups.size() != 0 && codeMarkups.back()->row == realRow && codeMarkups.back()->column == realColumn) {
+                // there is already a code markup
+                auto &old = codeMarkups[codeMarkups.size() - 1];
+                codeMarkups.push_back(std::make_unique<CodeMarkup>(realRow, realColumn, markupLength, isError | old->error, old->message + "\n" + message));
+            } else {
+                codeMarkups.push_back(std::make_unique<CodeMarkup>(realRow, realColumn, markupLength, isError, message));
+            }
         }
     }
 }

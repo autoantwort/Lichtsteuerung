@@ -3,8 +3,9 @@
 
 #include "storage.hpp"
 #include <QJsonObject>
-#include <functional>
 #include <cstring>
+#include <functional>
+
 namespace Modules {
 
 
@@ -15,18 +16,19 @@ namespace Modules {
     {
         const QJsonObject &o;
     public:
-        JsonLoadObject(const QJsonObject &o):o(o){}
-        virtual int loadInt(const char*name, int defaultValue) const override{return o[name].toInt(defaultValue);}
-        virtual float loadFloat(const char*name, float defaultValue) const override {return static_cast<float>(o[name].toDouble(defaultValue));}
-        virtual double loadDouble(const char*name, double defaultValue)  const override{return o[name].toDouble(defaultValue);}
-        virtual bool loadBool(const char*name, bool defaultValue)  const override{return o[name].toBool(defaultValue);}
-        virtual long loadLong(const char*name, long defaultValue)  const override{return static_cast<long>(o[name].toDouble(defaultValue));}
-        virtual char* loadStringOwn(const char*name, char* defaultValue)  const override{
+        explicit JsonLoadObject(const QJsonObject &o) : o(o) {}
+        int loadInt(const char *name, int defaultValue) const override { return o[name].toInt(defaultValue); }
+        float loadFloat(const char *name, float defaultValue) const override { return static_cast<float>(o[name].toDouble(static_cast<double>(defaultValue))); }
+        double loadDouble(const char *name, double defaultValue) const override { return o[name].toDouble(defaultValue); }
+        bool loadBool(const char *name, bool defaultValue) const override { return o[name].toBool(defaultValue); }
+        int64_t loadLong(const char *name, int64_t defaultValue) const override {
+            bool ok;
+            auto r = o[name].toString().toLongLong(&ok);
+            return ok ? r : defaultValue;
+        }
+        std::string loadString(const char *name, std::string defaultValue) const override {
             if(o.contains(name)){
-                const auto data = o[name].toString().toLatin1();
-                char * d = new char[data.size()+1];
-                std::memcpy(d,data.constData(),data.size()+1);
-                return d;
+                return o[name].toString().toStdString();
             }
             return defaultValue;
         }
@@ -38,25 +40,13 @@ namespace Modules {
     class JsonSaveObject : public SaveObject{
         QJsonObject &o;
     public:
-        JsonSaveObject(QJsonObject &o):o(o){}
-        virtual void saveInt(const char*name,int i)  override{
-            o[name] = i;
-        }
-        virtual void saveFloat(const char*name,float f)  override{
-            o[name] = static_cast<double>(f);
-        }
-        virtual void saveDouble(const char*name,double d)  override{
-            o[name] = d;
-        }
-        virtual void saveBool(const char*name,bool b)  override{
-            o[name] = b;
-        }
-        virtual void saveLong(const char*name,long l)  override{
-            o[name] = static_cast<double>(l);
-        }
-        virtual void saveString(const char*name,const char * c)  override{
-            o[name] = c;
-        }
+        explicit JsonSaveObject(QJsonObject &o) : o(o) {}
+        void saveInt(const char *name, int i) override { o[name] = i; }
+        void saveFloat(const char *name, float f) override { o[name] = static_cast<double>(f); }
+        void saveDouble(const char *name, double d) override { o[name] = d; }
+        void saveBool(const char *name, bool b) override { o[name] = b; }
+        void saveLong(const char *name, int64_t l) override { o[name] = QString::number(l); }
+        void saveString(const char *name, const char *c) override { o[name] = c; }
     };
 
     /**
@@ -64,10 +54,8 @@ namespace Modules {
      * @param from the object from where the properties come from
      * @param to the object where the propertie goes to
      */
-    void transferProperties(Serilerizeable * from, Serilerizeable * to);
+    void transferProperties(Serilerizeable *from, Serilerizeable *to);
 
-
-
-}
+    } // namespace Modules
 
 #endif // JSON_STORAGE_H

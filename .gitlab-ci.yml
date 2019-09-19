@@ -8,14 +8,23 @@ stages:
 build:
   stage: build
   script:
+    - cd src/lib
+    - ./build_libs.sh
+    - cd ../..
     - mkdir -p build
     - cd build
     - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
     - make -j$(nproc)
     - cd ..
+  cache:
+    key: build_boost
+    paths:
+      - src/lib/boost/
   artifacts:
     paths:
       - build/release/Lichtsteuerung.exe
+      - src/lib/boost/lib/libboost_context-mt-x64.dll
+      - src/lib/boost/lib/libboost_coroutine-mt-x64.dll
 
 # we use this version file to check if a new version exists 
 version:
@@ -38,6 +47,8 @@ deploy:
       - windows-release
   script: 
     - cp build/release/Lichtsteuerung.exe windows-release-5.13.0
+    - cp src/lib/boost/lib/libboost_context-mt-x64.dll windows-release-5.13.0
+    - cp src/lib/boost/lib/libboost_coroutine-mt-x64.dll windows-release-5.13.0
     - mkdir -p windows-release-5.13.0/modulesHeader
     - cp -r src/modules windows-release-5.13.0/modulesHeader
     - echo "includePath=modulesHeader" >> windows-release-5.13.0/settings.ini

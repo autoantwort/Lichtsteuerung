@@ -81,7 +81,7 @@ public:
     const QString message;
     const int markupLength = 1;
     const bool error;
-    CodeMarkup(int row, int column, int markupLength, bool error,const QString &message):row(row), column(column), markupLength(markupLength), error(error), message(message){}
+    CodeMarkup(int row, int column, int markupLength, bool error,const QString &message):row(row), column(column), message(message), markupLength(markupLength), error(error){}
 signals:
     void rowChanged();
     void columnChanged();
@@ -111,7 +111,7 @@ private:
     void extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer);
 
 protected:
-    int countTabs(int startPos);
+    int countSpaces(int startPos);
     QString getType(QString variable, int pos);
 public:
     QAbstractItemModel * getCodeCompletions(){
