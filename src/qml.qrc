@@ -78,5 +78,7 @@
         <file>qml/HelpSystem/HelpEntry.qml</file>
         <file>qml/LedVisualisation/LedWindow.qml</file>
         <file>qml/LedVisualisation/LedVisualisationView.qml</file>
+        <file>qml/components/ColorDialog.qml</file>
+        <file>qml/components/ColorSlider.qml</file>
     </qresource>
 </RCC>
