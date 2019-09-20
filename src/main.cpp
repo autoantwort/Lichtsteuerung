@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
     valueTypeList << QStringLiteral("Brightness") << QStringLiteral("RGB") ;
 
     QStringList modolePropertyTypeList;
-    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String");
+    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String") << QStringLiteral("RGB Color");
     // Does not work: do it manually
     /*const QMetaObject &_momProp = Modules::detail::PropertyInformation::staticMetaObject;
     qDebug() << "Enum count" <<_momProp.enumeratorCount();

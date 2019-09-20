@@ -418,7 +418,6 @@ void transferData(GUI::detail::PropertyInformation *pi,Modules::Property * p){
 
 
 void detail::PropertyInformation::updateValue(){
-    qDebug()<<"set value";
     using namespace Modules;
     if(named){
         auto p = dynamic_cast<Program*>(named);
@@ -443,11 +442,12 @@ void detail::PropertyInformation::updateValue(){
         case Property::Int: transferData<int>(this,property);
             break;
         case Property::Long: transferData<int64_t>(this, property); break;
-        case Property::Bool:
-            property->asBool()->setValue(getValue().toBool());
+        case Property::Bool: property->asBool()->setValue(getValue().toBool()); break;
+        case Property::String: property->asString()->setValue(getValue().toString().toStdString()); break;
+        case Property::RGB:
+            auto c = getValue().value<QColor>();
+            property->asRGB()->setRGB(rgb_t{c.red(), c.green(), c.blue()});
             break;
-        case Property::String:
-            property->asString()->setValue(getValue().toString().toStdString());
     }
 }
 
@@ -613,8 +613,11 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
                         tp.setMaxValue(1);
                         tp.setValue(sp.asBool()->getValue());
                         break;
-                    case Property::String:
-                        tp.setValue(QString::fromStdString(sp.asString()->getString()));
+                    case Property::String: tp.setValue(QString::fromStdString(sp.asString()->getString())); break;
+                    case Property::RGB:
+                        const auto rgb = sp.asRGB()->getRGB();
+                        tp.setValue(QColor(rgb.r, rgb.g, rgb.b));
+                        break;
                 }
 
             }

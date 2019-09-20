@@ -41,6 +41,7 @@ namespace Modules {
             brightness_t rgb[3];
         };
         rgb_t(brightness_t r = 0, brightness_t g = 0, brightness_t b = 0) : r(r), g(g), b(b) {}
+        rgb_t(int r, int g, int b) : r(std::clamp(r, 0, 255)), g(std::clamp(g, 0, 255)), b(std::clamp(b, 0, 255)) {}
         rgb_t(Modules::hsl_t hsl);
         rgb_t(Modules::hsv_t hsv);
         hsl_t toHSL() const;
@@ -410,9 +411,10 @@ namespace Modules {
      * Must be here, in the Property.hpp we have no rgb_t type
      * @brief The RGBProperty class is a Property wrapper araoud the rgb_t type
      */
-    class RGBProperty : public Property{
-    private:
+    class RGBProperty : public Property {
         rgb_t value;
+
+    public:
         RGBProperty():Property(Property::RGB),value(0,0,0){}
 
         void save(SaveObject &o)const override{

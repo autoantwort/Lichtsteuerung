@@ -11,15 +11,15 @@ Window {
            Qt.WindowSystemMenuHint | Qt.WindowTitleHint | Qt.WindowCloseButtonHint
     property color currentColor;
     property color startColor;
-    onVisibleChanged: if(visible)swipeView.updateColorsAtCurrentPane();
+    onVisibleChanged: {
+        if(visible){
+            currentColor = startColor;
+            swipeView.updateColorsAtCurrentPane();
+        }
+    }
     signal colorSelected(color selectedColor);
     onClosing: colorSelected(currentColor);
 
-    function showDialog(startColor){
-        currentColor = startColor;
-        this.startColor = startColor;
-        visible = true;
-    }
 
     ColumnLayout{
         anchors.fill: parent
