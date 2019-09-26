@@ -17,4 +17,4 @@ else
     # we are on linux and cross compile
     ./waf configure --disable-wavwrite --disable-wavread  --with-target-platform=win64 --prefix= ""
 fi
-./waf install --disable-tests --disable-examples --destdir "$PWD/../src/lib/aubio"
+./waf install --disable-tests --disable-examples --destdir "$PWD/../"

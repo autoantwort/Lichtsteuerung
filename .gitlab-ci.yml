@@ -8,8 +8,6 @@ stages:
 build:
   stage: build
   script:
-    - chmod +x build_aubio.sh
-    - ./build_aubio.sh
     - cd src/lib
     - ./build_libs.sh
     - cd ../..
