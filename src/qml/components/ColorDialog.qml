@@ -108,15 +108,6 @@ Window {
                             GradientStop{ position: 0; color: Qt.rgba(red.value, green.value, 0, 1);}
                             GradientStop{ position: 1; color: Qt.rgba(red.value, green.value, 1, 1);}
                         }
-                        Component.onCompleted: {
-                            console.log("color rgb",Qt.rgba(1,0,0,1))
-                            console.log("color hsl",Qt.hsla(1,0,0,1))
-                            let c = Qt.hsla(.5,1,.5,1);
-                            console.log("Farbe:")
-                            for(let i in c){
-                                console.log(i, " : ", c[i]);
-                            }
-                        }
                     }
                 }
             }
@@ -180,15 +171,6 @@ Window {
                         gradient: Gradient{
                             GradientStop{ position: 0; color: Qt.hsva(hue.value,saturation.value,0,1);}
                             GradientStop{ position: 1; color: Qt.hsva(hue.value,saturation.value,1,1);}
-                        }
-                        Component.onCompleted: {
-                            console.log("color rgb",Qt.rgba(1,0,0,1))
-                            console.log("color hsl",Qt.hsla(1,0,0,1))
-                            let c = Qt.hsla(.5,1,.5,1);
-                            console.log("Farbe:")
-                            for(let i in c){
-                                console.log(i, " : ", c[i]);
-                            }
                         }
                     }
                 }
