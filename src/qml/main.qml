@@ -117,9 +117,6 @@ ApplicationWindow {
                 text: qsTr("Oscillogram")
             }
             VerticalTabButton {
-                text: qsTr("Colorplot")
-            }
-            VerticalTabButton {
                 text: qsTr("Audio Events")
             }
             Help{
@@ -237,11 +234,6 @@ ApplicationWindow {
             Oscillogram{
             }
 
-            Page{
-                contentItem: Label{
-                    text: "The ColorPlot is currently not supported"
-                }
-            }
             AudioEventsView{
                 visibleForUser: SwipeView.isCurrentItem
             }
