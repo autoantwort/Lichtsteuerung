@@ -35,7 +35,7 @@ class Spotify : public QObject
     QOAuth2AuthorizationCodeFlow spotify;
     detail::KnownUserVector knownUser;
     bool isAutoLoginingUser = false;
-    int currentAutoLoginedUser;
+    std::size_t currentAutoLoginedUser;
     explicit Spotify(QObject *parent = nullptr);
 public:
     static Spotify& get(){static Spotify s; return s;}

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import custom.licht 1.0
 import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Material 2.12
 import "components"
 
 Item{
@@ -298,10 +299,13 @@ Item{
                             checkBox.checked = data.value
                         }else if(data.type==5/*string*/){
                             textInput.text = data.value
+                        }else if(data.type==6/*rgb*/){
+                            colorChooser.currentColor = data.value;
                         }
                         spinBox.visible = data.type <= 3;
                         checkBox.visible = data.type == 4;
                         textInput.visible = data.type == 5;
+                        colorButton.visible = data.type == 6;
                     }
                 }
 
@@ -331,6 +335,23 @@ Item{
                     }
                     CheckBox{
                         id:checkBox
+                    }
+                    Button{
+                        Layout.fillWidth: true
+                        Layout.margins: 5
+                        text: "Select Color"
+                        id: colorButton
+                        Material.background: colorChooser.currentColor;
+                        Material.foreground: colorChooser.currentColor.hslLightness > 0.4 ? "black" : "white"
+                        onClicked: {
+                            colorChooser.startColor = colorChooser.currentColor;
+                            colorChooser.visible = true;
+                        }
+                        ColorDialog{
+                            id: colorChooser;
+                            onCurrentColorChanged: propertiesView.currentModelData.value = currentColor
+                            onColorSelected: colorChooser.currentColor = selectedColor;
+                        }
                     }
                     TextInputField{
                         Layout.margins: 10

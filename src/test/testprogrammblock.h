@@ -36,12 +36,12 @@ void filter()override{
     }
 }
 
-    bool doStep(Modules::time_diff_t){
+    bool doStep(Modules::time_diff_t)override{
         return false;
     }
 
-    virtual const char* getName()const {return "TestFilter";}
-    virtual unsigned int computeOutputLength(unsigned int inputLength) {return inputLength;}
+    virtual const char* getName()const override{return "TestFilter";}
+    virtual unsigned int computeOutputLength(unsigned int inputLength) override{return inputLength;}
 };
 
 class ControlConsumer : public Modules::TypedConsumer<Modules::brightness_t>{

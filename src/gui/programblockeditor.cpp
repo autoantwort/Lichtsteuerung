@@ -418,7 +418,6 @@ void transferData(GUI::detail::PropertyInformation *pi,Modules::Property * p){
 
 
 void detail::PropertyInformation::updateValue(){
-    qDebug()<<"set value";
     using namespace Modules;
     if(named){
         auto p = dynamic_cast<Program*>(named);
@@ -442,13 +441,13 @@ void detail::PropertyInformation::updateValue(){
             break;
         case Property::Int: transferData<int>(this,property);
             break;
-        case Property::Long: transferData<long>(this,property);
+        case Property::Long: transferData<int64_t>(this, property); break;
+        case Property::Bool: property->asBool()->setValue(getValue().toBool()); break;
+        case Property::String: property->asString()->setValue(getValue().toString().toStdString()); break;
+        case Property::RGB:
+            auto c = getValue().value<QColor>();
+            property->asRGB()->setRGB(rgb_t{c.red(), c.green(), c.blue()});
             break;
-        case Property::Bool:
-            property->asBool()->setValue(getValue().toBool());
-            break;
-        case Property::String:
-            property->asString()->setValue(getValue().toString().toStdString());
     }
 }
 
@@ -457,12 +456,6 @@ void transferData(Modules::Property & p, GUI::detail::PropertyInformation &pi){
     pi.setValue(p.asNumeric<SourceType>()->getValue());
     pi.setMinValue(p.asNumeric<SourceType>()->getMin());
     pi.setMaxValue(p.asNumeric<SourceType>()->getMax());
-}
-template<>
-void transferData<long>(Modules::Property & p, GUI::detail::PropertyInformation &pi){
-    pi.setValue(static_cast<qlonglong>(p.asNumeric<long>()->getValue()));
-    pi.setMinValue(static_cast<qlonglong>(p.asNumeric<long>()->getMin()));
-    pi.setMaxValue(static_cast<qlonglong>(p.asNumeric<long>()->getMax()));
 }
 
 QQuickItem * ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event){
@@ -614,15 +607,17 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
                         break;
                     case Property::Int: transferData<int>(sp,tp);
                         break;
-                    case Property::Long: transferData<long>(sp,tp);
-                        break;
+                    case Property::Long: transferData<int64_t>(sp, tp); break;
                     case Property::Bool:
                         tp.setMinValue(0);
                         tp.setMaxValue(1);
                         tp.setValue(sp.asBool()->getValue());
                         break;
-                    case Property::String:
-                        tp.setValue(QString::fromStdString(sp.asString()->getString()));
+                    case Property::String: tp.setValue(QString::fromStdString(sp.asString()->getString())); break;
+                    case Property::RGB:
+                        const auto rgb = sp.asRGB()->getRGB();
+                        tp.setValue(QColor(rgb.r, rgb.g, rgb.b));
+                        break;
                 }
 
             }

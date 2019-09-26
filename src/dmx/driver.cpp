@@ -203,6 +203,7 @@ namespace Driver {
     }
 
 #else
+        Q_UNUSED(path)
 #warning Driverloading is only supported for Windows
 #endif
         return false;

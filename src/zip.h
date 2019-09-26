@@ -1,5 +1,5 @@
 #ifndef ZIP_H
-#define UZIP_H
+#define ZIP_H
 
 #include <QFileInfo>
 #include <functional>
@@ -9,4 +9,4 @@ namespace Zip {
 } // namespace Zip
 
 
-#endif // UZIP_H
+#endif // ZIP_H

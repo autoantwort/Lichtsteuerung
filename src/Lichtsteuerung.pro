@@ -49,6 +49,7 @@ SOURCES += \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
     scanner.cpp \
+    system_error_handler.cpp \
     test/testloopprogramm.cpp \
     settings.cpp \
     test/DriverDummy.cpp \
@@ -116,6 +117,7 @@ HEADERS += \
     modules/ledconsumer.h \
     modules/scanner.hpp \
     scanner.h \
+    system_error_handler.h \
     updater.h \
     usermanagment.h \
     gui/channelprogrammeditor.h \
@@ -195,35 +197,20 @@ DISTFILES +=
 # QMAKE_CXXFLAGS += -lasan
 # LIBS += -lasan
 
-INCLUDEPATH += $$PWD/../
-
-win32-msvc{
-    LIBS += -L$$PWD/lib/boost/
-}
-
 win32-g++{
+    # boost
     CONFIG(debug, debug|release){
         DEBUG = d-
     } else {
         DEBUG =
     }
-    contains(QT_ARCH, i386){ # 32 bit
-        BITS = 32
-        LIBS += -L$$PWD/'lib/boost'  -lboost_coroutine -lboost_context
-    } else { # 64 bit
-        BITS = 64
-        # use the mingw73 builds
-        LIBS += -L$$PWD/'lib/boost/mingw73'  -lboost_coroutine-mgw73-mt-$${DEBUG}x64-1_69 -lboost_context-mgw73-mt-$${DEBUG}x64-1_69
-    }
-    INCLUDEPATH += $$PWD/'boost'
+    LIBS += -L$$PWD/'lib/boost/lib' -lboost_coroutine-mt-$${DEBUG}x64 -lboost_context-mt-$${DEBUG}x64
+    INCLUDEPATH += $$PWD/'lib/boost/include'
 }
 
 unix{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
-}
-win32-msvc{
-    LIBS += -L$$PWD/lib/boost/
 }
 
 macx{
@@ -264,6 +251,17 @@ win32-g++{
         INCLUDEPATH += $$PWD/'lib/aubio/include'
     }
 }
+
+    #segvcatch
+    LIBS += -L$$PWD/'lib/segvcatch/lib' -lsegvcatch
+    INCLUDEPATH += $$PWD/'lib/segvcatch/include'
+
+
+    #boost stacktrace / libbacktrace
+    #see https://www.boost.org/doc/libs/1_66_0/doc/html/stacktrace/configuration_and_build.html
+    DEFINES += BOOST_STACKTRACE_USE_BACKTRACE
+    LIBS += -L$$PWD/'lib/libbacktrace/lib' -lbacktrace
+    INCLUDEPATH += $$PWD/'lib/libbacktrace/include'
 
 win32-msvc{
     #AudioFFT

@@ -172,7 +172,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             if(!QFileInfo::exists(fileName)&&!QFileInfo::exists(fileName+".old")){
                 if(!QFile::rename(name,fileName)){
                     auto msg = ("Renaming from " + name + " to " + fileName + " does not work").toLatin1();
-                    qCritical(msg.data());
+                    qCritical("%s",msg.data());
                 }
                 return fileName;
             }

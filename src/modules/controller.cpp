@@ -1,4 +1,9 @@
 #include "controller.h"
+#include "compiler.h"
+#include "errornotifier.h"
+#include "system_error_handler.h"
+#include <QDebug>
+#include <QProcess>
 #include <mutex>
 
 namespace Modules {
@@ -102,13 +107,75 @@ void Controller::run() noexcept{
         std::unique_lock<std::mutex> l(vectorLock);
         updateSpotifyState();
         for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
-            if((*pb)->doStep(1)){
-                deletingProgramBlock = (*pb).get();
-                (**pb).stop();
+            try {
+                if ((*pb)->doStep(1)) {
+                    deletingProgramBlock = (*pb).get();
+                    (**pb).stop();
+                    deletingProgramBlock = nullptr;
+                    pb = runningProgramms.erase(pb);
+                } else {
+                    ++pb;
+                }
+            } catch (const error::crash_error &e) {
+                QString msg(e.what());
+                for (const auto &frame : e.getStacktrace()) {
+                    const auto asString = boost::stacktrace::to_string(frame);
+                    if (asString.find("____") != std::string::npos) {
+                        QString filename;
+                        int lineNumber = -1;
+                        QProcess p;
+                        QString cmd = Compiler::compilerCmd;
+#ifdef Q_OS_WIN
+                        if (!cmd.endsWith(QLatin1String("g++.exe"))) {
+                            qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
+                        } else {
+                            cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
+                            const int length = std::strlen("0x00007FFA4E5CA299 in ");
+                            p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(length) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
+                            p.waitForFinished();
+                            QByteArray output = p.readAllStandardOutput();
+                            int seperator = output.lastIndexOf(':');
+                            filename = output.left(seperator);
+                            lineNumber = output.mid(seperator + 1).trimmed().toInt();
+                        }
+#else
+#warning OS not supported
+#endif
+                        if (lineNumber >= 0) {
+                            QFile file(filename);
+                            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                                break;
+                            }
+                            msg += " in line " + QString::number(lineNumber) + " in file " + filename.mid(filename.lastIndexOf('/') + 1) + "\n";
+                            int currentLineNumber = 0;
+                            while (!file.atEnd() && currentLineNumber < lineNumber + 2) {
+                                ++currentLineNumber;
+                                QByteArray line = file.readLine();
+                                if (currentLineNumber == lineNumber) {
+                                    msg += "->" + line;
+                                } else if (currentLineNumber == lineNumber - 1 || currentLineNumber == lineNumber + 1) {
+                                    msg += "     " + line;
+                                }
+                            }
+                            file.close();
+                        }
+                        break;
+                    }
+                }
+                ErrorNotifier::showError(QStringLiteral("Error while executing ") + (**pb).getName() + ":\n" + msg);
+                // if it was in a doStep call
+                if (deletingProgramBlock == nullptr) {
+                    try {
+                        deletingProgramBlock = (*pb).get();
+                        (**pb).stop();
+                    } catch (...) {
+                        // we ignore the error (the module is completly broken)
+                    }
+                }
+                // maybe inside the stop call
                 deletingProgramBlock = nullptr;
+                // we remove the programm from the running list
                 pb = runningProgramms.erase(pb);
-            }else{
-                ++pb;
             }
         }
         spotifyState.newTrack = false;

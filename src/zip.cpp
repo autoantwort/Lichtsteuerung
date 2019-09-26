@@ -13,6 +13,7 @@ void unzipPowershellNew(const QFileInfo& zip, const QFileInfo& unzip, const std:
     auto p = new QProcess();
     p->start(QStringLiteral("powershell.exe"), QStringList() << QStringLiteral("Expand-Archive") << QStringLiteral("-Force") << "\"" + zip.absoluteFilePath() + "\"" << "\"" + unzip.absoluteFilePath() + "\"");
     QObject::connect(p,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),[p,zip,unzip,callback](auto exitCode, auto exitStatus){
+        Q_UNUSED(exitStatus)
         if(exitCode != 0){
             qDebug() << "Failed to unzip " << zip << " to " << unzip << " with powershell new";
             qDebug().noquote() << "stderr : " << p->readAllStandardError();
@@ -28,6 +29,7 @@ void unzipPowershell(const QFileInfo& zip, const QFileInfo& unzip, const std::fu
     auto p = new QProcess();
     p->start(QStringLiteral("powershell.exe"), QStringList() << QStringLiteral("-nologo") << QStringLiteral("-noprofile") << "& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('"+zip.absoluteFilePath()+"', '"+unzip.absoluteFilePath()+"/unzippedDir'); }");
     QObject::connect(p,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),[p,zip,unzip,callback](auto exitCode, auto exitStatus){
+        Q_UNUSED(exitStatus)
         if(exitCode != 0){
             qDebug() << "Failed to unzip " << zip << " to " << unzip << " with powershell";
             qDebug().noquote() << "stderr : " << p->readAllStandardError();
@@ -44,6 +46,7 @@ void unzipWinrar(const QFileInfo& zip, const QFileInfo& unzip, const std::functi
     auto p = new QProcess();
     p->start(QStringLiteral("C:\\Program Files\\WinRAR\\winrar.exe"), QStringList() << QStringLiteral("x") << QStringLiteral("-ibck") << QStringLiteral("-o+") << zip.absoluteFilePath() << QStringLiteral("*.*") << unzip.absoluteFilePath());
     QObject::connect(p,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),[p,zip,unzip,callback](auto exitCode, auto exitStatus){
+        Q_UNUSED(exitStatus)
         if(exitCode != 0){
             qDebug() << "Failed to unzip " << zip << " to " << unzip << " with winrar";
             qDebug().noquote() << "stderr : " << p->readAllStandardError();
@@ -60,6 +63,7 @@ void unzip7Zip(const QFileInfo& zip, const QFileInfo& unzip, const std::function
     auto p = new QProcess();
     p->start(QStringLiteral("C:\\Program Files\\7-Zip\\7z.exe"), QStringList() << QStringLiteral("x") << QStringLiteral("-y") << zip.absoluteFilePath() << "-o" + unzip.absoluteFilePath());
     QObject::connect(p,qOverload<int,QProcess::ExitStatus>(&QProcess::finished),[p,zip,unzip,callback](auto exitCode, auto exitStatus){
+        Q_UNUSED(exitStatus)
         if(exitCode != 0){
             qDebug() << "Failed to unzip " << zip << " to " << unzip << " with 7zip";
             qDebug().noquote() << "stderr : " << p->readAllStandardError();

@@ -16,10 +16,11 @@ namespace Modules {
 
     using time_diff_t = int;
 
-    using brightness_t = unsigned char;
+    using brightness_t = uint8_t;
     static_assert(sizeof(brightness_t) == 1, "size of unsigned char is not 1");
 
     struct hsl_t;
+    struct hsv_t;
 
     struct rgb_t {
         union{
@@ -39,9 +40,12 @@ namespace Modules {
             };
             brightness_t rgb[3];
         };
-        rgb_t(brightness_t r=0, brightness_t g=0, brightness_t b=0):r(r),g(g),b(b){}
+        rgb_t(brightness_t r = 0, brightness_t g = 0, brightness_t b = 0) : r(r), g(g), b(b) {}
+        rgb_t(int r, int g, int b) : r(std::clamp(r, 0, 255)), g(std::clamp(g, 0, 255)), b(std::clamp(b, 0, 255)) {}
         rgb_t(Modules::hsl_t hsl);
+        rgb_t(Modules::hsv_t hsv);
         hsl_t toHSL() const;
+        hsv_t toHSV() const;
         rgb_t &operator*(brightness_t b) {
             this->r *= b / 255.f;
             this->g *= b / 255.f;
@@ -56,7 +60,7 @@ namespace Modules {
     static_assert(sizeof(rgb_t) == 3, "size of rgb_t is not 3");
 
     inline std::ostream &operator<<(std::ostream &o, const rgb_t rgb) {
-        o << "rgb{red=" << rgb.r << ",green=" << rgb.g << ",blue=" << rgb.b << "}";
+        o << "rgb{red=" << static_cast<int>(rgb.r) << ",green=" << static_cast<int>(rgb.g) << ",blue=" << static_cast<int>(rgb.b) << "}";
         return o;
     }
 
@@ -76,6 +80,7 @@ namespace Modules {
         hsl_t(float hue, float saturation = 1.f, float lightness = .5f) : h(hue), s(saturation), l(lightness) {}
         hsl_t() : h(0), s(1.f), l(0.f) {}
         hsl_t(const rgb_t rgb);
+        hsl_t(const hsv_t rgb);
         bool isValid() const { return h >= 0 && h <= 360 && s >= 0 && s <= 1 && l >= 0 && l <= 1; }
         void clampHueToRange() {
             hue = std::fmod(hue, 360.f);
@@ -89,6 +94,7 @@ namespace Modules {
             clampHueToRange();
         }
         rgb_t toRGB() const { return rgb_t(*this); }
+        hsv_t toHSV() const;
     };
 
     inline std::ostream &operator<<(std::ostream &o, const hsl_t hsl) {
@@ -135,14 +141,114 @@ namespace Modules {
     inline rgb_t::rgb_t(const hsl_t hsl) {
         // see https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB_alternative
         const auto kf = [&](const auto n) { return std::fmod(n + hsl.h / 30, 12.f); };
-        const auto a = [&](const auto n) { return hsl.s * std::min(hsl.l, 1 - hsl.l); };
+        const auto a = [&]() { return hsl.s * std::min(hsl.l, 1 - hsl.l); };
         const auto f = [&](const auto n) {
             const auto k = kf(n);
-            return hsl.l - a(n) * std::max(std::min(1.f, std::min(k - 3, 9 - k)), -1.f);
+            return hsl.l - a() * std::max(std::min(1.f, std::min(k - 3, 9 - k)), -1.f);
         };
         r = static_cast<brightness_t>(f(0) * 255.f);
         g = static_cast<brightness_t>(f(8) * 255.f);
         b = static_cast<brightness_t>(f(4) * 255.f);
+    }
+
+    struct hsv_t {
+        union {
+            float h;
+            float hue;
+        };
+        union {
+            float s;
+            float saturation;
+        };
+        union {
+            float v;
+            float value;
+        };
+        hsv_t(float hue, float saturation = 1.f, float value = 1.f) : h(hue), s(saturation), v(value) {}
+        hsv_t() : h(0), s(1.f), v(0.f) {}
+        hsv_t(const rgb_t rgb);
+        hsv_t(const hsl_t hsl);
+        bool isValid() const { return h >= 0 && h <= 360 && s >= 0 && s <= 1 && v >= 0 && v <= 1; }
+        void clampHueToRange() {
+            hue = std::fmod(hue, 360.f);
+            if (hue < 0) {
+                hue += 360;
+            }
+        }
+        void clampToRanges() {
+            s = std::clamp(s, 0.f, 1.f);
+            v = std::clamp(v, 0.f, 1.f);
+            clampHueToRange();
+        }
+        rgb_t toRGB() const { return *this; }
+        hsl_t toHSL() const { return *this; }
+    };
+
+    inline std::ostream &operator<<(std::ostream &o, const hsv_t hsv) {
+        o << "hsv{hue=" << hsv.hue << ",saturation=" << hsv.saturation << ",value=" << hsv.value << "}";
+        return o;
+    }
+
+    inline hsv_t::hsv_t(const rgb_t rgb) {
+        // see https://de.wikipedia.org/wiki/HSV-Farbraum#Umrechnung_RGB_in_HSV/HSL
+        const auto max = std::max(rgb.r, std::max(rgb.g, rgb.b));
+        const auto min = std::min(rgb.r, std::min(rgb.g, rgb.b));
+        const auto c = max - min;
+        if (c == 0) {
+            hue = 0;
+        } else {
+            const auto cf = c / 255.f;
+            if (max == rgb.r) {
+                const float diff = (rgb.g - rgb.b) / cf;
+                hue = diff / c;
+            } else if (max == rgb.g) {
+                const float diff = (rgb.b - rgb.r) / cf;
+                hue = 2 + diff / c;
+            } else if (max == rgb.b) {
+                const float diff = (rgb.r - rgb.g) / cf;
+                hue = 4 + diff / c;
+            }
+            hue *= 60.f;
+            if (hue < 0) {
+                hue *= 360.f;
+            }
+        }
+        if (max == 0) {
+            s = 0;
+        } else {
+            s = (max - min) / static_cast<float>(max);
+        }
+        v = max / 255.f;
+    }
+
+    inline hsv_t::hsv_t(const hsl_t hsl) : hue(hsl.hue) {
+        // see https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_HSV
+        v = hsl.l + hsl.s * std::min(hsl.l, 1.f - hsl.l);
+        s = v <= std::numeric_limits<float>::epsilon() * 2 ? 0 : 2 - 2 * hsl.l / v;
+    }
+    inline hsl_t::hsl_t(const hsv_t hsv) : hue(hsv.hue) {
+        // see https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_HSL
+        l = hsv.v - hsv.v * hsv.s / 2.f;
+        if (l <= std::numeric_limits<float>::epsilon() * 2 || (1.f - l) <= std::numeric_limits<float>::epsilon() * 2) {
+            l = 0;
+        } else {
+            s = (hsv.v - l) / std::min(l, 1.f - l);
+        }
+    }
+
+    inline hsv_t rgb_t::toHSV() const { return *this; }
+    inline hsv_t hsl_t::toHSV() const { return *this; }
+
+    inline rgb_t::rgb_t(const hsv_t hsv) {
+        // see https://en.wikipedia.org/wiki/HSL_and_HSV#HSV_to_RGB_alternative
+        const auto kf = [&](const auto n) { return std::fmod(n + hsv.h / 60, 6.f); };
+        const auto f = [&](const auto n) {
+            const auto k = kf(n);
+            return hsv.v - hsv.v * hsv.s * std::max(std::min(1.f, std::min(k, 4 - k)), 0.f);
+        };
+        r = static_cast<brightness_t>(f(5) * 255.f);
+        g = static_cast<brightness_t>(f(3) * 255.f);
+        b = static_cast<brightness_t>(f(1) * 255.f);
     }
 
     /**
@@ -305,9 +411,10 @@ namespace Modules {
      * Must be here, in the Property.hpp we have no rgb_t type
      * @brief The RGBProperty class is a Property wrapper araoud the rgb_t type
      */
-    class RGBProperty : public Property{
-    private:
+    class RGBProperty : public Property {
         rgb_t value;
+
+    public:
         RGBProperty():Property(Property::RGB),value(0,0,0){}
 
         void save(SaveObject &o)const override{

@@ -23,7 +23,7 @@ class LedConsumer : public ModelVector<rgb_t>, public Consumer
     int waitCounter = 0;
     bool active = false;
 protected:
-    void timerEvent(QTimerEvent*event);
+    void timerEvent(QTimerEvent*event) override;
 public:
     inline static ModelVector<LedConsumer*> allLedConsumer;
     LedConsumer();

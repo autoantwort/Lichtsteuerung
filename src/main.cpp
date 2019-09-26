@@ -4,7 +4,6 @@
 #include "dmx/HardwareInterface.h"
 #include "dmx/channel.h"
 #include "dmx/device.h"
-#include "dmx/device.h"
 #include "dmx/dmxchannelfilter.h"
 #include "dmx/driver.h"
 #include "dmx/programm.h"
@@ -26,6 +25,7 @@
 #include "settings.h"
 #include "sortedmodelview.h"
 #include "spotify/spotify.h"
+#include "system_error_handler.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
 #include "test/testsampleclass.h"
@@ -55,8 +55,8 @@
 #include <QNetworkReply>
 #endif
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
+    error::initErrorHandler();
 #ifdef DrMinGW
     ExcHndlInit();
     auto path = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation);
@@ -237,7 +237,7 @@ int main(int argc, char *argv[])
     valueTypeList << QStringLiteral("Brightness") << QStringLiteral("RGB") ;
 
     QStringList modolePropertyTypeList;
-    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String");
+    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String") << QStringLiteral("RGB Color");
     // Does not work: do it manually
     /*const QMetaObject &_momProp = Modules::detail::PropertyInformation::staticMetaObject;
     qDebug() << "Enum count" <<_momProp.enumeratorCount();
