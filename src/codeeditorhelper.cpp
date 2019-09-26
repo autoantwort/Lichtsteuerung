@@ -26,22 +26,16 @@ QString toName(Modules::ValueType t){
             return "wrong_type";
     }
 }
-QString toName(Modules::Property::Type t){
+QString toName(Modules::Property::Type t) {
     switch (t) {
-    case Modules::Property::Bool:
-    return "bool";
-    case Modules::Property::Double:
-    return "double";
-    case Modules::Property::Float:
-    return "float";
-    case Modules::Property::Int:
-    return "int";
-    case Modules::Property::Long:
-    return "long";
-    case Modules::Property::String:
-    return "std::string";
-        default:
-            return "wrong_type";
+        case Modules::Property::Bool: return QStringLiteral("bool");
+        case Modules::Property::Double: return QStringLiteral("double");
+        case Modules::Property::Float: return QStringLiteral("float");
+        case Modules::Property::Int: return QStringLiteral("int");
+        case Modules::Property::Long: return QStringLiteral("long");
+        case Modules::Property::String: return QStringLiteral("std::string");
+        case Modules::Property::RGB: return QStringLiteral("rgb_t");
+        default: return QStringLiteral("wrong_type");
     }
 }
 
@@ -892,12 +886,14 @@ void CodeHighlighter::highlightBlock(const QString &text)
 
 QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyInformation *p){
     using namespace Modules;
-    if(p->getType() == Property::Bool){
-        out << "BoolProperty _"<< p->getName()<< ';' << endl;
-    }else if(p->getType() == Property::String){
+    if (p->getType() == Property::Bool) {
+        out << "BoolProperty _" << p->getName() << ';' << endl;
+    } else if (p->getType() == Property::String) {
         out << "StringProperty _" << p->getName() << ";" << endl;
-    }else{
-        out << "NumericProperty<"<< toName(p->getType())<<"> _"<<p->getName()<<";"<<endl;
+    } else if (p->getType() == Property::RGB) {
+        out << "RGBProperty _" << p->getName() << ";" << endl;
+    } else {
+        out << "NumericProperty<" << toName(p->getType()) << "> _" << p->getName() << ";" << endl;
     }
     return out;
 }
@@ -946,9 +942,7 @@ void replacePropertiesUsages(QString &code, const Modules::PropertiesVector & ve
         case Modules::Property::String:
             code.replace(regex,"_" + p->getName() + ".asString()->getString()");
             break;
-        case Modules::Property::RGB:
-            code.replace(regex,"_" + p->getName() + ".asRGB()");
-            break;
+        case Modules::Property::RGB: code.replace(regex, "_" + p->getName() + ".asRGB()->getRGB()"); break;
         }
     }
 }

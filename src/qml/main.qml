@@ -119,6 +119,9 @@ ApplicationWindow {
             VerticalTabButton {
                 text: qsTr("Colorplot")
             }
+            VerticalTabButton {
+                text: qsTr("Audio Events")
+            }
             Help{
                 helpButton.anchors.left: parent.left
                 helpButton.anchors.right: undefined
@@ -238,6 +241,9 @@ ApplicationWindow {
                 contentItem: Label{
                     text: "The ColorPlot is currently not supported"
                 }
+            }
+            AudioEventsView{
+                visibleForUser: SwipeView.isCurrentItem
             }
         }
     }

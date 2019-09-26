@@ -15,4 +15,9 @@ cd boost
 ./installOrBuild.sh
 cd ..
 
+echo $'\n\nBuild Aubio'
+cd aubio
+./build_aubio.sh
+cd ..
+
 echo "Lib installation complete"

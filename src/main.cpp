@@ -8,6 +8,7 @@
 #include "dmx/driver.h"
 #include "dmx/programm.h"
 #include "errornotifier.h"
+#include "gui/audioeventdataview.h"
 #include "gui/channelprogrammeditor.h"
 #include "gui/colorplot.h"
 #include "gui/controlitem.h"
@@ -182,6 +183,7 @@ int main(int argc, char *argv[]) {
     qmlRegisterType<DMXChannelFilter>("custom.licht",1,0,"DMXChannelFilter");
     qmlRegisterType<CodeEditorHelper>("custom.licht",1,0,"CodeEditorHelper");
     qmlRegisterType<ProgramBlockEditor>("custom.licht",1,0,"ProgramBlockEditor");
+    qmlRegisterType<GUI::AudioEventDataView>("custom.licht", 1, 0, "AudioEventDataView");
     qmlRegisterType<SortedModelVectorView>("custom.licht",1,0,"SortedModelVectorView");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission",QStringLiteral("Singletone in c++"));
@@ -237,7 +239,7 @@ int main(int argc, char *argv[]) {
     valueTypeList << QStringLiteral("Brightness") << QStringLiteral("RGB") ;
 
     QStringList modolePropertyTypeList;
-    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String");
+    modolePropertyTypeList << QStringLiteral("Int") << QStringLiteral("Long") << QStringLiteral("Float") << QStringLiteral("Double") << QStringLiteral("Bool") << QStringLiteral("String") << QStringLiteral("RGB Color");
     // Does not work: do it manually
     /*const QMetaObject &_momProp = Modules::detail::PropertyInformation::staticMetaObject;
     qDebug() << "Enum count" <<_momProp.enumeratorCount();
