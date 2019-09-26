@@ -21,6 +21,7 @@ SOURCES += \
     audio/aubio/aubiocapi.cpp \
     audio/aubio/onsetanalysis.cpp \
     audio/aubio/tempoanalysis.cpp \
+    audio/audioeventdata.cpp \
     dmx/channel.cpp \
     gui/channelprogrammeditor.cpp \
     gui/colorplot.cpp \
@@ -100,6 +101,7 @@ HEADERS += \
     audio/aubio/aubiocapi.h \
     audio/aubio/onsetanalysis.h \
     audio/aubio/tempoanalysis.h \
+    audio/audioeventdata.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
     id.h \
