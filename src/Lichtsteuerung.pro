@@ -23,6 +23,7 @@ SOURCES += \
     audio/aubio/tempoanalysis.cpp \
     audio/audioeventdata.cpp \
     dmx/channel.cpp \
+    gui/audioeventdataview.cpp \
     gui/channelprogrammeditor.cpp \
     gui/colorplot.cpp \
     gui/controlitem.cpp \
@@ -120,6 +121,7 @@ HEADERS += \
     system_error_handler.h \
     updater.h \
     usermanagment.h \
+    gui/audioeventdataview.h \
     gui/channelprogrammeditor.h \
     modelmanager.h \
     gui/mapview.h \

@@ -119,6 +119,9 @@ ApplicationWindow {
             VerticalTabButton {
                 text: qsTr("Colorplot")
             }
+            VerticalTabButton {
+                text: qsTr("Audio Events")
+            }
             Help{
                 helpButton.anchors.left: parent.left
                 helpButton.anchors.right: undefined
@@ -235,6 +238,10 @@ ApplicationWindow {
             }
 
             Colorplot{}
+
+            AudioEventsView{
+                visibleForUser: SwipeView.isCurrentItem
+            }
         }
     }
 
