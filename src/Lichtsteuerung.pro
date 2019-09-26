@@ -18,7 +18,12 @@ QML_DESIGNER_IMPORT_PATH =
 
 SOURCES += \
     applicationdata.cpp \
+    audio/aubio/aubiocapi.cpp \
+    audio/aubio/onsetanalysis.cpp \
+    audio/aubio/tempoanalysis.cpp \
+    audio/audioeventdata.cpp \
     dmx/channel.cpp \
+    gui/audioeventdataview.cpp \
     gui/channelprogrammeditor.cpp \
     gui/colorplot.cpp \
     gui/controlitem.cpp \
@@ -95,6 +100,10 @@ DEFINES += _USE_MATH_DEFINES
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
+    audio/aubio/aubiocapi.h \
+    audio/aubio/onsetanalysis.h \
+    audio/aubio/tempoanalysis.h \
+    audio/audioeventdata.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
     id.h \
@@ -112,6 +121,7 @@ HEADERS += \
     system_error_handler.h \
     updater.h \
     usermanagment.h \
+    gui/audioeventdataview.h \
     gui/channelprogrammeditor.h \
     modelmanager.h \
     gui/mapview.h \
@@ -236,6 +246,14 @@ win32-g++{
     }
 }
 
+win32-g++{
+    #Aubio
+    !contains(QT_ARCH, i386){ # 64 bit
+        LIBS += -L$$PWD/'lib/aubio/lib/' -laubio-5
+        INCLUDEPATH += $$PWD/'lib/aubio/include'
+    }
+}
+
     #segvcatch
     LIBS += -L$$PWD/'lib/segvcatch/lib' -lsegvcatch
     INCLUDEPATH += $$PWD/'lib/segvcatch/include'
@@ -246,7 +264,6 @@ win32-g++{
     DEFINES += BOOST_STACKTRACE_USE_BACKTRACE
     LIBS += -L$$PWD/'lib/libbacktrace/lib' -lbacktrace
     INCLUDEPATH += $$PWD/'lib/libbacktrace/include'
-
 
 win32-msvc{
     #AudioFFT

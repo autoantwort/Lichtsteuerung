@@ -1,6 +1,7 @@
 #include "audiocapturemanager.h"
-#include "gui/graph.h"
+#include "errornotifier.h"
 #include "gui/colorplot.h"
+#include "gui/graph.h"
 #include "gui/oscillogram.h"
 #include <algorithm>
 
@@ -35,8 +36,38 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     sample.addData(data,data+frames*static_cast<unsigned>(channels),channels-1,firstIndex);
 
     audiofft.analyse(sample.data(),1,fftoutput.data());
-
-    //db scale
+    {
+        // feed the *analysis classes with new samples
+        unsigned restFrames = frames;
+        if (restFrames % 441 != 0) {
+            ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of 441 or x * 441. Can not analyse audio data."));
+        } else {
+            while (restFrames != 0) {
+                if (restFrames >= sample.size()) {
+                    // we have to ignore some data
+                    restFrames -= 441;
+                    continue;
+                }
+                for (auto &[onsetFunction, pair] : onsetAnalyzes) {
+                    bool wasOnset = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
+                    pair.second.addOnsetData(pair.second.getNewestSample(), pair.first.getOnsetValue(), 0);
+                    if (wasOnset) {
+                        pair.second.addEvent(pair.first.getLastOnset());
+                    }
+                    pair.second.increaseNewestSampleBy(441);
+                }
+                for (auto &[onsetFunction, pair] : tempoAnalyzes) {
+                    bool wasBeat = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
+                    if (wasBeat) {
+                        pair.second.addEvent(pair.first.getLastBeat());
+                    }
+                    pair.second.increaseNewestSampleBy(441);
+                }
+                restFrames -= 441;
+            }
+        }
+    }
+    // db scale
     std::transform(fftoutput.begin(),fftoutput.end(),fftoutput.begin(),[](auto i){return 10*std::log10(1+i);});
 
     if(GUI::Graph::getLast())
@@ -69,7 +100,24 @@ bool AudioCaptureManager::startCapturing(QString filePathToCaptureLibrary){
     return func;
 }
 
-
-
+const EventSeries &AudioCaptureManager::requestTempoAnalysis(Aubio::OnsetDetectionFunction f) {
+    // check if already there
+    if (const auto i = tempoAnalyzes.find(f); i != tempoAnalyzes.end()) {
+        return i->second.second;
+    }
+    // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
+    return tempoAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, 441, 44100), std::forward_as_tuple(44100))).first->second.second;
+    // short:  tempoAnalyzes.emplace(f, {Aubio::TempoAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
 }
 
+const OnsetDataSeries &AudioCaptureManager::requestOnsetAnalysis(Aubio::OnsetDetectionFunction f) {
+    // check if already there
+    if (const auto i = onsetAnalyzes.find(f); i != onsetAnalyzes.end()) {
+        return i->second.second;
+    }
+    // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
+    return onsetAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, 441, 44100), std::forward_as_tuple(44100))).first->second.second;
+    // short:  onsetAnalyzes.emplace(f, {Aubio::OnsetAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
+}
+
+} // namespace Audio
