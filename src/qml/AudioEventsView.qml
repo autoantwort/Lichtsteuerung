@@ -52,6 +52,7 @@ Item {
             anchors.fill: parent
             anchors.right: undefined
             anchors.leftMargin: 5
+            clip: true
 
             ScrollBar.vertical.policy: sidebar.show ? ScrollBar.AsNeeded : ScrollBar.AlwaysOff
             // scroll to the bottom at start
