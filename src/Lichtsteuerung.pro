@@ -18,6 +18,9 @@ QML_DESIGNER_IMPORT_PATH =
 
 SOURCES += \
     applicationdata.cpp \
+    audio/aubio/aubiocapi.cpp \
+    audio/aubio/onsetanalysis.cpp \
+    audio/aubio/tempoanalysis.cpp \
     dmx/channel.cpp \
     gui/channelprogrammeditor.cpp \
     gui/colorplot.cpp \
@@ -94,6 +97,9 @@ DEFINES += _USE_MATH_DEFINES
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 HEADERS += \
+    audio/aubio/aubiocapi.h \
+    audio/aubio/onsetanalysis.h \
+    audio/aubio/tempoanalysis.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
     id.h \
