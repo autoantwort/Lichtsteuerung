@@ -329,11 +329,8 @@ int main(int argc, char *argv[]) {
 
     QTimer timer;
     timer.setInterval(15);
-    QObject::connect(&timer,&QTimer::timeout,[&](){
-        if(Audio::AudioCaptureManager::get().isCapturing()){
-            if(Graph::getLast()) {
-                Graph::getLast()->update();
-            }
+    QObject::connect(&timer, &QTimer::timeout, [&]() {
+        if (Audio::AudioCaptureManager::get().isCapturing()) {
             if(Oscillogram::getLast()) {
                 Oscillogram::getLast()->update();
             }

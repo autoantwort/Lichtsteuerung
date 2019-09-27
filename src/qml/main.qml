@@ -232,7 +232,9 @@ ApplicationWindow {
                 onMoveToOwnWindow: ledWindow.moveToWindow(SwipeView.index);
             }
 
-            FFTGraphView{}
+            FFTGraphView{
+                visibleForUser: SwipeView.isCurrentItem
+            }
 
             Oscillogram{
             }

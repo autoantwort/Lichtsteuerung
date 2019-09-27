@@ -2,39 +2,40 @@
 #define GRAPH_H
 
 #include <QQuickItem>
+#include <atomic>
+#include <utility>
+#include <vector>
 
-namespace GUI{
+namespace GUI {
 
-class Graph : public QQuickItem
-{
+class Graph : public QQuickItem {
     Q_OBJECT
-    float data[2048];
-    int size = 0;
-    QColor lineColor = QColor(0,0,0);
+    std::vector<float> data;
+    QColor lineColor = QColor(0, 0, 0);
     Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
-    static Graph * lastCreated;
+    Q_PROPERTY(bool visibleForUser MEMBER visibleForUser NOTIFY visibleForUserChanged)
+    bool visibleForUser = true;
+    static Graph *lastCreated;
     std::atomic_bool haveNewData;
+
 public:
-    Graph();
-    ~Graph(){
-        if(lastCreated==this)
-            lastCreated = nullptr;
-    }
-    static Graph * getLast(){return lastCreated;}
-    void showData(float* data, int size){
-        setImplicitWidth(size * 2);
-        this->size = std::min(2048,size);
-        memcpy(this->data,data,this->size*sizeof (float));
-        haveNewData.store(true);
-    }
-    void setLineColor(QColor c){lineColor=c;update();lineColorChanged();}
-    QColor getLineColor(){return lineColor;}
+    explicit Graph(QQuickItem *parent = nullptr);
+    ~Graph() override;
+    Q_DISABLE_COPY_MOVE(Graph)
+
+    static Graph *getLast() { return lastCreated; }
+
+    void showData(float *data, int size);
+
+    void setLineColor(const QColor &c);
+    QColor getLineColor() { return lineColor; }
 
 protected:
-    virtual QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
+    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *transformNode) override;
+    void timerEvent(QTimerEvent *event) override;
 signals:
-  void lineColorChanged();
-public slots:
+    void lineColorChanged();
+    void visibleForUserChanged();
 };
 
 } // namespace GUI
