@@ -277,14 +277,15 @@ ApplicationWindow {
         modal: true
         title: "Error"
         standardButtons: Dialog.Ok
-        width: 300
+        width: 600
         y: 50
         x: (root.width-width)/2;
         contentItem: Text{
             text: ErrorNotifier.errorMessage
             wrapMode: "WrapAtWordBoundaryOrAnywhere"
         }
-        onAccepted: ErrorNotifier.errorMessage = "";
+        onClosed: if(result === Dialog.Accepted) ErrorNotifier.errorMessage = "";
+
         visible: ErrorNotifier.errorMessage.length !== 0
     }
 }
