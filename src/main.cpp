@@ -304,9 +304,9 @@ int main(int argc, char *argv[]) {
     // Treiber laden
 #define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
-    if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
-        ErrorNotifier::showError("Cant start driver.");
-    }else {
+    if (!Driver::loadAndStartDriver(settings.getDriverFilePath())) {
+        ErrorNotifier::showError(QStringLiteral("Can`t start the DMX driver. The DMX output will not work. You can load a different driver in the Settings tab."));
+    } else {
         Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(40));
     }
 
