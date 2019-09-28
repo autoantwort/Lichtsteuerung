@@ -2,60 +2,31 @@
 #include "QSGFlatColorMaterial"
 #include <QSGGeometryNode>
 
-namespace GUI{
+namespace GUI {
 
-Oscillogram::Oscillogram():haveNewData(false)
-{
-setFlag(ItemHasContents);
-lastCreated = this;
+Oscillogram *Oscillogram::lastCreated = nullptr;
+
+Oscillogram::Oscillogram(QQuickItem *parent) : LineGeometry(parent) { lastCreated = this; }
+
+Oscillogram::~Oscillogram() {
+    if (lastCreated == this) {
+        lastCreated = nullptr;
+    }
 }
 
-Oscillogram * Oscillogram::lastCreated = nullptr;
+void Oscillogram::processNewData() {
+    maxValue = std::max(maxValue, *std::max_element(getData().begin(), getData().end()));
+    scale = std::min<float>(250.f, static_cast<float>(height()) / 2 - 50) / maxValue;
+    maxValue *= 0.9999f;
+}
 
-
-QSGNode * Oscillogram::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *){
-    QSGNode *node = nullptr;
-    QSGGeometryNode *lineNode = nullptr;
-    QSGGeometry *lineGeometry = nullptr;
-    if (!oldNode) {
-        node  = new QSGNode;
-        {
-            lineNode = new QSGGeometryNode;
-            lineGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_Point2D(), size);
-            lineGeometry->setLineWidth(1);
-            lineGeometry->setDrawingMode(QSGGeometry::DrawLineStrip);
-            lineNode->setGeometry(lineGeometry);
-            lineNode->setFlag(QSGNode::OwnsGeometry);
-
-
-            QSGFlatColorMaterial *material = new QSGFlatColorMaterial;
-            material->setColor(lineColor);
-            lineNode->setMaterial(material);
-            lineNode->setFlag(QSGNode::OwnsMaterial);
-        }
-        node->appendChildNode(lineNode);
-    } else {
-        node = static_cast<QSGNode *>(oldNode);
-
-        lineNode = static_cast<QSGGeometryNode *>(node->childAtIndex(0));
-        lineGeometry = lineNode->geometry();
-        lineGeometry->allocate(size);
-        static_cast<QSGFlatColorMaterial*>(lineNode->material())->setColor(lineColor);
-
-    }
-
-    QSGGeometry::Point2D *vertices = lineGeometry->vertexDataAsPoint2D();
-
-    for(int i = 0 ; i< size; ++i){
-        vertices->x = i;
-        vertices->y = height()/2 - (data[i])*scale;
+void Oscillogram::fillVertexData(QSGGeometry::Point2D *vertices) {
+    const auto &data = getData();
+    for (size_t i = 0; i < data.size(); ++i) {
+        vertices->x = static_cast<float>(i);
+        vertices->y = static_cast<float>(height()) / 2 - (data[i]) * scale;
         ++vertices;
     }
-
-    haveNewData = false;
-    lineNode->markDirty(QSGNode::DirtyGeometry);
-    return node;
-
 }
 
 } // namespace GUI

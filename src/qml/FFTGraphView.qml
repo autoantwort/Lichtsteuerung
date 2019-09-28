@@ -4,6 +4,7 @@ import QtQuick.Controls 2.5
 import custom.licht 1.0
 
 Item {
+    property alias visibleForUser: graph.visibleForUser
     Label{
         id: label
         anchors.top: parent.top

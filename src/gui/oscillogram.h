@@ -1,51 +1,26 @@
 #ifndef OSCILLOGRAM_H
 #define OSCILLOGRAM_H
 
-#include <QQuickItem>
-#include <queue>
+#include "linegeometry.h"
 
-namespace GUI{
+namespace GUI {
 
-class Oscillogram : public QQuickItem
-{
+class Oscillogram : public LineGeometry {
     Q_OBJECT
-    float data[2048];
-    int size = 0;
-    std::queue<float> lastMaxValues;
-    float maxValuesSum=0;
     float scale = 1;
-    QColor lineColor = QColor(0,0,0);
-    Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
-    static Oscillogram * lastCreated;
-    std::atomic_bool haveNewData;
+    float maxValue = 0;
+    static Oscillogram *lastCreated;
+
 public:
-    Oscillogram();
-    ~Oscillogram(){
-        if(lastCreated==this)
-            lastCreated = nullptr;
-    }
-    static Oscillogram * getLast(){return lastCreated;}
-    void showData(float* data, int size){
-        this->size = std::min(2048,size);
-        lastMaxValues.push(*std::max_element(data,data+size));
-        maxValuesSum+=lastMaxValues.back();
-        if(lastMaxValues.size()>500){
-            maxValuesSum-=lastMaxValues.front();
-            lastMaxValues.pop();
-        }
-        scale = std::min<float>(250.f,height()/2-50)/(maxValuesSum/lastMaxValues.size());
-        std::copy(data,data+this->size,this->data);
+    explicit Oscillogram(QQuickItem *parent = nullptr);
+    ~Oscillogram() override;
+    Q_DISABLE_COPY_MOVE(Oscillogram)
 
-        haveNewData.store(true);
-    }
-    void setLineColor(QColor c){lineColor=c;update();lineColorChanged();}
-    QColor getLineColor(){return lineColor;}
+    static Oscillogram *getLast() { return lastCreated; }
 
-protected:
-    virtual QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
-signals:
-  void lineColorChanged();
-public slots:
+private:
+    void processNewData() override;
+    void fillVertexData(QSGGeometry::Point2D *vertices) override;
 };
 
 } // namespace GUI

@@ -1,40 +1,24 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QQuickItem>
+#include "linegeometry.h"
 
-namespace GUI{
+namespace GUI {
 
-class Graph : public QQuickItem
-{
+class Graph : public LineGeometry {
     Q_OBJECT
-    float data[2048];
-    int size = 0;
-    QColor lineColor = QColor(0,0,0);
-    Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
-    static Graph * lastCreated;
-    std::atomic_bool haveNewData;
-public:
-    Graph();
-    ~Graph(){
-        if(lastCreated==this)
-            lastCreated = nullptr;
-    }
-    static Graph * getLast(){return lastCreated;}
-    void showData(float* data, int size){
-        setImplicitWidth(size * 2);
-        this->size = std::min(2048,size);
-        memcpy(this->data,data,this->size*sizeof (float));
-        haveNewData.store(true);
-    }
-    void setLineColor(QColor c){lineColor=c;update();lineColorChanged();}
-    QColor getLineColor(){return lineColor;}
+    static Graph *lastCreated;
 
-protected:
-    virtual QSGNode * updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
-signals:
-  void lineColorChanged();
-public slots:
+public:
+    explicit Graph(QQuickItem *parent = nullptr);
+    ~Graph() override;
+    Q_DISABLE_COPY_MOVE(Graph)
+
+    static Graph *getLast() { return lastCreated; }
+
+private:
+    void fillVertexData(QSGGeometry::Point2D *vertices) override;
+    void processNewData() override;
 };
 
 } // namespace GUI

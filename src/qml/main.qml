@@ -111,10 +111,13 @@ ApplicationWindow {
                 text: qsTr("LED\nVisualisations")
             }
             VerticalTabButton {
-                text: qsTr("Graph")
+                text: qsTr("Oscillogram")
             }
             VerticalTabButton {
-                text: qsTr("Oscillogram")
+                text: qsTr("Spectrum\nanalyzer")
+            }
+            VerticalTabButton {
+                text: qsTr("Spectrogram")
             }
             VerticalTabButton {
                 text: qsTr("Audio Events")
@@ -170,12 +173,6 @@ ApplicationWindow {
                     component: tabBar.contentChildren[6]
                     onEnter: tabBar.setCurrentIndex(6)
                 }
-                HelpEntry{
-                    titel: "Graph"
-                    explanation: "The graph shows a spectrum analysis of the currently played music (the whole windows output is captured)."
-                    component: tabBar.contentChildren[10]
-                    onEnter: tabBar.setCurrentIndex(10)
-                }
             }
         }
 
@@ -229,9 +226,27 @@ ApplicationWindow {
                 onMoveToOwnWindow: ledWindow.moveToWindow(SwipeView.index);
             }
 
-            FFTGraphView{}
-
             Oscillogram{
+                visibleForUser: SwipeView.isCurrentItem
+            }
+
+            FFTGraphView{
+                visibleForUser: SwipeView.isCurrentItem
+            }
+
+            Colorplot{
+                visibleForUser: SwipeView.isCurrentItem
+                Slider{
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.topMargin: 50
+                    anchors.leftMargin: 20
+                    orientation: Qt.Vertical
+                    from: .5
+                    value: 1
+                    to: 2
+                    onValueChanged: parent.zoom = value
+                }
             }
 
             AudioEventsView{
@@ -270,14 +285,15 @@ ApplicationWindow {
         modal: true
         title: "Error"
         standardButtons: Dialog.Ok
-        width: 300
+        width: 600
         y: 50
         x: (root.width-width)/2;
         contentItem: Text{
             text: ErrorNotifier.errorMessage
             wrapMode: "WrapAtWordBoundaryOrAnywhere"
         }
-        onAccepted: ErrorNotifier.errorMessage = "";
+        onClosed: if(result === Dialog.Accepted) ErrorNotifier.errorMessage = "";
+
         visible: ErrorNotifier.errorMessage.length !== 0
     }
 }

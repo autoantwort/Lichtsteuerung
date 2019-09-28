@@ -52,6 +52,9 @@ else
 	cp "src/lib/boost/lib/libboost_context-mt-${debug_infix}x64.dll" "$target_folder/"
 fi
 
+# copy aubio
+cp "src/lib/aubio/lib/libaubio-5.dll" "$target_folder"
+
 #copy AudioFFT
 cp "src/lib/AudioFFT/dll/win${bit}/AudioFFT.dll" "$target_folder"
 cp "src/lib/AudioFFT/dll/win${bit}/libfftw3-3.dll" "$target_folder"

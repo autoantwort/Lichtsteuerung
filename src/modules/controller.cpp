@@ -130,8 +130,19 @@ void Controller::run() noexcept{
                             qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
                         } else {
                             cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
-                            const int length = std::strlen("0x00007FFA4E5CA299 in ");
-                            p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(length) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
+
+                            auto pos = asString.find(" in ");
+                            if (pos == std::string::npos) {
+                                pos = asString.find(" at ");
+                                if (pos == std::string::npos) {
+                                    pos = 0;
+                                } else {
+                                    pos += 4;
+                                }
+                            } else {
+                                pos += 4;
+                            }
+                            p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(pos) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
                             p.waitForFinished();
                             QByteArray output = p.readAllStandardOutput();
                             int seperator = output.lastIndexOf(':');

@@ -304,9 +304,9 @@ int main(int argc, char *argv[]) {
     // Treiber laden
 //#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
-    if(!Driver::loadAndStartDriver(settings.getDriverFilePath())){
-        ErrorNotifier::showError("Cant start driver.");
-    }else {
+    if (!Driver::loadAndStartDriver(settings.getDriverFilePath())) {
+        ErrorNotifier::showError(QStringLiteral("Can`t start the DMX driver. The DMX output will not work. You can load a different driver in the Settings tab."));
+    } else {
         Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(40));
     }
 
@@ -326,23 +326,6 @@ int main(int argc, char *argv[]) {
     driver.init();
     driver.start();
 #endif
-
-    QTimer timer;
-    timer.setInterval(15);
-    QObject::connect(&timer,&QTimer::timeout,[&](){
-        if(Audio::AudioCaptureManager::get().isCapturing()){
-            if(Graph::getLast()) {
-                Graph::getLast()->update();
-            }
-            if(Oscillogram::getLast()) {
-                Oscillogram::getLast()->update();
-            }
-            if(Colorplot::getLast()) {
-                Colorplot::getLast()->update();
-            }
-        }
-    });
-    timer.start();
 
     qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
 
