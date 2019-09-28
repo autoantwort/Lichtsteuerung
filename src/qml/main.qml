@@ -111,13 +111,13 @@ ApplicationWindow {
                 text: qsTr("LED\nVisualisations")
             }
             VerticalTabButton {
-                text: qsTr("Graph")
-            }
-            VerticalTabButton {
                 text: qsTr("Oscillogram")
             }
             VerticalTabButton {
-                text: qsTr("Colorplot")
+                text: qsTr("Spectrum\nanalyzer")
+            }
+            VerticalTabButton {
+                text: qsTr("Spectrogram")
             }
             VerticalTabButton {
                 text: qsTr("Audio Events")
@@ -173,12 +173,6 @@ ApplicationWindow {
                     component: tabBar.contentChildren[6]
                     onEnter: tabBar.setCurrentIndex(6)
                 }
-                HelpEntry{
-                    titel: "Graph"
-                    explanation: "The graph shows a spectrum analysis of the currently played music (the whole windows output is captured)."
-                    component: tabBar.contentChildren[10]
-                    onEnter: tabBar.setCurrentIndex(10)
-                }
             }
         }
 
@@ -232,11 +226,11 @@ ApplicationWindow {
                 onMoveToOwnWindow: ledWindow.moveToWindow(SwipeView.index);
             }
 
-            FFTGraphView{
+            Oscillogram{
                 visibleForUser: SwipeView.isCurrentItem
             }
 
-            Oscillogram{
+            FFTGraphView{
                 visibleForUser: SwipeView.isCurrentItem
             }
 
