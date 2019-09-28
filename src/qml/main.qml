@@ -240,7 +240,20 @@ ApplicationWindow {
                 visibleForUser: SwipeView.isCurrentItem
             }
 
-            Colorplot{}
+            Colorplot{
+                visibleForUser: SwipeView.isCurrentItem
+                Slider{
+                    anchors.left: parent.left
+                    anchors.top: parent.top
+                    anchors.topMargin: 50
+                    anchors.leftMargin: 20
+                    orientation: Qt.Vertical
+                    from: .5
+                    value: 1
+                    to: 2
+                    onValueChanged: parent.zoom = value
+                }
+            }
 
             AudioEventsView{
                 visibleForUser: SwipeView.isCurrentItem

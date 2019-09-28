@@ -327,17 +327,6 @@ int main(int argc, char *argv[]) {
     driver.start();
 #endif
 
-    QTimer timer;
-    timer.setInterval(15);
-    QObject::connect(&timer, &QTimer::timeout, [&]() {
-        if (Audio::AudioCaptureManager::get().isCapturing()) {
-            if (Colorplot::getLast()) {
-                Colorplot::getLast()->update();
-            }
-        }
-    });
-    timer.start();
-
     qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
 
     Modules::ModuleManager::singletone()->controller().start();
