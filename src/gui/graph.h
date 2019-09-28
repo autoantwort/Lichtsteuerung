@@ -1,22 +1,13 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QQuickItem>
-#include <atomic>
-#include <utility>
-#include <vector>
+#include "linegeometry.h"
 
 namespace GUI {
 
-class Graph : public QQuickItem {
+class Graph : public LineGeometry {
     Q_OBJECT
-    std::vector<float> data;
-    QColor lineColor = QColor(0, 0, 0);
-    Q_PROPERTY(QColor lineColor READ getLineColor WRITE setLineColor NOTIFY lineColorChanged)
-    Q_PROPERTY(bool visibleForUser MEMBER visibleForUser NOTIFY visibleForUserChanged)
-    bool visibleForUser = true;
     static Graph *lastCreated;
-    std::atomic_bool haveNewData;
 
 public:
     explicit Graph(QQuickItem *parent = nullptr);
@@ -25,17 +16,9 @@ public:
 
     static Graph *getLast() { return lastCreated; }
 
-    void showData(float *data, int size);
-
-    void setLineColor(const QColor &c);
-    QColor getLineColor() { return lineColor; }
-
-protected:
-    QSGNode *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *transformNode) override;
-    void timerEvent(QTimerEvent *event) override;
-signals:
-    void lineColorChanged();
-    void visibleForUserChanged();
+private:
+    void fillVertexData(QSGGeometry::Point2D *vertices) override;
+    void processNewData() override;
 };
 
 } // namespace GUI

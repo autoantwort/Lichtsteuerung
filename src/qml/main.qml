@@ -237,6 +237,7 @@ ApplicationWindow {
             }
 
             Oscillogram{
+                visibleForUser: SwipeView.isCurrentItem
             }
 
             Colorplot{}

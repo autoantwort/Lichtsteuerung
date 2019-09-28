@@ -36,6 +36,7 @@ SOURCES += \
     errornotifier.cpp \
     gui/graph.cpp \
     gui/gridbackground.cpp \
+    gui/linegeometry.cpp \
     id.cpp \
     main.cpp \
     gui/mapeditor.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     audio/audioeventdata.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
+    gui/linegeometry.h \
     id.h \
     dmx/device.h \
     idbase.h \

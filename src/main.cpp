@@ -331,10 +331,7 @@ int main(int argc, char *argv[]) {
     timer.setInterval(15);
     QObject::connect(&timer, &QTimer::timeout, [&]() {
         if (Audio::AudioCaptureManager::get().isCapturing()) {
-            if(Oscillogram::getLast()) {
-                Oscillogram::getLast()->update();
-            }
-            if(Colorplot::getLast()) {
+            if (Colorplot::getLast()) {
                 Colorplot::getLast()->update();
             }
         }
