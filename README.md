@@ -21,6 +21,7 @@ Features:
      * Desktop gcc 64-bit (unter Linux)
      * Qt Network Authorization (egal welches OS)
 5. Drücke _Next_ und beende die Installation. 
+6. Nun Qt Creator wie [hier](documentation/QtCreator.md) beschrieben einrichten
 
 ## Docker/GitlabCI/Cross-Compilation 
 Siehe [hier](Docker.md).
