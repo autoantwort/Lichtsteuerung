@@ -248,13 +248,12 @@ win32-g++{
     }
 }
 
-win32-g++{
     #Aubio
-    !contains(QT_ARCH, i386){ # 64 bit
-        LIBS += -L$$PWD/'lib/aubio/lib/' -laubio-5
-        INCLUDEPATH += $$PWD/'lib/aubio/include'
-    }
-}
+    LIBS += -L$$PWD/'lib/aubio/lib/'
+    win32: LIBS += -laubio-5
+    else: LIBS += -laubio
+    INCLUDEPATH += $$PWD/'lib/aubio/include'
+
 
     #segvcatch
     LIBS += -L$$PWD/'lib/segvcatch/lib' -lsegvcatch
