@@ -1,0 +1,25 @@
+---
+Language:        Cpp
+BasedOnStyle:  LLVM
+AccessModifierOffset: -4
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: true
+AlwaysBreakTemplateDeclarations: Yes
+ColumnLimit:     300
+IncludeCategories:
+  - Regex:           '"[[:alnum:]\.]*"' # alle im gleichen Ordner
+    Priority:        1
+  - Regex:           '".*"'    # alle im gleichen Projekt
+    Priority:        2
+  - Regex:           '<Q.*>'   # alle Qt Klassen
+    Priority:        3
+  - Regex:           '.*'      # der Rest
+    Priority:        4
+IndentWidth:     4
+NamespaceIndentation: Inner
+PenaltyBreakBeforeFirstCallParameter: 100
+PenaltyBreakComment: 160
+PenaltyBreakFirstLessLess: 160
+PenaltyReturnTypeOnItsOwnLine: 180
+...
