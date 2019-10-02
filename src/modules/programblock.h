@@ -341,12 +341,11 @@ namespace Modules {
     class ProgrammBlockVector : public ModelVector<std::shared_ptr<ProgramBlock>>{
         Q_OBJECT
     public:
-        virtual QVariant data(const QModelIndex &index, int role) const override{
-            auto res = ModelVector<std::shared_ptr<ProgramBlock>>::data(index,role);
-            if(res.isValid() && res.type() != QVariant::String && role == Qt::DisplayRole){
-                return res.value<ProgramBlock*>()->getName();
+        [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override {
+            if (role == Qt::DisplayRole && index.row() >= 0 && index.row() < ssize()) {
+                return (*this)[index.row()]->getName();
             }
-            return res;
+            return ModelVector<std::shared_ptr<ProgramBlock>>::data(index, role);
         }
     };
 

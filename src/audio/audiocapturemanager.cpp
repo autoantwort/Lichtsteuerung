@@ -40,7 +40,11 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
         // feed the *analysis classes with new samples
         unsigned restFrames = frames;
         if (restFrames % 441 != 0) {
-            ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of 441 or x * 441. Can not analyse audio data."));
+            static bool once = false;
+            if (!once) {
+                once = true;
+                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of 441 or x * 441. The length is %1. Can not analyse audio data.").arg(frames));
+            }
         } else {
             while (restFrames != 0) {
                 if (restFrames >= sample.size()) {

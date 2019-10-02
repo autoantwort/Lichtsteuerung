@@ -248,7 +248,9 @@ int main(int argc, char *argv[]) {
         modolePropertyTypeList.append(_metaEnumP.key(i));
     }*/
 
-    CatchingErrorApplication::connect(&app,&QGuiApplication::lastWindowClosed,[&](){
+    CatchingErrorApplication::connect(&app, &QGuiApplication::lastWindowClosed, [&]() {
+        Modules::ModuleManager::singletone()->controller().stop();
+        Audio::AudioCaptureManager::get().stopCapturingAndWait();
         QFile savePath(settings.getJsonSettingsFilePath());
         ApplicationData::saveData(savePath);
         Driver::stopAndUnloadDriver();

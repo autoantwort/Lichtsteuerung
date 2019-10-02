@@ -215,16 +215,13 @@ win32-g++{
 unix{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
+    INCLUDEPATH += /usr/local/include
 }
 
 macx{
     #AudioFFT
-    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT.1
-    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
-    #https://forum.qt.io/topic/59209/solved-osx-deployment-fatal-error-with-dylib-library-not-loaded-image-not-found/4
-    Resources.files += libAudioFFT.1.dylib
-    Resources.path = Contents/MacOS
-    QMAKE_BUNDLE_DATA += Resources
+    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
+    INCLUDEPATH += $$PWD/lib/AudioFFT/include
 }
 
 win32-g++{
@@ -248,24 +245,31 @@ win32-g++{
     }
 }
 
-win32-g++{
     #Aubio
-    !contains(QT_ARCH, i386){ # 64 bit
-        LIBS += -L$$PWD/'lib/aubio/lib/' -laubio-5
-        INCLUDEPATH += $$PWD/'lib/aubio/include'
-    }
-}
+    LIBS += -L$$PWD/'lib/aubio/lib/'
+    win32: LIBS += -laubio-5
+    else: LIBS += -laubio
+    INCLUDEPATH += $$PWD/'lib/aubio/include'
+
 
     #segvcatch
     LIBS += -L$$PWD/'lib/segvcatch/lib' -lsegvcatch
     INCLUDEPATH += $$PWD/'lib/segvcatch/include'
 
+macx{
+    #libbacktrace + segvcatch, otherwise you get an link warning
+    QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.13
+}
 
     #boost stacktrace / libbacktrace
     #see https://www.boost.org/doc/libs/1_66_0/doc/html/stacktrace/configuration_and_build.html
     DEFINES += BOOST_STACKTRACE_USE_BACKTRACE
     LIBS += -L$$PWD/'lib/libbacktrace/lib' -lbacktrace
     INCLUDEPATH += $$PWD/'lib/libbacktrace/include'
+macx{
+    # needed by boost stacktrace
+    DEFINES += _GNU_SOURCE
+}
 
 win32-msvc{
     #AudioFFT
