@@ -10,13 +10,13 @@ namespace GUI {
 
 class AudioEventDataView : public QQuickItem {
     Q_OBJECT
-    std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::OnsetDataSeries &> onsetData;
-    std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::EventSeries &> beatData;
+    std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::OnsetDataSeries *> onsetData;
+    std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::EventSeries *> beatData;
     Q_PROPERTY(bool visibleForUser MEMBER visibleForUser NOTIFY visibleForUserChanged)
     Q_PROPERTY(int pixelPerSecond MEMBER pixelPerSecond NOTIFY pixelPerSecondChanged)
     int pixelPerSecond = 100;
     bool visibleForUser = true;
-    float getX(const Audio::EventSeries &e, int sample);
+    float getX(const Audio::EventSeries *e, int sample);
 
 public:
     enum DataType { BeatEvent, OnsetEvent, OnsetValue, ThresholdValue, Last = ThresholdValue };
