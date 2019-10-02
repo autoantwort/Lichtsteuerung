@@ -104,6 +104,9 @@ void Controller::updateSpotifyState(){
 void Controller::run() noexcept{
     while (run_) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        if (!run_) {
+            break;
+        }
         std::unique_lock<std::mutex> l(vectorLock);
         updateSpotifyState();
         for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
