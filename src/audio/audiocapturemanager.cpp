@@ -42,17 +42,17 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     {
         // feed the *analysis classes with new samples
         unsigned restFrames = frames;
-        if (restFrames % 441 != 0) {
+        if (restFrames % samplesPerFrame != 0) {
             static bool once = false;
             if (!once) {
                 once = true;
-                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of 441 or x * 441. The length is %1. Can not analyse audio data.").arg(frames));
+                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of %1 or x * %1. The length is %2. Can not analyse audio data.").arg(samplesPerFrame).arg(frames));
             }
         } else {
             while (restFrames != 0) {
                 if (restFrames >= sample.size()) {
                     // we have to ignore some data
-                    restFrames -= 441;
+                    restFrames -= samplesPerFrame;
                     continue;
                 }
                 for (auto &[onsetFunction, pair] : onsetAnalyzes) {
@@ -61,16 +61,16 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
                     if (wasOnset) {
                         pair.second.addEvent(pair.first.getLastOnset());
                     }
-                    pair.second.increaseNewestSampleBy(441);
+                    pair.second.increaseNewestSampleBy(samplesPerFrame);
                 }
                 for (auto &[onsetFunction, pair] : tempoAnalyzes) {
                     bool wasBeat = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
                     if (wasBeat) {
                         pair.second.addEvent(pair.first.getLastBeat());
                     }
-                    pair.second.increaseNewestSampleBy(441);
+                    pair.second.increaseNewestSampleBy(samplesPerFrame);
                 }
-                restFrames -= 441;
+                restFrames -= samplesPerFrame;
             }
         }
     }
