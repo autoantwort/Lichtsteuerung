@@ -8,7 +8,9 @@ using namespace Audio::Aubio;
 
 namespace GUI {
 
-float AudioEventDataView::getX(const Audio::EventSeries &e, int sample) { return static_cast<float>(width()) - (static_cast<float>(e.getNewestSample()) - sample) / (e.getSamplesPerSecond() / pixelPerSecond); }
+float AudioEventDataView::getX(const Audio::EventSeries *e, int sample) {
+    return static_cast<float>(width()) - (static_cast<float>(e->getNewestSample()) - sample) / (e->getSamplesPerSecond() / pixelPerSecond);
+}
 
 AudioEventDataView::AudioEventDataView(QQuickItem *parent) : QQuickItem(parent) {
     setFlag(ItemHasContents);
@@ -23,18 +25,26 @@ AudioEventDataView::AudioEventDataView(QQuickItem *parent) : QQuickItem(parent) 
 }
 
 void AudioEventDataView::enableDetectionFor(OnsetDetectionFunction f, AudioEventDataView::DataType type, bool enabled) {
-    colors[to_integral(f)][type].first = enabled;
     if (enabled) {
         if (type == BeatEvent) {
             if (beatData.find(f) == beatData.end()) {
-                beatData.emplace(f, Audio::AudioCaptureManager::get().requestTempoAnalysis(f));
+                auto p = Audio::AudioCaptureManager::get().requestTempoAnalysis(f);
+                if (!p) {
+                    return;
+                }
+                beatData.emplace(f, p);
             }
         } else {
             if (onsetData.find(f) == onsetData.end()) {
-                onsetData.emplace(f, Audio::AudioCaptureManager::get().requestOnsetAnalysis(f));
+                auto p = Audio::AudioCaptureManager::get().requestOnsetAnalysis(f);
+                if (!p) {
+                    return;
+                }
+                onsetData.emplace(f, p);
             }
         }
     }
+    colors[to_integral(f)][type].first = enabled;
 }
 
 bool AudioEventDataView::isDetectionEnabledFor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType type) { return colors[to_integral(onsetDetectionFunction)][type].first; }
@@ -90,7 +100,7 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
         return gNode->geometry();
     };
     const auto fillEvents = [this](auto geometry, const auto &data) {
-        auto events = data.getEvents();
+        auto events = data->getEvents();
         geometry->allocate(events->size() * 2);
         auto vertexData = geometry->vertexDataAsPoint2D();
         for (const auto &e : *events) {
@@ -107,24 +117,24 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
     for (auto &[f, data] : onsetData) {
         if (isDetectionEnabledFor(f, OnsetValue)) {
             QSGGeometry *geometry = getGeometry(getColor(f, OnsetValue));
-            const auto lockedData = data.getOnsetData();
+            const auto lockedData = data->getOnsetData();
             geometry->allocate(lockedData->size());
             auto vertexData = geometry->vertexDataAsPoint2D();
             for (const auto &o : *lockedData) {
                 vertexData->x = getX(data, o.sample);
-                vertexData->y = height() - ((o.onsetValue / data.getMaxOnsetValue()) * (height() - 50));
+                vertexData->y = height() - ((o.onsetValue / data->getMaxOnsetValue()) * (height() - 50));
                 ++vertexData;
             }
             geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
         }
         if (isDetectionEnabledFor(f, ThresholdValue)) {
             QSGGeometry *geometry = getGeometry(getColor(f, ThresholdValue));
-            const auto lockedData = data.getOnsetData();
+            const auto lockedData = data->getOnsetData();
             geometry->allocate(lockedData->size());
             auto vertexData = geometry->vertexDataAsPoint2D();
             for (const auto &o : *lockedData) {
                 vertexData->x = getX(data, o.currentThreshold);
-                vertexData->y = height() - ((o.onsetValue / data.getMaxThreshold()) * (height() - 50));
+                vertexData->y = height() - ((o.onsetValue / data->getMaxThreshold()) * (height() - 50));
                 ++vertexData;
             }
             geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
