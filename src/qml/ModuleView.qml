@@ -9,6 +9,14 @@ import "components"
 
 Item{
     id: root
+    property bool visibleForUser: SwipeView.isCurrentItem
+
+    Shortcut{
+        enabled: visibleForUser
+        sequences: ["Ctrl+B", "Ctrl+R"]
+        autoRepeat: false
+        onActivated: codeEditorHelper.compile();
+    }
 
     Item{
         clip: true
