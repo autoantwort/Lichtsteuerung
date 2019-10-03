@@ -36,6 +36,8 @@ class AudioCaptureManager : public QObject
     std::atomic_bool run;
     AudioFFT audiofft;
     int channels = -1;
+    int samplesPerSecond = -1;
+    int samplesPerFrame = -1;
     /**
      * @brief tempoAnalyzes all tempo analyzes that were request by requestTempoAnalysis
      */
@@ -54,9 +56,9 @@ private:
         }
     }
 private:
-    static void staticInitCallback(int channels){get().initCallback(channels);}
+    static void staticInitCallback(int channels, int samplesPerSecond) { get().initCallback(channels, samplesPerSecond); }
     static void staticDataCallback(float* data, unsigned int frames, bool*done){get().dataCallback(data,frames,done);}
-    void initCallback(int channels);
+    void initCallback(int channels, int samplesPerSecond);
     void dataCallback(float* data, unsigned int frames, bool*done);
 public:
     bool startCapturing(QString filePathToCaptureLibrary);
@@ -70,14 +72,14 @@ public:
      * @param f the onset function that should be used
      * @return the Event Series produced by the analysis object using the specific onset detection function
      */
-    const EventSeries &requestTempoAnalysis(Aubio::OnsetDetectionFunction f);
+    const EventSeries *requestTempoAnalysis(Aubio::OnsetDetectionFunction f);
     /**
      * @brief requestOnsetAnalysis requests the data series from a onset analysis that uses a spezific onset detection function
      * You can call the function with the same parameters multiple times, the result will be the same
      * @param f the onset function that should be used
      * @return the Onset Data Series produced by the analysis object using the specific onset detection function
      */
-    const OnsetDataSeries &requestOnsetAnalysis(Aubio::OnsetDetectionFunction f);
+    const OnsetDataSeries *requestOnsetAnalysis(Aubio::OnsetDetectionFunction f);
 
 public:
     AudioCaptureManager(AudioCaptureManager const&)               = delete;

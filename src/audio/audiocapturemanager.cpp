@@ -11,10 +11,13 @@ AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
 
 }
 
-void AudioCaptureManager::initCallback(int channels){
+void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     this->channels = channels;
-    if(GUI::Colorplot::getLast())
+    this->samplesPerSecond = samplesPerSecond;
+    this->samplesPerFrame = samplesPerSecond / 100;
+    if (GUI::Colorplot::getLast()) {
         GUI::Colorplot::getLast()->setBlockSize(512);
+    }
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){
@@ -39,13 +42,17 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     {
         // feed the *analysis classes with new samples
         unsigned restFrames = frames;
-        if (restFrames % 441 != 0) {
-            ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of 441 or x * 441. Can not analyse audio data."));
+        if (restFrames % samplesPerFrame != 0) {
+            static bool once = false;
+            if (!once) {
+                once = true;
+                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of %1 or x * %1. The length is %2. Can not analyse audio data.").arg(samplesPerFrame).arg(frames));
+            }
         } else {
             while (restFrames != 0) {
                 if (restFrames >= sample.size()) {
                     // we have to ignore some data
-                    restFrames -= 441;
+                    restFrames -= samplesPerFrame;
                     continue;
                 }
                 for (auto &[onsetFunction, pair] : onsetAnalyzes) {
@@ -54,16 +61,16 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
                     if (wasOnset) {
                         pair.second.addEvent(pair.first.getLastOnset());
                     }
-                    pair.second.increaseNewestSampleBy(441);
+                    pair.second.increaseNewestSampleBy(samplesPerFrame);
                 }
                 for (auto &[onsetFunction, pair] : tempoAnalyzes) {
                     bool wasBeat = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
                     if (wasBeat) {
                         pair.second.addEvent(pair.first.getLastBeat());
                     }
-                    pair.second.increaseNewestSampleBy(441);
+                    pair.second.increaseNewestSampleBy(samplesPerFrame);
                 }
-                restFrames -= 441;
+                restFrames -= samplesPerFrame;
             }
         }
     }
@@ -86,7 +93,7 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
 
 bool AudioCaptureManager::startCapturing(QString filePathToCaptureLibrary){
     stopCapturingAndWait();
-    typedef int (*capture)(void(*)(int),void(*)(float*,unsigned int, bool*)) ;
+    typedef int (*capture)(void (*)(int, int), void (*)(float *, unsigned int, bool *));
     auto func = reinterpret_cast<capture>(QLibrary::resolve(filePathToCaptureLibrary,"captureAudio"));
     if(func){
         captureAudioThread = std::thread([this,func](){
@@ -100,23 +107,29 @@ bool AudioCaptureManager::startCapturing(QString filePathToCaptureLibrary){
     return func;
 }
 
-const EventSeries &AudioCaptureManager::requestTempoAnalysis(Aubio::OnsetDetectionFunction f) {
+const EventSeries *AudioCaptureManager::requestTempoAnalysis(Aubio::OnsetDetectionFunction f) {
+    if (samplesPerSecond < 0) {
+        return nullptr;
+    }
     // check if already there
     if (const auto i = tempoAnalyzes.find(f); i != tempoAnalyzes.end()) {
-        return i->second.second;
+        return &i->second.second;
     }
     // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
-    return tempoAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, 441, 44100), std::forward_as_tuple(44100))).first->second.second;
+    return &tempoAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond), std::forward_as_tuple(samplesPerSecond))).first->second.second;
     // short:  tempoAnalyzes.emplace(f, {Aubio::TempoAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
 }
 
-const OnsetDataSeries &AudioCaptureManager::requestOnsetAnalysis(Aubio::OnsetDetectionFunction f) {
+const OnsetDataSeries *AudioCaptureManager::requestOnsetAnalysis(Aubio::OnsetDetectionFunction f) {
+    if (samplesPerSecond < 0) {
+        return nullptr;
+    }
     // check if already there
     if (const auto i = onsetAnalyzes.find(f); i != onsetAnalyzes.end()) {
-        return i->second.second;
+        return &i->second.second;
     }
     // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
-    return onsetAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, 441, 44100), std::forward_as_tuple(44100))).first->second.second;
+    return &onsetAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond), std::forward_as_tuple(samplesPerSecond))).first->second.second;
     // short:  onsetAnalyzes.emplace(f, {Aubio::OnsetAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
 }
 

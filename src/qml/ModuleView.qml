@@ -346,34 +346,6 @@ Item{
             Layout.fillWidth: true
             onHoveredChanged: if(!hovered && listView.currentModelData)listView.currentModelData.code = codeEditor.text
             clip: true
-            Rectangle{
-                anchors.fill: codeEditor
-                anchors.topMargin: codeEditor.topPadding
-                TextMetrics{
-                    font: codeEditor.font
-                    text: "M"
-                    id: textMetrics
-                }
-
-                Repeater{
-                    model: codeEditorHelper.codeMarkups
-                    Rectangle{
-                        x: modelData.column * (textMetrics.width+1)
-                        y: modelData.row * height
-                        width: modelData.markupLength * (textMetrics.width+1)
-                        height: codeEditor.lineHeight
-                        color: modelData.error ? "red" : "orange"
-                        MouseArea{
-                            anchors.fill: parent
-                            id: mouseArea
-                            acceptedButtons: Qt.NoButton
-                            hoverEnabled: true
-                        }
-                        ToolTip.text: modelData.message
-                        ToolTip.visible: mouseArea.containsMouse
-                    }
-                }
-            }
             TextArea{
                 property real lineHeight: contentHeight/lineCount
                 font.family: "Liberation Mono"
@@ -561,6 +533,35 @@ Item{
                             timer.triggered.disconnect(release); // This is important as well
                         });
                         timer.start();
+                    }
+                }
+            } // TextArea
+            // Must be behind TextArea because of https://bugreports.qt.io/browse/QTBUG-62292
+            Rectangle{
+                anchors.fill: codeEditor
+                anchors.topMargin: codeEditor.topPadding
+                TextMetrics{
+                    font: codeEditor.font
+                    text: "M"
+                    id: textMetrics
+                }
+
+                Repeater{
+                    model: codeEditorHelper.codeMarkups
+                    Rectangle{
+                        x: modelData.column * (textMetrics.width+1)
+                        y: modelData.row * height
+                        width: modelData.markupLength * (textMetrics.width+1)
+                        height: codeEditor.lineHeight
+                        color: modelData.error ? "red" : "orange"
+                        MouseArea{
+                            anchors.fill: parent
+                            id: mouseArea
+                            acceptedButtons: Qt.NoButton
+                            hoverEnabled: true
+                        }
+                        ToolTip.text: modelData.message
+                        ToolTip.visible: mouseArea.containsMouse
                     }
                 }
             }
