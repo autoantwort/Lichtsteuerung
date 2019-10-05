@@ -159,7 +159,15 @@ bool AudioCaptureManager::loadCaptureLibrary(QString name, QString filePathToCap
     auto func = reinterpret_cast<CaptureLibEntry>(QLibrary::resolve(filePathToCaptureLibrary, "captureAudio"));
     if (func) {
         // replace if name is already there
-        captureLibraries.emplace(name, func);
+        auto res = captureLibraries.emplace(name, func);
+        if (res.second) {
+            auto pos = std::distance(captureLibraries.begin(), res.first);
+            captureDeviceNames.getVector().insert(captureDeviceNames.cbegin() + pos, name);
+            if (currentCaptureDevice >= pos) {
+                currentCaptureDevice++;
+                emit currentCaptureDeviceChanged();
+            }
+        }
     }
     return func;
 }
@@ -227,6 +235,7 @@ void AudioCaptureManager::stopCapturing() {
 void AudioCaptureManager::stopCapturingAndWait() {
     try {
         if (captureAudioThread.joinable()) {
+            run = false;
             captureAudioThread.join();
         } else {
             if (rtAudio.isStreamOpen()) {
@@ -236,11 +245,11 @@ void AudioCaptureManager::stopCapturingAndWait() {
                     std::this_thread::sleep_for(std::chrono::microseconds(500));
                 }
             }
+            run = false;
         }
     } catch (const RtAudioError &e) {
         ErrorNotifier::showError("Error while stopping audio stream: " + QString(e.what()));
     }
-    run = false;
     emit capturingStatusChanged();
 }
 
@@ -250,7 +259,7 @@ bool AudioCaptureManager::isCapturing() const {
 
 void AudioCaptureManager::updateCaptureDeviceList() {
     QString name;
-    if (currentCaptureDevice > 0 && currentCaptureDevice < captureDeviceNames.ssize()) {
+    if (currentCaptureDevice >= 0 && currentCaptureDevice < captureDeviceNames.ssize()) {
         name = captureDeviceNames[currentCaptureDevice];
     }
     captureDeviceNames.clear();
