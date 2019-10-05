@@ -155,14 +155,14 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     return true;
 }
 
-bool AudioCaptureManager::loadCaptureLibrary(QString name, QString filePathToCaptureLibrary) {
+bool AudioCaptureManager::loadCaptureLibrary(const QString &name, const QString &filePathToCaptureLibrary) {
     auto func = reinterpret_cast<CaptureLibEntry>(QLibrary::resolve(filePathToCaptureLibrary, "captureAudio"));
     if (func) {
         // replace if name is already there
         auto res = captureLibraries.emplace(name, func);
         if (res.second) {
             auto pos = std::distance(captureLibraries.begin(), res.first);
-            captureDeviceNames.getVector().insert(captureDeviceNames.cbegin() + pos, name);
+            captureDeviceNames.insert(static_cast<int>(pos), name);
             if (currentCaptureDevice >= pos) {
                 currentCaptureDevice++;
                 emit currentCaptureDeviceChanged();

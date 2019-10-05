@@ -103,7 +103,7 @@ public:
      * @param filePathToCaptureLibrary The path to the capture lib
      * @return true, if the loading was successfull, false otherwise
      */
-    bool loadCaptureLibrary(QString name, QString filePathToCaptureLibrary);
+    bool loadCaptureLibrary(const QString &name, const QString &filePathToCaptureLibrary);
 
     /**
      * @brief startCapturingFromDevice starts the capturing with a capture device with the given name. For the names, see getCaptureDeviceNames()
