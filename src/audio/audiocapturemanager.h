@@ -7,7 +7,7 @@
 #include "aubio/onsetanalysis.h"
 #include "aubio/tempoanalysis.h"
 #include "audio_fft.h"
-#include "lib/RtAudio/rtaudio/RtAudio.h"
+#include <RtAudio.h>
 #include <map>
 #include <thread>
 

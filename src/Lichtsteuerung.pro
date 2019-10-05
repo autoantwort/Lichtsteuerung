@@ -280,3 +280,4 @@ win32-msvc{
     # RTAudio
     INCLUDEPATH += $$PWD/lib/RtAudio/include
     LIBS += -L$$PWD/lib/RtAudio/lib -lrtaudio
+    win32: LIBS +=  -lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid

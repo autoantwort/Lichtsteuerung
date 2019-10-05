@@ -11,7 +11,8 @@ cd $GIT_DIR
 # build
 if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
     # we are on windows or on the gitlab ci
-    ./autogen.sh --with-wasapi --host=mingw32
+    ./autogen.sh --no-configure
+    ./configure --with-wasapi --host=mingw32 
     FILES_TO_COPY="librtaudio.a"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
