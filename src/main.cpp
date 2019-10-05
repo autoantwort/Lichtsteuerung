@@ -259,8 +259,12 @@ int main(int argc, char *argv[]) {
     Settings::connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
-    Settings::connect(&settings,&Settings::audioCaptureFilePathChanged,[&](){
-        if(!Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath())){
+    Settings::connect(&settings, &Settings::audioCaptureFilePathChanged, [&]() {
+        if (Audio::AudioCaptureManager::get().loadCaptureLibrary("Windows Output", settings.getAudioCaptureFilePath())) {
+            if (!Audio::AudioCaptureManager::get().startCapturingFromDevice("Windows Output")) {
+                ErrorNotifier::get()->newError(QStringLiteral("Failed to start capturing with Audio Capture Library"));
+            }
+        } else {
             ErrorNotifier::get()->newError(QStringLiteral("Failed to load Audio Capture Library"));
         }
     });
@@ -296,6 +300,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("ledConsumer"),&Modules::LedConsumer::allLedConsumer);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("AudioManager"), &Audio::AudioCaptureManager::get());
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
 
@@ -329,7 +334,13 @@ int main(int argc, char *argv[]) {
     driver.start();
 #endif
 
-    qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
+    auto &audioManager = Audio::AudioCaptureManager::get();
+    audioManager.loadCaptureLibrary("Windows Output", settings.getAudioCaptureFilePath());
+    if (!audioManager.startCapturingFromCaptureLibrary()) {
+        if (!audioManager.startCapturingFromDefaultInput()) {
+            ErrorNotifier::showError("Audio capturing not possible");
+        }
+    }
 
     Modules::ModuleManager::singletone()->controller().start();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();

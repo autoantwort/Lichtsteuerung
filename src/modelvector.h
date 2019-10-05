@@ -99,6 +99,8 @@ public:
                 }else{
                     if constexpr(std::is_base_of_v<QObject, Type>)
                         return model[index.row()].property("name");
+                    else if constexpr (std::is_same_v<QString, Type>)
+                        return model[index.row()];
                     else
                         return "No Display Property available! See ModelVector";
                 }

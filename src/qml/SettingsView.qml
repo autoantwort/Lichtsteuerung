@@ -8,7 +8,7 @@ Pane{
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 20
+        rowSpacing: 16
         columns: 2
         Label{
             text: "Settings file path:"
@@ -111,6 +111,17 @@ Pane{
             path: Settings.audioCaptureFilePath
             onPathChanged: {Settings.audioCaptureFilePath = path;path = Settings.audioCaptureFilePath;}
             fileChooser: fileDialog
+        }
+        Label{
+            Layout.fillWidth: true
+            text: "Audio Capture Device:"
+        }
+        ComboBox{
+            model: AudioManager.captureDeviceNames
+            Layout.fillWidth: true
+            onActivated: AudioManager.currentCaptureDevice = index
+            currentIndex: AudioManager.currentCaptureDevice
+            onDownChanged: if(down)AudioManager.updateCaptureDeviceList()
         }
     }
     FileDialog{
