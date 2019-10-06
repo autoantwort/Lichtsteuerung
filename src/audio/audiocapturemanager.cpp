@@ -112,16 +112,6 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     }
 }
 
-void AudioCaptureManager::startCapturingFromCaptureLibrary(AudioCaptureManager::CaptureLibEntry func) {
-    captureAudioThread = std::thread([this, func]() {
-        run = true;
-        emit this->capturingStatusChanged();
-        func(&AudioCaptureManager::staticInitCallback, &AudioCaptureManager::staticDataCallback);
-        run = false;
-        emit this->capturingStatusChanged();
-    });
-}
-
 bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     if (input >= rtAudio.getDeviceCount()) {
         return false;
@@ -165,30 +155,7 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     return true;
 }
 
-bool AudioCaptureManager::loadCaptureLibrary(const QString &name, const QString &filePathToCaptureLibrary) {
-    auto func = reinterpret_cast<CaptureLibEntry>(QLibrary::resolve(filePathToCaptureLibrary, "captureAudio"));
-    if (func) {
-        // replace if name is already there
-        auto res = captureLibraries.emplace(name, func);
-        if (res.second) {
-            auto pos = std::distance(captureLibraries.begin(), res.first);
-            captureDeviceNames.insert(static_cast<int>(pos), name);
-            if (currentCaptureDevice >= pos) {
-                currentCaptureDevice++;
-                emit currentCaptureDeviceChanged();
-            }
-        }
-    }
-    return func;
-}
-
 bool AudioCaptureManager::startCapturingFromDevice(const QString &name) {
-    for (const auto &c : captureLibraries) {
-        if (c.first == name) {
-            startCapturingFromCaptureLibrary(c.second);
-            return true;
-        }
-    }
     for (unsigned i = 0; i < rtAudio.getDeviceCount(); ++i) {
         if (auto di = rtAudio.getDeviceInfo(i); di.name.c_str() == name) {
             return startCapturingFromInput(i);
@@ -197,18 +164,7 @@ bool AudioCaptureManager::startCapturingFromDevice(const QString &name) {
     return false;
 }
 
-bool AudioCaptureManager::startCapturingFromCaptureLibrary() {
-    if (captureLibraries.empty()) {
-        return false;
-    }
-    stopCapturingAndWait();
-    startCapturingFromCaptureLibrary(captureLibraries.begin()->second);
-    currentCaptureDevice = 0;
-    emit currentCaptureDeviceChanged();
-    return true;
-}
-
-bool AudioCaptureManager::startCapturingFromDefaultInput() {    
+bool AudioCaptureManager::startCapturingFromDefaultInput() {
     stopCapturingAndWait();
 #ifdef Q_OS_WIN
     // check if default output is availible
@@ -258,19 +214,14 @@ void AudioCaptureManager::stopCapturing() {
 
 void AudioCaptureManager::stopCapturingAndWait() {
     try {
-        if (captureAudioThread.joinable()) {
-            run = false;
-            captureAudioThread.join();
-        } else {
-            if (rtAudio.isStreamOpen()) {
-                rtAudio.closeStream();
-                std::this_thread::yield();
-                while (rtAudio.isStreamRunning()) {
-                    std::this_thread::sleep_for(std::chrono::microseconds(500));
-                }
+        if (rtAudio.isStreamOpen()) {
+            rtAudio.closeStream();
+            std::this_thread::yield();
+            while (rtAudio.isStreamRunning()) {
+                std::this_thread::sleep_for(std::chrono::microseconds(500));
             }
-            run = false;
         }
+        run = false;
     } catch (const RtAudioError &e) {
         ErrorNotifier::showError("Error while stopping audio stream: " + QString(e.what()));
     }
@@ -287,10 +238,6 @@ void AudioCaptureManager::updateCaptureDeviceList() {
         name = captureDeviceNames[currentCaptureDevice];
     }
     captureDeviceNames.clear();
-    for (const auto &i : captureLibraries) {
-        captureDeviceNames.push_back(i.first);
-    }
-
     for (unsigned i = 0; i < rtAudio.getDeviceCount(); ++i) {
         if (auto di = rtAudio.getDeviceInfo(i); di.inputChannels > 0 AUDIO_IF_WIN(|| di.outputChannels > 0)) {
             captureDeviceNames.emplace_back(QString::fromStdString(di.name.c_str()));

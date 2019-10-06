@@ -259,15 +259,6 @@ int main(int argc, char *argv[]) {
     Settings::connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
-    Settings::connect(&settings, &Settings::audioCaptureFilePathChanged, [&]() {
-        if (Audio::AudioCaptureManager::get().loadCaptureLibrary("Windows Output", settings.getAudioCaptureFilePath())) {
-            if (!Audio::AudioCaptureManager::get().startCapturingFromDevice("Windows Output")) {
-                ErrorNotifier::get()->newError(QStringLiteral("Failed to start capturing with Audio Capture Library"));
-            }
-        } else {
-            ErrorNotifier::get()->newError(QStringLiteral("Failed to load Audio Capture Library"));
-        }
-    });
     Settings::connect(&settings,&Settings::updatePauseInMsChanged,[&](){
         if(Driver::getCurrentDriver()){
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
@@ -335,11 +326,8 @@ int main(int argc, char *argv[]) {
 #endif
 
     auto &audioManager = Audio::AudioCaptureManager::get();
-    audioManager.loadCaptureLibrary("Windows Output", settings.getAudioCaptureFilePath());
-    if (!audioManager.startCapturingFromCaptureLibrary()) {
-        if (!audioManager.startCapturingFromDefaultInput()) {
-            ErrorNotifier::showError("Audio capturing not possible");
-        }
+    if (!audioManager.startCapturingFromDefaultInput()) {
+        ErrorNotifier::showError("Audio capturing not possible");
     }
 
     Modules::ModuleManager::singletone()->controller().start();

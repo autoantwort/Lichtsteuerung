@@ -35,18 +35,12 @@ class AudioCaptureManager : public QObject
     Q_PROPERTY(int currentCaptureDevice READ getCurrentCaptureDevice WRITE setCurrentCaptureDevice NOTIFY currentCaptureDeviceChanged)
     Q_PROPERTY(QAbstractItemModel *captureDeviceNames READ getCaptureDeviceNamesModel CONSTANT)
     Sample<float,4096> sample;
-    std::array<float,2048> fftoutput;
-    std::thread captureAudioThread;
+    std::array<float, 2048> fftoutput;
     std::atomic_bool run;
     int currentCaptureDevice = -1;
     RtAudio rtAudio;
     AudioFFT audiofft;
     ModelVector<QString> captureDeviceNames;
-    using CaptureLibEntry = int (*)(void(int, int), void(float *, unsigned int, bool *));
-    /**
-     * @brief captureLibraries all libraries loaded with loadCaptureLibrary. The string contains the name and the CaptureLibEntry the entry funciton
-     */
-    std::map<QString, CaptureLibEntry> captureLibraries;
 
     int channels = -1;
     int samplesPerSecond = -1;
@@ -62,24 +56,10 @@ class AudioCaptureManager : public QObject
 
 private:
     AudioCaptureManager();
-    ~AudioCaptureManager(){
-        if(captureAudioThread.joinable()){
-            run.store(false);
-            captureAudioThread.join();
-        }
-    }
 private:
     static int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
-    static void staticInitCallback(int channels, int samplesPerSecond) { get().initCallback(channels, samplesPerSecond); }
-    static void staticDataCallback(float* data, unsigned int frames, bool*done){get().dataCallback(data,frames,done);}
     void initCallback(int channels, int samplesPerSecond);
     void dataCallback(float *data, unsigned int frames, bool *done);
-
-    /**
-     * @brief startCapturingFromCaptureLibrary starts the audio capturing with the given function
-     * @param func The entry function of the audio capture lib
-     */
-    void startCapturingFromCaptureLibrary(CaptureLibEntry func);
 
     /**
      * @brief startCapturingFromInput starts the captuing from an input device
@@ -98,24 +78,11 @@ private:
 
 public:
     /**
-     * @brief loadCaptureLibrary loads the library located at the given path with a given name, with this name you can start capturing. The list can be updated with updateCaptureDeviceList()
-     * @param name the name that the capture device should have, if there is already a device with the name, replace this
-     * @param filePathToCaptureLibrary The path to the capture lib
-     * @return true, if the loading was successfull, false otherwise
-     */
-    bool loadCaptureLibrary(const QString &name, const QString &filePathToCaptureLibrary);
-
-    /**
      * @brief startCapturingFromDevice starts the capturing with a capture device with the given name. For the names, see getCaptureDeviceNames()
      * @param name the name of the capture device
      * @return true, if the capturing stats successfully, false otherwise
      */
     Q_INVOKABLE bool startCapturingFromDevice(const QString &name);
-    /**
-     * @brief startCapturingFromCaptureLibrary starts the capturing from one capture library that was loaded with loadCaptureLibrary(...), which one is undefined
-     * @return true, if the capturing stats successfully, false otherwise
-     */
-    bool startCapturingFromCaptureLibrary();
     /**
      * @brief startCapturingFromDefaultInput starts the capturing from the default input device. On windows from the default output.
      * @return true, if the capturing stats successfully, false otherwise

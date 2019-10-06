@@ -103,17 +103,6 @@ Pane{
 
         Label{
             Layout.fillWidth: true
-            text: "AudioCaptureLib:"
-        }
-        TextFieldFileChooser{
-            Layout.fillWidth: true
-            folder: false
-            path: Settings.audioCaptureFilePath
-            onPathChanged: {Settings.audioCaptureFilePath = path;path = Settings.audioCaptureFilePath;}
-            fileChooser: fileDialog
-        }
-        Label{
-            Layout.fillWidth: true
             text: "Audio Capture Device:"
         }
         ComboBox{

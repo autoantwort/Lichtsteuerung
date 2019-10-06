@@ -32,9 +32,6 @@ Die Lichtsteuerung hängt von ein paar anderen Projekten ab.
 #### [Boost](https://www.boost.org/)
 Boost wird benötigt, um bei Modules nicht lineare Codeausführung zu ermöglichen (Corotines) und wird genutzt, um Stacktraces auszugeben. 
 
-#### [Capture_Windows_SoundOutput](https://git.rwth-aachen.de/leander.schulten/Capture_Windows_SoundOutput)
-Dieses Project ermöglicht das abfangen des Windows Audioausgangs. Für andere Plattformen ligen keine implementierungen vor, diese sind aber herzlich willkommen. Die kompilierte Version ist hier im git vorhanden.
-
 #### [AudioFFT](https://git.rwth-aachen.de/leander.schulten/FFT_for_Audio)
 Dieses Projekt ermöglicht es, den abgefangenen Sound auf Frequenzbereiche aufzuspalten, wobei jedem Frequenzbereich eine "Energie"/Stärke zugeordnet wird. Dieses Projekt hängt wiederum von [fftw](http://www.fftw.org/) ab. Diese Abhängigkeiten befinden sich auch hier als kompilierte lib im git. 
 
