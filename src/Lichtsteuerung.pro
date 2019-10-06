@@ -276,3 +276,8 @@ win32-msvc{
     LIBS += -L$$PWD/'lib/AudioFFT/dll/AudioFFT.dll'
     INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
 }
+
+    # RTAudio
+    INCLUDEPATH += $$PWD/lib/RtAudio/include
+    LIBS += -L$$PWD/lib/RtAudio/lib -lrtaudio
+    win32: LIBS +=  -lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid

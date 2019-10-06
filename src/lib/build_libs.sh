@@ -20,4 +20,9 @@ cd aubio
 ./build_aubio.sh
 cd ..
 
+echo $'\n\nBuild RtAudio'
+cd RtAudio
+./build_rtAudio.sh
+cd ..
+
 echo "Lib installation complete"

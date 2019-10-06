@@ -20,7 +20,6 @@ class Settings : public QObject
     Q_PROPERTY(QString compilerFlags READ getCompilerFlags WRITE setCompilerFlags NOTIFY compilerFlagsChanged)
     Q_PROPERTY(QString compilerLibraryFlags READ getCompilerLibraryFlags WRITE setCompilerLibraryFlags NOTIFY compilerLibraryFlagsChanged)
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
-    Q_PROPERTY(QString audioCaptureFilePath READ getAudioCaptureFilePath WRITE setAudioCaptureFilePath NOTIFY audioCaptureFilePathChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
     static inline QFileInfo localSettingsFile;
 public:
@@ -57,17 +56,6 @@ public:
         }
     }
     QString getDriverFilePath()const{return value(QStringLiteral("driverFilePath")).toString();}
-
-    void setAudioCaptureFilePath(const QString& file){
-        if(file == getAudioCaptureFilePath()){
-            return;
-        }
-        if(QFile::exists(file)){
-            setValue(QStringLiteral("audioCaptureFilePath"),file);
-            emit audioCaptureFilePathChanged();
-        }
-    }
-    QString getAudioCaptureFilePath()const{return value(QStringLiteral("audioCaptureFilePath")).toString();}
 
     void setUpdatePauseInMs(unsigned int pause){setValue(QStringLiteral("updatePauseInMs"),pause);emit updatePauseInMsChanged();}
     unsigned int getUpdatePauseInMs()const{return value(QStringLiteral("updatePauseInMs")).toUInt();}
@@ -136,7 +124,6 @@ signals:
     void compilerFlagsChanged();
     void compilerLibraryFlagsChanged();
     void includePathChanged();
-    void audioCaptureFilePathChanged();
 public slots:
 };
 

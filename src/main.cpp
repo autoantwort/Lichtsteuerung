@@ -259,11 +259,6 @@ int main(int argc, char *argv[]) {
     Settings::connect(&settings,&Settings::driverFilePathChanged,[&](){
         Driver::loadAndStartDriver(settings.getDriverFilePath());
     });
-    Settings::connect(&settings,&Settings::audioCaptureFilePathChanged,[&](){
-        if(!Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath())){
-            ErrorNotifier::get()->newError(QStringLiteral("Failed to load Audio Capture Library"));
-        }
-    });
     Settings::connect(&settings,&Settings::updatePauseInMsChanged,[&](){
         if(Driver::getCurrentDriver()){
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
@@ -296,6 +291,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("ledConsumer"),&Modules::LedConsumer::allLedConsumer);
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
+    engine.rootContext()->setContextProperty(QStringLiteral("AudioManager"), &Audio::AudioCaptureManager::get());
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
 
@@ -329,7 +325,10 @@ int main(int argc, char *argv[]) {
     driver.start();
 #endif
 
-    qDebug() << "start capturing : " << Audio::AudioCaptureManager::get().startCapturing(settings.getAudioCaptureFilePath());
+    auto &audioManager = Audio::AudioCaptureManager::get();
+    if (!audioManager.startCapturingFromDefaultInput()) {
+        ErrorNotifier::showError("Audio capturing not possible");
+    }
 
     Modules::ModuleManager::singletone()->controller().start();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();

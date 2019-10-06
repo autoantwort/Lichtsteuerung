@@ -1,3 +1,6 @@
 [submodule "src/lib/aubio/aubio.git"]
 	path = src/lib/aubio/aubio.git
 	url = https://github.com/aubio/aubio
+[submodule "src/lib/RtAudio/rtaudio"]
+	path = src/lib/RtAudio/rtaudio
+	url = https://github.com/thestk/rtaudio.git
