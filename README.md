@@ -32,6 +32,9 @@ Die Lichtsteuerung hängt von ein paar anderen Projekten ab.
 #### [Boost](https://www.boost.org/)
 Boost wird benötigt, um bei Modules nicht lineare Codeausführung zu ermöglichen (Corotines) und wird genutzt, um Stacktraces auszugeben. 
 
+#### [RtAudio](https://github.com/thestk/rtaudio)
+RtAudio (Realtime Audio) ist eine Bibliothek, mit welcher auf jedem Betriebsystem alle Audioeingänge aufgenommen werden können. Unter Windows ist es auch möglich den Audio Ausgang aufzunehmen. Vor RtAudio wurde diese Aufgabe von der [Capture_Windows_SoundOutput](https://git.rwth-aachen.de/leander.schulten/Capture_Windows_SoundOutput) lib übernommen (Diese konnte nur unter Windows den Standardausgang aufnehmen). 
+
 #### [AudioFFT](https://git.rwth-aachen.de/leander.schulten/FFT_for_Audio)
 Dieses Projekt ermöglicht es, den abgefangenen Sound auf Frequenzbereiche aufzuspalten, wobei jedem Frequenzbereich eine "Energie"/Stärke zugeordnet wird. Dieses Projekt hängt wiederum von [fftw](http://www.fftw.org/) ab. Diese Abhängigkeiten befinden sich auch hier als kompilierte lib im git. 
 
