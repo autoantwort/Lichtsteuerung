@@ -18,11 +18,12 @@ class UserManagment : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(User* currentUser READ getCurrentUser NOTIFY currentUserChanged)
-    Q_PROPERTY(User* defaultUser READ getCurrentUser CONSTANT)
+    Q_PROPERTY(User *defaultUser READ getDefaultUser CONSTANT)
     Q_PROPERTY(QAbstractItemModel * users READ getUserModel CONSTANT)
     Q_PROPERTY(QString currentOsUserName READ getCurrentOsUserName CONSTANT)
 private:
-    User * readUser;
+    // User is an incomplete type here
+    std::unique_ptr<User> defaultUser;
     User * currentUser;
     QString currentOsUserName;
     ModelVector<std::unique_ptr<User>> users;
@@ -36,7 +37,7 @@ public:
     User * getUserById(ID id){return getUserById(id.value());}
     User * getUserById(ID::value_type id);
 
-    Q_INVOKABLE User * getDefaultUser()const{return readUser;}
+    [[nodiscard]] User *getDefaultUser() const { return defaultUser.get(); }
     /**
      * @brief get Return the Singletone of the UserManagment
      * @return

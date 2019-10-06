@@ -17,6 +17,7 @@ namespace WindowsInstaller
     {
         string from;
         string to;
+        System.Security.AccessControl.DirectorySecurity folderAccessControl;
 
         enum Progress{ Wait, Remove, Copy};
         Progress progress = Progress.Wait;
@@ -102,6 +103,9 @@ namespace WindowsInstaller
                 });
                 if(progress == Progress.Wait)
                 {
+                    // save the permissions of the old folder
+                    folderAccessControl = Directory.GetAccessControl(to);
+                    folderAccessControl.SetAccessRuleProtection(false, true);
                     try
                     {
                         DeleteDirectory(to);
@@ -134,6 +138,8 @@ namespace WindowsInstaller
                     try
                     {
                         Directory.Move(from, to);
+                        // set the old permissions to the new folder
+                        Directory.SetAccessControl(to, folderAccessControl);
                     }
                     catch (Exception ex)
                     {

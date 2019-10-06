@@ -99,6 +99,8 @@ public:
                 }else{
                     if constexpr(std::is_base_of_v<QObject, Type>)
                         return model[index.row()].property("name");
+                    else if constexpr (std::is_same_v<QString, Type>)
+                        return model[index.row()];
                     else
                         return "No Display Property available! See ModelVector";
                 }
@@ -162,6 +164,14 @@ public:
      * @brief endPushBack Call this function if you have started push_backing with beginPushBack and are finisched
      */
     void endPushBack(){endInsertRows();}
+    void beginInsert(int firstIndex, int length) { beginInsertRows(QModelIndex(), firstIndex, firstIndex + length - 1); }
+    void endInsert() { endInsertRows(); }
+    auto insert(int index, const Type &value) {
+        beginInsert(index, 1);
+        auto res = model.insert(cbegin() + index, value);
+        endInsert();
+        return res;
+    }
     typename std::vector<Type>::const_iterator cbegin()const{
         return model.cbegin();
     }

@@ -2,7 +2,7 @@
 #include <QCryptographicHash>
 #include <QJsonArray>
 
-UserManagment::UserManagment():readUser(new User("Default","")),currentUser(readUser){
+UserManagment::UserManagment() : defaultUser(new User(QStringLiteral("Default"), "")), currentUser(defaultUser.get()) {
     /*auto pass = QCryptographicHash::hash(QString("12345").toUtf8(),QCryptographicHash::Sha3_256);
     qDebug()<<pass;
     auto admin = new User("Admin",pass);
@@ -121,12 +121,12 @@ void UserManagment::autoLoginUser(){
 
 void UserManagment::logout(User *user){
     if(currentUser==user){
-        currentUser = readUser;
+        currentUser = getDefaultUser();
         emit currentUserChanged();
     }
 }
 void UserManagment::logout(){
-    currentUser = readUser;
+    currentUser = getDefaultUser();
     emit currentUserChanged();
 }
 

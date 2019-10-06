@@ -1,14 +1,22 @@
-import QtQuick 2.11
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 import custom.licht 1.0
-import QtQuick.Controls.Material 2.2
-import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Material 2.12
 import QtQml 2.12
+import QtQuick.Window 2.12
 import "components"
 
 Item{
     id: root
+    property bool visibleForUser: SwipeView.isCurrentItem
+
+    Shortcut{
+        enabled: visibleForUser
+        sequences: ["Ctrl+B", "Ctrl+R"]
+        autoRepeat: false
+        onActivated: codeEditorHelper.compile();
+    }
 
     Item{
         clip: true
@@ -346,35 +354,8 @@ Item{
             Layout.fillWidth: true
             onHoveredChanged: if(!hovered && listView.currentModelData)listView.currentModelData.code = codeEditor.text
             clip: true
-            Rectangle{
-                anchors.fill: codeEditor
-                anchors.topMargin: codeEditor.topPadding
-                TextMetrics{
-                    font: codeEditor.font
-                    text: "M"
-                    id: textMetrics
-                }
-
-                Repeater{
-                    model: codeEditorHelper.codeMarkups
-                    Rectangle{
-                        x: modelData.column * (textMetrics.width+1)
-                        y: modelData.row * height
-                        width: modelData.markupLength * (textMetrics.width+1)
-                        height: codeEditor.lineHeight
-                        color: modelData.error ? "red" : "orange"
-                        MouseArea{
-                            anchors.fill: parent
-                            id: mouseArea
-                            acceptedButtons: Qt.NoButton
-                            hoverEnabled: true
-                        }
-                        ToolTip.text: modelData.message
-                        ToolTip.visible: mouseArea.containsMouse
-                    }
-                }
-            }
             TextArea{
+                z: 2
                 property real lineHeight: contentHeight/lineCount
                 font.family: "Liberation Mono"
                 font.pointSize: 10
@@ -544,7 +525,13 @@ Item{
 
                     }
                     onInformation:{
-                        informationDialog.text = text
+                        if (text.indexOf("error")>=0){
+                            informationDialog.title = "Error while compiling";
+                            informationDialog.text = text;
+                        }else{
+                            informationDialog.title = text;
+                            informationDialog.text = "";
+                        }
                         informationDialog.visible = true;
                     }
                 }
@@ -561,6 +548,35 @@ Item{
                             timer.triggered.disconnect(release); // This is important as well
                         });
                         timer.start();
+                    }
+                }
+            } // TextArea
+            // Must be behind TextArea because of https://bugreports.qt.io/browse/QTBUG-62292
+            Item{
+                anchors.fill: codeEditor
+                anchors.topMargin: codeEditor.topPadding
+                TextMetrics{
+                    font: codeEditor.font
+                    text: "M"
+                    id: textMetrics
+                }
+
+                Repeater{
+                    model: codeEditorHelper.codeMarkups
+                    Rectangle{
+                        x: modelData.column * (textMetrics.width+1)
+                        y: modelData.row * height
+                        width: modelData.markupLength * (textMetrics.width+1)
+                        height: codeEditor.lineHeight
+                        color: modelData.error ? "red" : "orange"
+                        MouseArea{
+                            anchors.fill: parent
+                            id: mouseArea
+                            acceptedButtons: Qt.NoButton
+                            hoverEnabled: true
+                        }
+                        ToolTip.text: modelData.message
+                        ToolTip.visible: mouseArea.containsMouse
                     }
                 }
             }
@@ -588,110 +604,143 @@ Item{
         }
     }
 
-    MessageDialog{
+    Dialog{
         id: informationDialog
+        modal: true
+        standardButtons: Dialog.Ok
+        width: 600
+        margins: 50
+        leftPadding: header.leftPadding
+        rightPadding: footer.rightPadding
+        bottomPadding: 0
+        x: (Window.window.width-width)/2;
+        y: (root.height-height)/2;
+        property alias text: dialogText.text
+        onAboutToShow: {
+            contentItem.ScrollBar.vertical.position = 0;
+            contentItem.ScrollBar.horizontal.position = 0;
+        }
+        contentItem: ScrollView{
+            clip: true;
+            ScrollBar.vertical.policy: ScrollBar.vertical.visualSize===1 ? ScrollBar.AlwaysOff : ScrollBar.AlwaysOn
+            Text{
+                font.family: "Courier New"
+                font.bold: true
+                onContentWidthChanged: console.log("contentWidth", contentWidth)
+                id: dialogText
+            }
+        }
     }
 
     Dialog{
         property var prop;
-        onPropChanged: print(prop.typ)
-        modality: Qt.WindowModal
-        title: "Add/Change Property"
-        width:300
+        modal: true
+        closePolicy: Popup.CloseOnEscape
+
+        width: 300
+        margins: 50
+        padding: 10
+        x: (root.width-width)/2;
+
         id: dialog
-        contentItem: Pane {
-            GridLayout{
-                anchors.fill: parent
-                columns: 2
-                Label{
-                    text: "Name"
+        header: Label{
+            topPadding: 15
+            text: "Add/Change Property"
+            font.pointSize: 14
+            font.bold: true
+            verticalAlignment: "AlignVCenter"
+            horizontalAlignment: "AlignHCenter"
+        }
+        contentItem: GridLayout{
+            columns: 2
+            Label{
+                text: "Name"
+            }
+            TextInputField{
+                id:name
+                Layout.fillWidth: true
+                text:dialog.prop.name
+                validator: RegExpValidator{
+                    regExp: /[a-z][a-z_0-9]*$/i
                 }
-                TextInputField{
-                    id:name
-                    Layout.fillWidth: true
-                    text:dialog.prop.name
-                    validator: RegExpValidator{
-                        regExp: /[a-z][a-z_0-9]*$/i
-                    }
+            }
+            Label{
+                text:"Beschreibung"
+            }
+            TextInputField{
+                id:besch
+                Layout.fillWidth: true
+                text:dialog.prop.description
+            }
+            Label{
+                text:"Typ"
+            }
+            ComboBox{
+                currentIndex: dialog.prop.type
+                id:type
+                model: modolePropertyTypeList
+                Layout.fillWidth: true
+                onCurrentIndexChanged: {
+                    // "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
+                    minVal.enabled = currentIndex>=0 && currentIndex <=3;
+                    maxVal.enabled = currentIndex>=0 && currentIndex <=3;
+                    defaultVal.enabled = currentIndex>=0 && currentIndex <=4;
                 }
-                Label{
-                    text:"Beschreibung"
-                }
-                TextInputField{
-                    id:besch
-                    Layout.fillWidth: true
-                    text:dialog.prop.description
-                }
-                Label{
-                    text:"Typ"
-                }
-                ComboBox{
-                    currentIndex: dialog.prop.type
-                    id:type
-                    model: modolePropertyTypeList
-                    Layout.fillWidth: true
-                    onCurrentIndexChanged: {
-                        // "Int" << "Long" << "Float" << "Double" << "Bool" << "String";
-                        minVal.enabled = currentIndex>=0 && currentIndex <=3;
-                        maxVal.enabled = currentIndex>=0 && currentIndex <=3;
-                        defaultVal.enabled = currentIndex>=0 && currentIndex <=4;
-                    }
-                }
-                Label{
-                    text:"min value"
-                }
-                TextInputField{
-                    Layout.fillWidth: true
-                    id: minVal
-                    validator: IntValidator{}
-                    text:type.currentIndex === 4 ? "0" : type.currentIndex === 5 ? "" : dialog.prop.minValue
-                }
+            }
+            Label{
+                text:"min value"
+            }
+            TextInputField{
+                Layout.fillWidth: true
+                id: minVal
+                validator: IntValidator{}
+                text:type.currentIndex === 4 ? "0" : type.currentIndex === 5 ? "" : dialog.prop.minValue
+            }
 
-                Label{
-                    text:"max value"
-                }
-                TextInputField{
-                    Layout.fillWidth: true
-                    id:maxVal
-                    validator: IntValidator{}
-                    text:type.currentIndex === 4 ? "1" : type.currentIndex === 5 ? "" : dialog.prop.maxValue
-                }
-                Label{
-                    text:"default value"
+            Label{
+                text:"max value"
+            }
+            TextInputField{
+                Layout.fillWidth: true
+                id:maxVal
+                validator: IntValidator{}
+                text:type.currentIndex === 4 ? "1" : type.currentIndex === 5 ? "" : dialog.prop.maxValue
+            }
+            Label{
+                text:"default value"
 
+            }
+            TextInputField{
+                text: type.currentIndex !== 5 ? dialog.prop.defaultValue : ""
+                Layout.fillWidth: true
+                id:defaultVal
+                enabled: type.currentIndex !== 5
+                validator: IntValidator{
+                    top:  Number(maxVal.text)
+                    bottom: Number(minVal.text)
                 }
-                TextInputField{
-                    text: type.currentIndex !== 5 ? dialog.prop.defaultValue : ""
-                    Layout.fillWidth: true
-                    id:defaultVal
-                    enabled: type.currentIndex !== 5
-                    validator: IntValidator{
-                        top:  Number(maxVal.text)
-                        bottom: Number(minVal.text)
-                    }
+            }
+            RowLayout{
+                Layout.columnSpan: 2
+                Button{
+                    Layout.fillWidth:  true
+                    text:"Abbrechen"
+                    onClicked: dialog.visible = false
                 }
-                RowLayout{
-                    Layout.columnSpan: 2
-                    Button{
-                        Layout.fillWidth:  true
-                        text:"Abbrechen"
-                        onClicked: dialog.visible = false
-                    }
-                    Button{
-                        Layout.fillWidth:  true
-                        text:"Übernehmen"
-                        onClicked: {
-                            dialog.visible = false
-                            dialog.prop.name = name.text;
-                            dialog.prop.description = besch.text;
-                            dialog.prop.type = type.currentIndex;
-                            if(minVal.text.length!==0)dialog.prop.minValue = minVal.text
-                            if(maxVal.text.length!==0)dialog.prop.maxValue = maxVal.text
-                            if(defaultVal.text.length!==0)dialog.prop.defaultValue = defaultVal.text
-                        }
+                Button{
+                    Layout.fillWidth:  true
+                    text:"Übernehmen"
+                    onClicked: {
+                        dialog.visible = false
+                        dialog.prop.name = name.text;
+                        dialog.prop.description = besch.text;
+                        dialog.prop.type = type.currentIndex;
+                        if(minVal.text.length!==0)dialog.prop.minValue = minVal.text
+                        if(maxVal.text.length!==0)dialog.prop.maxValue = maxVal.text
+                        if(defaultVal.text.length!==0)dialog.prop.defaultValue = defaultVal.text
                     }
                 }
             }
-        }
-    }
+        } // contentItem: GridLayout
+    } // Dialog
 }

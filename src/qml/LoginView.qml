@@ -68,7 +68,7 @@ Item{
                     x: parent.contentItem.x + 10
                     text: modelData.name
                     width: Math.max(implicitWidth+20,70)
-                    enabled: (UserManagment.currentUser.havePermission(Permission.Admin) || modelData === UserManagment.currentUser)&&modelData!==UserManagment.getDefaultUser()
+                    enabled: (UserManagment.currentUser.havePermission(Permission.Admin) || modelData === UserManagment.currentUser)&&modelData!==UserManagment.defaultUser
                 }
                 Button{
                     visible: UserManagment.currentUser.havePermission(Permission.Admin);
@@ -100,7 +100,7 @@ Item{
                     anchors.bottom: parent.bottom
                     anchors.rightMargin: 5
                     onClicked: {
-                        if(modelData===UserManagment.getDefaultUser()){
+                        if(modelData===UserManagment.defaultUser){
                             UserManagment.logout();
                         }else if(modelData===UserManagment.currentUser){
                             UserManagment.logout()
