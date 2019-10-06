@@ -5,6 +5,16 @@
 #include "gui/oscillogram.h"
 #include <algorithm>
 
+#ifdef AUDIO_IF_WIN
+#error AUDIO_IF_WIN is already defined
+#endif
+
+#ifdef Q_OS_WIN
+#define AUDIO_IF_WIN(x) x
+#else
+#define AUDIO_IF_WIN(x)
+#endif
+
 namespace Audio {
 AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
 {
@@ -117,7 +127,7 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
         return false;
     }
     const auto di = rtAudio.getDeviceInfo(input);
-    if (di.inputChannels == 0) {
+    if (di.inputChannels == 0 AUDIO_IF_WIN(&&di.outputChannels == 0)) {
         return false;
     }
     // it was a device open before now
@@ -130,11 +140,11 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     } else {
         sampleRate = static_cast<int>(di.preferredSampleRate);
     }
-    initCallback(static_cast<int>(di.inputChannels), sampleRate);
+    initCallback(static_cast<int>(di.inputChannels + di.outputChannels), sampleRate);
 
     RtAudio::StreamParameters isp;
     isp.deviceId = input;
-    isp.nChannels = di.inputChannels;
+    isp.nChannels = di.inputChannels AUDIO_IF_WIN(+di.outputChannels);
     isp.firstChannel = 0;
     unsigned samplesPerFrame = static_cast<unsigned>(this->samplesPerFrame);
     try {
@@ -200,6 +210,20 @@ bool AudioCaptureManager::startCapturingFromCaptureLibrary() {
 
 bool AudioCaptureManager::startCapturingFromDefaultInput() {    
     stopCapturingAndWait();
+#ifdef Q_OS_WIN
+    // check if default output is availible
+    const auto output = rtAudio.getDefaultOutputDevice();
+    if (output < rtAudio.getDeviceCount()) {
+        const auto di = rtAudio.getDeviceInfo(output);
+        if (di.isDefaultOutput) {
+            if (startCapturingFromInput(output)) {
+                currentCaptureDevice = getIndexForDeviceName(di.name.c_str());
+                emit currentCaptureDeviceChanged();
+                return true;
+            }
+        }
+    }
+#endif
     // check if default input is availible
     const auto input = rtAudio.getDefaultInputDevice();
     if (input >= rtAudio.getDeviceCount()) {
@@ -268,7 +292,7 @@ void AudioCaptureManager::updateCaptureDeviceList() {
     }
 
     for (unsigned i = 0; i < rtAudio.getDeviceCount(); ++i) {
-        if (auto di = rtAudio.getDeviceInfo(i); di.inputChannels > 0) {
+        if (auto di = rtAudio.getDeviceInfo(i); di.inputChannels > 0 AUDIO_IF_WIN(|| di.outputChannels > 0)) {
             captureDeviceNames.emplace_back(QString::fromStdString(di.name.c_str()));
         }
     }

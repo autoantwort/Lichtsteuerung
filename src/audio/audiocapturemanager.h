@@ -117,7 +117,7 @@ public:
      */
     bool startCapturingFromCaptureLibrary();
     /**
-     * @brief startCapturingFromDefaultInput starts the capturing from the default input device
+     * @brief startCapturingFromDefaultInput starts the capturing from the default input device. On windows from the default output.
      * @return true, if the capturing stats successfully, false otherwise
      */
     bool startCapturingFromDefaultInput();
