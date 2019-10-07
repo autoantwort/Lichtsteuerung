@@ -115,15 +115,19 @@ Pane{
     }
     FileDialog{
         property var callback;
+        function openAt(path, isFolder){
+            selectFolder = isFolder;
+            folder = pathToUrl(path);
+            open();
+        }
         id: fileDialog
         title: "Please choose a file"
         onAccepted: {
-                  console.log("fftey:"+callback);
-                  if(callback)callback(fileDialog.fileUrl.toString().substring(8));
-              }
-        onSelectionAccepted: console.log("3")
-        onVisibleChanged: console.info("this")
-        onRejected: console.log("rej")
-        Component.onCompleted: console.log("comp")
+            if(callback){
+                callback(urlToPath(fileDialog.fileUrl));
+            }else{
+                console.error("Error in File Dialog in SettingsView: No callback provided!")
+            }
+        }
     }
 }
