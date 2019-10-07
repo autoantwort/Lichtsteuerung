@@ -243,11 +243,9 @@ void AudioCaptureManager::updateCaptureDeviceList() {
             captureDeviceNames.emplace_back(QString::fromStdString(di.name.c_str()));
         }
     }
-    auto newIndex = getIndexForDeviceName(name);
-    if (newIndex != currentCaptureDevice) {
-        currentCaptureDevice = newIndex;
-        emit currentCaptureDeviceChanged();
-    }
+    currentCaptureDevice = getIndexForDeviceName(name);
+    // always emit, because the model was empty for a short time, so QML Components sets their currentIndex to -1
+    emit currentCaptureDeviceChanged();
 }
 
 void AudioCaptureManager::setCurrentCaptureDevice(int index) {
