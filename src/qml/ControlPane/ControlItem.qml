@@ -14,9 +14,9 @@ ControlItemTemplate{
     property bool pressed: false
     onPressedChanged:{
         if(pressed){
-            rectangle.color="#C7C7FF";
+            rectangle.color=Qt.rgba(0,0,1,.2);
         }else{
-            rectangle.color="white";
+            rectangle.color="transparent";
         }
     }
 
@@ -25,6 +25,7 @@ ControlItemTemplate{
         anchors.fill: parent
         border.width: 1
         border.color: "blue"
+        color: "transparent"
         radius: 3
         layer.enabled: true;
         layer.effect: FastBlur{

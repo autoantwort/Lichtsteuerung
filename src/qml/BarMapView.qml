@@ -31,6 +31,7 @@ ColumnLayout{
             anchors.left: parent.left
             border.width: 2
             border.color: "black"
+            color: "transparent"
 
             Flickable{
                 anchors.fill: parent

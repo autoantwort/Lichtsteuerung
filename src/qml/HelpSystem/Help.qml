@@ -152,12 +152,11 @@ Popup {
 
     background: Pane{
         padding: 0
-        Component.onCompleted: background.color = "white"
         Material.elevation: 24
 
         Rectangle{
             id: arrow
-            color: "white"
+            color: Material.backgroundColor
             rotation: 45
             width: 20
             height: 20
@@ -274,7 +273,6 @@ Popup {
 
     contentItem: Page{
         id: page
-        Component.onCompleted: background.color = "white"
 
         Keys.onRightPressed: if(hasNextEntry)++currentIndex;
         Keys.onLeftPressed: if(hasPreviousEntry)--currentIndex;
@@ -290,7 +288,7 @@ Popup {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.topMargin: -3
-                color: mouseArea.containsMouse ? "black" : "gray"
+                color: mouseArea.containsMouse ? Material.iconColor : Material.iconDisabledColor
                 MouseArea{
                     id: mouseArea
                     anchors.fill: parent
