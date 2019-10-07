@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import custom.licht 1.0
 
 Item {
@@ -39,12 +40,14 @@ Item {
                 xScale: 1
                 origin.y: 200
             }
+            lineColor: Material.foreground
         }
 
         Repeater {
             model: ((flickable.contentWidth + 40) / 40).toFixed(0)
             delegate: Text {
                 text: ((index * 40 + 20) / graph.implicitWidth * (44100 / 2) * (1 / scaleID.xScale)).toFixed(0)
+                color: Material.foreground
                 x: index * 40 + 20 - contentWidth / 2
                 textFormat: Text.PlainText
                 y: 2
@@ -86,6 +89,7 @@ Item {
                 Layout.preferredWidth: 200
                 Text {
                     text: parent.value.toFixed(2)
+                    color: Material.foreground
                     anchors.bottom: parent.handle.top
                     anchors.bottomMargin: 4
                     anchors.horizontalCenter: parent.handle.horizontalCenter
@@ -103,6 +107,7 @@ Item {
                 Layout.preferredWidth: 200
                 Text {
                     text: parent.value.toFixed(2)
+                    color: Material.foreground
                     anchors.bottom: parent.handle.top
                     anchors.bottomMargin: 4
                     anchors.horizontalCenter: parent.handle.horizontalCenter

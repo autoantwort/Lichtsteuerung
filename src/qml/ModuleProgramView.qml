@@ -1,8 +1,8 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.4
-import QtQuick.Layouts 1.3
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 import custom.licht 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick.Dialogs 1.3
 import QtQuick.Controls.Material 2.12
 import "components"
 
@@ -45,7 +45,7 @@ Item{
                         anchors.left: parent.left
                         anchors.leftMargin: 15
                         onTextChanged: modelData.name = text
-                        color: parent.selected ? "white" : "black"
+                        color: parent.selected ? "white" : Material.foreground
                         onFocusChanged: {
                             if(focus){
                                 parent.makeCurrentItem();

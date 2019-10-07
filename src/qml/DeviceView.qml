@@ -1,7 +1,8 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 import custom.licht 1.0
 import "components"
 
@@ -38,12 +39,11 @@ ModelView{
         }
     }
 
-    Text{
+    Label{
         Layout.row: 2
         Layout.column: 2
-        text:"startDMXChannel:"
+        text:"First DMX-Channel:"
         Layout.rightMargin: 20
-        font.pixelSize: 15
     }
     TextInputField{
         Layout.row: 2
@@ -56,35 +56,35 @@ ModelView{
         }
         onTextChanged: if(parent.currentModelData) parent.currentModelData.startDMXChannel = text.length?text:0
     }
-    Text{
+    Label{
         Layout.row: 3
         Layout.column: 2
         text:"DevicePrototype:"
         Layout.rightMargin: 20
-        font.pixelSize: 15
     }
     Text{
         Layout.row: 3
         Layout.column: 3
         text: parent.currentModelData ? parent.currentModelData.prototype.name : ""
         font.pixelSize: 15
+        color: Material.secondaryTextColor
         TextUnderline{
             extendetWidth:1
             color:"lightgrey"
         }
     }
-    Text{
+    Label{
         Layout.row: 4
         Layout.column: 2
         text:"Position:"
         Layout.rightMargin: 20
-        font.pixelSize: 15
     }
     RowLayout{
         Layout.row: 4
         Layout.column: 3
         Text{
             text:"x:"
+            color: Material.foreground
             font.pixelSize: 15
         }
         TextInputField{
@@ -97,6 +97,7 @@ ModelView{
         Text{
             Layout.leftMargin: 10
             text:"y:"
+            color: Material.foreground
             font.pixelSize: 15
         }
         TextInputField{

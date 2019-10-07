@@ -3,6 +3,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import custom.licht 1.0
+import QtQuick.Controls.Material 2.12
 import "ControlPane"
 import "components"
 import "HelpSystem"
@@ -228,6 +229,7 @@ ApplicationWindow {
 
             Oscillogram{
                 visibleForUser: SwipeView.isCurrentItem
+                lineColor: Material.foreground
             }
 
             FFTGraphView{
@@ -256,6 +258,7 @@ ApplicationWindow {
     }
 
     LedWindow{
+        color: window.Material.background
         id: ledWindow
         property int insertAtIndex
         function moveToWindow(index){
