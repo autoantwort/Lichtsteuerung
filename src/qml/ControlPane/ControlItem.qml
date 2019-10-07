@@ -1,6 +1,7 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
 import custom.licht.template 1.0
 import custom.licht 1.0
@@ -41,14 +42,16 @@ ControlItemTemplate{
     }
     onSettingVisibleChange: settings.opacity = visible
 
-    Image {
-        opacity: 0
+    Button{
         id: settings
-        width: 18
-        height: 18
+        padding: 1
+        width: 20
+        height: 20
         anchors.top: parent.top
         anchors.right: parent.right
-        source: "/icons/ic_settings_black_24px.svg"
+        icon.source: "/icons/ic_settings_black_24px.svg"
+        background: null
+        opacity: 0
         visible: popup!==null
 
         Behavior on rotation{
@@ -59,26 +62,22 @@ ControlItemTemplate{
             NumberAnimation{
             }
         }
-
-        MouseArea{
-            anchors.fill: parent
-            hoverEnabled: true
-            onEntered: settings.rotation=90
-            onExited: settings.rotation=0
-            onClicked: {
-                var pos = mapToItem(item.parent,mouse.x,mouse.y);
-                // do not move the popup out of the viewport
-                pos.x = Math.min(pos.x,item.parent.width-popup.width-5);
-                pos = item.mapFromItem(item.parent,pos.x,pos.y);
-                popup.x = pos.x;
-                popup.y = pos.y;
-                popup.open();
+        onClicked: {
+            let pos = mapToItem(item.parent,pressX,pressY);
+            // do not move the popup out of the viewport
+            pos.x = Math.min(pos.x,item.parent.width-popup.width-5);
+            pos = item.mapFromItem(item.parent,pos.x,pos.y);
+            popup.x = pos.x;
+            popup.y = pos.y;
+            popup.open();
+        }
+        onHoveredChanged: {
+            if(hovered){
+                 settings.rotation = 90;
+            }else{
+                 settings.rotation = 0;
             }
         }
-    }
-    Item {
-        x:0;
-        y:0;
     }
 
     Behavior on x{

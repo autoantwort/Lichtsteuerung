@@ -92,6 +92,7 @@ ControlItem{
             stepSize: 1
             Text {
                 text: parent.value.toFixed(0)
+                color: Material.foreground
                 anchors.top:parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
 
@@ -109,7 +110,7 @@ ControlItem{
                     text:"Name : "
                     horizontalAlignment: TextInput.AlignRight
                 }
-                TextInput{
+                TextInputField{
                     enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_GROUP_NAME);
                     Layout.fillWidth: true
                     text:controlData?controlData.name:"null";
@@ -119,7 +120,7 @@ ControlItem{
             Rectangle{
                 Layout.fillWidth: true
                 height: 1
-                color: "black"
+                color: Material.iconDisabledColor
             }
             RowLayout{
                 enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MIN_MAX_MAPPING);
@@ -127,6 +128,7 @@ ControlItem{
                     spacing: 2
                     Text {
                         text: qsTr("Min")
+                        color: Material.foreground
                         font.underline: true
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -150,6 +152,7 @@ ControlItem{
                     spacing: 2
                     Text {
                         text: qsTr("Max")
+                        color: Material.foreground
                         font.underline: true
                         Layout.alignment: Qt.AlignHCenter
                     }
@@ -207,6 +210,7 @@ ControlItem{
                         font.family: "Courier New"
                         font.bold: true
                         text: parent.position
+                        color: Material.foreground
                         anchors.bottom: parent.top
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
@@ -261,12 +265,14 @@ ControlItem{
                 second.onValueChanged: if(controlData)controlData.maxValue = second.value
                 Text {
                     text: rangeSlider.first.value.toFixed(0)
+                    color: Material.foreground
                     anchors.bottom: rangeSlider.first.handle.top
                     anchors.horizontalCenter: rangeSlider.first.handle.horizontalCenter
                     anchors.bottomMargin: 2
                 }
                 Text {
                     text: rangeSlider.second.value.toFixed(0)
+                    color: Material.foreground
                     anchors.bottom: rangeSlider.second.handle.top
                     anchors.horizontalCenter: rangeSlider.second.handle.horizontalCenter
                     anchors.bottomMargin: 2

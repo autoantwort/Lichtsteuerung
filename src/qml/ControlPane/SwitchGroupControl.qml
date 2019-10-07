@@ -1,7 +1,8 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtGraphicalEffects 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
+import QtGraphicalEffects 1.12
+import QtQuick.Controls.Material 2.12
 import custom.licht 1.0
 import ".."
 import "../components"
@@ -19,27 +20,44 @@ ControlItem{
         }
     }
     ControlItemBlock{
-        Image {
-            anchors.margins: 1
-            anchors.fill:parent
+        Button {
+            padding: 1
+            implicitWidth: 50
+            anchors.fill: parent
             id: play
-            source: "/icons/play.svg"
+            icon.source: "/icons/play.svg"
+            icon.width: width - 4
+            icon.height: height - 4
+            background: null
             Behavior on opacity {
                 NumberAnimation{
                     duration: 100
                 }
             }
         }
-        Image {
-            anchors.margins: 1
+        Button {
+            padding: 1
+            implicitWidth: 50
             anchors.fill:parent
             id: pause
-            source: "/icons/pause.svg"
+            icon.source: "/icons/pause.svg"
+            icon.width: width - 4
+            icon.height: height - 4
+            background: null
             opacity: 1-play.opacity
+            onClicked: {
+                controlData.activated=!controlData.activated;
+                if(controlData.activated){
+                    disabledRectAni.duration = controlData.activateCooldown
+                }else{
+                    disabledRectAni.duration = controlData.deactivateCooldown
+                }
+                disabledRectAni.start()
+            }
         }
         Rectangle{
             id:disabledRect
-            color: "black"
+            color: Material.foreground
             opacity: 0.3
             anchors.left: play.left
             anchors.right: play.right
@@ -53,22 +71,8 @@ ControlItem{
             easing.type: Easing.Linear
             from: play.height
             to: 0;
-            onStarted: mouseArea.enabled = false;
-            onStopped: mouseArea.enabled = true;
-        }
-        MouseArea{
-            id:mouseArea
-            anchors.fill:parent
-            onClicked: {
-                controlData.activated=!controlData.activated;
-                if(controlData.activated){
-                    disabledRectAni.duration = controlData.activateCooldown
-                }else{
-                    disabledRectAni.duration = controlData.deactivateCooldown
-                }
-                disabledRectAni.start()
-            }
-
+            onStarted: pause.enabled = play.enabled = false;
+            onStopped: pause.enabled = play.enabled = true;
         }
     }
 
@@ -111,6 +115,7 @@ ControlItem{
                 onTextChanged: if(controlData)controlData.activateCooldown = text
                 Text{
                     text:"ms"
+                    color: Material.foreground
                     x : parent.contentWidth
                     anchors.verticalCenter: parent.verticalCenter
                 }
@@ -130,6 +135,7 @@ ControlItem{
                 onTextChanged: if(controlData)controlData.deactivateCooldown = text
                 Text{
                     text:"ms"
+                    color: Material.foreground
                     x : parent.contentWidth
                     anchors.verticalCenter: parent.verticalCenter
                 }

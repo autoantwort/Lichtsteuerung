@@ -81,7 +81,6 @@ GridLayout{
                     }
                     Button{
                         icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
-                        icon.color: Qt.rgba(.25,.25,.25,1)
                         onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
                     }
                 }

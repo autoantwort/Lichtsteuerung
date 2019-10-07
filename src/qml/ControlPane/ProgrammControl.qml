@@ -1,7 +1,8 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtGraphicalEffects 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
+import QtGraphicalEffects 1.12
 import custom.licht 1.0
 
 ControlItem{
@@ -9,33 +10,36 @@ ControlItem{
     blockWidth: 3
     blockHeight: 1
     ControlItemBlock{
-        Image {
-            anchors.margins: 1
-            anchors.fill:parent
+        Button {
+            padding: 1
+            implicitWidth: 50
+            anchors.fill: parent
             id: play
-            source: "/icons/play.svg"
+            icon.source: "/icons/play.svg"
+            icon.width: width - 4
+            icon.height: height - 4
+            background: null
             Behavior on opacity {
                 NumberAnimation{
                     duration: 100
                 }
             }
         }
-        Image {
-            anchors.margins: 1
+        Button {
+            padding: 1
+            implicitWidth: 50
             anchors.fill:parent
             id: pause
-            source: "/icons/pause.svg"
+            icon.source: "/icons/pause.svg"
+            icon.width: width - 4
+            icon.height: height - 4
+            background: null
             opacity: 1-play.opacity
-        }
-        MouseArea{
-            anchors.fill:parent
-
             onClicked: {
                 controlData.programm.running = !controlData.programm.running;
                 item.pressed = controlData.programm.running;
                 play.opacity = !controlData.programm.running;
             }
-
         }
     }
 
@@ -63,6 +67,7 @@ ControlItem{
                     onValueChanged: if(controlData)controlData.programm.speed = value;
                     Text {
                         id: sliderSpeed
+                        color: Material.foreground
                         text: speedSlider.value.toFixed(1)
                         anchors.bottom: speedSlider.handle.top
                         anchors.horizontalCenter: parent.handle.horizontalCenter

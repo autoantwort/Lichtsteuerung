@@ -125,7 +125,6 @@ Item{
                             }
                             Button{
                                 icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
-                                icon.color: Qt.rgba(.25,.25,.25,1)
                                 onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
                                 Layout.preferredWidth: 40
                             }
@@ -280,16 +279,13 @@ Item{
                     anchors.right: addProp.left
                     anchors.topMargin: -4
                     anchors.bottomMargin: -4
-                    Material.elevation: 0
+                    flat: true
                     width: height
                     onClicked: listView.currentModelData.removeProperty(delegate.modelEntry)
-                    Image {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: 24
-                        width: 24
-                        source: "/icons/remove.svg"
-                    }
+                    icon.source: "/icons/remove.svg"
+                    icon.width: 24
+                    icon.height: 24
+                    padding: 1
                 }
                 Button{
                     id: addProp
@@ -299,18 +295,15 @@ Item{
                     anchors.topMargin: -4
                     anchors.bottomMargin: -4
                     width: height
-                    Material.elevation: 0
+                    flat: true
                     onClicked: {
                         dialog.prop = listView.currentModelData.createNewProperty();
                         dialog.visible = true;
                     }
-                    Image {
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        height: 24
-                        width: 24
-                        source: "/icons/add.svg"
-                    }
+                    icon.source: "/icons/add.svg"
+                    icon.width: 24
+                    icon.height: 24
+                    padding: 1
                 }
             }
             Button{
@@ -319,18 +312,15 @@ Item{
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 width: height
-                Material.elevation: 0
+                flat: true
                 onClicked: {
                     dialog.prop = listView.currentModelData.createNewProperty();
                     dialog.visible = true;
                 }
-                Image {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: 24
-                    width: 24
-                    source: "/icons/add.svg"
-                }
+                icon.source: "/icons/add.svg"
+                icon.width: 24
+                icon.height: 24
+                padding: 1
             }
         }
         Label{
