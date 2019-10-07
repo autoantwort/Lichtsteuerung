@@ -18,12 +18,8 @@ Item{
             highlightMoveDuration: 100
             highlightResizeDuration: 100
             model:userModel
-            highlight: Rectangle{
-                color: "lightblue"
-            }
             highlightFollowsCurrentItem: true
-            delegate:
-                SwipeDelegate{
+            delegate: SwipeDelegate{
                 swipe.left: Label {
                     id: deleteLabel
                     text: qsTr("Delete")
@@ -55,7 +51,7 @@ Item{
                 clip:true
                 width: parent.width
                 Component.onCompleted: {
-                    background.color = Qt.binding(function(){return UserManagment.currentUser === modelData?"lightblue":"white";});
+                    background.color = Qt.binding(function(){return UserManagment.currentUser === modelData?"lightblue":"transparent";});
                 }
                 Behavior on height {
                     NumberAnimation{
@@ -110,7 +106,6 @@ Item{
                         }
                     }
                 }
-                onClicked: listView.currentIndex = index
             }
         }
 
