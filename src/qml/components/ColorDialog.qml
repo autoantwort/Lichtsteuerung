@@ -1,7 +1,9 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Window 2.12
+import custom.licht 1.0
 
 Window {
     id: root
@@ -20,6 +22,11 @@ Window {
     signal colorSelected(color selectedColor);
     onClosing: colorSelected(currentColor);
 
+    Material.background: Settings.backgroundColor
+    Material.foreground: Settings.foregroundColor
+    Material.accent: Settings.accentColor
+    Material.theme: Settings.theme
+    color: Settings.backgroundColor
 
     ColumnLayout{
         anchors.fill: parent

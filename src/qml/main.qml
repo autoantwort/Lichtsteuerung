@@ -15,7 +15,10 @@ ApplicationWindow {
     height: 480
     title: qsTr("Lichtsteuerung")
 
-
+    Material.background: Settings.backgroundColor
+    Material.foreground: Settings.foregroundColor
+    Material.accent: Settings.accentColor
+    Material.theme: Settings.theme
 
     Item{
         anchors.fill: parent

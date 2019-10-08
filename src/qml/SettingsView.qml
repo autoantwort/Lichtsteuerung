@@ -1,7 +1,9 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
+import QtQuick.Window 2.12
 import "components"
 
 Pane{
@@ -112,6 +114,14 @@ Pane{
             currentIndex: AudioManager.currentCaptureDevice
             onDownChanged: if(down)AudioManager.updateCaptureDeviceList()
         }
+        Label{
+            Layout.fillWidth: true
+            text: "Theme:"
+        }
+        Button{
+            text: "Modify Theme and appearance"
+            onClicked: modifyThemeWindow.show()
+        }
     }
     FileDialog{
         property var callback;
@@ -128,6 +138,19 @@ Pane{
             }else{
                 console.error("Error in File Dialog in SettingsView: No callback provided!")
             }
+        }
+    }
+    Window{
+        id: modifyThemeWindow
+        flags: Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowTitleHint
+        title: "Modify Theme"
+        color: pane.Material.background
+        width: 350
+        height: 350
+        Material.theme: Settings.theme
+        ModifyThemePane{
+            id: pane
+            anchors.fill: parent
         }
     }
 }

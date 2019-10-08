@@ -81,5 +81,6 @@
         <file>qml/components/ColorDialog.qml</file>
         <file>qml/components/ColorSlider.qml</file>
         <file>qml/AudioEventsView.qml</file>
+        <file>qml/ModifyThemePane.qml</file>
     </qresource>
 </RCC>
