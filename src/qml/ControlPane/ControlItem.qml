@@ -66,6 +66,7 @@ ControlItemTemplate{
             let pos = mapToItem(item.parent,pressX,pressY);
             // do not move the popup out of the viewport
             pos.x = Math.min(pos.x,item.parent.width-popup.width-5);
+            pos.y = Math.min(pos.y,item.parent.height-popup.height-5);
             pos = item.mapFromItem(item.parent,pos.x,pos.y);
             popup.x = pos.x;
             popup.y = pos.y;
