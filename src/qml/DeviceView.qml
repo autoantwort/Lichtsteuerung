@@ -38,6 +38,64 @@ ModelView{
             sortPropertyName: "prototype.name"
         }
     }
+    searchHelpText: "You can search by text and by dmx channel:\nUse '(>|>=|<|<=|=) x' or 'x - y' to search for a range"
+    property int minDisplayedChannel: 0
+    property int maxDisplayedChannel: 100000
+    property bool checkChannels: false
+    // to allow e.g. 'Scanner > 80'
+    property string additionalSearchString
+    onCurrentSearchTextChanged: {
+        checkChannels = false
+        additionalSearchString = "";
+        const string = currentSearchText.replace(/ +/g, '');
+        // detect not completed >, >=, ...
+        if(/[<>=]{1,2}[a-zA-Z ]*$/.exec(string)!==null){
+            checkChannels = true;
+        }
+        // find additional string, like 'Scanner >= 80'
+        const str = /[a-zA-Z ]+/.exec(string);
+        if(str !== null){
+            console.log(str)
+            additionalSearchString = str[0];
+        }
+        // search for ranges: x-y
+        const range = /(\d+)-(\d+)/.exec(string);
+        if(range !== null){
+            checkChannels = true;
+            minDisplayedChannel = Math.min(range[1], range[2]);
+            maxDisplayedChannel = Math.max(range[1], range[2]);
+            return
+        }
+        minDisplayedChannel = 0;
+        maxDisplayedChannel = 10000;
+        const gt = />(=)?(\d+)/.exec(string);
+        if(gt !== null){
+            checkChannels = true;
+            minDisplayedChannel = Number(gt[2]) + (gt[1] === undefined ? 1 : 0);
+        }
+        const lt = /<(=)?(\d+)/.exec(string);
+        if(lt !== null){
+            checkChannels = true;
+            maxDisplayedChannel = Number(lt[2]) - (lt[1] === undefined ? 1 : 0);
+        }
+        if(!checkChannels){
+            const eq = /=(\d+)/.exec(string);
+            if(eq !== null){
+                checkChannels = true;
+                minDisplayedChannel = maxDisplayedChannel = eq[1];
+            }
+        }
+        if(!checkChannels){
+            additionalSearchString = currentSearchText.trim();
+        }
+    }
+    searchFilter: (device, text) => {
+        if(checkChannels){
+            return device.startDMXChannel + device.prototype.numberOfChannels > minDisplayedChannel && device.startDMXChannel <= maxDisplayedChannel && text.indexOf(additionalSearchString) !== -1
+        }else{
+            return text.indexOf(additionalSearchString) !== -1;
+        }
+    }
 
     Label{
         Layout.row: 2
