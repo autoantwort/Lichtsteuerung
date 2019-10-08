@@ -311,6 +311,7 @@ Item{
 
     UserSettingsPopup{
         id: userSettingsPopup
+        modal: true
     }
 
 }
