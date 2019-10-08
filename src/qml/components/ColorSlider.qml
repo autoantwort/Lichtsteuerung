@@ -8,22 +8,28 @@ Rectangle{
     border.width: 1
     property alias selectorColor: selector.color
     property real value: 0
+    property int orientation: Gradient.Horizontal
     Rectangle{
         id: selector
         x: 1 + value * (parent.width-3)
+        y: 1 + value * (parent.height-3)
         width: 1
+        height: 1
         color: "black"
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
+        anchors.top: orientation === Gradient.Horizontal ? parent.top : undefined
+        anchors.bottom: orientation === Gradient.Horizontal ? parent.bottom : undefined
+        anchors.left: orientation === Gradient.Vertical ? parent.left : undefined
+        anchors.right: orientation === Gradient.Vertical ? parent.right : undefined
     }
     Component.onCompleted: {
         if(gradient){
-            gradient.orientation = Gradient.Horizontal;
+            gradient.orientation = orientation;
         }
     }
 
     MouseArea{
         anchors.fill: parent
-        onMouseXChanged: value = Math.max(0,Math.min(1,mouseX/width));
+        onMouseXChanged: if(orientation === Gradient.Horizontal)value = Math.max(0,Math.min(1,mouseX/width));
+        onMouseYChanged: if(orientation === Gradient.Vertical)value = Math.max(0,Math.min(1,mouseY/height));
     }
 }
