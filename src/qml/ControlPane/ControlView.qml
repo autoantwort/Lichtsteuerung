@@ -123,7 +123,7 @@ ControlPanel{
         visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
         z:1.3
         id: switchGroup
-        text:"Switchgroup"
+        text: y === programm.y ? "" : "Switchgroup"
         anchors.right: programm.right
         anchors.left: programm.left
         Behavior on y{
@@ -135,7 +135,7 @@ ControlPanel{
         visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
         z:1.3
         id: dimmerGroup
-        text:"Dimmergroup"
+        text: y === programm.y ? "" : "Dimmergroup"
         anchors.right: programm.right
         anchors.left: programm.left
         Behavior on y{
@@ -147,7 +147,7 @@ ControlPanel{
         visible: UserManagment.currentUser.havePermission(Permission.ADD_CONTROL_ITEM);
         z:1.3
         id: programBlock
-        text:"ProgramBlock"
+        text: y === programm.y ? "" : "ProgramBlock"
         anchors.right: programm.right
         anchors.left: programm.left
         Behavior on y{
