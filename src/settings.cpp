@@ -10,6 +10,7 @@ Settings::Settings(QObject *parent) : QObject(parent), settings(QStringLiteral("
     Modules::Compiler::compilerFlags = value(QStringLiteral("compilerFlags"),Modules::Compiler::compilerFlags).toString();
     Modules::Compiler::compilerLibraryFlags = value(QStringLiteral("compilerLibraryFlags"),Modules::Compiler::compilerLibraryFlags).toString();
     Modules::Compiler::includePath = value(QStringLiteral("includePath"),Modules::Compiler::includePath).toString();
+    jsonSettingsFileSavePath = getJsonSettingsFilePath();
 }
 
 void Settings::setValue(const QString &key, const QVariant &value){

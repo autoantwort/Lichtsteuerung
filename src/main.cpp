@@ -63,11 +63,36 @@
 
 int main(int argc, char *argv[]) {
     QSharedMemory mem(QStringLiteral("Lichteuerung Leander Schulten"));
-    if (!mem.create(1)) {
+    { // check if the app is alreandy running or should be restarted
+        using namespace std::string_view_literals;
+        qDebug() << argv[0];
+        qDebug() << (argv[1] == "restart"sv);
+        const bool restart = argc > 1 && "restart"sv == argv[1];
+        qDebug() << restart;
+        if (restart) {
+            if (mem.attach()) {
+                // the app is still running, wait for end of app
+                auto running = static_cast<bool *>(mem.data());
+                while (*running) {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+                }
+            } else {
+                // no other app is running
+                if (!mem.create(1)) {
+                    // something was not successfull
+                    return 1;
+                }
+            }
+        } else {
+            if (!mem.create(1)) {
 #ifdef Q_OS_WIN
-        MessageBoxA(nullptr, "The Lichtsteuerung is already running on this computer.", nullptr, MB_OK);
+                MessageBoxA(nullptr, "The Lichtsteuerung is already running on this computer.", nullptr, MB_OK);
 #endif
-        return 0;
+                return 0;
+            }
+        }
+        // signal that we are running
+        *static_cast<bool *>(mem.data()) = true;
     }
     error::initErrorHandler();
 #ifdef DrMinGW
@@ -262,26 +287,31 @@ int main(int argc, char *argv[]) {
         modolePropertyTypeList.append(_metaEnumP.key(i));
     }*/
 
-    CatchingErrorApplication::connect(&app, &QGuiApplication::lastWindowClosed, [&]() {
+    CatchingErrorApplication::connect(&app, &QGuiApplication::aboutToQuit, [&]() {
         Modules::ModuleManager::singletone()->controller().stop();
         Audio::AudioCaptureManager::get().stopCapturingAndWait();
-        QFile savePath(settings.getJsonSettingsFilePath());
+        QFile savePath(settings.getJsonSettingsFileSavePath());
         ApplicationData::saveData(savePath);
         Driver::stopAndUnloadDriver();
-        updater.runUpdateInstaller();
+        if (updater.getState() == Updater::ReadyToInstall) {
+            updater.runUpdateInstaller();
+        } else if (settings.shouldLoadFromSettingsPath()) {
+            QProcess::startDetached(QCoreApplication::applicationFilePath(), QStringList() << QStringLiteral("restart"));
+        }
+        *static_cast<bool *>(mem.data()) = false;
     });
-    Settings::connect(&settings,&Settings::driverFilePathChanged,[&](){
-        Driver::loadAndStartDriver(settings.getDriverFilePath());
-    });
-    Settings::connect(&settings,&Settings::updatePauseInMsChanged,[&](){
-        if(Driver::getCurrentDriver()){
+    Settings::connect(&settings, &Settings::driverFilePathChanged, [&]() { Driver::loadAndStartDriver(settings.getDriverFilePath()); });
+    Settings::connect(&settings, &Settings::updatePauseInMsChanged, [&]() {
+        if (Driver::getCurrentDriver()) {
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
     });
-    Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
-    Settings::connect(&settings,&Settings::moduleDirPathChanged,[&](){
-        Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
+    Settings::connect(&settings, &Settings::saveAs, [&](const auto &path) {
+        QFile saveFile(settings.getJsonSettingsFileSavePath());
+        ApplicationData::saveData(saveFile);
     });
+    Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
+    Settings::connect(&settings, &Settings::moduleDirPathChanged, [&]() { Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath()); });
 
     ModelManager::get().setSettings(&settings);
     engine.rootContext()->setContextProperty(QStringLiteral("ModelManager"),&ModelManager::get());
