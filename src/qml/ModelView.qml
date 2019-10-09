@@ -26,7 +26,10 @@ GridLayout{
     property alias descriptionInputEnabled: textDescription.enabled
     property alias listView : listView
     property var nameFunction: null
-
+    // a filter function used for searching. The first parameter ist the search string, the second the modelData and the third the displayed string
+    property var searchFilter: (modelData, text) => text.indexOf(currentSearchText) !== -1
+    property string searchHelpText;
+    property string currentSearchText;
 
     ListView{
         Layout.fillHeight: true
@@ -44,7 +47,8 @@ GridLayout{
             width: parent.width
             text: nameFunction ? nameFunction(modelData) : modelData.name +"("+modelData.description+")"
             onClicked: listView.currentIndex = index
-
+            visible: root.searchFilter === null || root.currentSearchText.length === 0 || root.searchFilter(modelItemData, text)
+            height: visible ? implicitHeight : 0
         }
         headerPositioning: ListView.OverlayHeader
         Component{
@@ -55,12 +59,19 @@ GridLayout{
                 }
 
                 width: listView.width
+                implicitHeight: sortRow.implicitHeight + (searchRow.implicitHeight - 4 - (36-Material.buttonHeight) * 2) * searchRow.visible + 12
+                height: implicitHeight
                 topPadding: 6
                 bottomPadding: 6
                 z: 2
                 Material.elevation: 4
                 RowLayout {
-                    anchors.fill: parent
+                    id: sortRow
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: searchRow.top
+                    implicitHeight: sortCommboBox.implicitHeight
                     spacing: 8
                     Label{
                         text: "Sort by:"
@@ -81,10 +92,48 @@ GridLayout{
                     }
                     Button{
                         icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
-                        icon.color: Qt.rgba(.25,.25,.25,1)
                         onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
                     }
-                }
+                } // RowLayout
+                RowLayout{
+                    id: searchRow
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    anchors.top: sortRow.bottom
+                    visible: root.filter !== null
+                    spacing: 8
+
+                    Label{
+                        text: "Search:"
+                    }
+                    TextInputField{
+                        id: searchInput
+                        Layout.fillWidth: true
+                        onTextChanged: currentSearchText = text
+                        Keys.onEscapePressed: text = ""
+                    }
+                    Button{
+                        Layout.preferredWidth: root.searchHelpText.length !== 0 ? implicitWidth / 2 - 4 : implicitWidth
+                        flat: true
+                        text: "X"
+                        onClicked: searchInput.text = ""
+                    }
+                    Button{
+                        Layout.preferredWidth: implicitWidth / 2 - 4
+                        flat: true
+                        text: "?"
+                        visible: root.searchHelpText.length !== 0
+                        ToolTip.visible: hovered
+                        ToolTip.text: root.searchHelpText
+                    }
+
+                    Shortcut{
+                        enabled: root.SwipeView.isCurrentItem
+                        sequence: StandardKey.Find
+                        onActivated: searchInput.forceActiveFocus()
+                    }
+                } // RowLayout
             }
         }
 

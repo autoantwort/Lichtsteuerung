@@ -1,6 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
 import QtGraphicalEffects 1.12
 import custom.licht 1.0
 import "components"
@@ -31,6 +32,7 @@ ColumnLayout{
             anchors.left: parent.left
             border.width: 2
             border.color: "black"
+            color: "transparent"
 
             Flickable{
                 anchors.fill: parent
@@ -308,6 +310,7 @@ ColumnLayout{
             Layout.preferredWidth: 200
             Text {
                 text: parent.value.toFixed(2)
+                color: Material.foreground
                 anchors.bottom: parent.handle.top
                 anchors.bottomMargin: 2
                 anchors.horizontalCenter: parent.handle.horizontalCenter

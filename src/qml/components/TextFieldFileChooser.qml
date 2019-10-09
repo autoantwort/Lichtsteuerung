@@ -36,13 +36,8 @@ RowLayout{
             if(root.fileChooser === null){
                 throw "fileChooser ist not set!";
             }
-            path = root.path
-            var fileDialog = root.fileChooser;
-            fileDialog.selectFolder = parent.folder;
-            fileDialog.selectMultiple = !parent.folder;
-            fileDialog.folder = "file:///"+path.substring(0,path.lastIndexOf("/"));
-            fileDialog.addSelection("file:///"+path);
-            fileDialog.open();
+            const fileDialog = root.fileChooser;
+            fileDialog.openAt(parent.path, parent.folder);
             fileDialog.callback = function(file){
                 root.path = file;
             };

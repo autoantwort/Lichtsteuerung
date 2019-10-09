@@ -21,50 +21,50 @@ ControlItem{
             anchors.fill: parent
             spacing: 0
 
-            Image {
+            Button {
+                padding: 3
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                fillMode: Image.PreserveAspectFit
+                implicitWidth: 50
                 id: startStop
-                source: controlData.programBlock.status === 1 ? "qrc:icons/stop.svg" : controlData.programBlock.status === 0 ? "qrc:icons/play.svg":"qrc:icons/replay.svg"
-                MouseArea{
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        if(controlData.programBlock.status === 0){
-                            controlData.programBlock.start();
-                        } else if(controlData.programBlock.status === 1){
-                            controlData.programBlock.stop();
-                        } else if(controlData.programBlock.status === 2){
-                            controlData.programBlock.restart();
-                        }
+                icon.source: controlData.programBlock.status === 1 ? "qrc:icons/stop.svg" : controlData.programBlock.status === 0 ? "qrc:icons/play.svg":"qrc:icons/replay.svg"
+                icon.width: width
+                icon.height: width
+                background: null
+                onClicked: {
+                    if(controlData.programBlock.status === 0){
+                        controlData.programBlock.start();
+                    } else if(controlData.programBlock.status === 1){
+                        controlData.programBlock.stop();
+                    } else if(controlData.programBlock.status === 2){
+                        controlData.programBlock.restart();
                     }
-                    ToolTip.visible: containsMouse
-                    ToolTip.delay: 1000
-                    ToolTip.text: controlData.programBlock.status === 1 ? "Stop" : controlData.programBlock.status === 0 ? "Play":"Replay"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: controlData.programBlock.status === 1 ? "Stop" : controlData.programBlock.status === 0 ? "Play":"Replay"
             }
-            Image {
+            Button {
+                padding: 1
+                implicitWidth: 50
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                fillMode: Image.PreserveAspectFit
                 id: pauseResume
-                source: controlData.programBlock.status === 1 ? "qrc:icons/pause.svg" : "qrc:icons/resume.png"
+                icon.source: controlData.programBlock.status === 1 ? "qrc:icons/pause.svg" : "qrc:icons/resume.png"
+                icon.width: width
+                icon.height: width
+                background: null
                 visible: controlData.programBlock.status !== 0;
-                MouseArea{
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        if(controlData.programBlock.status === 1){
-                            controlData.programBlock.pause();
-                        } else if(controlData.programBlock.status === 2){
-                            controlData.programBlock.resume();
-                        }
+                onClicked: {
+                    if(controlData.programBlock.status === 1){
+                        controlData.programBlock.pause();
+                    } else if(controlData.programBlock.status === 2){
+                        controlData.programBlock.resume();
                     }
-                    ToolTip.visible: containsMouse
-                    ToolTip.delay: 1000
-                    ToolTip.text: controlData.programBlock.status === 1 ? "Pause" : "Resume"
                 }
+                ToolTip.visible: hovered
+                ToolTip.delay: 1000
+                ToolTip.text: controlData.programBlock.status === 1 ? "Pause" : "Resume"
             }
         }
     }

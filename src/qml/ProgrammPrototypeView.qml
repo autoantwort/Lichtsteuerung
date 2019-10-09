@@ -1,7 +1,8 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
+import QtQuick.Dialogs 1.3
 import custom.licht 1.0
 import "components"
 
@@ -36,6 +37,7 @@ ModelView{
         Layout.fillWidth: true
         header: Text{
             text:"Die einzelnen ChannelProgramme : "
+            color: Material.foreground
             height:70
         }
         id : channelView

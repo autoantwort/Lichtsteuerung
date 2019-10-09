@@ -66,15 +66,6 @@ if [[ $bit == "64" ]]; then
     for file in src/lib/DrMinGW/bin/*; do cp "$file" "$target_folder";done
 fi
 
-#copy Windows Capture Audio Output and add path to settings.ini
-if [[ $biuld_type == "debug" ]]; then
-	cp "src/lib/WindowsSound/dll/Capture_Windows_SoundOutputd-x$bit.dll" "$target_folder"
-	echo "audioCaptureFilePath=Capture_Windows_SoundOutputd-x$bit.dll" >> "$settings_file"
-else
-	cp "src/lib/WindowsSound/dll/Capture_Windows_SoundOutput-x$bit.dll" "$target_folder"
-	echo "audioCaptureFilePath=Capture_Windows_SoundOutput-x$bit.dll" >> "$settings_file"
-fi
-
 #copy QTJSONFile
 cp "$1/QTJSONFile.json" "$target_folder"
 
