@@ -1,13 +1,18 @@
 #include "applicationdata.h"
-#include "audio/audiocapturemanager.h"
 #include "codeeditorhelper.h"
+#include "errornotifier.h"
+#include "modelmanager.h"
+#include "settings.h"
+#include "sortedmodelview.h"
+#include "updater.h"
+#include "usermanagment.h"
+#include "audio/audiocapturemanager.h"
 #include "dmx/HardwareInterface.h"
 #include "dmx/channel.h"
 #include "dmx/device.h"
 #include "dmx/dmxchannelfilter.h"
 #include "dmx/driver.h"
 #include "dmx/programm.h"
-#include "errornotifier.h"
 #include "gui/audioeventdataview.h"
 #include "gui/channelprogrammeditor.h"
 #include "gui/colorplot.h"
@@ -19,19 +24,14 @@
 #include "gui/mapview.h"
 #include "gui/oscillogram.h"
 #include "gui/programblockeditor.h"
-#include "modelmanager.h"
 #include "modules/dmxconsumer.h"
 #include "modules/ledconsumer.h"
 #include "modules/programblock.h"
-#include "settings.h"
-#include "sortedmodelview.h"
 #include "spotify/spotify.h"
 #include "system_error_handler.h"
 #include "test/testloopprogramm.h"
 #include "test/testmodulsystem.h"
 #include "test/testsampleclass.h"
-#include "updater.h"
-#include "usermanagment.h"
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDebug>
@@ -215,12 +215,14 @@ int main(int argc, char *argv[]) {
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
-    QFile file(QStringLiteral("QTJSONFile.json"));
+    QFile file(settings.getJsonSettingsFilePath());
     if(!file.exists()){
-        file.setFileName(settings.getJsonSettingsFilePath());
+        file.setFileName(QStringLiteral("QTJSONFile.json"));
     }
     if(file.exists()){
         file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
+    } else {
+        ErrorNotifier::showError(QStringLiteral("No settings file found! The Lichtsteuerung starts wihout content."));
     }
     auto after = ApplicationData::loadData(file);
     // nachdem die Benutzer geladen wurden, auto login durchführen
