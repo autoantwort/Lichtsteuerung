@@ -44,6 +44,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickView>
+#include <QSharedMemory>
 #include <QSslSocket>
 #include <QTimer>
 #include <chrono>
@@ -51,12 +52,23 @@
 #include <id.h>
 #include <limits>
 
+#ifdef Q_OS_WIN
+#include <winuser.h>
+#endif
+
 #ifdef DrMinGW
 #include "exchndl.h"
 #include <QNetworkReply>
 #endif
 
 int main(int argc, char *argv[]) {
+    QSharedMemory mem(QStringLiteral("Lichteuerung Leander Schulten"));
+    if (!mem.create(1)) {
+#ifdef Q_OS_WIN
+        MessageBoxA(nullptr, "The Lichtsteuerung is already running on this computer.", nullptr, MB_OK);
+#endif
+        return 0;
+    }
     error::initErrorHandler();
 #ifdef DrMinGW
     ExcHndlInit();
