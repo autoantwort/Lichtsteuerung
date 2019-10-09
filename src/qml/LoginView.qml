@@ -1,7 +1,7 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
 import custom.licht 1.0
 import "components"
 
@@ -171,11 +171,12 @@ Item{
         easing.type: Easing.Linear
     }
 
-    Dialog{
-        modality: Qt.WindowModal
+    Popup{
+        modal: true
         id:dialog
-        title: "Enter Password"
         width:300
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
         property var user;
         onVisibleChanged: {
             if(visible)
@@ -213,11 +214,12 @@ Item{
             }
         }
     }
-    Dialog{
-        modality: Qt.WindowModal
+    Popup{
+        modal: true
         id:addUserDialog
-        title: "Create new user."
         width:300
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
         onVisibleChanged:{
             if(visible){
                 username.text = "";;
@@ -230,6 +232,14 @@ Item{
             GridLayout{
                 anchors.fill: parent
                 columns: 2
+                Label{
+                    text: "Create new user"
+                    font.pointSize: 15
+                    font.bold: true
+                    Layout.bottomMargin: 10
+                    Layout.columnSpan: 2
+                }
+
                 Label{
                     text:"Username : "
                 }
