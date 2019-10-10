@@ -65,10 +65,7 @@ int main(int argc, char *argv[]) {
     QSharedMemory mem(QStringLiteral("Lichteuerung Leander Schulten"));
     { // check if the app is alreandy running or should be restarted
         using namespace std::string_view_literals;
-        qDebug() << argv[0];
-        qDebug() << (argv[1] == "restart"sv);
         const bool restart = argc > 1 && "restart"sv == argv[1];
-        qDebug() << restart;
         if (restart) {
             if (mem.attach()) {
                 // the app is still running, wait for end of app
