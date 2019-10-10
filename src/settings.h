@@ -47,7 +47,9 @@ class Settings : public QObject {
     Q_OBJECT
     QSettings settings;
     std::optional<QSettings> localSettings;
-    Q_PROPERTY(QString jsonSettingsFilePath READ getJsonSettingsFilePath WRITE setJsonSettingsFilePath NOTIFY jsonSettingsFilePathChanged)
+    QString jsonSettingsFileSavePath;
+    bool loadFromJsonSettingsFilePath = false;
+    Q_PROPERTY(QString jsonSettingsFilePath READ getJsonSettingsFilePath NOTIFY jsonSettingsFilePathChanged)
     Q_PROPERTY(QString driverFilePath READ getDriverFilePath WRITE setDriverFilePath NOTIFY driverFilePathChanged)
     Q_PROPERTY(QString moduleDirPath READ getModuleDirPath WRITE setModuleDirPath NOTIFY moduleDirPathChanged)
     Q_PROPERTY(QString compilerPath READ getCompilerPath WRITE setCompilerPath NOTIFY compilerPathChanged)
@@ -70,16 +72,43 @@ protected:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant())const;
 public:
     explicit Settings(QObject *parent = nullptr);
-    void setJsonSettingsFilePath(const QString& file){
+
+    Q_INVOKABLE bool setJsonSettingsFilePath(const QString &file, bool loadFromPath) {
         if(file == getJsonSettingsFilePath()) {
-            return;
+            return false;
         }
-        if(QFile::exists(file)){
-            setValue(QStringLiteral("jsonSettingsFilePath"),file);
+        if (loadFromPath) {
+            if (!QFile::exists(file)) {
+                return false;
+            }
+            // it was load/save path, but we dident loaded and now have a new load path
+            this->loadFromJsonSettingsFilePath = true;
+            setValue(QStringLiteral("jsonSettingsFilePath"), file);
             emit jsonSettingsFilePathChanged();
+
+        } else {
+            // it was load or save path, but we dident loaded and now want to save
+            this->loadFromJsonSettingsFilePath = false;
+            this->jsonSettingsFileSavePath = file;
+            setValue(QStringLiteral("jsonSettingsFilePath"), file);
+            emit jsonSettingsFilePathChanged();
+            emit saveAs(file);
         }
+        return true;
     }
-    QString getJsonSettingsFilePath()const{return value(QStringLiteral("jsonSettingsFilePath")).toString();}
+    [[nodiscard]] QString getJsonSettingsFilePath() const { return value(QStringLiteral("jsonSettingsFilePath")).toString(); }
+    /**
+     * @brief getJsonSettingsFileSavePath returns the path, to which the settings file should be written
+     * @return the path where to save the settings file
+     */
+    [[nodiscard]] QString getJsonSettingsFileSavePath() const { return jsonSettingsFileSavePath; }
+    /**
+     * @brief shouldLoadFromSettingsPath indicates, if the settings should be loaded and not saved to the json settings path
+     * @return true if the settings should be loaded from the path, false if the settings should be saved to the path
+     */
+    [[nodiscard]] bool shouldLoadFromSettingsPath() const {
+        return loadFromJsonSettingsFilePath;
+    }
 
     void setDriverFilePath(const QString& file){
         if(file == getDriverFilePath()) {
@@ -185,6 +214,7 @@ signals:
     void compilerLibraryFlagsChanged();
     void includePathChanged();
     void themeChanged();
+    void saveAs(QString path);
 public slots:
 };
 

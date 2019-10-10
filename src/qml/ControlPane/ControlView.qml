@@ -1,8 +1,7 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.0
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
-import QtQuick.Dialogs 1.2
 import custom.licht 1.0
 import "../HelpSystem"
 
@@ -157,10 +156,11 @@ ControlPanel{
     }
 
     Dialog{
-        modality: Qt.WindowModal
+        modal: true
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
         id:selectProgramDialog
-        property int select: ControlView.Select.Program
-        title: select === ControlView.Select.Program?"Select Program":"Select ProgramBlock"
+        property int select: ControlView.Select.Program        
         width:300
         function createProgram(){
             select = ControlView.Select.Program;
@@ -170,38 +170,38 @@ ControlPanel{
             select = ControlView.Select.ProgramBlock;
             visible = true;
         }
-        contentItem: RowLayout {
-            Pane{
-                Layout.fillWidth: true
-                ColumnLayout{
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 10
-                    ComboBox{
-                        Layout.fillWidth: true
-                        id:programmSelect
-                        model: selectProgramDialog.select === ControlView.Select.Program?programmModel:programBlocksModel
-                        textRole: "display"
-                    }
-                    RowLayout{
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Abbrechen"
-                            onClicked: selectProgramDialog.visible = false
-                        }
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Hinzufügen"
-                            onClicked: {
-                                selectProgramDialog.visible = false;
-                                if(selectProgramDialog.select === ControlView.Select.Program){
-                                    addProgrammControl(programmModel.data(programmModel.index(programmSelect.currentIndex,0),-1));
-                                }else{
-                                    addProgramBlockControl(programBlocksModel.data(programBlocksModel.index(programmSelect.currentIndex,0),-1));
-                                }
+        contentItem: ColumnLayout{
+            spacing: 8
 
-                            }
+            Label{
+                text: selectProgramDialog.select === ControlView.Select.Program ? "Select Program" : "Select ProgramBlock"
+                font.bold: true
+                font.pointSize: 14
+            }
+
+            ComboBox{
+                Layout.fillWidth: true
+                id:programmSelect
+                model: selectProgramDialog.select === ControlView.Select.Program?programmModel:programBlocksModel
+                textRole: "display"
+            }
+            RowLayout{
+                Button{
+                    Layout.fillWidth: true
+                    text:"Abbrechen"
+                    onClicked: selectProgramDialog.visible = false
+                }
+                Button{
+                    Layout.fillWidth: true
+                    text:"Hinzufügen"
+                    onClicked: {
+                        selectProgramDialog.visible = false;
+                        if(selectProgramDialog.select === ControlView.Select.Program){
+                            addProgrammControl(programmModel.data(programmModel.index(programmSelect.currentIndex,0),-1));
+                        }else{
+                            addProgramBlockControl(programBlocksModel.data(programBlocksModel.index(programmSelect.currentIndex,0),-1));
                         }
+
                     }
                 }
             }

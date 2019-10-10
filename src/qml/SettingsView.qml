@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
+import QtQuick.Dialogs 1.3 as SystemDialog
 import QtQuick.Window 2.12
 import "components"
 
@@ -15,12 +15,51 @@ Pane{
         Label{
             text: "Settings file path:"
         }
-        TextFieldFileChooser{
-            Layout.fillWidth: true
-            folder: false
-            path: Settings.jsonSettingsFilePath
-            onPathChanged: {Settings.jsonSettingsFilePath = path;path = Settings.jsonSettingsFilePath;}
-            fileChooser: fileDialog
+        RowLayout{
+            id: root
+            Item{
+                Layout.fillWidth: true
+                Layout.preferredWidth: inputSettingsPath.implicitWidth
+                Layout.preferredHeight: inputSettingsPath.implicitHeight
+                Layout.topMargin: 4
+                clip: true
+                id: wrapper
+                TextInputField{
+                    id: inputSettingsPath
+                    readOnly: true
+                    anchors.fill: parent
+                    anchors.bottomMargin: 2
+                    text: Settings.jsonSettingsFilePath
+                }
+            }
+            Button{
+                Layout.minimumWidth: implicitWidth
+                Layout.leftMargin: 5
+                Layout.preferredHeight: implicitHeight - 15
+                text: "Save as"
+                onClicked: {
+                    fileDialog.openAt(Settings.jsonSettingsFilePath, false, false);
+                    fileDialog.callback = function(file){
+                        Settings.setJsonSettingsFilePath(file, false);
+                    };
+                }
+            }
+            Button{
+                Layout.minimumWidth: implicitWidth
+                Layout.leftMargin: 5
+                Layout.preferredHeight: implicitHeight - 15
+                text: "Load from"
+                onClicked: {
+                    fileDialog.openAt(Settings.jsonSettingsFilePath, false);
+                    fileDialog.callback = function(file){
+                        if(Settings.setJsonSettingsFilePath(file, true)){
+                            popupChangedSettingsFile.visible = true;
+                        }else{
+                            ErrorNotifier.errorMessage += "You can not load the current opened settings file.";
+                        }
+                    };
+                }
+            }
         }
 
         Label{
@@ -123,11 +162,14 @@ Pane{
             onClicked: modifyThemeWindow.show()
         }
     }
-    FileDialog{
+    SystemDialog.FileDialog{
         property var callback;
-        function openAt(path, isFolder){
+        selectExisting: false
+        defaultSuffix: ".json"
+        function openAt(path, isFolder, selectExisting_ = true){
             selectFolder = isFolder;
             folder = pathToUrl(path);
+            selectExisting = selectExisting_;
             open();
         }
         id: fileDialog
@@ -153,4 +195,16 @@ Pane{
             anchors.fill: parent
         }
     }
+    Dialog{
+        id: popupChangedSettingsFile
+        modal: true
+        margins: 50
+        x: (parent.width - width) / 2
+        y: 0
+        closePolicy: Popup.NoAutoClose
+        title: "Do you want to restart the light control now to load the settings file?"
+        standardButtons: Dialog.No | Dialog.Yes
+        onAccepted: Qt.quit();
+    }
+
 }

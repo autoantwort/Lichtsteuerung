@@ -2,7 +2,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3
 import custom.licht 1.0
 import "components"
 
@@ -174,78 +173,71 @@ ModelView{
         }
     }
 
-    Dialog{
-        modality: Qt.WindowModal
+    Popup{
+        modal: true
         id:dialog
-        title: "Hallo"
         width:300
-        contentItem: RowLayout {
-            Pane{
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        contentItem: ColumnLayout{
+            spacing: 10
+            ComboBox{
                 Layout.fillWidth: true
-                ColumnLayout{
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 10
-                    ComboBox{
-                        Layout.fillWidth: true
-                        id:prototype
-                        model: devicePrototypeModel
-                        textRole: "display"
+                id:prototype
+                model: devicePrototypeModel
+                textRole: "display"
+            }
+            RowLayout{
+                Label{
+                    id:nameLabel
+                    text:"Name :"
+                }
+                TextInputField{
+                    Layout.fillWidth: true
+                    id:name
+                }
+            }
+            RowLayout{
+                Label{
+                    text:"Description :"
+                }
+                TextInputField{
+                    Layout.fillWidth: true
+                    id:description
+                }
+            }
+            RowLayout{
+                Label{
+                    text:"Start DMX Channel :"
+                }
+                TextInputField{
+                    Layout.fillWidth: true
+                    id:dmx
+                    validator: IntValidator{
+                    bottom: 0
+                    top:1024
                     }
-                    RowLayout{
-                        Label{
-                            id:nameLabel
-                            text:"Name :"
-                        }
-                        TextInputField{
-                            Layout.fillWidth: true
-                            id:name
-                        }
-                    }
-                    RowLayout{
-                        Label{
-                            text:"Description :"
-                        }
-                        TextInputField{
-                            Layout.fillWidth: true
-                            id:description
-                        }
-                    }
-                    RowLayout{
-                        Label{
-                            text:"Start DMX Channel :"
-                        }
-                        TextInputField{
-                            Layout.fillWidth: true
-                            id:dmx
-                            validator: IntValidator{
-                            bottom: 0
-                            top:1024
-                            }
-                        }
-                    }
-                    RowLayout{
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Abbrechen"
-                            onClicked: dialog.visible = false
-                        }
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Erzeugen"
-                            onClicked: {
-                                if(name.text===""){
-                                    name.underlineColor = "red";
-                                }else{
-                                    dialog.visible = false;
-                                    ModelManager.addDevice(prototype.currentIndex,dmx.text,name.text,description.text);
-                                }
-                            }
+                }
+            }
+            RowLayout{
+                Button{
+                    Layout.fillWidth: true
+                    text:"Abbrechen"
+                    onClicked: dialog.visible = false
+                }
+                Button{
+                    Layout.fillWidth: true
+                    text:"Erzeugen"
+                    onClicked: {
+                        if(name.text===""){
+                            name.underlineColor = "red";
+                        }else{
+                            dialog.visible = false;
+                            ModelManager.addDevice(prototype.currentIndex,dmx.text,name.text,description.text);
                         }
                     }
                 }
             }
-        }
-    }
-
+        } // contentItem: ColumnLayout
+    } // Popup
 }

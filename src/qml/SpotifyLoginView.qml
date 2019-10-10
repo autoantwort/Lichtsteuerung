@@ -1,7 +1,7 @@
 import QtQuick 2.12
-import QtQuick.Controls 2.5
+import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Controls.Material 2.3
+import QtQuick.Controls.Material 2.12
 
 Item{
     ListView{
@@ -15,7 +15,7 @@ Item{
         delegate: ItemDelegate{
             width: listView.width
             Component.onCompleted: {
-                background.color = Qt.binding(function(){return (spotify.currentUser? spotify.currentUser.id === modelData.id : false)?"lightblue":"white";});
+                background.color = Qt.binding(function(){return (spotify.currentUser? spotify.currentUser.id === modelData.id : false) ? Qt.rgba(0,0,1,.7) : Material.background;});
             }
             text: (modelData.userName?modelData.userName:"")+" ("+modelData.email+")"
             Button{
