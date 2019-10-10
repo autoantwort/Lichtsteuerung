@@ -1,7 +1,7 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.0
-import QtQuick.Dialogs 1.2
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
 import "components"
 
 ModelView{
@@ -170,75 +170,78 @@ ModelView{
     }
 
 
-    Dialog{
-        modality: Qt.WindowModal
-        id:dialog
-        title: "Ein neues DeviceProgramm hinzufügen"
-        width:300
-        contentItem: RowLayout {
-            Pane{
+    Popup{
+        modal: true
+        id: dialog
+        width: 300
+        x: (parent.width - width) / 2
+        y: (parent.height - height) / 2
+        contentItem: ColumnLayout{
+            spacing: 10
+
+            Label{
+                text: "Add Device/ProgramPrototype"
+                font.bold: true
+                font.pointSize: 12
+            }
+
+            ComboBox{
                 Layout.fillWidth: true
-                ColumnLayout{
-                    anchors.left: parent.left
-                    anchors.right: parent.right
-                    spacing: 10
-                    ComboBox{
-                        Layout.fillWidth: true
-                        id:device
-                        model: deviceModel
-                        textRole: "display"
-                    }
+                id:device
+                model: deviceModel
+                textRole: "display"
+            }
 
 
-                    ComboBox{
-                        Layout.fillWidth: true
-                        id:programmPrototype
-                        model: programmPrototypeModel
-                        textRole: "modelData"
-                        function hasProgrammPrototypeSelected(){
-                            return programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1).devicePrototype === deviceModel.data(deviceModel.index(device.currentIndex,0),-1).prototype;
-                        }
-                        displayText: hasProgrammPrototypeSelected() ? programmPrototypeModel.data(programmPrototypeModel.index(currentIndex,0)).name:"Keine Auswahl getroffen";
-                        delegate: ItemDelegate{
-                            text: modelData.name
-                            width: programmPrototype.popup.contentItem.width
-                            visible: device.model.data(device.model.index(device.currentIndex,0),-1).prototype === modelData.devicePrototype
-                        }
-                    }
-                    RowLayout{
-                        Label{
-                            id:nameLabel
-                            text:"Time Offset :"
-                        }
-                        TextInputField{
-                            Layout.fillWidth: true
-                            id:name
-                            text:"0"
-                            validator: DoubleValidator{
-                            }
-                        }
-                    }
-                    RowLayout{
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Abbrechen"
-                            onClicked: dialog.visible = false
-                        }
-                        Button{
-                            Layout.fillWidth: true
-                            text:"Erzeugen"
-                            enabled: programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1).devicePrototype === deviceModel.data(deviceModel.index(device.currentIndex,0),-1).prototype
-                            onClicked: {
-                                dialog.visible = false;
-
-                                modelView.currentModelData.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
-
-                            }
-                        }
+            ComboBox{
+                Layout.fillWidth: true
+                id: programmPrototype
+                model: programmPrototypeModel
+                textRole: "modelData"
+                function hasProgrammPrototypeSelected(){
+                    return programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1).devicePrototype === deviceModel.data(deviceModel.index(device.currentIndex,0),-1).prototype;
+                }
+                displayText: hasProgrammPrototypeSelected() ? programmPrototypeModel.data(programmPrototypeModel.index(currentIndex,0), -1).name:"Keine Auswahl getroffen";
+                delegate: MenuItem {
+                    width: parent.width
+                    text: modelData.name
+                    Material.foreground: programmPrototype.currentIndex === index ? parent.Material.accent : parent.Material.foreground
+                    highlighted: programmPrototype.highlightedIndex === index
+                    height: device.model.data(device.model.index(device.currentIndex,0),-1).prototype === modelData.devicePrototype ? implicitHeight : 0
+                }
+            }
+            RowLayout{
+                Label{
+                    id:nameLabel
+                    text:"Time Offset :"
+                }
+                TextInputField{
+                    Layout.fillWidth: true
+                    id:name
+                    text:"0"
+                    validator: DoubleValidator{
                     }
                 }
             }
-        }
-    }
+            RowLayout{
+                Button{
+                    Layout.fillWidth: true
+                    text:"Abbrechen"
+                    onClicked: dialog.visible = false
+                }
+                Button{
+                    Layout.fillWidth: true
+                    text:"Erzeugen"
+                    enabled: programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1).devicePrototype === deviceModel.data(deviceModel.index(device.currentIndex,0),-1).prototype
+                    onClicked: {
+                        dialog.visible = false;
+
+                        modelView.currentModelData.addDeviceProgramm(deviceModel.data(deviceModel.index(device.currentIndex,0),-1),programmPrototypeModel.data(programmPrototypeModel.index(programmPrototype.currentIndex,0),-1),name.text);
+
+                    }
+                }
+            }
+        } // contentItem: ColumnLayout
+    } // Popup
 
 }
