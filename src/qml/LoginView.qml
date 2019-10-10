@@ -51,7 +51,7 @@ Item{
                 clip:true
                 width: parent.width
                 Component.onCompleted: {
-                    background.color = Qt.binding(function(){return UserManagment.currentUser === modelData?"lightblue":"transparent";});
+                    background.color = Qt.binding(function(){ return UserManagment.currentUser === modelData ? Qt.rgba(0,0,1,.7) : "transparent"; });
                 }
                 Behavior on height {
                     NumberAnimation{
