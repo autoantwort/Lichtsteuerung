@@ -49,6 +49,7 @@
 #include <QTimer>
 #include <chrono>
 #include <cmath>
+#include <csignal>
 #include <id.h>
 #include <limits>
 
@@ -59,6 +60,16 @@
 #ifdef DrMinGW
 #include "exchndl.h"
 #include <QNetworkReply>
+#endif
+
+#ifdef Q_OS_UNIX
+// on Unix, shared memory is not released when the program crashes, so we have to release the memory ourselves
+QSharedMemory *sharedMemory = nullptr;
+extern "C" void signal_handler(int /*sig*/) {
+    if (sharedMemory) {
+        sharedMemory->detach();
+    }
+}
 #endif
 
 int main(int argc, char *argv[]) {
@@ -90,8 +101,20 @@ int main(int argc, char *argv[]) {
         }
         // signal that we are running
         *static_cast<bool *>(mem.data()) = true;
+#ifdef Q_OS_UNIX
+        sharedMemory = &mem;
+#endif
     }
     error::initErrorHandler();
+#ifdef Q_OS_UNIX
+    // register signal handler to catch a abnormal program termination to release the shared memory
+    std::signal(SIGTERM, signal_handler);
+    std::signal(SIGSEGV, signal_handler);
+    std::signal(SIGINT, signal_handler);
+    std::signal(SIGILL, signal_handler);
+    std::signal(SIGABRT, signal_handler);
+    std::signal(SIGFPE, signal_handler);
+#endif
 #ifdef DrMinGW
     ExcHndlInit();
     auto path = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation);
