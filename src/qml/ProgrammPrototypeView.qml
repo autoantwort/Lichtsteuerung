@@ -6,13 +6,14 @@ import custom.licht 1.0
 import "components"
 
 ModelView{
-    model:programmPrototypeModel
-    id:modelView
+    model: programmPrototypeModel
+    id: modelView
 
     addButton.text: "Add Prototype"
     removeButton.text: "Remove Prototype"
     onAddClicked: dialog.visible = true
     onRemoveClicked: ModelManager.removeDmxProgramPrototype(remove);
+    rows: 5
     sortModel: ListModel{
         ListElement{
             name: "Creation Date"
@@ -27,136 +28,172 @@ ModelView{
             sortPropertyName: "devicePrototype.name"
         }
     }
-    ListView{
-        clip:true
-        Layout.column: 2
+    Label{
+        Layout.topMargin: 4
         Layout.columnSpan: 2
-        Layout.row: 2
+        text: "Die einzelnen ChannelProgramme :"
+        font.underline: true
+    }
+
+    ListView{
+        clip: true
+        Layout.columnSpan: 2
         Layout.fillHeight: true
         Layout.fillWidth: true
-        header: Text{
-            text:"Die einzelnen ChannelProgramme : "
-            color: Material.foreground
-            height:70
+        id: channelView
+        spacing: 32
+        model: modelView.currentModelData ? modelView.currentModelData.channelProgramms : null
+        ScrollBar.vertical: ScrollBar {
+            policy: channelView.contentHeight > channelView.height ? ScrollBar.AlwaysOn : ScrollBar.AlwaysOff
         }
-        id : channelView
-        spacing: 50
-        delegate:
-            ChannelProgrammEditor{
-            layer.samples: 4
-            clickRadius: 50
-            antialiasing: true
-            id:editor
-            width: parent.width
-            //onClicked: channelView.currentIndex = index
-            height:100
-            background: Rectangle{color:"lightgrey"}
-            channelProgramm: modelData
-            focus: true
-            informationDisplayTextItem:Text{}
+        delegate: ColumnLayout{
+            width: channelView.width
             RowLayout{
-                height:50
-                anchors.bottom: editor.top
+                Layout.preferredHeight: 50
+                Layout.fillWidth: true
+                spacing: 8
                 Label{
-                    text:editor.channelProgramm.channel.name
+                    text: editor.channelProgramm.channel.name
                     font.bold: true
                     Layout.minimumWidth: 60
                 }
                 Label{
-                    text:"time: "
+                    text: "Time: "
                     visible: editor.currentTimePoint.hasCurrent
                 }
                 TextInputField{
                     Layout.minimumWidth: 30
-                    text:editor.currentTimePoint.time
+                    text: editor.currentTimePoint.time
                     visible: editor.currentTimePoint.hasCurrent
                     onAccepted: editor.currentTimePoint.time = text
                 }
                 Label{
-                    text:"value: "
+                    text:"Value: "
                     visible: editor.currentTimePoint.hasCurrent
                 }
                 TextInputField{
                     Layout.minimumWidth: 30
-                    text:editor.currentTimePoint.value
+                    text: editor.currentTimePoint.value
                     visible: editor.currentTimePoint.hasCurrent
                     onAccepted: editor.currentTimePoint.value = text
                     validator: IntValidator{bottom: 0; top:255}
                 }
                 Label{
-                    text: "To Next:"
-                    visible: editor.currentTimePoint.hasCurrent
+                    text: "Curve type:"
+                    visible: editor.selectedEasingCurve >= 0
                 }
                 ComboBox{
                     model: easingModel
                     property bool open: false
-                    currentIndex: editor.currentTimePoint.curveToNext
-                    visible: editor.currentTimePoint.hasCurrent
+                    Layout.preferredWidth: 150
+                    currentIndex: editor.selectedEasingCurve
+                    visible: editor.selectedEasingCurve >= 0
                     onDownChanged: {
                         open|=down;
                     }
                     onHighlighted: {
-                        if(open)editor.currentTimePoint.curveToNext = index
+                        if(open)editor.selectedEasingCurve = index
                     }
                     onActivated: {
-                        editor.currentTimePoint.curveToNext = index
+                        editor.selectedEasingCurve = index
                         open=false;
                     }
                 }
-            }
-            onRightClick:{
-                console.log(x + " "+y)
-            }
+            } // RowLayout
+            ChannelProgrammEditor{
+                id: editor
+                Layout.preferredHeight: 100
+                Layout.fillWidth: true
+                clickRadius: 36
+                channelProgramm: modelData
+                Rectangle{
+                    anchors.fill: parent
+                    color: "lightgrey"
+                    z: -1
+                }
+                Rectangle{
+                    x: editor.hoverSegmentX
+                    z: -0.5
+                    width: editor.hoverSegmentLength
+                    height: 100
+                    color: Qt.rgba(.7,.7,.7)
+                }
+                Rectangle{
+                    x: editor.selectedSegmentX
+                    z: -0.4
+                    width: editor.selectedSegmentLength
+                    height: 100
+                    color: Qt.rgba(.5,.5,.5)
+                }                
+                Rectangle{
+                    anchors.top: parent.bottom
+                    visible: editor.mouseX >= 0
+                    x: editor.mouseX
+                    width: 1
+                    height: 4
+                    color: Material.foreground
+                    Label{
+                        anchors.top: parent.bottom
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.horizontalCenterOffset: editor.mouseX < contentWidth/2 ? -(editor.mouseX - contentWidth/2) : 0
+                        horizontalAlignment: Text.AlignHCenter
+                        text: editor.getValueForVisualX(editor.mouseX) + " at\n" + editor.getTimeForVisualX(editor.mouseX).toFixed(2);
+                    }
+                }
+            } // ChannelProgrammEditor
+        } // delegate: ColumnLayout
+    } // ListView
 
-        }
-
-        model: modelView.currentModelData ? modelView.currentModelData.channelProgramms : null
+    Label{
+        Layout.columnSpan: 2
+        Layout.fillWidth: true
+        Layout.margins: 5
+        wrapMode: Label.WrapAtWordBoundaryOrAnywhere
+        text: "Hold N and click to create a new TimePoint. You can select a TimePoint to change its values. A selected TimePoint can be deleted with d. You can drag a TimePoint. Hold x while scrolling to change the zooming."
     }
-
-
 
     Popup{
         modal: true
-        id:dialog
-        width:300
+        id: dialog
+        width: 300
         x: (parent.width - width) / 2
         y: (parent.height - height) / 2
         contentItem: ColumnLayout{
             spacing: 10
             ComboBox{
                 Layout.fillWidth: true
-                id:prototype
+                id: prototype
                 model: devicePrototypeModel
                 textRole: "display"
             }
             RowLayout{
                 Label{
-                    id:nameLabel
-                    text:"Name :"
+                    id: nameLabel
+                    text: "Name :"
                 }
                 TextInputField{
                     Layout.fillWidth: true
-                    id:name
+                    id: name
                 }
             }
             RowLayout{
                 Label{
-                    text:"Description :"
+                    text: "Description :"
                 }
                 TextInputField{
                     Layout.fillWidth: true
-                    id:description
+                    id: description
                 }
             }
             RowLayout{
                 Button{
                     Layout.fillWidth: true
-                    text:"Abbrechen"
+                    text: "Abbrechen"
                     onClicked: dialog.visible = false
                 }
                 Button{
                     Layout.fillWidth: true
-                    text:"Erzeugen"
+                    text: "Erzeugen"
                     onClicked: {
                         if(name.text===""){
                             name.underlineColor = "red";
@@ -165,9 +202,8 @@ ModelView{
                             ModelManager.addProgrammPrototype(prototype.currentIndex,name.text,description.text);
                         }
                     }
-                }
-            }
-        }
-    }
-
+                } // Button
+            } // RowLayout
+        } // contentItem: ColumnLayout
+    } // Popup
 }
