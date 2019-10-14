@@ -9,7 +9,7 @@ ModelView{
     id: deviceModelView
     model: deviceModel
     nameFunction: function(modelData){return modelData.name + ", Channel: " + modelData.startDMXChannel + (modelData.prototype.numberOfChannels > 1 ? " - " + (modelData.startDMXChannel + modelData.prototype.numberOfChannels - 1) : "");}
-    rows: 7
+    rows: 8
     onAddClicked: dialog.visible = true
     onRemoveClicked: ModelManager.removeDmxDevice(remove);
     addButtonEnabled: UserManagment.currentUser.havePermission(Permission.ADD_DEVICE)
@@ -114,14 +114,87 @@ ModelView{
         onTextChanged: if(parent.currentModelData) parent.currentModelData.startDMXChannel = text.length?text:0
     }
     Label{
-        Layout.row: 3
-        Layout.column: 2
+        text: "Pin configuration:"
+    }
+    RowLayout{
+        Layout.preferredHeight: 30
+        Layout.fillWidth: true
+        Layout.margins: 3
+        spacing: 0
+        id: pinComp
+        property int currentDMXChannel: deviceModelView.currentModelData ? deviceModelView.currentModelData.startDMXChannel : 0
+        onCurrentDMXChannelChanged: {
+            let v = currentDMXChannel;
+            for(let i = 8; i >= 0; --i){
+                const expo = Math.pow(2,i);
+                visibleChildren[i + 1].on = v >= expo;
+                if(v >= expo){
+                    v -= expo;
+                }
+            }
+        }
+        function updateStartChannel(){
+            let v = 0;
+            for(let i = 0; i < 9; ++i){
+                if(visibleChildren[i + 1].on){
+                    v += Math.pow(2,i);
+                }
+            }
+            deviceModelView.currentModelData.startDMXChannel = v;
+        }
+
+        Repeater{
+            model: 10
+            Item{
+                Layout.alignment: Qt.AlignTop
+                Layout.preferredWidth: 12
+                property bool on: true
+                Rectangle{
+                    id: switchRect
+                    width: 10
+                    height: 22
+                    border.color: Material.iconDisabledColor
+                    border.width: 1
+                    color: "transparent"
+                    Rectangle{
+                        width: parent.width - 4
+                        height: parent.height/2 - 2
+                        x: 2
+                        y: 2 + (1 - parent.parent.on) * (parent.height/2 - 2)
+                        color: Material.foreground
+                        Behavior on y{
+                            NumberAnimation{easing.type: Easing.OutQuint; duration: 100}
+                        }
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            switchRect.parent.on = !switchRect.parent.on;
+                            pinComp.updateStartChannel();
+                        }
+                        hoverEnabled: true
+                        ToolTip.delay: 1000
+                        ToolTip.visible: containsMouse
+                        ToolTip.text: index === 0 ? "Referenz" : "2^" + (index - 1) + " = " + Math.pow(2, index - 1)
+                    }
+                }
+                Text{
+                    anchors.top: switchRect.bottom
+                    anchors.topMargin: 3
+                    anchors.horizontalCenter: switchRect.horizontalCenter
+                    color: Material.foreground
+                    text: index === 0 ? switchRect.parent.on ? "On" : "Off" : (index - 1)
+                }
+            }
+        }
+    }
+
+
+    Label{
         text:"DevicePrototype:"
         Layout.rightMargin: 20
     }
     Text{
-        Layout.row: 3
-        Layout.column: 3
         text: parent.currentModelData ? parent.currentModelData.prototype.name : ""
         font.pixelSize: 15
         color: Material.secondaryTextColor
@@ -131,14 +204,10 @@ ModelView{
         }
     }
     Label{
-        Layout.row: 4
-        Layout.column: 2
         text:"Position:"
         Layout.rightMargin: 20
     }
     RowLayout{
-        Layout.row: 4
-        Layout.column: 3
         Text{
             text:"x:"
             color: Material.foreground
