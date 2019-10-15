@@ -3,7 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 import custom.licht 1.0
-import "components"
+import "../components"
 
 ModelView{
     id: deviceModelView

@@ -8,6 +8,9 @@ import "ControlPane"
 import "components"
 import "HelpSystem"
 import "LedVisualisation"
+import "Modules"
+import "DMX"
+import "Login"
 
 ApplicationWindow {
     visible: true

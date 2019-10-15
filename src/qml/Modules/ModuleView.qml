@@ -5,7 +5,7 @@ import custom.licht 1.0
 import QtQuick.Controls.Material 2.12
 import QtQml 2.12
 import QtQuick.Window 2.12
-import "components"
+import "../components"
 
 Item{
     id: root
@@ -124,7 +124,7 @@ Item{
                                 }
                             }
                             Button{
-                                icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
+                                icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "/icons/sort_order/sort-reverse-alphabetical-order.svg" : "/icons/sort_order/sort-by-alphabet.svg"
                                 onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
                                 Layout.preferredWidth: 40
                             }
