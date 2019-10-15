@@ -93,7 +93,7 @@ QSGNode *ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
     const int segments = 128;
     // effective version: const int count = channelProgramm?channelProgramm->timeline.empty()?0:channelProgramm->timeline.crbegin()->time*16:0;
     const int count = channelProgramm ? channelProgramm->timeline.empty() ? 0 : channelProgramm->timeline.begin()->time < 0.01 ? (channelProgramm->timeline.size() - 1) * segments : channelProgramm->timeline.size() * segments : 0;
-    const int pointCount = channelProgramm ? channelProgramm->timeline.empty() ? 0 : channelProgramm->timeline.size() : 0;
+    const int pointCount = channelProgramm ? channelProgramm->timeline.size() * 6 : 0;
 
     if (!oldNode) {
         node = new QSGTransformNode;
@@ -112,8 +112,7 @@ QSGNode *ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
 
         pointNode = new QSGGeometryNode;
         pointGeometry = new QSGGeometry(QSGGeometry::defaultAttributes_ColoredPoint2D(), pointCount);
-        pointGeometry->setLineWidth(5);
-        pointGeometry->setDrawingMode(QSGGeometry::DrawPoints);
+        pointGeometry->setDrawingMode(QSGGeometry::DrawTriangles);
         pointNode->setGeometry(pointGeometry);
         pointNode->setFlag(QSGNode::OwnsGeometry);
 
@@ -198,39 +197,44 @@ QSGNode *ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
             QRectF bounds = boundingRect();
             QSGGeometry::ColoredPoint2D *vertices = pointGeometry->vertexDataAsColoredPoint2D();
             for (auto iter = channelProgramm->timeline.cbegin(); iter != channelProgramm->timeline.cend(); ++iter) {
-                vertices->x = iter->time;
-                vertices->y = 255 - iter->value;
-                vertices->y /= 255.;
-                vertices->y *= bounds.height();
-                if (iter == currentTimePoint) {
-                    vertices->r = 0;
-                    vertices->g = 255;
-                    vertices->b = 0;
-                    vertices->a = 255;
-                } else {
-                    if (lastMousePosition != INVALID_POS) {
-                        const auto xDiff = (vertices->x - mapFromVisualX(lastMousePosition.x())) * (xScale);
-                        const auto yDiff = vertices->y - lastMousePosition.y();
-                        auto disstance = (int)std::sqrt(xDiff * xDiff + yDiff * yDiff) * 2;
-                        if (disstance < 255) {
-                            vertices->r = 255 - disstance;
-                            vertices->g = 0;
-                            vertices->b = disstance;
-                            vertices->a = 255;
+                for (int i = 0; i < 6; ++i) {
+                    constexpr std::array<double, 6> xDiffs = {-2, 2, -2, -2, 2, 2};
+                    constexpr std::array<float, 6> yDiffs = {-2, -2, 2, 2, -2, 2};
+                    vertices->x = static_cast<float>(iter->time + xDiffs[i] * 1 / xScale);
+                    vertices->y = 255.f - iter->value;
+                    vertices->y /= 255.f;
+                    vertices->y *= static_cast<float>(bounds.height());
+                    vertices->y += yDiffs[i];
+                    if (iter == currentTimePoint) {
+                        vertices->r = 0;
+                        vertices->g = 255;
+                        vertices->b = 0;
+                        vertices->a = 255;
+                    } else {
+                        if (lastMousePosition != INVALID_POS) {
+                            const auto xDiff = (vertices->x - mapFromVisualX(lastMousePosition.x())) * (xScale);
+                            const auto yDiff = vertices->y - lastMousePosition.y();
+                            auto disstance = (int)std::sqrt(xDiff * xDiff + yDiff * yDiff) * 2;
+                            if (disstance < 255) {
+                                vertices->r = 255 - disstance;
+                                vertices->g = 0;
+                                vertices->b = disstance;
+                                vertices->a = 255;
+                            } else {
+                                vertices->r = 0;
+                                vertices->g = 0;
+                                vertices->b = 255;
+                                vertices->a = 255;
+                            }
                         } else {
                             vertices->r = 0;
                             vertices->g = 0;
                             vertices->b = 255;
                             vertices->a = 255;
                         }
-                    } else {
-                        vertices->r = 0;
-                        vertices->g = 0;
-                        vertices->b = 255;
-                        vertices->a = 255;
                     }
+                    ++vertices;
                 }
-                ++vertices;
             }
         }
     }
