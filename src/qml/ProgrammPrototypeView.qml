@@ -63,9 +63,10 @@ ModelView{
                 }
                 TextInputField{
                     Layout.minimumWidth: 30
-                    text: editor.currentTimePoint.time
+                    text: editor.currentTimePoint.time.toFixed(2)
                     visible: editor.currentTimePoint.hasCurrent
                     onAccepted: editor.currentTimePoint.time = text
+                    validator: DoubleValidator{}
                 }
                 Label{
                     text:"Value: "

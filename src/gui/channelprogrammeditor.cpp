@@ -552,8 +552,8 @@ void ChannelProgrammEditor::mouseMoveEvent(QMouseEvent *event) {
         }
         --before;
         ++next;
-        int newX = mapFromVisualX(event->x());
-        int newY = std::max(0, std::min(255, getScaledY(event->y())));
+        auto newX = mapFromVisualX(event->x());
+        auto newY = std::max(0, std::min(255, getScaledY(event->y())));
 
         if (currentTimePoint == channelProgramm->timeline.cbegin()) {
             if (newX < 0) {
