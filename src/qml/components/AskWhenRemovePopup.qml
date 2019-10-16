@@ -3,12 +3,11 @@ import QtQuick.Controls 2.5
 import QtQuick.Layouts 1.12
 import QtQuick.Controls.Material 2.3
 
-Popup{
+CenteredPopup{
     property alias label: label
     property alias text: label.text
     property alias textFont: label.font
     signal yesClicked();
-    modal: true
     id: popup
     ColumnLayout{
         Label{
@@ -39,10 +38,6 @@ Popup{
                 onClicked: {yesClicked();popup.close()}
             }
         }
-    }
-    onAboutToShow: {
-        x = (parent.width - implicitWidth)/2;
-        y = (parent.height - implicitHeight)/2;
     }
     onOpened: {forceActiveFocus();deleteButton.focus = true}
 }

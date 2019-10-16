@@ -153,12 +153,9 @@ ModelView{
         text: "Hold N and click to create a new TimePoint. You can select a TimePoint to change its values. A selected TimePoint can be deleted with d. You can drag a TimePoint. Hold x while scrolling to change the zooming."
     }
 
-    Popup{
-        modal: true
+    CenteredPopup{
         id: dialog
         width: 300
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
         contentItem: ColumnLayout{
             spacing: 10
             ComboBox{
@@ -206,5 +203,5 @@ ModelView{
                 } // Button
             } // RowLayout
         } // contentItem: ColumnLayout
-    } // Popup
+    } // CenteredPopup
 }

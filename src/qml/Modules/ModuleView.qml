@@ -598,6 +598,7 @@ Item{
         id: informationDialog
         modal: true
         standardButtons: Dialog.Ok
+        Overlay.modal: ModalPopupBackground{}
         width: 600
         margins: 50
         leftPadding: header.leftPadding
@@ -618,6 +619,7 @@ Item{
                 font.bold: true
                 onContentWidthChanged: console.log("contentWidth", contentWidth)
                 id: dialogText
+                color: Material.foreground
             }
         }
     }
@@ -627,6 +629,7 @@ Item{
         modal: true
         closePolicy: Popup.CloseOnEscape
 
+        Overlay.modal: ModalPopupBackground{}
         width: 300
         margins: 50
         padding: 10

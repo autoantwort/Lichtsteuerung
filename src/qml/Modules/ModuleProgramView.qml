@@ -219,6 +219,7 @@ Item{
                 color: "lightgrey"
                 Layout.fillHeight: true
                 width: 1
+                visible: programEditor.showProperties
             }
             ColumnLayout{
                 Layout.fillHeight: true
@@ -385,10 +386,7 @@ Item{
             }
         }
 
-        Popup{
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
-            //modality: Qt.WindowModal
+        CenteredPopup{
             id:addEntry
             //title: "Choose entry"
             width:300
@@ -527,9 +525,7 @@ Item{
             width: 500
         }
 
-        Popup{
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
+        CenteredPopup{
             id: popup_addConnectionAsk
             property string outputName
             property string inputName

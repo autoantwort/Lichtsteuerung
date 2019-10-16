@@ -12,6 +12,7 @@ Popup {
     y: 15
     width: parent.width - 30
     height: parent.height - 30
+    Overlay.modal: ModalPopupBackground{}
     function show(newUser){
         user = newUser;
         visible = true;

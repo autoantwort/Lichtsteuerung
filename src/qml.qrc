@@ -82,5 +82,7 @@
         <file>qml/components/ColorSlider.qml</file>
         <file>qml/AudioEventsView.qml</file>
         <file>qml/ModifyThemePane.qml</file>
+        <file>qml/components/CenteredPopup.qml</file>
+        <file>qml/components/ModalPopupBackground.qml</file>
     </qresource>
 </RCC>

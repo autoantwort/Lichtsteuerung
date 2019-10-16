@@ -241,7 +241,8 @@ int main(int argc, char *argv[]) {
     qmlRegisterType<CodeEditorHelper>("custom.licht",1,0,"CodeEditorHelper");
     qmlRegisterType<ProgramBlockEditor>("custom.licht",1,0,"ProgramBlockEditor");
     qmlRegisterType<GUI::AudioEventDataView>("custom.licht", 1, 0, "AudioEventDataView");
-    qmlRegisterType<SortedModelVectorView>("custom.licht",1,0,"SortedModelVectorView");
+    qmlRegisterType<SortedModelVectorView>("custom.licht", 1, 0, "SortedModelVectorView");
+    qmlRegisterType<Settings>("custom.licht", 1, 0, "PopupBackground");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission",QStringLiteral("Singletone in c++"));
     qmlRegisterUncreatableMetaObject(Updater::staticMetaObject,"custom.licht",1,0,"UpdaterState",QStringLiteral("Enum in c++"));

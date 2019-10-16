@@ -65,6 +65,11 @@ ApplicationWindow {
         }
         ToolTip.text: getText(updater.state, updater.progress)
 
+        Rectangle{
+            anchors.fill: parent
+            color: Material.background
+        }
+
         VerticalTabBar{
 
             id: tabBar
@@ -264,7 +269,11 @@ ApplicationWindow {
     }
 
     LedWindow{
-        color: window.Material.background
+        color: Material.background
+        Material.background: Settings.backgroundColor
+        Material.foreground: Settings.foregroundColor
+        Material.accent: Settings.accentColor
+        Material.theme: Settings.theme
         id: ledWindow
         property int insertAtIndex
         function moveToWindow(index){
@@ -294,10 +303,11 @@ ApplicationWindow {
         modal: true
         title: "Error"
         standardButtons: Dialog.Ok
+        Overlay.modal: ModalPopupBackground{}
         width: 600
         y: 50
         x: (root.width-width)/2;
-        contentItem: Text{
+        contentItem: Label{
             text: ErrorNotifier.errorMessage
             wrapMode: "WrapAtWordBoundaryOrAnywhere"
         }

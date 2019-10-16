@@ -51,7 +51,7 @@ Item{
                 clip:true
                 width: parent.width
                 Component.onCompleted: {
-                    background.color = Qt.binding(function(){ return UserManagment.currentUser === modelData ? Qt.rgba(0,0,1,.7) : "transparent"; });
+                    background.color = Qt.binding(function(){ return UserManagment.currentUser === modelData ? Qt.rgba(0,0,1,.7) : Material.background; });
                 }
                 Behavior on height {
                     NumberAnimation{
@@ -171,12 +171,9 @@ Item{
         easing.type: Easing.Linear
     }
 
-    Popup{
-        modal: true
+    CenteredPopup{
         id:dialog
         width:300
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
         property var user;
         onVisibleChanged: {
             if(visible)
@@ -214,12 +211,9 @@ Item{
             }
         }
     }
-    Popup{
-        modal: true
+    CenteredPopup{
         id:addUserDialog
         width:300
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
         onVisibleChanged:{
             if(visible){
                 username.text = "";;

@@ -191,6 +191,8 @@ public:
             emit accentColorChanged();
             emit accentMaterialChanged();
             emit accentShadeChanged();
+            emit popupBackgroundEffectChanged();
+            emit popupBackgroundEffectIntensityChanged();
         }
     }
     int getTheme() { return value(QStringLiteral("theme")).toInt(); }
@@ -204,6 +206,14 @@ public:
     ThemeColorProperty(QColor, const QColor &, accentColor, QColor(0xE9, 0x1E, 0x63), QColor(0xF4, 0x8F, 0xB1))
     ThemeColorProperty(int, int, accentMaterial, 1, 1)
     ThemeColorProperty(int, int, accentShade, -1, -1)
+public:
+    enum PopupBackgroundEffect { Dim, Blur };
+    Q_ENUM(PopupBackgroundEffect)
+    enum PopupBackgroundEffectIntensity { Weak, Normal, Strong };
+    Q_ENUM(PopupBackgroundEffectIntensity)
+    ThemeColorProperty(PopupBackgroundEffect, PopupBackgroundEffect, popupBackgroundEffect, Dim, Blur)
+    ThemeColorProperty(PopupBackgroundEffectIntensity, PopupBackgroundEffectIntensity, popupBackgroundEffectIntensity, Normal, Normal)
+
 signals:
     void jsonSettingsFilePathChanged();
     void driverFilePathChanged();
