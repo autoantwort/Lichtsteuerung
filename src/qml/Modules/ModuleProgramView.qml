@@ -95,17 +95,15 @@ Item{
         }
 
 
-        RowLayout{
+        Item{
             anchors.left: page.right
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            spacing: 0
             visible: programEditor.programBlock!==null
 
             ProgramBlockEditor{
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+                anchors.fill: parent
                 id: programEditor
                 programBlock: listView.currentItem ? listView.currentModelData : null;
                 property var status: programBlock?programBlock.status:0;
@@ -210,22 +208,28 @@ Item{
                 }
             }
 
-
-
-
-
-
             Rectangle{
                 color: "lightgrey"
-                Layout.fillHeight: true
+                anchors.right: propertyPane.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
                 width: 1
-                visible: programEditor.showProperties
+                visible: propertyPane.visible
             }
+
             ColumnLayout{
-                Layout.fillHeight: true
-                Layout.preferredWidth: 200
-                Layout.maximumWidth: 200
-                visible: programEditor.showProperties
+                property real __xDiff: programEditor.showProperties ? 200 : 0
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                visible: __xDiff > 0
+                width: 200
+                x: parent.width - __xDiff
+                Behavior on __xDiff{
+                    NumberAnimation{
+                        easing.type: Easing.OutExpo
+                        duration: 350
+                    }
+                }
 
                 spacing: 0
 
