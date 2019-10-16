@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
 import custom.licht 1.0
 import "../HelpSystem"
+import "../components"
 
 
 ControlPanel{
@@ -155,10 +156,7 @@ ControlPanel{
         onClicked: selectProgramDialog.createProgramBlock()
     }
 
-    Dialog{
-        modal: true
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
+    CenteredPopup{
         id:selectProgramDialog
         property int select: ControlView.Select.Program        
         width:300

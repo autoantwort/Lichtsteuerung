@@ -1,64 +1,68 @@
 #ifndef CHANNELPROGRAMMEDITOR_H
 #define CHANNELPROGRAMMEDITOR_H
 
-#include <QQuickItem>
 #include <QFlags>
+#include <QQuickItem>
 #include <dmx/programmprototype.h>
 
-namespace GUI{
+namespace GUI {
 
 class ChannelProgrammEditor;
 
-class CurrentTimePointWrapper : public QObject{
+class CurrentTimePointWrapper : public QObject {
     Q_OBJECT
     Q_PROPERTY(unsigned char value READ getValue WRITE setValue NOTIFY valueChanged)
     Q_PROPERTY(bool hasCurrent READ hasCurrent NOTIFY hasCurrentChanged)
     Q_PROPERTY(double time READ getTime WRITE setTime NOTIFY timeChanged)
-    Q_PROPERTY(QEasingCurve::Type curveToNext READ getCurve WRITE setCurve NOTIFY curveChanged)
-    ChannelProgrammEditor * editor;
+    ChannelProgrammEditor *editor;
+
 public:
-    CurrentTimePointWrapper(ChannelProgrammEditor * editor);
+    CurrentTimePointWrapper(ChannelProgrammEditor *editor);
     void setValue(unsigned char value);
-    unsigned char getValue()const;
+    unsigned char getValue() const;
     bool hasCurrent();
     void setTime(double time);
-    double getTime()const;
-    void setCurve(const QEasingCurve::Type &c);
-    QEasingCurve::Type getCurve()const;
+    double getTime() const;
 signals:
     void valueChanged();
     void hasCurrentChanged();
     void timeChanged();
-    void curveChanged();
 };
 
-class ChannelProgrammEditor : public QQuickItem
-{
+class ChannelProgrammEditor : public QQuickItem {
     Q_OBJECT
-    Q_PROPERTY(CurrentTimePointWrapper * currentTimePoint READ getCurrentTimePointWrapper CONSTANT)
-    Q_PROPERTY(QQuickItem* background READ getBackgroundItem WRITE setBackgroundItem NOTIFY backgroundItemChanged)
-    Q_PROPERTY(QQuickItem* informationDisplayTextItem READ getValueChangeItem WRITE setValueChangeItem NOTIFY valueChangeItemChanged)
-    Q_PROPERTY(int currentChangingValue READ getCurrentChangingValue NOTIFY currentChangingValueChanged)
+    Q_PROPERTY(CurrentTimePointWrapper *currentTimePoint READ getCurrentTimePointWrapper CONSTANT)
     Q_PROPERTY(int clickRadius MEMBER clickRadius NOTIFY clickRadiusChanged)
     Q_PROPERTY(QColor graphColor MEMBER graphColor NOTIFY graphColorChanged)
-    Q_PROPERTY(QString tooltipText READ getTooltipText CONSTANT)
-    Q_PROPERTY(DMX::ChannelProgramm* channelProgramm READ getChannelProgramm WRITE setChannelProgramm NOTIFY channelProgrammChanged)
+    Q_PROPERTY(DMX::ChannelProgramm *channelProgramm READ getChannelProgramm WRITE setChannelProgramm NOTIFY channelProgrammChanged)
+    Q_PROPERTY(double hoverSegmentX READ getHoverSegmentX NOTIFY hoverSegmentXChanged)
+    Q_PROPERTY(double hoverSegmentLength READ getHoverSegmentLength NOTIFY hoverSegmentLengthChanged)
+    Q_PROPERTY(double selectedSegmentX READ getSelectedSegmentX NOTIFY selectedSegmentXChanged)
+    Q_PROPERTY(double selectedSegmentLength READ getSelectedSegmentLength NOTIFY selectedSegmentLengthChanged)
+    Q_PROPERTY(QEasingCurve::Type selectedEasingCurve READ getSelectedEasingCurve WRITE setSelectedEasingCurve NOTIFY selectedEasingCurveChanged)
+    Q_PROPERTY(double mouseX READ getMouseX NOTIFY mouseXChanged)
 private:
     friend class CurrentTimePointWrapper;
     CurrentTimePointWrapper currentTimePointWrapper;
-    DMX::ChannelProgramm * channelProgramm = nullptr;
-    QQuickItem * backgroundItem = nullptr;
-    QQuickItem * valueChangeItem = nullptr;
+    DMX::ChannelProgramm *channelProgramm = nullptr;
     decltype(DMX::ChannelProgramm::timeline)::iterator currentTimePoint;
-    int clickRadius=4;
-    double xScale = 4.;
+    decltype(DMX::ChannelProgramm::timeline)::iterator currentSegment;
+    int clickRadius = 4;
+    double xScale = 50.;
     double totalXOffset = 0;
-    double xDiff = 0 ;
-    QColor graphColor = QColor(0,0,0);
-    enum Modifier{X_PRESSED=0x1,Y_PRESSED=0x2,N_PRESSED=0x4,T_PRESSED=0x8,V_PRESSED=0x10,D_PRESSED=0x20};
+    QColor graphColor = QColor(0, 0, 0);
+    enum Modifier { X_PRESSED = 0x1, Y_PRESSED = 0x2, N_PRESSED = 0x4, D_PRESSED = 0x20 };
     QFlags<Modifier> modifier;
-#define INVALID_POS QPoint(std::numeric_limits<int>::max(),std::numeric_limits<int>::max())
-    QPoint lastMousePosition = INVALID_POS;
+
+    double hoverSegmentX = 0;
+    double hoverSegmentLength = 0;
+    void updateHoverSegment();
+    double selectedSegmentX = 0;
+    double selectedSegmentLength = 0;
+    void updateSelectedSegment();
+
+    static constexpr auto INVALID_POS = QPointF(std::numeric_limits<qreal>::lowest(), std::numeric_limits<qreal>::lowest());
+    QPointF lastMousePosition = INVALID_POS;
     ulong mousePressTimestamp;
     decltype(DMX::ChannelProgramm::timeline)::iterator getTimePointForPosition(int x, int y);
     /**
@@ -70,7 +74,7 @@ private:
      * @param x the x coordinate
      * @return x * xScale + totalXOffset
      */
-    double mapToVisualX(double x){return x * xScale + totalXOffset;}
+    double mapToVisualX(double x) const { return x * xScale + totalXOffset; }
     /**
      * @brief mapFromVisualX maps from the visual Position of the graph to real values
      * @param xthe x coordinate
@@ -80,44 +84,50 @@ private:
      * result = (x-totalXOffset)*(1/xScale) = 100
      * @return
      */
-    double mapFromVisualX(double x){return (x-totalXOffset) * (1/xScale);}
-    int getScaledY(int y){return 255 - int(y / height() * 255);}
+    double mapFromVisualX(double x) const { return (x - totalXOffset) * (1 / xScale); }
+    int getScaledY(int y) const { return 255 - int(y / height() * 255); }
+
 public:
     ChannelProgrammEditor();
-    void setBackgroundItem(QQuickItem*b);
-    QQuickItem* getBackgroundItem()const{return backgroundItem;}
-    void setValueChangeItem(QQuickItem*b);
-    QQuickItem* getValueChangeItem()const{return valueChangeItem;}
-    int getCurrentChangingValue()const{return haveCurrentTimePoint()?currentTimePoint->value:0;}
-    void setChannelProgramm(DMX::ChannelProgramm*p);
-    DMX::ChannelProgramm* getChannelProgramm()const{return channelProgramm;}
-    QString getTooltipText()const;
-    bool haveCurrentTimePoint()const{return channelProgramm?(currentTimePoint!=channelProgramm->timeline.cend()):false;}
-    DMX::TimePoint * getCurrentTimePoint();
-    CurrentTimePointWrapper * getCurrentTimePointWrapper(){return &currentTimePointWrapper;}
-    Q_INVOKABLE QEasingCurve * getCurveForPoint(int x);
+    void setChannelProgramm(DMX::ChannelProgramm *p);
+    DMX::ChannelProgramm *getChannelProgramm() const { return channelProgramm; }
+    bool haveCurrentTimePoint() const { return channelProgramm ? (currentTimePoint != channelProgramm->timeline.cend()) : false; }
+    DMX::TimePoint *getCurrentTimePoint();
+    CurrentTimePointWrapper *getCurrentTimePointWrapper() { return &currentTimePointWrapper; }
+    Q_INVOKABLE QEasingCurve *getCurveForPoint(int x);
+    double getHoverSegmentX() const { return hoverSegmentX; }
+    double getHoverSegmentLength() const { return hoverSegmentLength; }
+    double getSelectedSegmentX() const { return selectedSegmentX; }
+    double getSelectedSegmentLength() const { return selectedSegmentLength; }
+    QEasingCurve::Type getSelectedEasingCurve() const { return channelProgramm && currentSegment != channelProgramm->timeline.end() ? currentSegment->easingCurveToNextPoint.type() : static_cast<QEasingCurve::Type>(-1); }
+    void setSelectedEasingCurve(QEasingCurve::Type type);
+    double getMouseX() const { return lastMousePosition.x(); }
+    Q_INVOKABLE double getTimeForVisualX(double x) const { return mapFromVisualX(x); }
+    Q_INVOKABLE int getValueForVisualX(double x) const { return channelProgramm ? channelProgramm->getValueForTime(std::max(0., mapFromVisualX(x))) : -1; }
+
 protected:
-    virtual void updatePolish()override;
-    virtual void geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry)override;
-    virtual QSGNode* updatePaintNode(QSGNode *, UpdatePaintNodeData *)override;
-    virtual void mouseMoveEvent(QMouseEvent *event)override;
-    virtual void mousePressEvent(QMouseEvent *event)override;
-    virtual void mouseReleaseEvent(QMouseEvent *event)override;
-    virtual void hoverEnterEvent(QHoverEvent*e)override{lastMousePosition=e->pos();e->accept();forceActiveFocus(Qt::MouseFocusReason);}
-    virtual void hoverMoveEvent(QHoverEvent*e)override;
-    virtual void hoverLeaveEvent(QHoverEvent*e)override{lastMousePosition=INVALID_POS;update();e->accept();}
-    virtual void keyPressEvent(QKeyEvent *event)override;
-    virtual void keyReleaseEvent(QKeyEvent *event)override;
-    virtual void wheelEvent(QWheelEvent *event)override;
+    virtual QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void hoverEnterEvent(QHoverEvent *e) override;
+    virtual void hoverMoveEvent(QHoverEvent *e) override;
+    virtual void hoverLeaveEvent(QHoverEvent *e) override;
+    virtual void keyPressEvent(QKeyEvent *event) override;
+    virtual void keyReleaseEvent(QKeyEvent *event) override;
+    virtual void wheelEvent(QWheelEvent *event) override;
 signals:
-    void backgroundItemChanged();
-    void valueChangeItemChanged();
-    void currentChangingValueChanged(int);
     void clickRadiusChanged();
     void graphColorChanged();
     void channelProgrammChanged();
     void click(int x, int y);
     void rightClick(int x, int y);
+    void hoverSegmentXChanged();
+    void hoverSegmentLengthChanged();
+    void selectedSegmentXChanged();
+    void selectedSegmentLengthChanged();
+    void selectedEasingCurveChanged();
+    void mouseXChanged();
 };
 
 } // namespace GUI

@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
-import "components"
+import "../components"
 
 ModelView{
     model:programmModel
@@ -170,12 +170,9 @@ ModelView{
     }
 
 
-    Popup{
-        modal: true
+    CenteredPopup{
         id: dialog
         width: 300
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
         contentItem: ColumnLayout{
             spacing: 10
 
@@ -242,6 +239,6 @@ ModelView{
                 }
             }
         } // contentItem: ColumnLayout
-    } // Popup
+    } // CenteredPopup
 
 }

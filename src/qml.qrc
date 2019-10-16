@@ -2,12 +2,12 @@
     <qresource prefix="/">
         <file>qtquickcontrols2.conf</file>
         <file>qml/main.qml</file>
-        <file>qml/DeviceView.qml</file>
+        <file>qml/DMX/DeviceView.qml</file>
         <file>qml/components/TextInputField.qml</file>
-        <file>qml/DevicePrototypeView.qml</file>
-        <file>qml/ProgrammView.qml</file>
-        <file>qml/ProgrammPrototypeView.qml</file>
-        <file>qml/ModelView.qml</file>
+        <file>qml/DMX/DevicePrototypeView.qml</file>
+        <file>qml/DMX/ProgrammView.qml</file>
+        <file>qml/DMX/ProgrammPrototypeView.qml</file>
+        <file>qml/DMX/ModelView.qml</file>
         <file>qml/components/TextUnderline.qml</file>
         <file>icons/down.svg</file>
         <file>icons/pause.svg</file>
@@ -27,9 +27,9 @@
         <file>icons/ic_stop_black_24px.svg</file>
         <file>icons/ic_pause_black_24px.svg</file>
         <file>icons/ic_play_arrow_black_24px.svg</file>
-        <file>qml/LoginView.qml</file>
+        <file>qml/Login/LoginView.qml</file>
         <file>qml/SettingsView.qml</file>
-        <file>qml/ModuleView.qml</file>
+        <file>qml/Modules/ModuleView.qml</file>
         <file>icons/baseline-remove_circle_outline-24px.svg</file>
         <file>icons/baseline-remove_circle-24px.svg</file>
         <file>icons/baseline-add_circle_outline-24px.svg</file>
@@ -38,11 +38,11 @@
         <file>icons/remove.svg</file>
         <file>icons/add.svg</file>
         <file>icons/baseline-add-24px.svg</file>
-        <file>qml/ModuleProgramView.qml</file>
-        <file>qml/ProgramBlockEntry.qml</file>
-        <file>qml/ProgramBlockConnection.qml</file>
-        <file>qml/VerticalTabBar.qml</file>
-        <file>qml/VerticalTabButton.qml</file>
+        <file>qml/Modules/ModuleProgramView.qml</file>
+        <file>qml/Modules/ProgramBlockEntry.qml</file>
+        <file>qml/Modules/ProgramBlockConnection.qml</file>
+        <file>qml/components/VerticalTabBar.qml</file>
+        <file>qml/components/VerticalTabButton.qml</file>
         <file>icons/resume.png</file>
         <file>icons/replay.svg</file>
         <file>icons/material-pause.svg</file>
@@ -56,7 +56,7 @@
         <file>qml/ControlPane/ControlView.qml</file>
         <file>qml/ControlPane/ControlItem.qml</file>
         <file>qml/components/TextFieldFileChooser.qml</file>
-        <file>qml/SpotifyLoginView.qml</file>
+        <file>qml/Login/SpotifyLoginView.qml</file>
         <file>qml/components/AskWhenRemovePopup.qml</file>
         <file>qml/FFTGraphView.qml</file>
         <file>qml/BarMapView.qml</file>
@@ -72,7 +72,7 @@
         <file>icons/sort_order/sort-reverse-alphabetical-order_32px.png</file>
         <file>icons/sort_order/sort-reverse-alphabetical-order_64px.png</file>
         <file>icons/sort_order/sort-reverse-alphabetical-order_source</file>
-        <file>qml/UserSettingsPopup.qml</file>
+        <file>qml/Login/UserSettingsPopup.qml</file>
         <file>qml/HelpSystem/Help.qml</file>
         <file>qml/HelpSystem/HelpButton.qml</file>
         <file>qml/HelpSystem/HelpEntry.qml</file>
@@ -82,5 +82,7 @@
         <file>qml/components/ColorSlider.qml</file>
         <file>qml/AudioEventsView.qml</file>
         <file>qml/ModifyThemePane.qml</file>
+        <file>qml/components/CenteredPopup.qml</file>
+        <file>qml/components/ModalPopupBackground.qml</file>
     </qresource>
 </RCC>

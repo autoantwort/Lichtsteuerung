@@ -2,7 +2,7 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import QtGraphicalEffects 1.0
-import "components"
+import "../components"
 
 Popup {
     property var user: null;
@@ -12,6 +12,7 @@ Popup {
     y: 15
     width: parent.width - 30
     height: parent.height - 30
+    Overlay.modal: ModalPopupBackground{}
     function show(newUser){
         user = newUser;
         visible = true;

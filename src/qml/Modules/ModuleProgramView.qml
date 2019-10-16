@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.12
 import custom.licht 1.0
 import QtQuick.Dialogs 1.3
 import QtQuick.Controls.Material 2.12
-import "components"
+import "../components"
 
 Item{
     id: root
@@ -95,17 +95,15 @@ Item{
         }
 
 
-        RowLayout{
+        Item{
             anchors.left: page.right
             anchors.top: parent.top
             anchors.right: parent.right
             anchors.bottom: parent.bottom
-            spacing: 0
             visible: programEditor.programBlock!==null
 
             ProgramBlockEditor{
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+                anchors.fill: parent
                 id: programEditor
                 programBlock: listView.currentItem ? listView.currentModelData : null;
                 property var status: programBlock?programBlock.status:0;
@@ -210,21 +208,28 @@ Item{
                 }
             }
 
-
-
-
-
-
             Rectangle{
                 color: "lightgrey"
-                Layout.fillHeight: true
+                anchors.right: propertyPane.left
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
                 width: 1
+                visible: propertyPane.visible
             }
+
             ColumnLayout{
-                Layout.fillHeight: true
-                Layout.preferredWidth: 200
-                Layout.maximumWidth: 200
-                visible: programEditor.showProperties
+                property real __xDiff: programEditor.showProperties ? 200 : 0
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                visible: __xDiff > 0
+                width: 200
+                x: parent.width - __xDiff
+                Behavior on __xDiff{
+                    NumberAnimation{
+                        easing.type: Easing.OutExpo
+                        duration: 350
+                    }
+                }
 
                 spacing: 0
 
@@ -385,10 +390,7 @@ Item{
             }
         }
 
-        Popup{
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
-            //modality: Qt.WindowModal
+        CenteredPopup{
             id:addEntry
             //title: "Choose entry"
             width:300
@@ -527,9 +529,7 @@ Item{
             width: 500
         }
 
-        Popup{
-            x: (parent.width - width) / 2
-            y: (parent.height - height) / 2
+        CenteredPopup{
             id: popup_addConnectionAsk
             property string outputName
             property string inputName

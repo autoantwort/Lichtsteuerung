@@ -49,23 +49,27 @@ QByteArray saveData(){
     saveIDBaseObjects(o,ModelManager::get().getPrograms(),"Programms");
     saveIDBaseObjects(o,UserManagment::get()->getUsers(),"Users");
     o.insert("password",QString::fromLatin1(password.toBase64()));
-    {
+    if (GUI::ControlPanel::getLastCreated()) {
         QJsonObject u;
         GUI::ControlPanel::getLastCreated()->writeJsonObject(u);
         o.insert("ControlPanel",u);
-    }{
+    }
+    if (GUI::MapView::getLastCreated()) {
         QJsonObject u;
         GUI::MapView::getLastCreated()->writeJsonObject(u);
         o.insert("MapView",u);
-    }{
+    }
+    {
         QJsonObject u;
         Modules::ModuleManager::singletone()->writeJsonObject(u);
         o.insert("ModuleManager",u);
-    }{
+    }
+    {
         QJsonObject u;
         Modules::ProgramBlockManager::writeToJsonObject(u);
         o.insert("ProgramBlockManager",u);
-    }{
+    }
+    {
         QJsonObject u;
         Spotify::get().writeToJsonObject(u);
         o.insert("Spotify",u);
@@ -115,13 +119,10 @@ std::function<void()> loadData(QByteArray data){
     }
     Spotify::get().loadFromJsonObject(o["Spotify"].toObject());
     password=QCryptographicHash::hash(QString("admin").toLatin1(),QCryptographicHash::Sha3_256);
-    return [=](){
-        GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
-        Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());        
-        GUI::ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
+    return [=]() {
+        if (GUI::MapView::getLastCreated()) GUI::MapView::getLastCreated()->loadFromJsonObject(o["MapView"].toObject());
+        Modules::ProgramBlockManager::readFromJsonObject(o["ProgramBlockManager"].toObject());
+        if (GUI::ControlPanel::getLastCreated()) GUI::ControlPanel::getLastCreated()->loadFromJsonObject(o["ControlPanel"].toObject());
     };
-
 }
-
-
 }

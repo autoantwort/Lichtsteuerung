@@ -57,6 +57,10 @@ unsigned char ChannelProgramm::getValueForTime(double t)const{
             t = length - t;
         }
     }
+    // t must be smaller as length, otherwise timeline.upper_bound returns timeline.end()
+    if (t >= length) {
+        t = std::nextafter(length, 0);
+    }
     // den rechten und linken Zeitpunkt bestimmen und interpolieren.
     auto iter = timeline.upper_bound(t);
     const auto rightValue = iter->value;

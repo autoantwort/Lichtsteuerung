@@ -3,7 +3,7 @@ import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.0
 import custom.licht 1.0
 import QtQuick.Controls.Material 2.3
-import "components"
+import "../components"
 
 GridLayout{
     anchors.leftMargin: 5
@@ -91,7 +91,7 @@ GridLayout{
                         }
                     }
                     Button{
-                        icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "../icons/sort_order/sort-reverse-alphabetical-order.svg" : "../icons/sort_order/sort-by-alphabet.svg"
+                        icon.source: sortedView.sortOrder === Qt.DescendingOrder ? "/icons/sort_order/sort-reverse-alphabetical-order.svg" : "/icons/sort_order/sort-by-alphabet.svg"
                         onClicked: sortedView.sortOrder = sortedView.sortOrder === Qt.DescendingOrder ? Qt.AscendingOrder : Qt.DescendingOrder;
                     }
                 } // RowLayout
