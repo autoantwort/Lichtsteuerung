@@ -109,7 +109,6 @@ ApplicationWindow {
             }
             VerticalTabButton {
                 text: qsTr("Settings")
-                enabled: UserManagment.currentUser.havePermission(Permission.SETTINGS_TAB);
             }
             VerticalTabButton {
                 text: qsTr("Modules")
