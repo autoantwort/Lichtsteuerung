@@ -11,7 +11,7 @@ Pane{
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 16
+        rowSpacing: 10
         columns: 2
         Label{
             text: "Settings file path:"
@@ -171,6 +171,67 @@ Pane{
             text: "Modify Theme and appearance"
             onClicked: modifyThemeWindow.show()
         }
+
+        Label{
+            Layout.fillWidth: true
+            text: "SlideShow:"
+        }
+        RowLayout{
+            Button{
+                enabled: SlideShow.hasImages
+                text: SlideShow.windowVisibility !== Window.Hidden ? "Hide" : "Show"
+                onClicked: {
+                    if (SlideShow.windowVisibility === Window.Hidden){
+                        SlideShow.windowVisibility = Window.Maximized;
+                    } else {
+                        SlideShow.windowVisibility = Window.Minimized;
+                    }
+                }
+                ToolTip.visible: hovered
+                ToolTip.text: text + "s the slideshow window"
+            }
+
+            TextInputField{
+                text: SlideShow.showTimeInSeconds
+                onEditingFinished: SlideShow.showTimeInSeconds = text;
+                Layout.minimumWidth: 20
+                Layout.rightMargin: 8
+                validator: IntValidator{
+                    bottom: 1
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    hoverEnabled: true
+                    ToolTip.visible: containsMouse
+                    ToolTip.text: "How long a image should be displayed (in seconds)"
+                }
+            }
+            ComboBox{
+                Layout.preferredWidth: implicitWidth + 20
+                model: ["Random", "Oldest first", "Newest first", "Name A-Z", "Name Z-A"]
+                currentIndex: SlideShow.showOrder
+                onCurrentIndexChanged: SlideShow.showOrder = currentIndex;
+                ToolTip.visible: hovered
+                ToolTip.text: "The order in which the images are displayed"
+            }
+
+            TextFieldFileChooser{
+                Layout.fillWidth: true
+                folder: true
+                path: SlideShow.path
+                onPathChanged: SlideShow.path = path;
+                fileChooser: fileDialog
+                MouseArea{
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    hoverEnabled: true
+                    ToolTip.visible: containsMouse
+                    ToolTip.text: "The path to the folder with the images"
+                }
+            }
+        }
+
     }
     SystemDialog.FileDialog{
         property var callback;

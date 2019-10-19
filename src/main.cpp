@@ -3,6 +3,7 @@
 #include "errornotifier.h"
 #include "modelmanager.h"
 #include "settings.h"
+#include "slideshow.h"
 #include "sortedmodelview.h"
 #include "updater.h"
 #include "usermanagment.h"
@@ -357,7 +358,9 @@ int main(int argc, char *argv[]) {
     QQmlEngine::setObjectOwnership(&Driver::dmxValueModel,QQmlEngine::CppOwnership);
     engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
     engine.rootContext()->setContextProperty(QStringLiteral("AudioManager"), &Audio::AudioCaptureManager::get());
+    engine.rootContext()->setContextProperty(QStringLiteral("SlideShow"), &SlideShow::get());
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/qml/SlideShowWindow.qml")));
 
 
     // laden erst nach dem laden des qml ausführen

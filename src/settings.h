@@ -59,7 +59,10 @@ class Settings : public QObject {
     Q_PROPERTY(int theme READ getTheme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
     static inline QFileInfo localSettingsFile;
+
 public:
+    static constexpr auto OrganisationName = "Turmstraße 1 e.V.";
+    static constexpr auto ApplicationName = "Lichtsteuerung";
     /**
      * @brief setLocalSettingFile sets a localSetting file that is loaded and preferred everytime a Settings object is created
      * @param settingFile the filePath to the local setting file in utf8 ini format

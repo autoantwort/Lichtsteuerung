@@ -1,7 +1,6 @@
 #include "settings.h"
 
-Settings::Settings(QObject *parent) : QObject(parent), settings(QStringLiteral("Turmstraße 1 e.V."),QStringLiteral("Lichtsteuerung"))
-{
+Settings::Settings(QObject *parent) : QObject(parent), settings(OrganisationName, ApplicationName) {
     if(localSettingsFile.exists()){
         localSettings.emplace(localSettingsFile.filePath(),QSettings::IniFormat);
         localSettings->setIniCodec("UTF-8");
