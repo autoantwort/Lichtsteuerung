@@ -4,19 +4,21 @@ import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Dialogs 1.3 as SystemDialog
 import QtQuick.Window 2.12
+import custom.licht 1.0
 import "components"
 
 Pane{
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 16
+        rowSpacing: 10
         columns: 2
         Label{
             text: "Settings file path:"
         }
         RowLayout{
             id: root
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
             Item{
                 Layout.fillWidth: true
                 Layout.preferredWidth: inputSettingsPath.implicitWidth
@@ -67,6 +69,7 @@ Pane{
             text: "Driver file path:"
         }
         TextFieldFileChooser{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DMX_DRIVER_LIB)
             Layout.fillWidth: true
             folder: false
             path: Settings.driverFilePath
@@ -78,6 +81,7 @@ Pane{
             text: "Update pause for dmx in ms:"
         }
         TextInputField{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DMX_UPDATE_RATE)
             validator: IntValidator{
                 bottom: 10
                 top: 10000
@@ -91,6 +95,7 @@ Pane{
             text: "Module Directory:"
         }
         TextFieldFileChooser{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
             folder: true
             path: Settings.moduleDirPath
@@ -103,6 +108,7 @@ Pane{
             text: "Compiler File Path:"
         }
         TextFieldFileChooser{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
             folder: true
             path: Settings.compilerPath
@@ -115,6 +121,7 @@ Pane{
             text: "Include Path:"
         }
         TextFieldFileChooser{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
             folder: true
             path: Settings.includePath
@@ -127,6 +134,7 @@ Pane{
             text: "Compiler Flags:"
         }
         TextInputField{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
             text: Settings.compilerFlags
             onAccepted: Settings.compilerFlags = text;
@@ -137,6 +145,7 @@ Pane{
             text: "Compiler Library Flags:"
         }
         TextInputField{
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
             text: Settings.compilerLibraryFlags
             onAccepted: Settings.compilerLibraryFlags = text;
@@ -158,9 +167,71 @@ Pane{
             text: "Theme:"
         }
         Button{
+            enabled: UserManagment.currentUser.havePermission(Permission.MODIFY_THEME)
             text: "Modify Theme and appearance"
             onClicked: modifyThemeWindow.show()
         }
+
+        Label{
+            Layout.fillWidth: true
+            text: "SlideShow:"
+        }
+        RowLayout{
+            Button{
+                enabled: SlideShow.hasImages
+                text: SlideShow.windowVisibility !== Window.Hidden ? "Hide" : "Show"
+                onClicked: {
+                    if (SlideShow.windowVisibility === Window.Hidden){
+                        SlideShow.windowVisibility = Window.Maximized;
+                    } else {
+                        SlideShow.windowVisibility = Window.Minimized;
+                    }
+                }
+                ToolTip.visible: hovered
+                ToolTip.text: text + "s the slideshow window"
+            }
+
+            TextInputField{
+                text: SlideShow.showTimeInSeconds
+                onEditingFinished: SlideShow.showTimeInSeconds = text;
+                Layout.minimumWidth: 20
+                Layout.rightMargin: 8
+                validator: IntValidator{
+                    bottom: 1
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    hoverEnabled: true
+                    ToolTip.visible: containsMouse
+                    ToolTip.text: "How long a image should be displayed (in seconds)"
+                }
+            }
+            ComboBox{
+                Layout.preferredWidth: implicitWidth + 20
+                model: ["Random", "Oldest first", "Newest first", "Name A-Z", "Name Z-A"]
+                currentIndex: SlideShow.showOrder
+                onCurrentIndexChanged: SlideShow.showOrder = currentIndex;
+                ToolTip.visible: hovered
+                ToolTip.text: "The order in which the images are displayed"
+            }
+
+            TextFieldFileChooser{
+                Layout.fillWidth: true
+                folder: true
+                path: SlideShow.path
+                onPathChanged: SlideShow.path = path;
+                fileChooser: fileDialog
+                MouseArea{
+                    anchors.fill: parent
+                    acceptedButtons: Qt.NoButton
+                    hoverEnabled: true
+                    ToolTip.visible: containsMouse
+                    ToolTip.text: "The path to the folder with the images"
+                }
+            }
+        }
+
     }
     SystemDialog.FileDialog{
         property var callback;
