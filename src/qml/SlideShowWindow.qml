@@ -50,10 +50,11 @@ Window {
         Image {
             anchors.fill: parent
             id: firstBackground
-            asynchronous: true
             onStatusChanged: {
                 if(status === Image.Error){
+                    asynchronous = true;
                     SlideShow.reportInvalidImage();
+                    asynchronous = false;
                 }
             }
         }
@@ -61,10 +62,11 @@ Window {
             anchors.fill: parent
             id: secondBackground
             opacity: !showFirst
-            asynchronous: true
             onStatusChanged: {
                 if(status === Image.Error){
+                    asynchronous = true;
                     SlideShow.reportInvalidImage();
+                    asynchronous = false;
                 }
             }
             Behavior on opacity {
@@ -79,15 +81,6 @@ Window {
         radius: 128
         source: background
     }
-    RectangularGlow {
-        anchors.margins: 20
-        anchors.fill: firstImage
-        glowRadius: 60
-        spread: 0.2
-        color: "black"
-        opacity: firstImage.opacity
-        z: 1
-    }
     Image {
         height: Math.min(parent.height * (2/3),sourceSize.height)
         anchors.centerIn: parent
@@ -95,7 +88,6 @@ Window {
         opacity: showFirst
         fillMode: Image.PreserveAspectFit
         z: 1
-        asynchronous: true
         Behavior on opacity {
             NumberAnimation{
                 duration: 500
@@ -111,15 +103,16 @@ Window {
             to : 1.5
             onFinished: firstBackground.scale = firstImage.scale = 1
         }
-    }
-    RectangularGlow {
-        anchors.margins: 20
-        anchors.fill: secondImage
-        glowRadius: 60
-        spread: 0.2
-        color: "black"
-        opacity: secondImage.opacity
-        z: showFirst ? 2 : .5
+
+        RectangularGlow {
+            anchors.margins: 20
+            anchors.fill: parent
+            glowRadius: 60
+            spread: 0.2
+            color: "black"
+            z: -1
+            visible: secondImage.status === Image.Ready
+        }
     }
     Image {
         fillMode: Image.PreserveAspectFit
@@ -128,7 +121,6 @@ Window {
         id: secondImage
         opacity: 1 - firstImage.opacity
         z: showFirst ? 2 : .5
-        asynchronous: true
         NumberAnimation {
             id: secondAni
             targets: [secondImage, secondBackground]
@@ -138,6 +130,15 @@ Window {
             from: 1
             to : 1.5
             onFinished: secondBackground.scale = secondImage.scale = 1
+        }
+        RectangularGlow {
+            anchors.margins: 20
+            anchors.fill: parent
+            glowRadius: 60
+            spread: 0.2
+            color: "black"
+            z: -1
+            visible: secondImage.status === Image.Ready
         }
     }
     MouseArea{

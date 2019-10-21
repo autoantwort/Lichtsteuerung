@@ -68,7 +68,7 @@ private:
     Q_PROPERTY(QWindow::Visibility windowVisibility MEMBER windowVisibility NOTIFY windowVisibilityChanged)
     Q_PROPERTY(bool hasImages READ hasImages NOTIFY hasImagesChanged)
     // the time that should be waitet by the offset timer
-    static constexpr int offsetWaitTime = 100;
+    static constexpr int offsetWaitTime = 300;
 
 public:
     static SlideShow &get() {
