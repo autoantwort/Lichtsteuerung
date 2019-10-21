@@ -20,7 +20,6 @@ SlideShow::SlideShow() : randomNumberGenerator(static_cast<unsigned>(rand())) {
     scanForNewFiles();
     sort();
     emit hasImagesChanged();
-    loadTimer = startTimer(showTimeInSeconds * 1000);
     // if a new path gets added, add the new files to the images deque and sort
     QObject::connect(&watcher, &QFileSystemWatcher::directoryChanged, [this](const auto &path) {
         scanDirectory(path, false);
@@ -28,9 +27,22 @@ SlideShow::SlideShow() : randomNumberGenerator(static_cast<unsigned>(rand())) {
     });
     // if the window gets visible and no image is loaded, load a image and show it
     QObject::connect(this, &SlideShow::windowVisibilityChanged, [this]() {
-        if (windowVisibility != QWindow::Hidden && currentImage < 0) {
-            loadNextImage();
-            emit showNextImage();
+        if (windowVisibility == QWindow::Minimized || windowVisibility == QWindow::Hidden) {
+            // if the window is not visible, we can stop the loading of new images
+            killTimer(loadTimer);
+            loadTimer = -1;
+        } else {
+            // the window gets visible or changed its state
+            if (currentImage < 0) {
+                // no image is loaded. Load one and show it
+                loadNextImage();
+                emit showNextImage();
+            }
+
+            if (loadTimer < 0) {
+                // the load timer is stopped. start it
+                loadTimer = startTimer(showTimeInSeconds * 1000);
+            }
         }
     });
 }
@@ -38,8 +50,10 @@ SlideShow::SlideShow() : randomNumberGenerator(static_cast<unsigned>(rand())) {
 void SlideShow::setShowTimeInSeconds(int time) {
     if (time != showTimeInSeconds) {
         showTimeInSeconds = std::max(3, time);
-        killTimer(loadTimer);
-        loadTimer = startTimer(showTimeInSeconds * 1000);
+        if (loadTimer >= 0) {
+            killTimer(loadTimer);
+            loadTimer = startTimer(showTimeInSeconds * 1000);
+        }
         emit showTimeInSecondsChanged();
         if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Permission::SAVE_SLIDE_SHOW_SETTINGS)) {
             QSettings(QSettings::UserScope, Settings::OrganisationName, Settings::ApplicationName).setValue(QStringLiteral("showTimeInSeconds"), showTimeInSeconds);
