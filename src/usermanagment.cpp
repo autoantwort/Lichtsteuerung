@@ -116,11 +116,12 @@ QVariant UserPermissionModel::data(const QModelIndex &index, int role) const {
     if (index.row() < 0 && index.row() >= rowCount(index)) {
         return QVariant("Index Out of Range");
     }
+    const auto &me = UserManagment::metaEnum;
     switch (role) {
     case HavePermissionRole:
-    case Qt::EditRole: return QVariant(user->havePermission(static_cast<UserManagment::Permission>(index.row())));
+    case Qt::EditRole: return QVariant(user->havePermission(static_cast<UserManagment::Permission>(me.value(index.row()))));
     case Qt::DisplayRole:
-    case PermissionNameRole: return QVariant(UserManagment::metaEnum.valueToKey(index.row()));
+    case PermissionNameRole: return QVariant(me.valueToKey(me.value(index.row())));
     default: return QVariant("Unknown role!");
     }
 }
@@ -129,7 +130,8 @@ bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &valu
     if (role == HavePermissionRole) {
         if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Admin)) {
             if (index.row() >= 0 && index.row() < rowCount(index)) {
-                const auto p = static_cast<UserManagment::Permission>(index.row());
+                const auto &me = UserManagment::metaEnum;
+                const auto p = static_cast<UserManagment::Permission>(me.value(index.row()));
                 // ein admin darf sich nicht selber entmachten:
                 if (p != UserManagment::Admin || UserManagment::get()->getCurrentUser() != user) {
                     if (user->havePermission(p) != value.toBool()) {
@@ -154,11 +156,8 @@ void User::createUser(const QJsonObject &o) {
     }
 }
 
-User::User(const QJsonObject &o) : QObject(UserManagment::get()), IDBase(o), username(o[QStringLiteral("username")].toString()), password(QByteArray::fromBase64(o[QStringLiteral("password")].toString().toLatin1())), permissionModel(this) {
-    const auto array = o[QStringLiteral("permissions")].toArray();
-    for (const auto &i : array) {
-        permissions.insert(static_cast<UserManagment::Permission>(i.toInt()));
-    }
+User::User(const QJsonObject &o) : QObject(UserManagment::get()), id(o), username(o[QStringLiteral("username")].toString()), password(QByteArray::fromBase64(o[QStringLiteral("password")].toString().toLatin1())), permissionModel(this) {
+    loadPermissions(o);
     const auto arrayNames = o[QStringLiteral("autologinUsernames")].toArray();
     for (const auto &i : arrayNames) {
         autologinUsernames.push_back(i.toString());
@@ -208,6 +207,16 @@ void User::setPermission(UserManagment::Permission p, bool get) {
         if (permissions.find(p) != permissions.cend()) {
             permissions.erase(permissions.find(p));
             emit permissionChanged(p, false);
+        }
+    }
+}
+
+void User::loadPermissions(const QJsonObject &o) {
+    const auto array = o[QStringLiteral("permissions")].toArray();
+    for (const auto &i : array) {
+        auto value = i.toInt(-1);
+        if (value >= 0 && UserManagment::metaEnum.valueToKey(value)) {
+            permissions.insert(static_cast<UserManagment::Permission>(value));
         }
     }
 }

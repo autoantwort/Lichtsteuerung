@@ -81,7 +81,6 @@ public:
         CHANGE_MODULE_SETTINGS = 26,
         MODIFY_THEME = 27,
         SAVE_SLIDE_SHOW_SETTINGS = 28,
-        LAST_PERMISSION = 29,
     };
     Q_ENUM(Permission)
     /**
@@ -177,7 +176,7 @@ public:
     explicit UserPermissionModel(User *user) : user(user) {}
     enum GroupModelRoles { HavePermissionRole = Qt::UserRole + 1, PermissionNameRole };
 
-    [[nodiscard]] int rowCount(const QModelIndex & /*parent*/) const override { return UserManagment::LAST_PERMISSION; }
+    [[nodiscard]] int rowCount(const QModelIndex & /*parent*/) const override { return UserManagment::metaEnum.keyCount(); }
     [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override {
@@ -212,6 +211,7 @@ private:
     UserPermissionModel permissionModel;
     void setUsername(const QString &u);
     void setPermission(UserManagment::Permission p, bool get = true);
+    void loadPermissions(const QJsonObject &o);
     User(QString name, QByteArray password) : username(std::move(name)), password(std::move(password)), permissionModel(this) {}
     explicit User(const QJsonObject &o);
 
