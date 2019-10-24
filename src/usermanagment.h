@@ -1,48 +1,53 @@
 #ifndef USERMANAGMENT_H
 #define USERMANAGMENT_H
 
-#include <QObject>
-#include <QMetaEnum>
-#include <vector>
 #include "idbase.h"
-#include <QJsonObject>
 #include "modelvector.h"
+#include <QJsonObject>
+#include <QMetaEnum>
+#include <QObject>
+#include <memory>
 #include <set>
+#include <utility>
+#include <vector>
 
 class User;
 
 /**
  * @brief The UserManagment class handles user, their permissions and passwords
  */
-class UserManagment : public QObject
-{
+class UserManagment : public QObject {
     Q_OBJECT
-    Q_PROPERTY(User* currentUser READ getCurrentUser NOTIFY currentUserChanged)
+    Q_PROPERTY(User *currentUser READ getCurrentUser NOTIFY currentUserChanged)
     Q_PROPERTY(User *defaultUser READ getDefaultUser CONSTANT)
-    Q_PROPERTY(QAbstractItemModel * users READ getUserModel CONSTANT)
+    Q_PROPERTY(QAbstractItemModel *users READ getUserModel CONSTANT)
     Q_PROPERTY(QString currentOsUserName READ getCurrentOsUserName CONSTANT)
 private:
     // User is an incomplete type here
     std::unique_ptr<User> defaultUser;
-    User * currentUser;
+    User *currentUser;
     QString currentOsUserName;
     ModelVector<std::unique_ptr<User>> users;
     UserManagment();
-    ~UserManagment()override{currentUser = nullptr;}
+    ~UserManagment() override { currentUser = nullptr; }
     friend class User;
+
 public:
-    ModelVector<std::unique_ptr<User>>& getUsers(){return users;}
-    QAbstractItemModel* getUserModel(){return &users;}
-    User * getUserById(const QJsonValue &id){return getUserById(id.toString().toLongLong());}
-    User * getUserById(ID id){return getUserById(id.value());}
-    User * getUserById(ID::value_type id);
+    const ModelVector<std::unique_ptr<User>> &getUsers() { return users; }
+    QAbstractItemModel *getUserModel() { return &users; }
+    User *getUserById(const QJsonValue &id) { return getUserById(id.toString().toLongLong()); }
+    User *getUserById(ID id) { return getUserById(id.value()); }
+    User *getUserById(ID::value_type id);
 
     [[nodiscard]] User *getDefaultUser() const { return defaultUser.get(); }
     /**
      * @brief get Return the Singletone of the UserManagment
      * @return
      */
-    static UserManagment * get(){static UserManagment m;return &m;}
+    static UserManagment *get() {
+        static UserManagment m;
+        return &m;
+    }
     /**
      * @brief The Permission enum contains all Permissions a User can have
      */
@@ -82,15 +87,14 @@ public:
     /**
      * @brief metaEnum Is used to get the names of the entries in qml as string
      */
-    const QMetaEnum metaEnum = QMetaEnum::fromType<Permission>();
+    static inline const QMetaEnum metaEnum = QMetaEnum::fromType<Permission>();
 
     /**
-      * @brief adds a user to the Usermanagment
-      * @param name The Username of the new user
-      * @param password The password of the new User
-      */
-    Q_INVOKABLE void addUser(const QString & name, const QString & password);
-
+     * @brief adds a user to the Usermanagment
+     * @param name The Username of the new user
+     * @param password The password of the new User
+     */
+    Q_INVOKABLE void addUser(const QString &name, const QString &password);
 
     /**
      * @brief removeUser Removes an user
@@ -98,13 +102,13 @@ public:
      * @param password from the admin
      * @return  true for success, false for failure
      */
-    Q_INVOKABLE bool removeUser(User * user,const QString &password);
+    Q_INVOKABLE bool removeUser(User *user, const QString &password);
     /**
      * @brief removeUser Removes an user, only successfull if the current user is an admin
      * @param user the user to remove, not the current user
      * @return  true for success, false for failure
      */
-    Q_INVOKABLE bool removeUser(User * user);
+    Q_INVOKABLE bool removeUser(User *user);
     /**
      * @brief changeUserName change the username of a user
      * @param user the User where to change the username
@@ -112,8 +116,8 @@ public:
      * @param password the password from the user or from an admin
      * @return  true for success, false for failure
      */
-    Q_INVOKABLE bool changeUserName(User * user, const QString &newName,const QString &password);
-    //Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
+    Q_INVOKABLE bool changeUserName(User *user, const QString &newName, const QString &password);
+    // Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
     /**
      * @brief changeUserPasswort change the passwort of a user
      * @param user the user where the password should be changed
@@ -121,14 +125,14 @@ public:
      * @param newPassword the new password of the user
      * @return true for success, false for failure
      */
-    Q_INVOKABLE bool changeUserPasswort(User * user,const QString &password,const QString &newPassword);
+    Q_INVOKABLE bool changeUserPasswort(User *user, const QString &password, const QString &newPassword);
     /**
      * @brief login logins a user and make this user the current user
      * @param user the user to login
      * @param passwort the password of the user
      * @return true for success, false for failure
      */
-    Q_INVOKABLE bool login(User * user, const QString &passwort);
+    Q_INVOKABLE bool login(User *user, const QString &passwort);
     /**
      * @brief autoLoginUser checks if the autologin user name of one user matches the currentOsUserName and login the user where the name match
      */
@@ -141,23 +145,23 @@ public:
      * @brief logout logouts the user user, if the user user is not logind, nothiing happens
      * @param user The user to logout
      */
-    void logout(User * user);
+    void logout(User *user);
     /**
      * @brief getUserByName Gets the first user with the given name
      * @param name The name to search for
      * @return An user with the given username or a nullptr if none found
      */
-    User* getUserByName(const QString & name)const;
+    [[nodiscard]] User *getUserByName(const QString &name) const;
     /**
      * @brief getCurrentUser gets the current user that is log in
      * @return The currently logined user
      */
-    User * getCurrentUser()const{return currentUser;}
+    [[nodiscard]] User *getCurrentUser() const { return currentUser; }
     /**
      * @brief getCurrentOsUserName returns the username of the current os user that is logged in
      * @return the username of the currently logged in os user
      */
-    QString getCurrentOsUserName()const{return currentOsUserName;}
+    [[nodiscard]] QString getCurrentOsUserName() const { return currentOsUserName; }
 signals:
     void currentUserChanged();
 };
@@ -165,25 +169,23 @@ signals:
 /**
  * @brief The UserPermissionModel class provides an QAbstractListModel implementation and lists all Permissions that exists and to every permission an bool that is true if the user have the spezific permission
  */
-class UserPermissionModel : public QAbstractListModel{
+class UserPermissionModel : public QAbstractListModel {
     Q_OBJECT
-    User* user;
-public:
-    UserPermissionModel(User * user):user(user){}
-    enum GroupModelRoles{
-        HavePermissionRole = Qt::UserRole+1,
-        PermissionNameRole
-    };
+    User *user;
 
-    virtual int rowCount(const QModelIndex & = QModelIndex())const override {return UserManagment::LAST_PERMISSION;}
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole)const override;
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole)override;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const override{
+public:
+    explicit UserPermissionModel(User *user) : user(user) {}
+    enum GroupModelRoles { HavePermissionRole = Qt::UserRole + 1, PermissionNameRole };
+
+    [[nodiscard]] int rowCount(const QModelIndex & /*parent*/) const override { return UserManagment::LAST_PERMISSION; }
+    [[nodiscard]] QVariant data(const QModelIndex &index, int role) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    [[nodiscard]] Qt::ItemFlags flags(const QModelIndex &index) const override {
         auto r = QAbstractListModel::flags(index);
         r.setFlag(Qt::ItemIsEditable);
         return r;
     }
-    QHash<int,QByteArray> roleNames() const override{
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override {
         auto r = QAbstractListModel::roleNames();
         r[HavePermissionRole] = "havePermission";
         r[PermissionNameRole] = "permissionName";
@@ -194,59 +196,60 @@ public:
 /**
  * @brief The User class represents a user. A user have a name and a password and have permissions
  */
-class User : public QObject, public IDBase<User>{
+class User : public QObject, public IDBase<User> {
     Q_OBJECT
     Q_PROPERTY(QString name READ getUsername NOTIFY usernameChanged)
-    Q_PROPERTY(QAbstractListModel * permissionModel READ getPermissionModel CONSTANT)
-    Q_PROPERTY(QAbstractListModel * autologinUsernames READ getAutoLoginUserNameModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel *permissionModel READ getPermissionModel CONSTANT)
+    Q_PROPERTY(QAbstractListModel *autologinUsernames READ getAutoLoginUserNameModel CONSTANT)
     friend class UserManagment;
     friend class UserPermissionModel;
+
 private:
     QString username;
     QByteArray password;
     std::set<UserManagment::Permission> permissions;
     ModelVector<QString> autologinUsernames;
     UserPermissionModel permissionModel;
-    void setUsername(const QString &u){if(u==username)return;username = u;emit usernameChanged(username);}
-    void setPermission(UserManagment::Permission p,bool get = true);
-    User(const QString & name, const QByteArray &password):username(name),password(password),permissionModel(this){}
-    User(const QJsonObject &o);
+    void setUsername(const QString &u);
+    void setPermission(UserManagment::Permission p, bool get = true);
+    User(QString name, QByteArray password) : username(std::move(name)), password(std::move(password)), permissionModel(this) {}
+    explicit User(const QJsonObject &o);
+
 public:
     static void createUser(const QJsonObject &o);
-    void writeJsonObject(QJsonObject &o)const;
-    ~User(){UserManagment::get()->logout(this);}    
-    QString getUsername()const{return username;}
+    void writeJsonObject(QJsonObject &o) const;
+    ~User() override { UserManagment::get()->logout(this); }
+    [[nodiscard]] QString getUsername() const { return username; }
     /**
      * @brief getPermissions Returns an set that contains all Permission that this user has
      * @return A set containing all Permission that this user has
      */
-    std::set<UserManagment::Permission> getPermissions()const{return permissions;}
+    [[nodiscard]] const std::set<UserManagment::Permission> &getPermissions() const { return permissions; }
     /**
      * @brief havePermission check if a user have a spezific permission
      * @param p the permission to check
      * @return true is the user have the permission
      */
-    Q_INVOKABLE bool havePermission(UserManagment::Permission p){return permissions.find(p)!=permissions.cend();}
-    UserPermissionModel * getPermissionModel(){return &permissionModel;}
-    QAbstractListModel * getAutoLoginUserNameModel(){return &autologinUsernames;}
-    const ModelVector<QString>& getAutoLoginUserNames()const{return autologinUsernames;}
-    Q_INVOKABLE void removeAutologinUsername(int index){
+    Q_INVOKABLE bool havePermission(UserManagment::Permission p) { return permissions.find(p) != permissions.cend(); }
+    UserPermissionModel *getPermissionModel() { return &permissionModel; }
+    QAbstractListModel *getAutoLoginUserNameModel() { return &autologinUsernames; }
+    const std::vector<QString> &getAutoLoginUserNames() { return autologinUsernames.getVector(); }
+    [[nodiscard]] const ModelVector<QString> &getAutoLoginUserNames() const { return autologinUsernames; }
+    Q_INVOKABLE void removeAutologinUsername(int index) {
         if (index >= 0 && index < autologinUsernames.ssize()) {
             autologinUsernames.erase(index);
         }
     }
-    Q_INVOKABLE void changeAutologinUsername(int index, const QString &newUserName){
+    Q_INVOKABLE void changeAutologinUsername(int index, const QString &newUserName) {
         if (index >= 0 && index < autologinUsernames.ssize()) {
             autologinUsernames[index] = newUserName;
             autologinUsernames.dataChanged(index);
         }
     }
-    Q_INVOKABLE void addAutologinUsername(const QString &newUserName){
-        autologinUsernames.push_back(newUserName);
-    }
+    Q_INVOKABLE void addAutologinUsername(const QString &newUserName) { autologinUsernames.push_back(newUserName); }
 signals:
     void usernameChanged(QString);
-    void permissionChanged(UserManagment::Permission,bool);
+    void permissionChanged(UserManagment::Permission, bool);
 };
 
 #endif // USERMANAGMENT_H
