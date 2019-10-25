@@ -2,7 +2,9 @@
 #include <QCryptographicHash>
 #include <QJsonArray>
 
-UserManagment::UserManagment() : defaultUser(new User(QStringLiteral("Default"), "")), currentUser(defaultUser.get()) {
+UserManagment::UserManagment() {
+    users.emplace_back(new User(ID(IdOfDefaultUser), QStringLiteral("Default User")));
+    currentUser = users.begin()->get();
 #ifdef Q_OS_UNIX
     currentOsUserName = qgetenv("USER");
 #else
@@ -25,6 +27,10 @@ void UserManagment::addUser(const QString &name, const QString &password) {
 }
 
 bool UserManagment::removeUser(User *user, const QString &password) {
+    // you can not remove the default user
+    if (user == getDefaultUser()) {
+        return false;
+    }
     const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
     if (user->password == hash) {
         users.remove_if([=](const auto &p) { return p.get() == user; });
@@ -40,6 +46,10 @@ bool UserManagment::removeUser(User *user, const QString &password) {
 }
 
 bool UserManagment::removeUser(User *user) {
+    // you cannot remove the default user
+    if (user == getDefaultUser()) {
+        return false;
+    }
     if (currentUser->havePermission(Admin) && user != currentUser) {
         users.remove_if([=](const auto &p) { return p.get() == user; });
         return true;
@@ -63,6 +73,10 @@ bool UserManagment::changeUserName(User *user, const QString &newName, const QSt
 }
 
 bool UserManagment::changeUserPasswort(User *user, const QString &password, const QString &newPassword) {
+    // the default user has no passwort
+    if (user == getDefaultUser()) {
+        return false;
+    }
     const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
     if (user->password == hash) {
         user->password = QCryptographicHash::hash(newPassword.toUtf8(), QCryptographicHash::Sha3_256);
@@ -80,6 +94,22 @@ bool UserManagment::login(User *user, const QString &password) {
         currentUser = user;
         emit currentUserChanged();
         return true;
+    }
+    return false;
+}
+
+bool UserManagment::login(User *user) {
+    if (user == getDefaultUser()) {
+        currentUser = user;
+        emit currentUserChanged();
+        return true;
+    }
+    for (const auto &name : user->getAutoLoginUserNames()) {
+        if (name == currentOsUserName) {
+            currentUser = user;
+            emit currentUserChanged();
+            return true;
+        }
     }
     return false;
 }
@@ -151,7 +181,10 @@ bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &valu
 // USER
 
 void User::createUser(const QJsonObject &o) {
-    if (o[QStringLiteral("password")].toString().length() != 0) { // we dont want a user without a password
+    // handle the default user
+    if (ID(o) == UserManagment::IdOfDefaultUser) {
+        UserManagment::get()->getDefaultUser()->loadPermissions(o);
+    } else if (o[QStringLiteral("password")].toString().length() != 0) { // we dont want a user without a password
         UserManagment::get()->users.push_back(std::unique_ptr<User>(new User(o)));
     }
 }
@@ -177,7 +210,7 @@ void User::writeJsonObject(QJsonObject &o) const {
         names.push_back(i);
     }
     o.insert(QStringLiteral("autologinUsernames"), names);
-    IDBase::writeJsonObject(o);
+    id.writeJsonObject(o);
 }
 
 User *UserManagment::getUserByName(const QString &name) const {

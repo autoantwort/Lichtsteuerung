@@ -23,14 +23,13 @@ class UserManagment : public QObject {
     Q_PROPERTY(QAbstractItemModel *users READ getUserModel CONSTANT)
     Q_PROPERTY(QString currentOsUserName READ getCurrentOsUserName CONSTANT)
 private:
-    // User is an incomplete type here
-    std::unique_ptr<User> defaultUser;
     User *currentUser;
     QString currentOsUserName;
     ModelVector<std::unique_ptr<User>> users;
     UserManagment();
     ~UserManagment() override { currentUser = nullptr; }
     friend class User;
+    static constexpr ID::value_type IdOfDefaultUser = 1000;
 
 public:
     const ModelVector<std::unique_ptr<User>> &getUsers() { return users; }
@@ -39,7 +38,7 @@ public:
     User *getUserById(ID id) { return getUserById(id.value()); }
     User *getUserById(ID::value_type id);
 
-    [[nodiscard]] User *getDefaultUser() const { return defaultUser.get(); }
+    [[nodiscard]] User *getDefaultUser() const { return users.begin()->get(); }
     /**
      * @brief get Return the Singletone of the UserManagment
      * @return
@@ -116,7 +115,6 @@ public:
      * @return  true for success, false for failure
      */
     Q_INVOKABLE bool changeUserName(User *user, const QString &newName, const QString &password);
-    // Q_INVOKABLE bool changeUserPermission(User * user, Permission newPermission,const QString &password);
     /**
      * @brief changeUserPasswort change the passwort of a user
      * @param user the user where the password should be changed
@@ -132,6 +130,13 @@ public:
      * @return true for success, false for failure
      */
     Q_INVOKABLE bool login(User *user, const QString &passwort);
+    /**
+     * @brief login tries to login a user without a passwort. A user can be logged in without a password if the user is
+     * the default user or if the current os username is in the autologinUsernames list of the user that should be logged in
+     * @param user the user that should be logged in
+     * @return true if the log in was successful, otherwise false
+     */
+    Q_INVOKABLE bool login(User *user);
     /**
      * @brief autoLoginUser checks if the autologin user name of one user matches the currentOsUserName and login the user where the name match
      */
@@ -195,7 +200,7 @@ public:
 /**
  * @brief The User class represents a user. A user have a name and a password and have permissions
  */
-class User : public QObject, public IDBase<User> {
+class User : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString name READ getUsername NOTIFY usernameChanged)
     Q_PROPERTY(QAbstractListModel *permissionModel READ getPermissionModel CONSTANT)
@@ -204,6 +209,7 @@ class User : public QObject, public IDBase<User> {
     friend class UserPermissionModel;
 
 private:
+    ID id;
     QString username;
     QByteArray password;
     std::set<UserManagment::Permission> permissions;
@@ -213,6 +219,12 @@ private:
     void setPermission(UserManagment::Permission p, bool get = true);
     void loadPermissions(const QJsonObject &o);
     User(QString name, QByteArray password) : username(std::move(name)), password(std::move(password)), permissionModel(this) {}
+    /**
+     * @brief User creates a user with a given id and no passwort. This constructor should be only used for the default
+     * user that exists before the settings file is loaded, so the ID can't change
+     * @param name The name of the user
+     */
+    User(ID id, QString name) : id(id), username(std::move(name)), permissionModel(this) {}
     explicit User(const QJsonObject &o);
 
 public:
@@ -234,6 +246,7 @@ public:
     UserPermissionModel *getPermissionModel() { return &permissionModel; }
     QAbstractListModel *getAutoLoginUserNameModel() { return &autologinUsernames; }
     const std::vector<QString> &getAutoLoginUserNames() { return autologinUsernames.getVector(); }
+    const ID &getID() const { return id; }
     [[nodiscard]] const ModelVector<QString> &getAutoLoginUserNames() const { return autologinUsernames; }
     Q_INVOKABLE void removeAutologinUsername(int index) {
         if (index >= 0 && index < autologinUsernames.ssize()) {
