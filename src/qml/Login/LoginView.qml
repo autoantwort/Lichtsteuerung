@@ -14,6 +14,7 @@ Item{
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.preferredHeight: model.rowCount() * 50
+            Layout.minimumHeight: 100
             clip: true
             highlightMoveDuration: 100
             highlightResizeDuration: 100
@@ -101,8 +102,12 @@ Item{
                         }else if(modelData===UserManagment.currentUser){
                             UserManagment.logout()
                         }else{
-                            dialog.user = modelData;
-                            dialog.visible = true;
+                            // check if we can login the user without password
+                            if (!UserManagment.login(modelData)) {
+                                // we need a password to login
+                                dialog.user = modelData;
+                                dialog.visible = true;
+                            }
                         }
                     }
                 }
