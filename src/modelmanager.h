@@ -149,9 +149,9 @@ public:
       */
     Q_INVOKABLE void save(){
         if(settings != nullptr){
-            QFile savePath(settings->getJsonSettingsFilePath());
-            if(savePath.exists()){
-                savePath.copy(savePath.fileName()+"_"+QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
+            QString savePath(settings->getJsonSettingsFilePath());
+            if (QFile::exists(savePath)) {
+                QFile::copy(savePath, savePath + "_" + QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
             }
             ApplicationData::saveData(savePath);
         }else {

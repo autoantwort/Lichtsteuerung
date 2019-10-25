@@ -262,16 +262,23 @@ int main(int argc, char *argv[]) {
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
-    QFile file(settings.getJsonSettingsFilePath());
-    if(!file.exists()){
-        file.setFileName(QStringLiteral("QTJSONFile.json"));
+    QString file(settings.getJsonSettingsFilePath());
+    if (!QFile::exists(file)) {
+        file = QStringLiteral("QTJSONFile.json");
     }
-    if(file.exists()){
-        file.copy(file.fileName()+"_"+QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
+    std::function<void()> after;
+    if (QFile::exists(file)) {
+        QFile::copy(file, file + "_" + QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")));
+        // load application data
+        QString error;
+        std::tie(after, error) = ApplicationData::loadData(file);
+        if (!error.isEmpty()) {
+            ErrorNotifier::showError(error);
+        }
+
     } else {
         ErrorNotifier::showError(QStringLiteral("No settings file found! The Lichtsteuerung starts wihout content."));
     }
-    auto after = ApplicationData::loadData(file);
     // nachdem die Benutzer geladen wurden, auto login durchführen
     UserManagment::get()->autoLoginUser();
 
@@ -312,8 +319,7 @@ int main(int argc, char *argv[]) {
     CatchingErrorApplication::connect(&app, &QGuiApplication::aboutToQuit, [&]() {
         Modules::ModuleManager::singletone()->controller().stop();
         Audio::AudioCaptureManager::get().stopCapturingAndWait();
-        QFile savePath(settings.getJsonSettingsFileSavePath());
-        ApplicationData::saveData(savePath);
+        ApplicationData::saveData(settings.getJsonSettingsFileSavePath());
         Driver::stopAndUnloadDriver();
         if (updater.getState() == Updater::ReadyToInstall) {
             updater.runUpdateInstaller();
@@ -328,10 +334,7 @@ int main(int argc, char *argv[]) {
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
     });
-    Settings::connect(&settings, &Settings::saveAs, [&](const auto &path) {
-        QFile saveFile(settings.getJsonSettingsFileSavePath());
-        ApplicationData::saveData(saveFile);
-    });
+    Settings::connect(&settings, &Settings::saveAs, [&](const auto &path) { ApplicationData::saveData(path); });
     Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     Settings::connect(&settings, &Settings::moduleDirPathChanged, [&]() { Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath()); });
 
@@ -364,8 +367,9 @@ int main(int argc, char *argv[]) {
 
 
     // laden erst nach dem laden des qml ausführen
-    after();
-
+    if (after) {
+        after();
+    }
 
     // Treiber laden
 #define USE_DUMMY_DRIVER
