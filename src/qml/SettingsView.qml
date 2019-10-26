@@ -272,6 +272,8 @@ Pane{
         margins: 50
         x: (parent.width - width) / 2
         y: 0
+        Overlay.modal: ModalPopupBackground{}
+        parent: Overlay.overlay
         closePolicy: Popup.NoAutoClose
         title: "Do you want to restart the light control now to load the settings file?"
         standardButtons: Dialog.No | Dialog.Yes
