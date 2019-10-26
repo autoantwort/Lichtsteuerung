@@ -217,6 +217,8 @@ int main(int argc, char *argv[]) {
 //    auto defaultFormat = QSurfaceFormat::defaultFormat();
 //    defaultFormat.setSamples(8);
 //    QSurfaceFormat::setDefaultFormat(defaultFormat);
+    QCoreApplication::setOrganizationName(QStringLiteral("Turmstraße 1 e.V."));
+    QCoreApplication::setOrganizationDomain(QStringLiteral("hilton.rwth-aachen.de"));
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     CatchingErrorApplication app(argc, argv);
     QQmlApplicationEngine engine;

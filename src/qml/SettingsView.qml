@@ -2,12 +2,13 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3 as SystemDialog
 import QtQuick.Window 2.12
 import custom.licht 1.0
 import "components"
 
 Pane{
+    property bool visibleForUser: SwipeView.isCurrentItem
+    onVisibleForUserChanged: fileDialogLoader.load();
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
@@ -18,7 +19,7 @@ Pane{
         }
         RowLayout{
             id: root
-            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
+            //enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
             Item{
                 Layout.fillWidth: true
                 Layout.preferredWidth: inputSettingsPath.implicitWidth
@@ -40,8 +41,8 @@ Pane{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Save as"
                 onClicked: {
-                    fileDialog.openAt(Settings.jsonSettingsFilePath, false, false);
-                    fileDialog.callback = function(file){
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false, false);
+                    fileDialogLoader.item.callback = function(file){
                         Settings.setJsonSettingsFilePath(file, false);
                     };
                 }
@@ -52,8 +53,8 @@ Pane{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Load from"
                 onClicked: {
-                    fileDialog.openAt(Settings.jsonSettingsFilePath, false);
-                    fileDialog.callback = function(file){
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false);
+                    fileDialogLoader.item.callback = function(file){
                         if(Settings.setJsonSettingsFilePath(file, true)){
                             popupChangedSettingsFile.visible = true;
                         }else{
@@ -74,7 +75,7 @@ Pane{
             folder: false
             path: Settings.driverFilePath
             onPathChanged: {Settings.driverFilePath = path;path = Settings.driverFilePath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -100,7 +101,7 @@ Pane{
             folder: true
             path: Settings.moduleDirPath
             onPathChanged: {Settings.moduleDirPath = path;path = Settings.moduleDirPath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -113,7 +114,7 @@ Pane{
             folder: true
             path: Settings.compilerPath
             onPathChanged: {Settings.compilerPath = path;path = Settings.compilerPath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -126,7 +127,7 @@ Pane{
             folder: true
             path: Settings.includePath
             onPathChanged: {Settings.includePath = path;path = Settings.includePath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -221,7 +222,7 @@ Pane{
                 folder: true
                 path: SlideShow.path
                 onPathChanged: SlideShow.path = path;
-                fileChooser: fileDialog
+                fileChooser: fileDialogLoader.item
                 MouseArea{
                     anchors.fill: parent
                     acceptedButtons: Qt.NoButton
@@ -233,26 +234,16 @@ Pane{
         }
 
     }
-    SystemDialog.FileDialog{
-        property var callback;
-        selectExisting: false
-        defaultSuffix: ".json"
-        function openAt(path, isFolder, selectExisting_ = true){
-            selectFolder = isFolder;
-            folder = pathToUrl(path);
-            selectExisting = selectExisting_;
-            open();
-        }
-        id: fileDialog
-        title: "Please choose a file"
-        onAccepted: {
-            if(callback){
-                callback(urlToPath(fileDialog.fileUrl));
-            }else{
-                console.error("Error in File Dialog in SettingsView: No callback provided!")
+    Loader {
+        id: fileDialogLoader
+        asynchronous: true
+        function load() {
+            if (source == "") {
+                source = "components/SystemFileDialog.qml";
             }
         }
     }
+
     Window{
         id: modifyThemeWindow
         flags: Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowTitleHint
