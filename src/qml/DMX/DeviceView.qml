@@ -122,7 +122,7 @@ ModelView{
         Layout.margins: 3
         spacing: 0
         id: pinComp
-        property int currentDMXChannel: deviceModelView.currentModelData ? deviceModelView.currentModelData.startDMXChannel : 0
+        property int currentDMXChannel: deviceModelView.currentModelData ? deviceModelView.currentModelData.startDMXChannel : -1
         onCurrentDMXChannelChanged: {
             let v = currentDMXChannel;
             for(let i = 8; i >= 0; --i){
@@ -175,7 +175,7 @@ ModelView{
                         hoverEnabled: true
                         ToolTip.delay: 1000
                         ToolTip.visible: containsMouse
-                        ToolTip.text: index === 0 ? "Referenz" : "2^" + (index - 1) + " = " + Math.pow(2, index - 1)
+                        ToolTip.text: index === 0 ? "Referenz" : Math.pow(2, index - 1)
                     }
                 }
                 Text{
@@ -183,7 +183,7 @@ ModelView{
                     anchors.topMargin: 3
                     anchors.horizontalCenter: switchRect.horizontalCenter
                     color: Material.foreground
-                    text: index === 0 ? switchRect.parent.on ? "On" : "Off" : (index - 1)
+                    text: index === 0 ? switchRect.parent.on ? "On" : "Off" : index
                 }
             }
         }
