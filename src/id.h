@@ -10,8 +10,9 @@
 /**
  * @brief Eine ID Klasse, die eindeutige IDs erstellt
  */
-class ID{
-    friend class SyncService;
+class ID {
+    friend class UserManagment;
+
 public:
     typedef long long value_type;
 private:
@@ -40,7 +41,5 @@ public:
     ID(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o)const;
 };
-
-
 
 #endif // IDGENERATOR_H

@@ -1,4 +1,4 @@
-QT += qml quick networkauth network
+QT += qml quick networkauth network websockets
 
 CONFIG += c++1z force_debug_info
 
@@ -22,6 +22,8 @@ SOURCES += \
     audio/aubio/onsetanalysis.cpp \
     audio/aubio/tempoanalysis.cpp \
     audio/audioeventdata.cpp \
+    audio/remotevolume.cpp \
+    audio/systemvolume.cpp \
     dmx/channel.cpp \
     gui/audioeventdataview.cpp \
     gui/channelprogrammeditor.cpp \
@@ -106,6 +108,8 @@ HEADERS += \
     audio/aubio/onsetanalysis.h \
     audio/aubio/tempoanalysis.h \
     audio/audioeventdata.h \
+    audio/remotevolume.h \
+    audio/systemvolume.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
     gui/linegeometry.h \

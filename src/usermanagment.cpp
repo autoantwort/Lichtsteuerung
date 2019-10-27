@@ -2,13 +2,9 @@
 #include <QCryptographicHash>
 #include <QJsonArray>
 
-UserManagment::UserManagment() : defaultUser(new User(QStringLiteral("Default"), "")), currentUser(defaultUser.get()) {
-    /*auto pass = QCryptographicHash::hash(QString("12345").toUtf8(),QCryptographicHash::Sha3_256);
-    qDebug()<<pass;
-    auto admin = new User("Admin",pass);
-    for(int i = 0 ; i< LAST_PERMISSION;++i){
-        admin->setPermission(static_cast<Permission>(i));
-    }*/
+UserManagment::UserManagment() {
+    users.emplace_back(new User(ID(IdOfDefaultUser), QStringLiteral("Default User")));
+    currentUser = users.begin()->get();
 #ifdef Q_OS_UNIX
     currentOsUserName = qgetenv("USER");
 #else
@@ -17,51 +13,58 @@ UserManagment::UserManagment() : defaultUser(new User(QStringLiteral("Default"),
 #endif
 }
 
-User* UserManagment::getUserById(ID::value_type id){
-    for(const auto & d : users){
-        if(d->getID() == id){
+User *UserManagment::getUserById(ID::value_type id) {
+    for (const auto &d : users) {
+        if (d->getID() == id) {
             return d.get();
         }
     }
     return nullptr;
 }
 
-void UserManagment::addUser(const QString &name, const QString &password){
-    users.push_back(std::unique_ptr<User>(new User(name,QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256))));
+void UserManagment::addUser(const QString &name, const QString &password) {
+    users.push_back(std::unique_ptr<User>(new User(name, QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256))));
 }
 
-bool UserManagment::removeUser(User *user, const QString &password){
-
-    const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
-    if(user->password==hash){
-        users.remove_if([=](const auto & p){return p.get() == user;});
+bool UserManagment::removeUser(User *user, const QString &password) {
+    // you can not remove the default user
+    if (user == getDefaultUser()) {
+        return false;
+    }
+    const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
+    if (user->password == hash) {
+        users.remove_if([=](const auto &p) { return p.get() == user; });
         return true;
     }
-    for(const auto & u : users){
-        if(u->password==hash && u->havePermission(Admin)){
-            users.remove_if([=](const auto & p){return p.get() == user;});
+    for (const auto &u : users) {
+        if (u->password == hash && u->havePermission(Admin)) {
+            users.remove_if([=](const auto &p) { return p.get() == user; });
             return true;
         }
     }
     return false;
 }
 
-bool UserManagment::removeUser(User *user){
+bool UserManagment::removeUser(User *user) {
+    // you cannot remove the default user
+    if (user == getDefaultUser()) {
+        return false;
+    }
     if (currentUser->havePermission(Admin) && user != currentUser) {
-        users.remove_if([=](const auto & p){return p.get() == user;});
+        users.remove_if([=](const auto &p) { return p.get() == user; });
         return true;
     }
     return false;
 }
 
-bool UserManagment::changeUserName(User *user, const QString &newName, const QString &password){
-    const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
-    if(user->password==hash){
+bool UserManagment::changeUserName(User *user, const QString &newName, const QString &password) {
+    const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
+    if (user->password == hash) {
         user->setUsername(newName);
         return true;
     }
-    for(const auto & u : users){
-        if(u->password==hash && u->havePermission(Admin)){
+    for (const auto &u : users) {
+        if (u->password == hash && u->havePermission(Admin)) {
             user->setUsername(newName);
             return true;
         }
@@ -69,34 +72,25 @@ bool UserManagment::changeUserName(User *user, const QString &newName, const QSt
     return false;
 }
 
-/*
-bool UserManagment::changeUserPermission(User *user, Permission newPermission, const QString &password){
-    const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
-    for(const auto u : IDBase<User>::getAllIDBases()){
-        if(u->password==hash && u->havePermission(Admin)){
-            user->setPermission(newPermission);
-            return true;
-        }
+bool UserManagment::changeUserPasswort(User *user, const QString &password, const QString &newPassword) {
+    // the default user has no passwort
+    if (user == getDefaultUser()) {
+        return false;
     }
-    return false;
-}
-*/
-
-bool UserManagment::changeUserPasswort(User *user, const QString &password, const QString &newPassword){
-    const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
-    if(user->password==hash){
-        user->password=QCryptographicHash::hash(newPassword.toUtf8(),QCryptographicHash::Sha3_256);
+    const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
+    if (user->password == hash) {
+        user->password = QCryptographicHash::hash(newPassword.toUtf8(), QCryptographicHash::Sha3_256);
         return true;
     }
     return false;
 }
 
-bool UserManagment::login(User *user, const QString &password){
-    if(user==nullptr){
+bool UserManagment::login(User *user, const QString &password) {
+    if (user == nullptr) {
         return false;
     }
-    const auto hash = QCryptographicHash::hash(password.toUtf8(),QCryptographicHash::Sha3_256);
-    if(user->password==hash){
+    const auto hash = QCryptographicHash::hash(password.toUtf8(), QCryptographicHash::Sha3_256);
+    if (user->password == hash) {
         currentUser = user;
         emit currentUserChanged();
         return true;
@@ -104,13 +98,29 @@ bool UserManagment::login(User *user, const QString &password){
     return false;
 }
 
-void UserManagment::autoLoginUser(){
+bool UserManagment::login(User *user) {
+    if (user == getDefaultUser()) {
+        currentUser = user;
+        emit currentUserChanged();
+        return true;
+    }
+    for (const auto &name : user->getAutoLoginUserNames()) {
+        if (name == currentOsUserName) {
+            currentUser = user;
+            emit currentUserChanged();
+            return true;
+        }
+    }
+    return false;
+}
+
+void UserManagment::autoLoginUser() {
     if (currentOsUserName.isEmpty()) {
         return;
     }
-    for(const auto & user : users){
-        for(const auto & name : user->getAutoLoginUserNames()){
-            if(name == currentOsUserName){
+    for (const auto &user : users) {
+        for (const auto &name : user->getAutoLoginUserNames()) {
+            if (name == currentOsUserName) {
                 currentUser = user.get();
                 emit currentUserChanged();
                 return;
@@ -119,118 +129,127 @@ void UserManagment::autoLoginUser(){
     }
 }
 
-void UserManagment::logout(User *user){
-    if(currentUser==user){
+void UserManagment::logout(User *user) {
+    if (currentUser == user) {
         currentUser = getDefaultUser();
         emit currentUserChanged();
     }
 }
-void UserManagment::logout(){
+void UserManagment::logout() {
     currentUser = getDefaultUser();
     emit currentUserChanged();
 }
 
 // UserPermissionModel
 
-QVariant UserPermissionModel::data(const QModelIndex &index, int role) const{
-    if(index.row()<0 && index.row()>=rowCount(index)){
+QVariant UserPermissionModel::data(const QModelIndex &index, int role) const {
+    if (index.row() < 0 && index.row() >= rowCount(index)) {
         return QVariant("Index Out of Range");
     }
+    const auto &me = UserManagment::metaEnum;
     switch (role) {
     case HavePermissionRole:
-    case Qt::EditRole:
-        return QVariant(user->havePermission(static_cast<UserManagment::Permission>(index.row())));
+    case Qt::EditRole: return QVariant(user->havePermission(static_cast<UserManagment::Permission>(me.value(index.row()))));
     case Qt::DisplayRole:
-    case PermissionNameRole:
-        return QVariant(UserManagment::get()->metaEnum.valueToKey(index.row()));
-    default:
-        return QVariant("Unknown role!");
+    case PermissionNameRole: return QVariant(me.valueToKey(me.value(index.row())));
+    default: return QVariant("Unknown role!");
     }
 }
 
-bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &value, int role){
-    if(role==HavePermissionRole){
-        if(UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Admin)){
-            if(index.row()>=0 && index.row()<rowCount(index)){
-                const UserManagment::Permission p = static_cast<UserManagment::Permission>(index.row());
+bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &value, int role) {
+    if (role == HavePermissionRole) {
+        if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::Admin)) {
+            if (index.row() >= 0 && index.row() < rowCount(index)) {
+                const auto &me = UserManagment::metaEnum;
+                const auto p = static_cast<UserManagment::Permission>(me.value(index.row()));
                 // ein admin darf sich nicht selber entmachten:
-                if(p != UserManagment::Admin || UserManagment::get()->getCurrentUser() != user){
-                    if(user->havePermission(p)!=value.toBool()){
-                        user->setPermission(p,value.toBool());
-                        emit dataChanged(index,index,{HavePermissionRole});
+                if (p != UserManagment::Admin || UserManagment::get()->getCurrentUser() != user) {
+                    if (user->havePermission(p) != value.toBool()) {
+                        user->setPermission(p, value.toBool());
+                        emit dataChanged(index, index, {HavePermissionRole});
                         return true;
                     }
                 }
             }
         }
         // you cant change the setting, notify all bindings
-        emit dataChanged(index,index,{HavePermissionRole});
+        emit dataChanged(index, index, {HavePermissionRole});
     }
     return false;
 }
 
+// USER
 
-//USER
-
-void User::createUser(const QJsonObject &o){
-    if(o["password"].toString().length()!=0){// we dont want a user without a password
+void User::createUser(const QJsonObject &o) {
+    // handle the default user
+    if (ID(o) == UserManagment::IdOfDefaultUser) {
+        UserManagment::get()->getDefaultUser()->loadPermissions(o);
+    } else if (o[QStringLiteral("password")].toString().length() != 0) { // we dont want a user without a password
         UserManagment::get()->users.push_back(std::unique_ptr<User>(new User(o)));
     }
 }
 
-User::User(const QJsonObject &o):QObject(UserManagment::get()),IDBase(o),username(o["username"].toString()),password(QByteArray::fromBase64(o["password"].toString().toLatin1())),permissionModel(this){
-    const auto array = o["permissions"].toArray();
-    for(const auto & i : array){
-        permissions.insert(static_cast<UserManagment::Permission>(i.toInt()));
-    }
-    const auto arrayNames = o["autologinUsernames"].toArray();
-    for(const auto & i : arrayNames){
+User::User(const QJsonObject &o) : QObject(UserManagment::get()), id(o), username(o[QStringLiteral("username")].toString()), password(QByteArray::fromBase64(o[QStringLiteral("password")].toString().toLatin1())), permissionModel(this) {
+    loadPermissions(o);
+    const auto arrayNames = o[QStringLiteral("autologinUsernames")].toArray();
+    for (const auto &i : arrayNames) {
         autologinUsernames.push_back(i.toString());
     }
 }
 
-void User::writeJsonObject(QJsonObject &o) const{
-    o.insert("username",username);
-    o.insert("password",QString::fromLatin1(password.toBase64()));
+void User::writeJsonObject(QJsonObject &o) const {
+    o.insert(QStringLiteral("username"), username);
+    o.insert(QStringLiteral("password"), QString::fromLatin1(password.toBase64()));
     QJsonArray a;
-    for(auto i = permissions.cbegin();i!=permissions.cend();++i){
-        a.push_back(*i);
+    for (auto permission : permissions) {
+        a.push_back(permission);
     }
-    o.insert("permissions",a);
+    o.insert(QStringLiteral("permissions"), a);
     QJsonArray names;
-    for(const auto & i : autologinUsernames){
+    for (const auto &i : autologinUsernames) {
         names.push_back(i);
     }
-    o.insert("autologinUsernames",names);
-    IDBase::writeJsonObject(o);
+    o.insert(QStringLiteral("autologinUsernames"), names);
+    id.writeJsonObject(o);
 }
 
-User * UserManagment::getUserByName(const QString &name) const{
-    for(const auto & u : users){
-        if(u->getUsername()==name){
+User *UserManagment::getUserByName(const QString &name) const {
+    for (const auto &u : users) {
+        if (u->getUsername() == name) {
             return u.get();
         }
     }
     return nullptr;
 }
 
+void User::setUsername(const QString &u) {
+    if (u == username) {
+        return;
+    }
+    username = u;
+    emit usernameChanged(username);
+}
 
-void User::setPermission(UserManagment::Permission p, bool get){
-    if(get){
-        if (permissions.find(p)==permissions.cend()) {
+void User::setPermission(UserManagment::Permission p, bool get) {
+    if (get) {
+        if (permissions.find(p) == permissions.cend()) {
             permissions.insert(p);
-            emit permissionChanged(p,true);
+            emit permissionChanged(p, true);
         }
-    }else{
-        if (permissions.find(p)!=permissions.cend()) {
+    } else {
+        if (permissions.find(p) != permissions.cend()) {
             permissions.erase(permissions.find(p));
-            emit permissionChanged(p,false);
+            emit permissionChanged(p, false);
         }
     }
 }
 
-
-
-
-
-
+void User::loadPermissions(const QJsonObject &o) {
+    const auto array = o[QStringLiteral("permissions")].toArray();
+    for (const auto &i : array) {
+        auto value = i.toInt(-1);
+        if (value >= 0 && UserManagment::metaEnum.valueToKey(value)) {
+            permissions.insert(static_cast<UserManagment::Permission>(value));
+        }
+    }
+}

@@ -27,6 +27,7 @@ Popup {
             }
             TabButton{
                 text: "Auto Login"
+                enabled: user !== UserManagment.defaultUser
             }
         }
         contentItem: SwipeView{

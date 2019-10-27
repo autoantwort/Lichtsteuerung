@@ -2,23 +2,24 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
-import QtQuick.Dialogs 1.3 as SystemDialog
 import QtQuick.Window 2.12
 import custom.licht 1.0
 import "components"
 
 Pane{
+    property bool visibleForUser: SwipeView.isCurrentItem
+    onVisibleForUserChanged: fileDialogLoader.load();
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 10
+        rowSpacing: 4
         columns: 2
         Label{
             text: "Settings file path:"
         }
         RowLayout{
             id: root
-            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
+            //enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
             Item{
                 Layout.fillWidth: true
                 Layout.preferredWidth: inputSettingsPath.implicitWidth
@@ -40,8 +41,8 @@ Pane{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Save as"
                 onClicked: {
-                    fileDialog.openAt(Settings.jsonSettingsFilePath, false, false);
-                    fileDialog.callback = function(file){
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false, false);
+                    fileDialogLoader.item.callback = function(file){
                         Settings.setJsonSettingsFilePath(file, false);
                     };
                 }
@@ -52,8 +53,8 @@ Pane{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Load from"
                 onClicked: {
-                    fileDialog.openAt(Settings.jsonSettingsFilePath, false);
-                    fileDialog.callback = function(file){
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false);
+                    fileDialogLoader.item.callback = function(file){
                         if(Settings.setJsonSettingsFilePath(file, true)){
                             popupChangedSettingsFile.visible = true;
                         }else{
@@ -74,7 +75,7 @@ Pane{
             folder: false
             path: Settings.driverFilePath
             onPathChanged: {Settings.driverFilePath = path;path = Settings.driverFilePath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -100,7 +101,7 @@ Pane{
             folder: true
             path: Settings.moduleDirPath
             onPathChanged: {Settings.moduleDirPath = path;path = Settings.moduleDirPath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -113,7 +114,7 @@ Pane{
             folder: true
             path: Settings.compilerPath
             onPathChanged: {Settings.compilerPath = path;path = Settings.compilerPath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -126,7 +127,7 @@ Pane{
             folder: true
             path: Settings.includePath
             onPathChanged: {Settings.includePath = path;path = Settings.includePath;}
-            fileChooser: fileDialog
+            fileChooser: fileDialogLoader.item
         }
 
         Label{
@@ -177,6 +178,7 @@ Pane{
             text: "SlideShow:"
         }
         RowLayout{
+            Layout.bottomMargin: -10
             Button{
                 enabled: SlideShow.hasImages
                 text: SlideShow.windowVisibility !== Window.Hidden ? "Hide" : "Show"
@@ -221,7 +223,7 @@ Pane{
                 folder: true
                 path: SlideShow.path
                 onPathChanged: SlideShow.path = path;
-                fileChooser: fileDialog
+                fileChooser: fileDialogLoader.item
                 MouseArea{
                     anchors.fill: parent
                     acceptedButtons: Qt.NoButton
@@ -232,27 +234,66 @@ Pane{
             }
         }
 
-    }
-    SystemDialog.FileDialog{
-        property var callback;
-        selectExisting: false
-        defaultSuffix: ".json"
-        function openAt(path, isFolder, selectExisting_ = true){
-            selectFolder = isFolder;
-            folder = pathToUrl(path);
-            selectExisting = selectExisting_;
-            open();
+        Label {
+            text: "System Volume:"
         }
-        id: fileDialog
-        title: "Please choose a file"
-        onAccepted: {
-            if(callback){
-                callback(urlToPath(fileDialog.fileUrl));
-            }else{
-                console.error("Error in File Dialog in SettingsView: No callback provided!")
+        RowLayout {
+            Layout.bottomMargin: -10
+            Label {
+                text: System.volume < 0 ? "Not availible" : ((volumeSlider.value * 100).toFixed(0) + "%")
+                Layout.preferredWidth: 30
+            }
+            Slider {
+                id: volumeSlider
+                from: 0
+                to: 1
+                Layout.preferredWidth: 180
+                value: System.volume
+                onValueChanged: System.volume = value;
+                enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SYSTEM_VOLUME) && System.volume >= 0
+            }
+            Label {
+                visible: !UserManagment.currentUser.havePermission(Permission.CHANGE_SYSTEM_VOLUME)
+                text: "You don't have the permission to change the volume"
+            }
+        }
+
+        Label {
+            text: "Remote Volume Control"
+        }
+        RowLayout {
+            Layout.topMargin: -30
+            Layout.bottomMargin: -30
+            Layout.leftMargin: -7
+            enabled: UserManagment.currentUser.havePermission(Permission.ENABLE_REMOTE_VOLUME_CONTROL)
+            CheckBox {
+                text: "enabled"
+                checked: Settings.remoteVolumeControl
+                onCheckedChanged: Settings.remoteVolumeControl = checked
+            }
+            Label {
+                Layout.leftMargin: 10
+                text: "Computer Name:"
+            }
+            TextInputField {
+                text: Settings.computerName
+                onTextChanged: Settings.computerName = text
+            }
+
+        }
+
+
+    }
+    Loader {
+        id: fileDialogLoader
+        asynchronous: true
+        function load() {
+            if (source == "") {
+                source = "components/SystemFileDialog.qml";
             }
         }
     }
+
     Window{
         id: modifyThemeWindow
         flags: Qt.WindowStaysOnTopHint | Qt.Dialog | Qt.WindowCloseButtonHint | Qt.WindowTitleHint
@@ -272,6 +313,8 @@ Pane{
         margins: 50
         x: (parent.width - width) / 2
         y: 0
+        Overlay.modal: ModalPopupBackground{}
+        parent: Overlay.overlay
         closePolicy: Popup.NoAutoClose
         title: "Do you want to restart the light control now to load the settings file?"
         standardButtons: Dialog.No | Dialog.Yes

@@ -85,5 +85,6 @@
         <file>qml/components/CenteredPopup.qml</file>
         <file>qml/components/ModalPopupBackground.qml</file>
         <file>qml/SlideShowWindow.qml</file>
+        <file>qml/components/SystemFileDialog.qml</file>
     </qresource>
 </RCC>
