@@ -81,6 +81,7 @@ public:
         MODIFY_THEME = 27,
         SAVE_SLIDE_SHOW_SETTINGS = 28,
         CHANGE_SYSTEM_VOLUME = 29,
+        ENABLE_REMOTE_VOLUME_CONTROL = 30,
     };
     Q_ENUM(Permission)
     /**

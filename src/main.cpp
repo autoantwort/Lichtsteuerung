@@ -8,6 +8,8 @@
 #include "updater.h"
 #include "usermanagment.h"
 #include "audio/audiocapturemanager.h"
+#include "audio/remotevolume.h"
+#include "audio/systemvolume.h"
 #include "dmx/HardwareInterface.h"
 #include "dmx/channel.h"
 #include "dmx/device.h"
@@ -264,6 +266,7 @@ int main(int argc, char *argv[]) {
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
+    RemoteVolume remoteVolume(settings);
     QString file(settings.getJsonSettingsFilePath());
     if (!QFile::exists(file)) {
         file = QStringLiteral("QTJSONFile.json");
@@ -364,6 +367,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
     engine.rootContext()->setContextProperty(QStringLiteral("AudioManager"), &Audio::AudioCaptureManager::get());
     engine.rootContext()->setContextProperty(QStringLiteral("SlideShow"), &SlideShow::get());
+    engine.rootContext()->setContextProperty(QStringLiteral("System"), &SystemVolume::get());
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     engine.load(QUrl(QStringLiteral("qrc:/qml/SlideShowWindow.qml")));
 

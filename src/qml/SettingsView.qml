@@ -12,7 +12,7 @@ Pane{
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 6
+        rowSpacing: 4
         columns: 2
         Label{
             text: "Settings file path:"
@@ -238,6 +238,7 @@ Pane{
             text: "System Volume:"
         }
         RowLayout {
+            Layout.bottomMargin: -10
             Label {
                 text: System.volume < 0 ? "Not availible" : ((volumeSlider.value * 100).toFixed(0) + "%")
                 Layout.preferredWidth: 30
@@ -255,6 +256,30 @@ Pane{
                 visible: !UserManagment.currentUser.havePermission(Permission.CHANGE_SYSTEM_VOLUME)
                 text: "You don't have the permission to change the volume"
             }
+        }
+
+        Label {
+            text: "Remote Volume Control"
+        }
+        RowLayout {
+            Layout.topMargin: -30
+            Layout.bottomMargin: -30
+            Layout.leftMargin: -7
+            enabled: UserManagment.currentUser.havePermission(Permission.ENABLE_REMOTE_VOLUME_CONTROL)
+            CheckBox {
+                text: "enabled"
+                checked: Settings.remoteVolumeControl
+                onCheckedChanged: Settings.remoteVolumeControl = checked
+            }
+            Label {
+                Layout.leftMargin: 10
+                text: "Computer Name:"
+            }
+            TextInputField {
+                text: Settings.computerName
+                onTextChanged: Settings.computerName = text
+            }
+
         }
 
 

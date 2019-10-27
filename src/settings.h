@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QObject>
 #include <QSettings>
+#include <QSysInfo>
 #include <optional>
 
 #define MAKE_STRING(s) #s
@@ -56,6 +57,8 @@ class Settings : public QObject {
     Q_PROPERTY(QString compilerFlags READ getCompilerFlags WRITE setCompilerFlags NOTIFY compilerFlagsChanged)
     Q_PROPERTY(QString compilerLibraryFlags READ getCompilerLibraryFlags WRITE setCompilerLibraryFlags NOTIFY compilerLibraryFlagsChanged)
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
+    Q_PROPERTY(QString computerName READ getComputerName WRITE setComputerName NOTIFY computerNameChanged)
+    Q_PROPERTY(bool remoteVolumeControl READ remoteVolumeControl WRITE remoteVolumeControl NOTIFY remoteVolumeControlChanged)
     Q_PROPERTY(int theme READ getTheme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
     static inline QFileInfo localSettingsFile;
@@ -76,29 +79,26 @@ protected:
 public:
     explicit Settings(QObject *parent = nullptr);
 
-    Q_INVOKABLE bool setJsonSettingsFilePath(const QString &file, bool loadFromPath) {
-        if(file == getJsonSettingsFilePath()) {
-            return false;
-        }
-        if (loadFromPath) {
-            if (!QFile::exists(file)) {
-                return false;
-            }
-            // it was load/save path, but we dident loaded and now have a new load path
-            this->loadFromJsonSettingsFilePath = true;
-            setValue(QStringLiteral("jsonSettingsFilePath"), file);
-            emit jsonSettingsFilePathChanged();
+    /**
+     * @brief setJsonSettingsFilePath only sets the settings file path to the given path. For an advanced
+     *        variant see setJsonSettingsFilePath(const QString&, bool)
+     * @param file the new filepath
+     */
+    void setJsonSettingsFilePath(const QString &file);
 
-        } else {
-            // it was load or save path, but we dident loaded and now want to save
-            this->loadFromJsonSettingsFilePath = false;
-            this->jsonSettingsFileSavePath = file;
-            setValue(QStringLiteral("jsonSettingsFilePath"), file);
-            emit jsonSettingsFilePathChanged();
-            emit saveAs(file);
-        }
-        return true;
-    }
+    /**
+     * @brief setJsonSettingsFilePath sets the settings file path and handles the new file. If loadFromPath is
+     *        true, shouldLoadFromSettingsPath() will return false and getJsonSettingsFileSavePath() will return
+     *        the old path. If loadFromPath is false, shouldLoadFromSettingsPath() will return false. The signal
+     *        saveAs(QString) will be emitted. getJsonSettingsFileSavePath() will return the new path.
+     *
+     * @param file the new settings file path
+     * @param loadFromPath true if the settings should be loaded from the new file, false if the settings should
+     *        be written to the new path
+     * @return false, if file == getJsonSettingsFilePath() or loadFromPath is true and the file does not exists.
+     *         True otherwise
+     */
+    Q_INVOKABLE bool setJsonSettingsFilePath(const QString &file, bool loadFromPath);
     [[nodiscard]] QString getJsonSettingsFilePath() const { return value(QStringLiteral("jsonSettingsFilePath")).toString(); }
     /**
      * @brief getJsonSettingsFileSavePath returns the path, to which the settings file should be written
@@ -181,6 +181,12 @@ public:
     }
     QString getCompilerLibraryFlags() const { return Modules::Compiler::compilerLibraryFlags; }
 
+    void setComputerName(const QString &name);
+    [[nodiscard]] QString getComputerName() const { return value(QStringLiteral("ComputerName"), QSysInfo::machineHostName()).toString(); }
+
+    void remoteVolumeControl(bool enable);
+    [[nodiscard]] bool remoteVolumeControl() const { return value(QStringLiteral("remoteVolumeControl"), false).toBool(); }
+
     void setTheme(int theme) {
         if (theme != getTheme()) {
             setValue(QStringLiteral("theme"), theme);
@@ -228,6 +234,8 @@ signals:
     void includePathChanged();
     void themeChanged();
     void saveAs(QString path);
+    void computerNameChanged();
+    void remoteVolumeControlChanged();
 public slots:
 };
 
