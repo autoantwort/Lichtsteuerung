@@ -12,7 +12,7 @@ Pane{
     GridLayout{
         anchors.left: parent.left
         anchors.right: parent.right
-        rowSpacing: 10
+        rowSpacing: 6
         columns: 2
         Label{
             text: "Settings file path:"
@@ -178,6 +178,7 @@ Pane{
             text: "SlideShow:"
         }
         RowLayout{
+            Layout.bottomMargin: -10
             Button{
                 enabled: SlideShow.hasImages
                 text: SlideShow.windowVisibility !== Window.Hidden ? "Hide" : "Show"
@@ -232,6 +233,30 @@ Pane{
                 }
             }
         }
+
+        Label {
+            text: "System Volume:"
+        }
+        RowLayout {
+            Label {
+                text: System.volume < 0 ? "Not availible" : ((volumeSlider.value * 100).toFixed(0) + "%")
+                Layout.preferredWidth: 30
+            }
+            Slider {
+                id: volumeSlider
+                from: 0
+                to: 1
+                Layout.preferredWidth: 180
+                value: System.volume
+                onValueChanged: System.volume = value;
+                enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SYSTEM_VOLUME) && System.volume >= 0
+            }
+            Label {
+                visible: !UserManagment.currentUser.havePermission(Permission.CHANGE_SYSTEM_VOLUME)
+                text: "You don't have the permission to change the volume"
+            }
+        }
+
 
     }
     Loader {

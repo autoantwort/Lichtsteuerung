@@ -22,6 +22,7 @@ SOURCES += \
     audio/aubio/onsetanalysis.cpp \
     audio/aubio/tempoanalysis.cpp \
     audio/audioeventdata.cpp \
+    audio/systemvolume.cpp \
     dmx/channel.cpp \
     gui/audioeventdataview.cpp \
     gui/channelprogrammeditor.cpp \
@@ -106,6 +107,7 @@ HEADERS += \
     audio/aubio/onsetanalysis.h \
     audio/aubio/tempoanalysis.h \
     audio/audioeventdata.h \
+    audio/systemvolume.h \
     dmx/deviceprototype.h \
     dmx/channel.h \
     gui/linegeometry.h \
