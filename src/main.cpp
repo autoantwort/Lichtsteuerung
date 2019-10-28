@@ -3,6 +3,7 @@
 #include "errornotifier.h"
 #include "modelmanager.h"
 #include "settings.h"
+#include "settingsfilewrapper.h"
 #include "slideshow.h"
 #include "sortedmodelview.h"
 #include "updater.h"
@@ -250,8 +251,9 @@ int main(int argc, char *argv[]) {
     qmlRegisterType<Settings>("custom.licht", 1, 0, "PopupBackground");
     qRegisterMetaType<DMXChannelFilter::Operation>("Operation");
     qmlRegisterUncreatableType<UserManagment>("custom.licht",1,0,"Permission",QStringLiteral("Singletone in c++"));
-    qmlRegisterUncreatableMetaObject(Updater::staticMetaObject,"custom.licht",1,0,"UpdaterState",QStringLiteral("Enum in c++"));
-    qmlRegisterUncreatableMetaObject(ControlItemData::staticMetaObject,"custom.licht",1,0,"ControlType",QStringLiteral("Enum in c++"));
+    qmlRegisterUncreatableMetaObject(Updater::staticMetaObject, "custom.licht", 1, 0, "UpdaterState", QStringLiteral("Enum in c++"));
+    qmlRegisterUncreatableMetaObject(ControlItemData::staticMetaObject, "custom.licht", 1, 0, "ControlType", QStringLiteral("Enum in c++"));
+    qmlRegisterUncreatableType<SettingsFileWrapper>("custom.licht", 1, 0, "SettingsFileStatus", QStringLiteral("Enum in c++"));
     qRegisterMetaType<UserManagment::Permission>("Permission");
     qRegisterMetaType<Modules::detail::PropertyInformation::Type>("Type");
     qRegisterMetaType<Modules::ValueType>("ValueType");
@@ -266,6 +268,7 @@ int main(int argc, char *argv[]) {
     // Load Settings and ApplicationData
     Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
+    SettingsFileWrapper settingsFileWrapper(settings);
     RemoteVolume remoteVolume(settings);
 
     if (settings.isStartupVolumeEnabled()) {
@@ -283,11 +286,15 @@ int main(int argc, char *argv[]) {
         QString error;
         std::tie(after, error) = ApplicationData::loadData(file);
         if (!error.isEmpty()) {
-            ErrorNotifier::showError(error);
+            settingsFileWrapper.setErrorMessage(error);
+            settingsFileWrapper.setStatus(SettingsFileWrapper::LoadingFailed);
+        } else {
+            settingsFileWrapper.setStatus(SettingsFileWrapper::Loaded);
         }
 
     } else {
         ErrorNotifier::showError(QStringLiteral("No settings file found! The Lichtsteuerung starts wihout content."));
+        settingsFileWrapper.setStatus(SettingsFileWrapper::NoFile);
     }
     // nachdem die Benutzer geladen wurden, auto login durchführen
     UserManagment::get()->autoLoginUser();
@@ -329,7 +336,10 @@ int main(int argc, char *argv[]) {
     CatchingErrorApplication::connect(&app, &QGuiApplication::aboutToQuit, [&]() {
         Modules::ModuleManager::singletone()->controller().stop();
         Audio::AudioCaptureManager::get().stopCapturingAndWait();
-        ApplicationData::saveData(settings.getJsonSettingsFileSavePath());
+        // if status is not SettingsFileWrapper::Loaded, the loading of the data failed and we should not write back an emtpy file
+        if (settingsFileWrapper.getStatus() == SettingsFileWrapper::Loaded) {
+            ApplicationData::saveData(settings.getJsonSettingsFileSavePath());
+        }
         Driver::stopAndUnloadDriver();
         if (updater.getState() == Updater::ReadyToInstall) {
             updater.runUpdateInstaller();
@@ -344,7 +354,12 @@ int main(int argc, char *argv[]) {
             Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(settings.getUpdatePauseInMs()));
         }
     });
-    Settings::connect(&settings, &Settings::saveAs, [&](const auto &path) { ApplicationData::saveData(path); });
+    Settings::connect(&settings, &Settings::saveAs, [&](const auto &path) {
+        // if status is not SettingsFileWrapper::Loaded, the loading of the data failed and we should not write back an emtpy file
+        if (settingsFileWrapper.getStatus() == SettingsFileWrapper::Loaded) {
+            ApplicationData::saveData(path);
+        }
+    });
     Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath());
     Settings::connect(&settings, &Settings::moduleDirPathChanged, [&]() { Modules::ModuleManager::singletone()->loadAllModulesInDir(settings.getModuleDirPath()); });
 
@@ -372,6 +387,7 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("dmxOutputValues"),&Driver::dmxValueModel);
     engine.rootContext()->setContextProperty(QStringLiteral("AudioManager"), &Audio::AudioCaptureManager::get());
     engine.rootContext()->setContextProperty(QStringLiteral("SlideShow"), &SlideShow::get());
+    engine.rootContext()->setContextProperty(QStringLiteral("SettingsFile"), &settingsFileWrapper);
     engine.rootContext()->setContextProperty(QStringLiteral("System"), &SystemVolume::get());
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     engine.load(QUrl(QStringLiteral("qrc:/qml/SlideShowWindow.qml")));

@@ -53,6 +53,7 @@ SOURCES += \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
     scanner.cpp \
+    settingsfilewrapper.cpp \
     slideshow.cpp \
     system_error_handler.cpp \
     test/testloopprogramm.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
     modules/ledconsumer.h \
     modules/scanner.hpp \
     scanner.h \
+    settingsfilewrapper.h \
     slideshow.h \
     system_error_handler.h \
     updater.h \
