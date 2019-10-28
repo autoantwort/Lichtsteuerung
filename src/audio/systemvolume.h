@@ -18,6 +18,21 @@
 #include <CoreAudio/CoreAudio.h>
 #endif
 
+#ifdef Q_OS_WIN
+class Callback : public IAudioEndpointVolumeCallback {
+
+    ULONG counter = 0;
+    HRESULT OnNotify(AUDIO_VOLUME_NOTIFICATION_DATA *pNotify) override;
+
+public:
+    ~Callback();
+    HRESULT QueryInterface(REFIID /*riid*/, void ** /*ppvObject*/) override;
+    ULONG AddRef() override { return ++counter; }
+    ULONG Release() override { return --counter; }
+};
+
+#endif
+
 class SystemVolume : public QObject {
     Q_OBJECT
 #ifdef Q_OS_WIN
@@ -26,6 +41,7 @@ class SystemVolume : public QObject {
     IAudioEndpointVolume *endpointVolume = nullptr;
     WAVEFORMATEX *wformat = nullptr;
     IAudioClient *client = nullptr;
+    Callback callback;
 #endif
 #ifdef Q_OS_MAC
     AudioDeviceID defaultOutputDeviceID = kAudioDeviceUnknown;
@@ -34,10 +50,6 @@ class SystemVolume : public QObject {
     Q_PROPERTY(double volume READ getVolume WRITE setVolume NOTIFY volumeChanged)
 
     SystemVolume();
-    static constexpr int SystemVolumeUpdateRateInMs = 10'000;
-
-protected:
-    void timerEvent(QTimerEvent *event) override;
 
 public:
     static SystemVolume &get() {

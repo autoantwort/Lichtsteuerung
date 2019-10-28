@@ -1,7 +1,5 @@
 #include "systemvolume.h"
-#ifdef Q_OS_MAC
 #include <QtDebug>
-#endif
 
 #ifdef Q_OS_MAC
 OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void * /*inClientData*/) {
@@ -22,6 +20,24 @@ OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const Audi
         }
     }
     return noErr;
+}
+#endif
+
+#ifdef Q_OS_WIN
+HRESULT Callback::OnNotify(AUDIO_VOLUME_NOTIFICATION_DATA *pNotify) {
+    SystemVolume::get().setVolume(static_cast<double>(pNotify->fMasterVolume));
+    return S_OK;
+}
+
+Callback::~Callback() {
+    if (counter != 0) {
+        qWarning() << "SystemVolume::Callback: Releasing object with ref count > 0";
+    }
+}
+
+HRESULT Callback::QueryInterface(const IID & /*riid*/, void ** /*ppvObject*/) {
+    qWarning() << "SystemVolume::Callback: What do they want from me?";
+    return E_NOINTERFACE;
 }
 #endif
 
@@ -46,6 +62,18 @@ SystemVolume::SystemVolume() {
     if (hr < 0) {
         return;
     }
+    hr = endpointVolume->RegisterControlChangeNotify(&callback);
+    if (hr < 0) {
+        return;
+    }
+    // query initial volume
+    FLOAT v;
+    hr = endpointVolume->GetMasterVolumeLevelScalar(&v);
+    if (hr < 0) {
+        return;
+    }
+    volume = static_cast<double>(v);
+    emit volumeChanged();
 #endif
 #ifdef Q_OS_MAC
     AudioObjectPropertyAddress getDefaultOutputDevicePropertyAddress = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster};
@@ -75,26 +103,6 @@ SystemVolume::SystemVolume() {
         this->volume = static_cast<double>(volume);
         emit volumeChanged();
     }
-#else
-    // we don't need polling on mac, we have a callback
-    startTimer(SystemVolumeUpdateRateInMs);
-    timerEvent(nullptr);
-#endif
-}
-
-void SystemVolume::timerEvent(QTimerEvent * /*event*/) {
-#ifdef Q_OS_WIN
-    if (endpointVolume) {
-        float vol;
-        auto hr = endpointVolume->GetMasterVolumeLevelScalar(&vol);
-        if (hr >= 0 /* success */) {
-            auto v = static_cast<double>(vol);
-            if (volume != v) {
-                volume = v;
-                emit volumeChanged();
-            }
-        }
-    }
 #endif
 }
 
@@ -107,6 +115,7 @@ SystemVolume::~SystemVolume() {
         pDevice->Release();
     }
     if (endpointVolume) {
+        endpointVolume->UnregisterControlChangeNotify(&callback);
         endpointVolume->Release();
     }
     if (client) {
