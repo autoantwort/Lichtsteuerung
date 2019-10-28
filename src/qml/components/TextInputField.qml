@@ -7,11 +7,11 @@ TextInput{
     color: Material.foreground
     selectByMouse: true
     font.pixelSize: 15
-    selectionColor: "lightgreen"
+    selectionColor: Material.textSelectionColor
     property alias underlineColor : underline.color
     property alias underline: underline
     cursorDelegate: Rectangle{
-        color: "lightgreen"
+        color: Material.accentColor
         x:parent.cursorRectangle.x
         y:parent.cursorRectangle.y
         width:parent.cursorRectangle.width+1

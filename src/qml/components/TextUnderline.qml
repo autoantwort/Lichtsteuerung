@@ -1,4 +1,5 @@
-import QtQuick 2.2
+import QtQuick 2.12
+import QtQuick.Controls.Material 2.12
 
 Rectangle{
     id:underline
@@ -9,7 +10,7 @@ Rectangle{
     width: parent.contentWidth+extendetWidth
     height: 2
     radius: 1
-    color: parent.enabled?"lightgreen":"lightgrey"
+    color: parent.enabled ? Material.accentColor : Material.hintTextColor
     //property bool hasFocus
     Behavior on width {
         NumberAnimation { easing.type: Easing.OutExpo; easing.amplitude: 5.0; easing.period: 2.0; duration: 800 }
