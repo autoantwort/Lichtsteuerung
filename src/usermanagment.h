@@ -82,6 +82,7 @@ public:
         SAVE_SLIDE_SHOW_SETTINGS = 28,
         CHANGE_SYSTEM_VOLUME = 29,
         ENABLE_REMOTE_VOLUME_CONTROL = 30,
+        CHANGE_STARTUP_VOLUME = 31,
     };
     Q_ENUM(Permission)
     /**

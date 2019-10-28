@@ -6,10 +6,21 @@ import QtQuick.Window 2.12
 import custom.licht 1.0
 import "components"
 
-Pane{
-    property bool visibleForUser: SwipeView.isCurrentItem
-    onVisibleForUserChanged: fileDialogLoader.load();
+ScrollView{
+    property bool visibleForUser: SwipeView.isCurrentItem    
+    onVisibleForUserChanged: {
+        if (visibleForUser) {
+            fileDialogLoader.load();
+            // show the scroll bar for a short time so that the user can see that you can scroll here
+            ScrollBar.vertical.active = true;
+            ScrollBar.vertical.active = false;
+        }
+    }
+    contentHeight: layout.implicitHeight
+    contentWidth: Math.max(600, width - 2 * padding)
+    padding: 10
     GridLayout{
+        id: layout
         anchors.left: parent.left
         anchors.right: parent.right
         rowSpacing: 4
@@ -19,7 +30,7 @@ Pane{
         }
         RowLayout{
             id: root
-            //enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
             Item{
                 Layout.fillWidth: true
                 Layout.preferredWidth: inputSettingsPath.implicitWidth
@@ -282,6 +293,36 @@ Pane{
 
         }
 
+        Label {
+            text: "Startup Volume"
+        }
+        RowLayout {
+            Layout.topMargin: -10
+            Layout.bottomMargin: -10
+            Layout.leftMargin: -7
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_STARTUP_VOLUME)
+            CheckBox {
+                text: "enabled"
+                checked: Settings.isStartupVolumeEnabled
+                onCheckedChanged: Settings.isStartupVolumeEnabled = checked
+            }
+            Label {
+                visible: Settings.isStartupVolumeEnabled
+                Layout.leftMargin: 10
+                Layout.preferredWidth: 100
+                text: "Volume: " + (Settings.startupVolume * 100).toFixed(0) + "%"
+            }
+            Slider {
+                visible: Settings.isStartupVolumeEnabled
+                from: 0
+                to: 1
+                Layout.preferredWidth: 200
+                value: Settings.startupVolume
+                onValueChanged: Settings.startupVolume = value;
+            }
+
+        }
+
 
     }
     Loader {
@@ -322,3 +363,4 @@ Pane{
     }
 
 }
+

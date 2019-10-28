@@ -53,6 +53,7 @@ SOURCES += \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
     scanner.cpp \
+    settingsfilewrapper.cpp \
     slideshow.cpp \
     system_error_handler.cpp \
     test/testloopprogramm.cpp \
@@ -125,6 +126,7 @@ HEADERS += \
     modules/ledconsumer.h \
     modules/scanner.hpp \
     scanner.h \
+    settingsfilewrapper.h \
     slideshow.h \
     system_error_handler.h \
     updater.h \
@@ -287,3 +289,8 @@ win32-msvc{
     INCLUDEPATH += $$PWD/lib/RtAudio/include
     LIBS += -L$$PWD/lib/RtAudio/lib -lrtaudio
     win32: LIBS +=  -lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid
+
+macx{
+    # Needed by the SystemVolume class
+    LIBS += -framework CoreAudio
+}

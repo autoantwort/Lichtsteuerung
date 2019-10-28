@@ -314,4 +314,84 @@ ApplicationWindow {
 
         visible: ErrorNotifier.errorMessage.length !== 0
     }
+
+    Popup {
+       Overlay.modal: ModalPopupBackground{}
+       closePolicy: Popup.NoAutoClose
+       y: 70
+       x: (parent.width - width) / 2
+       modal: true
+       visible: SettingsFile.status === SettingsFileStatus.LoadingFailed
+       onVisibleChanged: {
+           if (visible) {
+               fileDialogLoader.source = "components/SystemFileDialog.qml"
+           }
+       }
+
+       contentItem: ColumnLayout {
+           Label {
+               font.pointSize: 15
+               font.bold: true
+               text: "Failed to load settings file"
+           }
+
+           Label {
+               id: fontReference
+               text: SettingsFile.errorMessage
+               Layout.bottomMargin: 5
+               Layout.maximumWidth: 500
+               wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+           }
+           TextInput {
+               Layout.fillWidth: true
+               Layout.maximumWidth: 500
+               Layout.leftMargin: 1
+               Layout.rightMargin: 2
+               clip: true
+               color: Material.foreground
+               selectionColor: Material.textSelectionColor
+               font: fontReference.font
+               text: Settings.jsonSettingsFilePath
+               selectByMouse: true
+               readOnly: true
+           }
+           GridLayout {
+               columns: 2
+               rowSpacing: -5
+               Button {
+                   text: "Open file in default editor"
+                   Layout.fillWidth: true
+                   flat: true
+                   onClicked: SettingsFile.openFileInDefaultEditor();
+               }
+               Button {
+                   text: "Open folder where file is"
+                   Layout.fillWidth: true
+                   flat: true
+                   onClicked: SettingsFile.openFileExplorerAtFile();
+               }
+               Button {
+                   text: "Reload selected settings file"
+                   Layout.fillWidth: true
+                   onClicked: SettingsFile.reload();
+               }
+               Button {
+                   text: "Load an other settings file"
+                   Layout.fillWidth: true
+                   onClicked: fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false)
+               }
+           }
+       }
+       Loader {
+           asynchronous: true
+           id: fileDialogLoader
+           onStatusChanged: {
+               if (status === Loader.Ready) {
+                   item.callback = path => {
+                       SettingsFile.loadFile(path);
+                   };
+               }
+           }
+       }
+    }
 }

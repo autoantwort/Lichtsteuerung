@@ -90,7 +90,17 @@ std::pair<std::function<void()>, QString> loadData(const QByteArray &data) {
     QJsonParseError error{};
     auto doc = QJsonDocument::fromJson(data, &error);
     if (error.error != QJsonParseError::NoError) {
-        return {{}, "Failed to parse settings file: " + error.errorString() + " at position " + QString::number(error.offset)};
+        // compute line and column
+        int line = 1;
+        auto lastNewLine = data.cbegin();
+        for (auto i = data.cbegin(); i != data.cbegin() + error.offset; ++i) {
+            if (*i == '\n') {
+                ++line;
+                lastNewLine = i;
+            }
+        }
+        int column = QString::fromUtf8(lastNewLine, data.cbegin() + error.offset - lastNewLine).length();
+        return {{}, "Failed to parse settings file: " + error.errorString() + " at position " + QString::number(error.offset) + ", Ln " + QString::number(line) + ", Col " + QString::number(column)};
     }
     const auto o = doc.object();
     for (const auto e : o[QStringLiteral("DevicePrototypes")].toArray()) {
