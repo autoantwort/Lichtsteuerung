@@ -14,6 +14,10 @@
 #include <windows.h>
 #endif
 
+#ifdef Q_OS_MAC
+#include <CoreAudio/CoreAudio.h>
+#endif
+
 class SystemVolume : public QObject {
     Q_OBJECT
 #ifdef Q_OS_WIN
@@ -22,6 +26,9 @@ class SystemVolume : public QObject {
     IAudioEndpointVolume *endpointVolume = nullptr;
     WAVEFORMATEX *wformat = nullptr;
     IAudioClient *client = nullptr;
+#endif
+#ifdef Q_OS_MAC
+    AudioDeviceID defaultOutputDeviceID = kAudioDeviceUnknown;
 #endif
     double volume = -1;
     Q_PROPERTY(double volume READ getVolume WRITE setVolume NOTIFY volumeChanged)

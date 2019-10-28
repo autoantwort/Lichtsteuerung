@@ -1,4 +1,29 @@
 #include "systemvolume.h"
+#ifdef Q_OS_MAC
+#include <QtDebug>
+#endif
+
+#ifdef Q_OS_MAC
+OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void * /*inClientData*/) {
+    for (UInt32 i = 0; i < inNumberAddresses; ++i) {
+        const auto &cur = inAddresses[i];
+        if (cur.mScope == kAudioDevicePropertyScopeOutput && cur.mSelector == kAudioDevicePropertyVolumeScalar && cur.mElement == 1 /*LEFT_CHANNEL*/) {
+            AudioObjectPropertyAddress volumePropertyAddress = {
+                kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
+            };
+
+            Float32 volume;
+            UInt32 volumedataSize = sizeof(volume);
+            auto result = AudioObjectGetPropertyData(inObjectID, &volumePropertyAddress, 0, nullptr, &volumedataSize, &volume);
+            if (result == kAudioHardwareNoError) {
+                SystemVolume::get().setVolume(static_cast<double>(volume));
+            }
+            break;
+        }
+    }
+    return noErr;
+}
+#endif
 
 SystemVolume::SystemVolume() {
 #ifdef Q_OS_WIN
@@ -22,8 +47,39 @@ SystemVolume::SystemVolume() {
         return;
     }
 #endif
+#ifdef Q_OS_MAC
+    AudioObjectPropertyAddress getDefaultOutputDevicePropertyAddress = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster};
+
+    UInt32 outputDeviceSize = sizeof(defaultOutputDeviceID);
+    OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &getDefaultOutputDevicePropertyAddress, 0, nullptr, &outputDeviceSize, &defaultOutputDeviceID);
+
+    if (kAudioHardwareNoError != result) {
+        qWarning() << "Failed to get the default output device";
+    }
+
+    // register a listener so that we get an event when the volume changed
+    AudioObjectPropertyAddress volumePropertyAddress = {
+        kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
+    };
+
+    result = AudioObjectAddPropertyListener(defaultOutputDeviceID, &volumePropertyAddress, &callback, nullptr);
+    if (result != kAudioHardwareNoError) {
+        qWarning() << "Registration of Audio Listener Failed";
+    }
+
+    // get initial volume
+    Float32 volume;
+    UInt32 volumedataSize = sizeof(volume);
+    result = AudioObjectGetPropertyData(defaultOutputDeviceID, &volumePropertyAddress, 0, nullptr, &volumedataSize, &volume);
+    if (result == kAudioHardwareNoError) {
+        this->volume = static_cast<double>(volume);
+        emit volumeChanged();
+    }
+#else
+    // we don't need polling on mac, we have a callback
     startTimer(SystemVolumeUpdateRateInMs);
     timerEvent(nullptr);
+#endif
 }
 
 void SystemVolume::timerEvent(QTimerEvent * /*event*/) {
@@ -43,6 +99,7 @@ void SystemVolume::timerEvent(QTimerEvent * /*event*/) {
 }
 
 SystemVolume::~SystemVolume() {
+#ifdef Q_OS_WIN
     if (pEnumerator) {
         pEnumerator->Release();
     }
@@ -56,6 +113,7 @@ SystemVolume::~SystemVolume() {
         client->Release();
     }
     CoUninitialize();
+#endif
 }
 
 void SystemVolume::setVolume(double volume) {
@@ -66,6 +124,26 @@ void SystemVolume::setVolume(double volume) {
 #ifdef Q_OS_WIN
         if (endpointVolume) {
             endpointVolume->SetMasterVolumeLevelScalar(static_cast<float>(volume), nullptr);
+        }
+#endif
+#ifdef Q_OS_MAC
+        if (defaultOutputDeviceID != kAudioDeviceUnknown) {
+
+            AudioObjectPropertyAddress volumePropertyAddress = {
+                kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
+            };
+            Float32 volume = static_cast<Float32>(this->volume);
+            auto result = AudioObjectSetPropertyData(defaultOutputDeviceID, &volumePropertyAddress, 0, nullptr, sizeof(volume), &volume);
+            if (result != kAudioHardwareNoError) {
+                qWarning() << "Can not set system volume";
+            } else {
+                // setting right channel
+                volumePropertyAddress.mElement = 2 /*RIGHT_CHANNEL*/;
+                result = AudioObjectSetPropertyData(defaultOutputDeviceID, &volumePropertyAddress, 0, nullptr, sizeof(volume), &volume);
+                if (result != kAudioHardwareNoError) {
+                    qWarning() << "Can not set system volume of right channel";
+                }
+            }
         }
 #endif
     }

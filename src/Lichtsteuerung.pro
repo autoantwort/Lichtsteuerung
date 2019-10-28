@@ -287,3 +287,8 @@ win32-msvc{
     INCLUDEPATH += $$PWD/lib/RtAudio/include
     LIBS += -L$$PWD/lib/RtAudio/lib -lrtaudio
     win32: LIBS +=  -lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid
+
+macx{
+    # Needed by the SystemVolume class
+    LIBS += -framework CoreAudio
+}
