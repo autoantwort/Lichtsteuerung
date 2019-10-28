@@ -267,6 +267,11 @@ int main(int argc, char *argv[]) {
     Settings::setLocalSettingFile(QFileInfo(QStringLiteral("settings.ini")));
     Settings settings;
     RemoteVolume remoteVolume(settings);
+
+    if (settings.isStartupVolumeEnabled()) {
+        SystemVolume::get().setVolume(settings.getStartupVolume());
+    }
+
     QString file(settings.getJsonSettingsFilePath());
     if (!QFile::exists(file)) {
         file = QStringLiteral("QTJSONFile.json");

@@ -59,6 +59,8 @@ class Settings : public QObject {
     Q_PROPERTY(QString includePath READ getIncludePath WRITE setIncludePath NOTIFY includePathChanged)
     Q_PROPERTY(QString computerName READ getComputerName WRITE setComputerName NOTIFY computerNameChanged)
     Q_PROPERTY(bool remoteVolumeControl READ remoteVolumeControl WRITE remoteVolumeControl NOTIFY remoteVolumeControlChanged)
+    Q_PROPERTY(bool isStartupVolumeEnabled READ isStartupVolumeEnabled WRITE setStartupVolumeEnabled NOTIFY isStartupVolumeEnabledChanged)
+    Q_PROPERTY(double startupVolume READ getStartupVolume WRITE setStartupVolume NOTIFY startupVolumeChanged)
     Q_PROPERTY(int theme READ getTheme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
     static inline QFileInfo localSettingsFile;
@@ -187,6 +189,28 @@ public:
     void remoteVolumeControl(bool enable);
     [[nodiscard]] bool remoteVolumeControl() const { return value(QStringLiteral("remoteVolumeControl"), false).toBool(); }
 
+    /**
+     * @brief setStartupVolumeEnabled enables or disables the functionality described here: isStartupVolumeEnabled()
+     * @param enabled true if enabled, false if disabled
+     */
+    void setStartupVolumeEnabled(bool enabled);
+    /**
+     * @brief isStartupVolumeEnabled if true, the system volume should be set to getStartupVolume() when the Lichtsteuerung starts
+     * @return true if should set, false otherwise
+     */
+    [[nodiscard]] bool isStartupVolumeEnabled() const { return value(QStringLiteral("isStartupVolumeEnabled"), false).toBool(); }
+
+    /**
+     * @brief setStartupVolume sets the system volume that should be set when the Lichtsteuerung starts, valid values: 0.0 - 1.0
+     * @param volume the new startup volume
+     */
+    void setStartupVolume(double volume);
+    /**
+     * @brief getStartupVolume the system volume that should be set when the Lichtsteuerung starts, valid values: 0.0 - 1.0
+     * @return the startup volume, 0.0 - 1.0
+     */
+    [[nodiscard]] double getStartupVolume() const { return value(QStringLiteral("StartupVolume"), -.5).toDouble(); }
+
     void setTheme(int theme) {
         if (theme != getTheme()) {
             setValue(QStringLiteral("theme"), theme);
@@ -236,6 +260,8 @@ signals:
     void saveAs(QString path);
     void computerNameChanged();
     void remoteVolumeControlChanged();
+    void isStartupVolumeEnabledChanged();
+    void startupVolumeChanged();
 public slots:
 };
 

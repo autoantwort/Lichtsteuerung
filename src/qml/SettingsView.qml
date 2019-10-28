@@ -293,6 +293,36 @@ ScrollView{
 
         }
 
+        Label {
+            text: "Startup Volume"
+        }
+        RowLayout {
+            Layout.topMargin: -10
+            Layout.bottomMargin: -10
+            Layout.leftMargin: -7
+            enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_STARTUP_VOLUME)
+            CheckBox {
+                text: "enabled"
+                checked: Settings.isStartupVolumeEnabled
+                onCheckedChanged: Settings.isStartupVolumeEnabled = checked
+            }
+            Label {
+                visible: Settings.isStartupVolumeEnabled
+                Layout.leftMargin: 10
+                Layout.preferredWidth: 100
+                text: "Volume: " + (Settings.startupVolume * 100).toFixed(0) + "%"
+            }
+            Slider {
+                visible: Settings.isStartupVolumeEnabled
+                from: 0
+                to: 1
+                Layout.preferredWidth: 200
+                value: Settings.startupVolume
+                onValueChanged: Settings.startupVolume = value;
+            }
+
+        }
+
 
     }
     Loader {

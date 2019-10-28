@@ -57,6 +57,20 @@ void Settings::remoteVolumeControl(bool enable) {
     }
 }
 
+void Settings::setStartupVolumeEnabled(bool enabled) {
+    if (enabled != isStartupVolumeEnabled()) {
+        setValue(QStringLiteral("isStartupVolumeEnabled"), enabled);
+        emit isStartupVolumeEnabledChanged();
+    }
+}
+
+void Settings::setStartupVolume(double volume) {
+    if (volume != getStartupVolume()) {
+        setValue(QStringLiteral("StartupVolume"), volume);
+        emit startupVolumeChanged();
+    }
+}
+
 void Settings::setValue(const QString &key, const QVariant &value){
     if (localSettings) {
         if (localSettings->contains(key)) {
