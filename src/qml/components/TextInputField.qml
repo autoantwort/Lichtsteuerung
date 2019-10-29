@@ -14,7 +14,8 @@ TextInput{
     clip: contentWidth > width || underline.width > width
     property alias underlineColor : underline.color
     property alias underline: underline
-    cursorDelegate: Rectangle{
+    cursorDelegate: Item{}
+    Rectangle{
         color: Material.accentColor
         x: parent.cursorRectangle.x
         y: parent.cursorRectangle.y
