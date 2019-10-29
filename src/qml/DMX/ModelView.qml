@@ -162,7 +162,11 @@ GridLayout{
         id: buttonRemove
         text:"Remove"
         font.pixelSize: 15
-        onClicked: removeClicked(currentModelData)
+        onClicked: askRemove.open();
+    }
+    AskWhenRemovePopup {
+        id: askRemove
+        onYesClicked: removeClicked(currentModelData)
     }
 
 
