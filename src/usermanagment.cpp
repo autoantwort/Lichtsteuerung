@@ -167,6 +167,10 @@ bool UserPermissionModel::setData(const QModelIndex &index, const QVariant &valu
                     if (user->havePermission(p) != value.toBool()) {
                         user->setPermission(p, value.toBool());
                         emit dataChanged(index, index, {HavePermissionRole});
+                        if (user == UserManagment::get()->getCurrentUser()) {
+                            // the UserManagment.currentUser.havePermission(...) statements in qml should be reevaluated
+                            emit UserManagment::get()->currentUserChanged();
+                        }
                         return true;
                     }
                 }
