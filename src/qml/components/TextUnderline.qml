@@ -5,7 +5,7 @@ Rectangle{
     id:underline
     property real extendetWidth: 10
     //property real clickX: 0
-    anchors.top:parent.bottom
+    anchors.bottom: parent.bottom
     anchors.left:parent.left
     width: parent.contentWidth+extendetWidth
     height: 2
