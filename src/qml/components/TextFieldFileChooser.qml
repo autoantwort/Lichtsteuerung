@@ -10,21 +10,13 @@ RowLayout{
     property bool folder: false
     property var fileChooser: null
     height: 20
-    Item{
+
+    TextInputField{
         Layout.fillWidth: true
-        Layout.preferredWidth: textField.implicitWidth
-        Layout.preferredHeight: textField.implicitHeight
-        Layout.topMargin: 4
-        id: wrapper
-        clip: true
-        TextInputField{
-            id:textField
-            text: root.path
-            anchors.fill: parent
-            anchors.bottomMargin: 2
-            onAccepted: {
-                root.path = text
-            }
+        id: textField
+        text: root.path
+        onAccepted: {
+            root.path = text
         }
     }
     Button{

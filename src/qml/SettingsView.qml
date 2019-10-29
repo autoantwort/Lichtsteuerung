@@ -19,6 +19,7 @@ ScrollView{
     contentHeight: layout.implicitHeight
     contentWidth: Math.max(600, width - 2 * padding)
     padding: 10
+    clip: contentHeight > height
     GridLayout{
         id: layout
         anchors.left: parent.left
@@ -31,20 +32,11 @@ ScrollView{
         RowLayout{
             id: root
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_SETTINGS_FILE_PATH)
-            Item{
+            TextInputField {
                 Layout.fillWidth: true
-                Layout.preferredWidth: inputSettingsPath.implicitWidth
-                Layout.preferredHeight: inputSettingsPath.implicitHeight
-                Layout.topMargin: 4
-                clip: true
-                id: wrapper
-                TextInputField{
-                    id: inputSettingsPath
-                    readOnly: true
-                    anchors.fill: parent
-                    anchors.bottomMargin: 2
-                    text: Settings.jsonSettingsFilePath
-                }
+                id: inputSettingsPath
+                readOnly: true
+                text: Settings.jsonSettingsFilePath
             }
             Button{
                 Layout.minimumWidth: implicitWidth

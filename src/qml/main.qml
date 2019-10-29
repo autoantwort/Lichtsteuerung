@@ -349,7 +349,7 @@ ApplicationWindow {
                Layout.rightMargin: 2
                clip: true
                color: Material.foreground
-               selectionColor: Material.textSelectionColor
+               selectionColor: Material.accentColor
                font: fontReference.font
                text: Settings.jsonSettingsFilePath
                selectByMouse: true
