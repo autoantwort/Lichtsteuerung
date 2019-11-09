@@ -22,6 +22,11 @@ Die IDE mit der die Lichtsteuerung entwickelt wird.
 8. You can select File -> Sessions -> Manage... -> Restore last session on startup
 9. If you have changed the theme, restart Qt Creator
 
+### Compiler
+Unter **Windows** wird der Compiler von Qt mitgeliefert.  
+Unter **Linux** kann gcc mittels `sudo apt install gcc` installiert werden. Gcc sollte mindestens version 7 haben (überprüfen mit `gcc --version`).  
+Unter **Mac**: XCode im AppStore installieren. 
+
 ### Cpp-Check installieren
 [Cppcheck](http://cppcheck.sourceforge.net/) ist ein Tool zur statischen Analyse, um Fehler zu finden.
 * Windows: Auf die Webseite von [Cppcheck](http://cppcheck.sourceforge.net/) gehen, den Installer runterladen und installieren. 
