@@ -104,7 +104,85 @@ SystemVolume::SystemVolume() {
         emit volumeChanged();
     }
 #endif
+#ifdef Q_OS_LINUX
+    snd_mixer_selem_id_alloca(&sid);
+
+    // sets simple-mixer index and name
+    snd_mixer_selem_id_set_index(sid, mix_index);
+    snd_mixer_selem_id_set_name(sid, mix_name);
+
+    if ((snd_mixer_open(&handle, 0)) < 0) {
+        qWarning() << "SystemVolume: Failed to open the mixer";
+        return;
+    }
+
+    if ((snd_mixer_attach(handle, card)) < 0) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to attach the card 'default'";
+        return;
+    }
+    if ((snd_mixer_selem_register(handle, nullptr, nullptr)) < 0) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to register the mixer";
+        return;
+    }
+    if (snd_mixer_load(handle) < 0) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to load the mixer";
+        return;
+    }
+    elem = snd_mixer_find_selem(handle, sid);
+    if (!elem) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to find a mixer element";
+        return;
+    }
+    if (snd_mixer_selem_get_playback_volume_range(elem, &minv, &maxv) < 0) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to get the mixer playback volume range";
+        return;
+    }
+    snd_mixer_elem_set_callback(elem, snd_mixer_elem_callback);
+    startTimer(16);
+    long volume;
+    if (snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_MONO, &volume) < 0) {
+        snd_mixer_close(handle);
+        handle = nullptr;
+        qWarning() << "SystemVolume: Failed to get the volume";
+        return;
+    }
+    this->volume = (volume - minv) / static_cast<double>(maxv - minv);
+    emit volumeChanged();
+
+#endif
 }
+
+#ifdef Q_OS_LINUX
+void SystemVolume::timerEvent(QTimerEvent * /*event*/) {
+    if (handle) {
+        snd_mixer_handle_events(handle);
+    }
+}
+
+int SystemVolume::snd_mixer_elem_callback(snd_mixer_elem_t *elem, unsigned int mask) {
+    // testet, don't know why value 1, but only mask == 1 works
+    if (mask == 1) {
+        long volume;
+        if (snd_mixer_selem_get_playback_volume(elem, SND_MIXER_SCHN_MONO, &volume) >= 0) {
+            get().volume = (volume - get().minv) / static_cast<double>(get().maxv - get().minv);
+            emit get().volumeChanged();
+        } else {
+            qWarning() << "SystemVolume: Failed to get the volume";
+        }
+    }
+    return 0;
+}
+#endif
 
 SystemVolume::~SystemVolume() {
 #ifdef Q_OS_WIN
@@ -122,6 +200,11 @@ SystemVolume::~SystemVolume() {
         client->Release();
     }
     CoUninitialize();
+#endif
+#ifdef Q_OS_LINUX
+    if (handle) {
+        snd_mixer_close(handle);
+    }
 #endif
 }
 
@@ -152,6 +235,14 @@ void SystemVolume::setVolume(double volume) {
                 if (result != kAudioHardwareNoError) {
                     qWarning() << "Can not set system volume of right channel";
                 }
+            }
+        }
+#endif
+#ifdef Q_OS_LINUX
+        if (handle) {
+            long outvol = static_cast<long>(volume * (maxv - minv)) + minv;
+            if (snd_mixer_selem_set_playback_volume_all(elem, outvol) < 0) {
+                qWarning() << "SystemVolume: Can not set system volume for all channels";
             }
         }
 #endif

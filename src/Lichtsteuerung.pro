@@ -298,4 +298,6 @@ macx{
 linux{
     # needed for dynamic libs
     LIBS += -ldl
+    # needed for the SystemVolume class
+    LIBS += -lasound
 }

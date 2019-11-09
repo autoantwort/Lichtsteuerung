@@ -18,6 +18,10 @@
 #include <CoreAudio/CoreAudio.h>
 #endif
 
+#ifdef Q_OS_LINUX
+#include <alsa/asoundlib.h>
+#endif
+
 #ifdef Q_OS_WIN
 class Callback : public IAudioEndpointVolumeCallback {
 
@@ -46,10 +50,29 @@ class SystemVolume : public QObject {
 #ifdef Q_OS_MAC
     AudioDeviceID defaultOutputDeviceID = kAudioDeviceUnknown;
 #endif
+#ifdef Q_OS_LINUX
+    // code from here: https://stackoverflow.com/questions/7657624/get-master-sound-volume-in-c-in-linux
+    snd_mixer_t *handle = nullptr;
+    snd_mixer_elem_t *elem = nullptr;
+    snd_mixer_selem_id_t *sid = nullptr;
+    long minv, maxv;
+
+    static constexpr const char *mix_name = "Master";
+    static constexpr const char *card = "default";
+    static constexpr int mix_index = 0;
+#endif
     double volume = -1;
     Q_PROPERTY(double volume READ getVolume WRITE setVolume NOTIFY volumeChanged)
 
     SystemVolume();
+
+#ifdef Q_OS_LINUX
+protected:
+    void timerEvent(QTimerEvent *event) override;
+
+private:
+    static int snd_mixer_elem_callback(snd_mixer_elem_t *elem, unsigned int mask);
+#endif
 
 public:
     static SystemVolume &get() {
