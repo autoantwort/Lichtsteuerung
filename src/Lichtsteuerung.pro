@@ -209,9 +209,9 @@ DISTFILES +=
 # QMAKE_CXXFLAGS += -lasan
 # LIBS += -lasan
 
-win32-g++{
+win32-g++ | linux{
     # boost
-    CONFIG(debug, debug|release){
+    win32-g++:CONFIG(debug, debug|release){
         DEBUG = d-
     } else {
         DEBUG =
@@ -220,7 +220,7 @@ win32-g++{
     INCLUDEPATH += $$PWD/'lib/boost/include'
 }
 
-unix{
+macx{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
     INCLUDEPATH += /usr/local/include
@@ -293,4 +293,9 @@ win32-msvc{
 macx{
     # Needed by the SystemVolume class
     LIBS += -framework CoreAudio
+}
+
+linux{
+    # needed for dynamic libs
+    LIBS += -ldl
 }

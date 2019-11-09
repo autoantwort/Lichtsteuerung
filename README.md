@@ -23,6 +23,8 @@ Features:
 5. Drücke _Next_ und beende die Installation. 
 6. Nun Qt Creator wie [hier](documentation/QtCreator.md) beschrieben einrichten
 7. Dann git wie [hier](documentation/git.md) beschrieben einrichten
+8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
+9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
 
 ## Docker/GitlabCI/Cross-Compilation 
 Siehe [hier](Docker.md).

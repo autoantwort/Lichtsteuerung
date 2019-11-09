@@ -63,7 +63,22 @@ elif [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
     ./b2$EXE --prefix=../ -q --layout=tagged --with-coroutine --with-context abi=ms architecture=x86 binary-format=pe target-os=windows toolset=$TOOLSET link=shared threading=multi runtime-link=shared address-model=64 install
     echo "Boost build is finished"
 else
-    # linux?
     echo "You are on Linux"
-    echo "Linux is currently not supported (no mashine to test). You must install boost yourself. Maybe look at the windows version in this file."
+    echo "We do not use the boost package from the package manager, because this package is very outdated"
+    # copied from windows
+    GIT_DIR="boost.git"
+    if ! [ -d "$GIT_DIR" ]; then
+        echo "We have to clone the repo, this will take approximately 6.5 minutes"
+        git clone --depth 1 --shallow-submodules --recurse-submodules --jobs 32 https://github.com/boostorg/boost.git "$GIT_DIR"
+        cd "$GIT_DIR"
+        echo "Init the build"
+        # configure the build
+        ./bootstrap.sh
+    else
+        cd "$GIT_DIR"
+        git pull
+    fi
+    echo "Build boost, this will take approximately 3 minutes, if boost is not already build."
+    ./b2 --prefix=../ -q --layout=tagged --with-coroutine --with-context link=shared install
+    echo "Boost build is finished"
 fi

@@ -456,6 +456,15 @@ void transferData(Modules::Property & p, GUI::detail::PropertyInformation &pi){
     pi.setMaxValue(p.asNumeric<SourceType>()->getMax());
 }
 
+// see https://stackoverflow.com/questions/4160945/long-long-int-vs-long-int-vs-int64-t-in-c
+template <>
+void transferData<int64_t>(Modules::Property &p, GUI::detail::PropertyInformation &pi) {
+    static_assert(sizeof(qint64) == sizeof(int64_t), "qint64 and int64_t must have the same size");
+    pi.setValue(static_cast<qint64>(p.asNumeric<int64_t>()->getValue()));
+    pi.setMinValue(static_cast<qint64>(p.asNumeric<int64_t>()->getMin()));
+    pi.setMaxValue(static_cast<qint64>(p.asNumeric<int64_t>()->getMax()));
+}
+
 QQuickItem * ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event){
     auto comp = childAt(event->x(),event->y());
     if(!comp){
