@@ -24,7 +24,7 @@ Die IDE mit der die Lichtsteuerung entwickelt wird.
 
 ### Compiler
 Unter **Windows** wird der Compiler von Qt mitgeliefert.  
-Unter **Linux** kann gcc mittels `sudo apt install gcc` installiert werden. Gcc sollte mindestens version 7 haben (überprüfen mit `gcc --version`).  
+Unter **Linux** kann gcc mittels `sudo apt install gcc` installiert werden. Gcc sollte mindestens version 7 haben (überprüfen mit `gcc --version`). Außerdem muss make installiert werden: `sudo apt install make`.  
 Unter **Mac**: XCode im AppStore installieren. 
 
 ### Cpp-Check installieren
