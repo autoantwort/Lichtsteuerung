@@ -16,8 +16,8 @@
 #endif
 
 namespace Audio {
-AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
-{
+
+AudioCaptureManager::AudioCaptureManager() {
     rtAudio.showWarnings();
     updateCaptureDeviceList();
 }
@@ -35,6 +35,7 @@ void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     if (GUI::Colorplot::getLast()) {
         GUI::Colorplot::getLast()->setBlockSize(512);
     }
+    spectrumAnalysis.emplace(2048, samplesPerFrame);
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){    
@@ -58,7 +59,6 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
 
     sample.addData(data,data+frames*static_cast<unsigned>(channels),channels-1,firstIndex);
 
-    audiofft.analyse(sample.data(),1,fftoutput.data());
     {
         // feed the *analysis classes with new samples
         int restFrames = static_cast<int>(frames);
@@ -75,6 +75,7 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
                     restFrames -= samplesPerFrame;
                     continue;
                 }
+                spectrumAnalysis->processNewSamples(sample.data() + sample.size() - restFrames);
                 for (auto &[onsetFunction, pair] : onsetAnalyzes) {
                     bool wasOnset = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
                     pair.second.addOnsetData(pair.second.getNewestSample(), pair.first.getOnsetValue(), 0);
@@ -95,15 +96,16 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
         }
     }
     // db scale
-    std::transform(fftoutput.begin(), fftoutput.end(), fftoutput.begin(), [](auto i) { return 10 * std::log10(1 + i); });
+    auto spectrum = spectrumAnalysis->getSpectrum();
+    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumAnalysis->getPointerToSpectrum(), [](auto i) { return 10 * std::log10(1 + i); });
 
     if (GUI::Graph::getLast() && run) {
-        GUI::Graph::getLast()->showData(fftoutput.data(), fftoutput.size());
+        GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), spectrum.size());
     }
     if (GUI::Colorplot::getLast() && run) {
         GUI::Colorplot::getLast()->startBlock();
         for (int i = 0; i < 512; ++i) {
-            GUI::Colorplot::getLast()->pushDataToBlock(fftoutput.at(i));
+            GUI::Colorplot::getLast()->pushDataToBlock(spectrum.begin()[i]);
         }
         GUI::Colorplot::getLast()->endBlock();
     }

@@ -55,12 +55,6 @@ fi
 # copy aubio
 cp "src/lib/aubio/lib/libaubio-5.dll" "$target_folder"
 
-#copy AudioFFT
-cp "src/lib/AudioFFT/dll/win${bit}/AudioFFT.dll" "$target_folder"
-cp "src/lib/AudioFFT/dll/win${bit}/libfftw3-3.dll" "$target_folder"
-cp "src/lib/AudioFFT/dll/win${bit}/libfftw3f-3.dll" "$target_folder"
-cp "src/lib/AudioFFT/dll/win${bit}/libfftw3l-3.dll" "$target_folder"
-
 #copy DrMinGw
 if [[ $bit == "64" ]]; then
     for file in src/lib/DrMinGW/bin/*; do cp "$file" "$target_folder";done
