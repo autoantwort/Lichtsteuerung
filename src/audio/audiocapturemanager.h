@@ -58,6 +58,7 @@ class AudioCaptureManager : public QObject
 private:
     AudioCaptureManager();
 private:
+    static void rtAudioErrorCallback(RtAudioError::Type type, const std::string &errorText);
     static int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
     void initCallback(int channels, int samplesPerSecond);
     void dataCallback(float *data, unsigned int frames, bool *done);

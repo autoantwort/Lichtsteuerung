@@ -114,6 +114,12 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     }
 }
 
+void AudioCaptureManager::rtAudioErrorCallback(RtAudioError::Type /*type*/, const std::string &errorText) {
+    get().currentCaptureDevice = -1;
+    emit get().currentCaptureDeviceChanged();
+    ErrorNotifier::showError("Error while capturing from capture device. Capturing stopped.\nError: " + QString::fromStdString(errorText) + "\nPlease select a new audio capture device the settings tab.");
+}
+
 bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     if (input >= rtAudio.getDeviceCount()) {
         return false;
@@ -140,7 +146,7 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     isp.firstChannel = 0;
     unsigned samplesPerFrame = static_cast<unsigned>(this->samplesPerFrame);
     try {
-        rtAudio.openStream(nullptr, &isp, RTAUDIO_FLOAT32, static_cast<unsigned>(this->samplesPerSecond), &samplesPerFrame, rtAudioCallback, nullptr, nullptr, nullptr);
+        rtAudio.openStream(nullptr, &isp, RTAUDIO_FLOAT32, static_cast<unsigned>(this->samplesPerSecond), &samplesPerFrame, rtAudioCallback, nullptr, nullptr, rtAudioErrorCallback);
         if (static_cast<int>(samplesPerFrame) != this->samplesPerFrame) {
             rtAudio.closeStream();
             return false;
