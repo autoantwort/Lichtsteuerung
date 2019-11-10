@@ -20,8 +20,12 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
     FILES_TO_COPY="librtaudio.dylib librtaudio.6.dylib"
 else
     #linux 
+    if ! dpkg -s libasound2-dev autoconf libtool automake >/dev/null 2>&1; then
+        echo "You have to install the packages libasound2-dev autoconf libtool automake! Run 'sudo apt install libasound2-dev autoconf libtool automake'"
+        exit 1
+    fi
     ./autogen.sh --with-alsa
-    FILES_TO_COPY="librtaudio.so librtaudio.6.so"
+    FILES_TO_COPY="librtaudio.so*"
 fi
 make
 cd ..

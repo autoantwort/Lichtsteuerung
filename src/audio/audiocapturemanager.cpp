@@ -16,8 +16,8 @@
 #endif
 
 namespace Audio {
-AudioCaptureManager::AudioCaptureManager():audiofft(sample.size())
-{
+
+AudioCaptureManager::AudioCaptureManager() {
     rtAudio.showWarnings();
     updateCaptureDeviceList();
 }
@@ -35,6 +35,7 @@ void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     if (GUI::Colorplot::getLast()) {
         GUI::Colorplot::getLast()->setBlockSize(512);
     }
+    spectrumAnalysis.emplace(2048, samplesPerFrame);
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){    
@@ -58,7 +59,6 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
 
     sample.addData(data,data+frames*static_cast<unsigned>(channels),channels-1,firstIndex);
 
-    audiofft.analyse(sample.data(),1,fftoutput.data());
     {
         // feed the *analysis classes with new samples
         int restFrames = static_cast<int>(frames);
@@ -75,6 +75,7 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
                     restFrames -= samplesPerFrame;
                     continue;
                 }
+                spectrumAnalysis->processNewSamples(sample.data() + sample.size() - restFrames);
                 for (auto &[onsetFunction, pair] : onsetAnalyzes) {
                     bool wasOnset = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
                     pair.second.addOnsetData(pair.second.getNewestSample(), pair.first.getOnsetValue(), 0);
@@ -95,21 +96,28 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
         }
     }
     // db scale
-    std::transform(fftoutput.begin(), fftoutput.end(), fftoutput.begin(), [](auto i) { return 10 * std::log10(1 + i); });
+    auto spectrum = spectrumAnalysis->getSpectrum();
+    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumAnalysis->getPointerToSpectrum(), [](auto i) { return 10 * std::log10(1 + i); });
 
     if (GUI::Graph::getLast() && run) {
-        GUI::Graph::getLast()->showData(fftoutput.data(), fftoutput.size());
+        GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), spectrum.size());
     }
     if (GUI::Colorplot::getLast() && run) {
         GUI::Colorplot::getLast()->startBlock();
         for (int i = 0; i < 512; ++i) {
-            GUI::Colorplot::getLast()->pushDataToBlock(fftoutput.at(i));
+            GUI::Colorplot::getLast()->pushDataToBlock(spectrum.begin()[i]);
         }
         GUI::Colorplot::getLast()->endBlock();
     }
     if (GUI::Oscillogram::getLast() && run) {
         GUI::Oscillogram::getLast()->showData(sample.data(), sample.size());
     }
+}
+
+void AudioCaptureManager::rtAudioErrorCallback(RtAudioError::Type /*type*/, const std::string &errorText) {
+    get().currentCaptureDevice = -1;
+    emit get().currentCaptureDeviceChanged();
+    ErrorNotifier::showError("Error while capturing from capture device. Capturing stopped.\nError: " + QString::fromStdString(errorText) + "\nPlease select a new audio capture device the settings tab.");
 }
 
 bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
@@ -138,7 +146,7 @@ bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
     isp.firstChannel = 0;
     unsigned samplesPerFrame = static_cast<unsigned>(this->samplesPerFrame);
     try {
-        rtAudio.openStream(nullptr, &isp, RTAUDIO_FLOAT32, static_cast<unsigned>(this->samplesPerSecond), &samplesPerFrame, rtAudioCallback, nullptr, nullptr, nullptr);
+        rtAudio.openStream(nullptr, &isp, RTAUDIO_FLOAT32, static_cast<unsigned>(this->samplesPerSecond), &samplesPerFrame, rtAudioCallback, nullptr, nullptr, rtAudioErrorCallback);
         if (static_cast<int>(samplesPerFrame) != this->samplesPerFrame) {
             rtAudio.closeStream();
             return false;

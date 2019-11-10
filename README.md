@@ -22,6 +22,9 @@ Features:
      * Qt Network Authorization (egal welches OS)
 5. Drücke _Next_ und beende die Installation. 
 6. Nun Qt Creator wie [hier](documentation/QtCreator.md) beschrieben einrichten
+7. Dann git wie [hier](documentation/git.md) beschrieben einrichten
+8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
+9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
 
 ## Docker/GitlabCI/Cross-Compilation 
 Siehe [hier](Docker.md).
@@ -33,10 +36,7 @@ Die Lichtsteuerung hängt von ein paar anderen Projekten ab.
 Boost wird benötigt, um bei Modules nicht lineare Codeausführung zu ermöglichen (Corotines) und wird genutzt, um Stacktraces auszugeben. 
 
 #### [RtAudio](https://github.com/thestk/rtaudio)
-RtAudio (Realtime Audio) ist eine Bibliothek, mit welcher auf jedem Betriebsystem alle Audioeingänge aufgenommen werden können. Unter Windows ist es auch möglich den Audio Ausgang aufzunehmen. Vor RtAudio wurde diese Aufgabe von der [Capture_Windows_SoundOutput](https://git.rwth-aachen.de/leander.schulten/Capture_Windows_SoundOutput) lib übernommen (Diese konnte nur unter Windows den Standardausgang aufnehmen). 
-
-#### [AudioFFT](https://git.rwth-aachen.de/leander.schulten/FFT_for_Audio)
-Dieses Projekt ermöglicht es, den abgefangenen Sound auf Frequenzbereiche aufzuspalten, wobei jedem Frequenzbereich eine "Energie"/Stärke zugeordnet wird. Dieses Projekt hängt wiederum von [fftw](http://www.fftw.org/) ab. Diese Abhängigkeiten befinden sich auch hier als kompilierte lib im git. 
+RtAudio (Realtime Audio) ist eine Bibliothek, mit welcher auf jedem Betriebsystem alle Audioeingänge aufgenommen werden können. Unter Windows ist es auch möglich den Audio Ausgang aufzunehmen. Vor RtAudio wurde diese Aufgabe von der [Capture_Windows_SoundOutput](https://git.rwth-aachen.de/leander.schulten/Capture_Windows_SoundOutput) lib übernommen (Diese konnte nur unter Windows den Standardausgang aufnehmen).
 
 #### [SusbDmx-Driver](https://git.rwth-aachen.de/leander.schulten/SusbDMX-Driver)
 Dieses Projekt enthält den aktuellen Treiber, der es ermöglicht, den USB zu DMX Konverter anzusteuern. Dieser Treiber befindet sich nicht als lib hier im git. 

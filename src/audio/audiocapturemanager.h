@@ -5,9 +5,10 @@
 #include "modelvector.h"
 #include "sample.h"
 #include "aubio/onsetanalysis.h"
+#include "aubio/spectrumanalysis.h"
 #include "aubio/tempoanalysis.h"
-#include "audio_fft.h"
 #include <RtAudio.h>
+#include <boost/beast/core/span.hpp> // TODO use std::span in c++20
 #include <map>
 #include <thread>
 
@@ -35,12 +36,12 @@ class AudioCaptureManager : public QObject
     Q_PROPERTY(int currentCaptureDevice READ getCurrentCaptureDevice WRITE setCurrentCaptureDevice NOTIFY currentCaptureDeviceChanged)
     Q_PROPERTY(QAbstractItemModel *captureDeviceNames READ getCaptureDeviceNamesModel CONSTANT)
     Sample<float,4096> sample;
-    std::array<float, 2048> fftoutput;
     std::atomic_bool run;
     int currentCaptureDevice = -1;
     RtAudio rtAudio;
-    AudioFFT audiofft;
     ModelVector<QString> captureDeviceNames;
+    // we use a optional to delay the creation of the object until we know the samplesPerFrame value
+    std::optional<Aubio::SpectrumAnalysis> spectrumAnalysis;
 
     int channels = -1;
     int samplesPerSecond = -1;
@@ -57,6 +58,7 @@ class AudioCaptureManager : public QObject
 private:
     AudioCaptureManager();
 private:
+    static void rtAudioErrorCallback(RtAudioError::Type type, const std::string &errorText);
     static int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
     void initCallback(int channels, int samplesPerSecond);
     void dataCallback(float *data, unsigned int frames, bool *done);
@@ -105,7 +107,7 @@ public:
      */
     const std::vector<QString> &getCaptureDeviceNames() const { return captureDeviceNames.getVector(); }
 
-    const std::array<float, 2048> &getFFTOutput() { return fftoutput; }
+    boost::beast::span<float> getFFTOutput() { return (spectrumAnalysis ? spectrumAnalysis->getSpectrum() : boost::beast::span<float>{nullptr, 0}); }
     /**
      * @brief requestTempoAnalysis requests the data series from a tempo analysis that uses a spezific onset detection function
      * You can call the function with the same parameters multiple times, the result will be the same

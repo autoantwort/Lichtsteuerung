@@ -20,6 +20,7 @@ SOURCES += \
     applicationdata.cpp \
     audio/aubio/aubiocapi.cpp \
     audio/aubio/onsetanalysis.cpp \
+    audio/aubio/spectrumanalysis.cpp \
     audio/aubio/tempoanalysis.cpp \
     audio/audioeventdata.cpp \
     audio/remotevolume.cpp \
@@ -107,6 +108,7 @@ DEFINES += _USE_MATH_DEFINES
 HEADERS += \
     audio/aubio/aubiocapi.h \
     audio/aubio/onsetanalysis.h \
+    audio/aubio/spectrumanalysis.h \
     audio/aubio/tempoanalysis.h \
     audio/audioeventdata.h \
     audio/remotevolume.h \
@@ -209,9 +211,9 @@ DISTFILES +=
 # QMAKE_CXXFLAGS += -lasan
 # LIBS += -lasan
 
-win32-g++{
+win32-g++ | linux{
     # boost
-    CONFIG(debug, debug|release){
+    win32-g++:CONFIG(debug, debug|release){
         DEBUG = d-
     } else {
         DEBUG =
@@ -220,27 +222,10 @@ win32-g++{
     INCLUDEPATH += $$PWD/'lib/boost/include'
 }
 
-unix{
+macx{
     #installed with brew install boost
     LIBS += -L/usr/local/lib -lboost_coroutine -lboost_context-mt
     INCLUDEPATH += /usr/local/include
-}
-
-macx{
-    #AudioFFT
-    LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
-    INCLUDEPATH += $$PWD/lib/AudioFFT/include
-}
-
-win32-g++{
-    #AudioFFT
-    #LIBS += -L$$PWD/'lib/AudioFFT/dll' -lAudioFFT
-    contains(QT_ARCH, i386){ # 32 bit
-        LIBS += -L$$PWD/'lib/AudioFFT/dll/win32/' -lAudioFFT
-    } else { # 64 bit
-        LIBS += -L$$PWD/'lib/AudioFFT/dll/win64' -lAudioFFT
-    }
-    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
 }
 
 win32-g++{
@@ -279,12 +264,6 @@ macx{
     DEFINES += _GNU_SOURCE
 }
 
-win32-msvc{
-    #AudioFFT
-    LIBS += -L$$PWD/'lib/AudioFFT/dll/AudioFFT.dll'
-    INCLUDEPATH += $$PWD/'lib/AudioFFT/include'
-}
-
     # RTAudio
     INCLUDEPATH += $$PWD/lib/RtAudio/include
     LIBS += -L$$PWD/lib/RtAudio/lib -lrtaudio
@@ -293,4 +272,11 @@ win32-msvc{
 macx{
     # Needed by the SystemVolume class
     LIBS += -framework CoreAudio
+}
+
+linux{
+    # needed for dynamic libs
+    LIBS += -ldl
+    # needed for the SystemVolume class
+    LIBS += -lasound
 }
