@@ -10,6 +10,9 @@ RESOURCES += qml.qrc
 
 DEFINES += CONVERT_FROM_SPOTIFY_OBJECTS
 
+# we always want to have context information in log messages.
+DEFINES += QT_MESSAGELOGCONTEXT
+
 # Additional import path used to resolve QML modules in Qt Creator's code model
 QML_IMPORT_PATH =
 

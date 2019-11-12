@@ -76,6 +76,16 @@ extern "C" void signal_handler(int /*sig*/) {
 }
 #endif
 
+QFile logOutput;
+QtMessageHandler defaultMessageHandler = nullptr;
+
+void toFileMessageHandler(QtMsgType type, const QMessageLogContext &context, const QString &msg) {
+    logOutput.write(qFormatLogMessage(type, context, msg).replace(QLatin1String("file://"), "").toUtf8());
+    logOutput.write("\n");
+    logOutput.flush();
+    defaultMessageHandler(type, context, msg);
+}
+
 int main(int argc, char *argv[]) {
     QSharedMemory mem(QStringLiteral("Lichteuerung Leander Schulten"));
     { // check if the app is alreandy running or should be restarted
@@ -119,15 +129,21 @@ int main(int argc, char *argv[]) {
     std::signal(SIGABRT, signal_handler);
     std::signal(SIGFPE, signal_handler);
 #endif
+    // set logging pattern: https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern
+    qSetMessagePattern(QStringLiteral("[%{time h:mm:ss.zzz}] %{type} %{if-category}%{category}: %{endif}file://%{file}:%{line} (%{function}): %{message}"));
+    // init DrMinGW and file logger base path
+    const auto basePath = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation) + QStringLiteral("/Lichtsteuerung");
+    if (!QDir().mkpath(basePath)) {
+        qWarning() << "Error creating dirs : " << basePath;
+    } else {
+        logOutput.setFileName(basePath + "/log_" + QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss")) + ".txt");
+        if (logOutput.open(QFile::WriteOnly)) {
+            defaultMessageHandler = qInstallMessageHandler(toFileMessageHandler);
+        }
+    }
 #ifdef DrMinGW
     ExcHndlInit();
-    auto path = QStandardPaths::writableLocation(QStandardPaths::QStandardPaths::AppDataLocation);
-    path += QLatin1String("/Lichtsteuerung");
-    QDir dir(path);
-    if(!dir.mkpath(path)){
-        qWarning() << "Error creating dirs : " << path;
-    }
-    path += QLatin1String("/crash_dump_");
+    auto path = basePath + QStringLiteral("/crash_dump_");
     path += QDateTime::currentDateTime().toString(QStringLiteral("dd.MM.yyyy HH.mm.ss"));
     path += QLatin1String(".txt");
     qDebug() << "The crash report file is : " << path;
@@ -144,7 +160,7 @@ int main(int argc, char *argv[]) {
     });
 #ifdef DrMinGW
     // send crash reports
-    auto files = dir.entryInfoList(QDir::Filter::Files);
+    auto files = QDir(basePath).entryInfoList(QDir::Filter::Files);
     for(auto & file : files){
         if(file.fileName().startsWith(QLatin1String("crash_dump"))){
             auto newFileName = file.absolutePath() + "/sended_" +file.fileName();
