@@ -125,6 +125,9 @@ ModelView{
         property int currentDMXChannel: deviceModelView.currentModelData ? deviceModelView.currentModelData.startDMXChannel : -1
         onCurrentDMXChannelChanged: {
             let v = currentDMXChannel;
+            if (v === -1) {
+                return;
+            }
             for(let i = 8; i >= 0; --i){
                 const expo = Math.pow(2,i);
                 visibleChildren[i + 1].on = v >= expo;

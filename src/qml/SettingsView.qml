@@ -221,18 +221,21 @@ ScrollView{
                 ToolTip.text: "The order in which the images are displayed"
             }
 
-            TextFieldFileChooser{
+            MouseArea {
                 Layout.fillWidth: true
-                folder: true
-                path: SlideShow.path
-                onPathChanged: SlideShow.path = path;
-                fileChooser: fileDialogLoader.item
-                MouseArea{
+                Layout.fillHeight: true
+                acceptedButtons: Qt.NoButton
+                hoverEnabled: true
+                ToolTip.visible: containsMouse
+                ToolTip.text: "The path to the folder with the images"
+
+                TextFieldFileChooser {
                     anchors.fill: parent
-                    acceptedButtons: Qt.NoButton
-                    hoverEnabled: true
-                    ToolTip.visible: containsMouse
-                    ToolTip.text: "The path to the folder with the images"
+                    folder: true
+                    path: SlideShow.path
+                    onPathChanged: SlideShow.path = path;
+                    fileChooser: fileDialogLoader.item
+                    id: shouldBeParent
                 }
             }
         }

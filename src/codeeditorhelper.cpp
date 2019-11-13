@@ -739,7 +739,6 @@ int CodeEditorHelper::countSpaces(int startPos) {
 }
 
 void CodeEditorHelper::contentsChange(int from, int charsRemoved, int charsAdded){
-    qDebug() << "pos " << from << " removed : " << charsRemoved << " added : " << charsAdded;
     // remove all markups thats gets modified and move the others
     const int lineDiff = document->lineCount() - lastLineCount;
     for(auto i = codeMarkups.cbegin(); i != codeMarkups.cend();++i){

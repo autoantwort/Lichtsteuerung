@@ -191,7 +191,10 @@ void SlideShow::scanDirectory(const QString &path, bool recursive) {
 }
 
 void SlideShow::scanForNewFiles() {
-    watcher.removePaths(watcher.directories());
+    const auto dirs = watcher.directories();
+    if (!dirs.empty()) {
+        watcher.removePaths(dirs);
+    }
     if (path.isEmpty()) {
         return;
     }

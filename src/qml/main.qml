@@ -134,8 +134,10 @@ ApplicationWindow {
                 text: qsTr("Audio Events")
             }
             Help{
-                helpButton.anchors.left: parent.left
-                helpButton.anchors.right: undefined
+                Component.onCompleted: {
+                    helpButton.anchors.left = parent.left;
+                    helpButton.anchors.bottom = parent.bottom;
+                }
                 tooltipText: "Tab Explanation"
                 enableAnimations: false
                 HelpEntry{

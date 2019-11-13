@@ -7,7 +7,7 @@ import "../components"
 ModelView{
     model:programmModel
     id:modelView
-    rows: 9
+    rows: 10
     rowSpacing: 2
     addButton.text: "Add Programm"
     removeButton.text: "Remove Programm"
@@ -74,17 +74,16 @@ ModelView{
         anchors.top: topTD.top
         anchors.bottom: endTD.bottom
         anchors.right: beginTD.left
-        color: "lightgreen"
+        color: Material.accentColor
         width: 2
         anchors.margins: 2
         anchors.leftMargin: 6
+        Layout.preferredHeight: 0
     }
 
     ListView{
         clip:true
-        Layout.column: 2
         Layout.columnSpan: 2
-        Layout.row: 7
         Layout.fillHeight: true
         Layout.fillWidth: true
 
@@ -151,8 +150,6 @@ ModelView{
 
 
     RowLayout{
-        Layout.row: 8
-        Layout.column: 2
         Layout.columnSpan: 2
         Layout.fillWidth: true
         Button{
@@ -187,6 +184,7 @@ ModelView{
                 id:device
                 model: deviceModel
                 textRole: "display"
+                currentIndex: 0
             }
 
 
