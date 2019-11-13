@@ -9,8 +9,6 @@ RoundButton {
     ToolTip.text: tooltipText
     ToolTip.delay: 500
 
-    anchors.right: parent.right
-    anchors.bottom: parent.bottom
     opacity: hovered ? 1 : defaultOpacity
     hoverEnabled: true
     Behavior on opacity{

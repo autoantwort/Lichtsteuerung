@@ -212,7 +212,10 @@ ControlPanel{
         property DimmerGroupControl dimmerControl: null
         property DimmerGroupControl programControl: null
         property DimmerGroupControl control: null
-        helpButton.anchors.right: programm.left
+        Component.onCompleted: {
+            helpButton.anchors.left = parent.left;
+            helpButton.anchors.bottom = parent.bottom;
+        }
         enableAnimations: false
         tooltipText: "Control Pane Explanation"
         onStart: {

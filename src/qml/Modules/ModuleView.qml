@@ -604,7 +604,7 @@ Item{
         leftPadding: header.leftPadding
         rightPadding: footer.rightPadding
         bottomPadding: 0
-        x: (Window.window.width-width)/2;
+        x: (Overlay.overlay.width-width)/2;
         y: (root.height-height)/2;
         property alias text: dialogText.text
         onAboutToShow: {
@@ -652,7 +652,7 @@ Item{
             TextInputField{
                 id:name
                 Layout.fillWidth: true
-                text:dialog.prop.name
+                text: dialog.prop ? dialog.prop.name : "Error"
                 validator: RegExpValidator{
                     regExp: /[a-z][a-z_0-9]*$/i
                 }
@@ -663,13 +663,13 @@ Item{
             TextInputField{
                 id:besch
                 Layout.fillWidth: true
-                text:dialog.prop.description
+                text: dialog.prop ? dialog.prop.description : "Error"
             }
             Label{
                 text:"Typ"
             }
             ComboBox{
-                currentIndex: dialog.prop.type
+                currentIndex: dialog.prop ? dialog.prop.type : -1
                 id:type
                 model: modolePropertyTypeList
                 Layout.fillWidth: true
@@ -687,7 +687,7 @@ Item{
                 Layout.fillWidth: true
                 id: minVal
                 validator: IntValidator{}
-                text:type.currentIndex === 4 ? "0" : type.currentIndex === 5 ? "" : dialog.prop.minValue
+                text: type.currentIndex === 4 ? "0" : type.currentIndex === 5 ? "" : (dialog.prop ? dialog.prop.minValue : "0")
             }
 
             Label{
@@ -697,14 +697,14 @@ Item{
                 Layout.fillWidth: true
                 id:maxVal
                 validator: IntValidator{}
-                text:type.currentIndex === 4 ? "1" : type.currentIndex === 5 ? "" : dialog.prop.maxValue
+                text: type.currentIndex === 4 ? "1" : type.currentIndex === 5 ? "" : (dialog.prop ? dialog.prop.maxValue : "")
             }
             Label{
                 text:"default value"
 
             }
             TextInputField{
-                text: type.currentIndex !== 5 ? dialog.prop.defaultValue : ""
+                text: type.currentIndex !== 5 && dialog.prop ? dialog.prop.defaultValue : ""
                 Layout.fillWidth: true
                 id:defaultVal
                 enabled: type.currentIndex !== 5

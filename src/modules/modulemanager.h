@@ -39,9 +39,9 @@ namespace detail {
         Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
         Q_PROPERTY(QString description READ getDescription WRITE setDescription NOTIFY descriptionChanged)
         Q_PROPERTY(Type type READ getType WRITE setType NOTIFY typeChanged)
-        Q_PROPERTY(int minValue MEMBER min)
-        Q_PROPERTY(int maxValue MEMBER max)
-        Q_PROPERTY(int defaultValue MEMBER defaultValue)
+        Q_PROPERTY(int minValue MEMBER min NOTIFY minChanged)
+        Q_PROPERTY(int maxValue MEMBER max NOTIFY maxChanged)
+        Q_PROPERTY(int defaultValue MEMBER defaultValue NOTIFY defaultChanged)
         PropertyInformation() = default;
         PropertyInformation(const QJsonObject &o);
         void writeJsonObject(QJsonObject &o)const;
@@ -79,6 +79,9 @@ namespace detail {
         void nameChanged();
         void descriptionChanged();
         void typeChanged();
+        void minChanged();
+        void maxChanged();
+        void defaultChanged();
     };
 }
 
@@ -307,7 +310,7 @@ signals:
          * @param replaceOldModulesInProgramBlocks if new programs/filters/consumers are loaded old programs/filters/consumers can be replaced, but they can now have another name, so you have to provide a function that maps new names to the old names to replace them. If no function is provided, no modules gets replaced
          */
         void loadModule(QString fileNamePath, std::function<std::string(const std::string&)> replaceOldModulesInProgramBlocks = std::function<std::string(const std::string&)>());
-        void loadAllModulesInDir(QDir name);
+        void loadAllModulesInDir(const QDir &name);
         ModelVector<Module*>* getModules(){return &modules;}
         const ProgrammModuleContainer & getProgrammModules(){return programms;}
         const FilterModuleContainer & getFilterModules(){return filter;}

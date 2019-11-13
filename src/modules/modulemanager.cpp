@@ -184,7 +184,6 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         if(!QLibrary::isLibrary(name))
             return;
 
-        qDebug()<<"load lib  : " << name;
         QLibrary lib(name);
         if(lib.load()){
             Have_Func f = reinterpret_cast<Have_Func>(lib.resolve("have"));
@@ -274,7 +273,6 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
 
 
             loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
-            qDebug() << lib.errorString();
         }else{
 #ifdef Q_OS_WIN
             if(lib.errorString().endsWith("Unknown error 0x000000c1.")){
@@ -285,32 +283,21 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         }
     }
 
-    void ModuleManager::loadAllModulesInDir(QDir dir){
-         qDebug() << dir;
-        for(auto s : dir.entryInfoList(QDir::Files)){
-            if(s.suffix() == "old"){
+    void ModuleManager::loadAllModulesInDir(const QDir &dir) {
+        for (const auto &s : dir.entryInfoList(QDir::Files)) {
+            if (s.suffix() == QLatin1String("old")) {
                 QFile::remove(s.filePath());
             }
-            if(QLibrary::isLibrary(s.fileName())){
+            if (QLibrary::isLibrary(s.fileName())) {
                 loadModule(s.absoluteFilePath());
             }
-            //qDebug()<<"found : " << s;
         }
-        for(auto s : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
+        for (const auto &s : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             loadAllModulesInDir(s);
         }
-        for(const auto & m : getProgrammModules())
-            qDebug() << m.name().c_str();
-        for(const auto & m : getFilterModules())
-            qDebug() << m.name().c_str();
-        for(const auto & m : getConsumerModules())
-            qDebug() << m.name().c_str();
-
     }
 
-
-
-    ModuleManager::SupportAudioFunc ModuleManager::loadAudio(QLibrary & lib, Modules::FFTOutputView<float> * fftOutputView){
+    ModuleManager::SupportAudioFunc ModuleManager::loadAudio(QLibrary &lib, Modules::FFTOutputView<float> *fftOutputView) {
         //typedef void (*SupportAudioFunc )(bool);
         typedef void (*SetFFTOutputViewFunc )(Modules::FFTOutputView<float>*);
         //using SupportAudioFunc = unsigned int (bool);
@@ -325,6 +312,4 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
         return  supportAudioFunc;
     }
-
-}
-
+} // namespace Modules

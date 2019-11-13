@@ -122,11 +122,11 @@ Item{
 
                 RoundButton{
                     id: button_startStop
-                    icon.source: programEditor.programBlock.status === 1 ? "qrc:icons/stop.svg" : programEditor.programBlock.status === 0 ? "qrc:icons/play.svg":"qrc:icons/replay.svg"
+                    icon.source: programEditor.programBlock ? programEditor.programBlock.status === 1 ? "qrc:icons/stop.svg" : programEditor.programBlock.status === 0 ? "qrc:icons/play.svg":"qrc:icons/replay.svg" : ""
                     anchors.bottom: parent.bottom
                     anchors.leftMargin: 15
                     anchors.left: parent.left
-                    checked: programEditor.programBlock.status === 1
+                    checked: programEditor.programBlock ? programEditor.programBlock.status === 1 : false
                     onClicked: {
                         if(programEditor.programBlock.status === 0){
                             programEditor.programBlock.start();
@@ -138,13 +138,13 @@ Item{
                     }
                     ToolTip.visible: hovered
                     ToolTip.delay: 1000
-                    ToolTip.text: programEditor.programBlock.status === 1 ? "Stop" : programEditor.programBlock.status === 0 ? "Play":"Replay"
+                    ToolTip.text: !programEditor.programBlock ? "null" : programEditor.programBlock.status === 1 ? "Stop" : programEditor.programBlock.status === 0 ? "Play":"Replay"
                 }
                 RoundButton{
                     id: button_pauseResume
-                    icon.source: programEditor.programBlock.status === 1 ? "qrc:icons/pause.svg" : "qrc:icons/resume.png"
-                    visible: programEditor.programBlock.status !== 0;
-                    checked: programEditor.programBlock.status === 1
+                    icon.source: programEditor.programBlock && programEditor.programBlock.status === 1 ? "qrc:icons/pause.svg" : "qrc:icons/resume.png"
+                    visible: programEditor.programBlock && programEditor.programBlock.status !== 0;
+                    checked: programEditor.programBlock && programEditor.programBlock.status === 1
                     anchors.bottom: parent.bottom
                     anchors.leftMargin: 15
                     anchors.left: button_startStop.right
@@ -157,7 +157,7 @@ Item{
                     }
                     ToolTip.visible: hovered
                     ToolTip.delay: 1000
-                    ToolTip.text: programEditor.programBlock.status === 1 ? "Pause" : "Resume"
+                    ToolTip.text: programEditor.programBlock && programEditor.programBlock.status === 1 ? "Pause" : "Resume"
                 }
 
                 RoundButton{

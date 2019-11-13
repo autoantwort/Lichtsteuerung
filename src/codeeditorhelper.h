@@ -134,7 +134,6 @@ public:
        if(_document != documentWrapper){
              documentWrapper = _document;
              emit documentChanged();
-             qDebug() << "add connection";
              if(documentWrapper){
                 QObject::connect(documentWrapper->textDocument(),&QTextDocument::contentsChange,this,&CodeEditorHelper::contentsChange);
                 document = documentWrapper->textDocument();

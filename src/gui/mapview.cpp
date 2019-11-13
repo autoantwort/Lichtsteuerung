@@ -12,7 +12,6 @@ std::pair<Polygon *,Polygon *> generateBar(){
     auto addRightFixTop = [=](Polygon::Point::number_type startX, Polygon::Point::number_type startY){
         return [=](Polygon::Point::number_type width, Polygon::Point::number_type height)mutable{
             p->addRectangle(startX,startX+width,startY,startY+height);
-            qDebug() << startX << ", " << startX+width << ", " << startY << ", " << startY+height;
             startX += width;
         };
     };
