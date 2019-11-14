@@ -30,7 +30,7 @@ RemoteVolume::RemoteVolume(Settings &settings) : settings(settings) {
         // if we lost the connection, but don't want that, wait some time and reconnect then
         if (this->settings.remoteVolumeControl()) {
             if (reconnectTimerId == -1) {
-                startTimer(WAIT_FOR_RECONNECT_MS);
+                reconnectTimerId = startTimer(WAIT_FOR_RECONNECT_MS);
             }
         }
     });
