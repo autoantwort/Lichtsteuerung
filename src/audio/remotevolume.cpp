@@ -33,6 +33,7 @@ RemoteVolume::RemoteVolume(Settings &settings) : settings(settings) {
                 reconnectTimerId = startTimer(WAIT_FOR_RECONNECT_MS);
             }
         }
+        killTimer(pingTimer);
     });
     QObject::connect(&webSocket, &QWebSocket::connected, [this]() {
         webSocket.sendTextMessage("Name:" + this->settings.getComputerName());
@@ -43,6 +44,7 @@ RemoteVolume::RemoteVolume(Settings &settings) : settings(settings) {
             killTimer(reconnectTimerId);
             reconnectTimerId = -1;
         }
+        pingTimer = startTimer(PING_INTERVALL_MS);
     });
     QObject::connect(&webSocket, &QWebSocket::textMessageReceived, [](const QString &message) {
         bool ok;
@@ -69,5 +71,8 @@ void RemoteVolume::timerEvent(QTimerEvent *event) {
     if (event->timerId() == reconnectTimerId) {
         event->accept();
         connect();
+    } else if (event->timerId() == pingTimer) {
+        event->accept();
+        webSocket.ping();
     }
 }

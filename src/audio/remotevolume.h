@@ -10,7 +10,9 @@ class RemoteVolume : public QObject {
     QWebSocket webSocket;
     Settings &settings;
     int reconnectTimerId = -1;
+    int pingTimer = -1;
     static constexpr int WAIT_FOR_RECONNECT_MS = 5 * 1000;
+    static constexpr int PING_INTERVALL_MS = 59 * 1000;
     Q_PROPERTY(bool isConnected READ isConnected NOTIFY isConnectedChanged)
 public:
     explicit RemoteVolume(Settings &settings);
