@@ -6,6 +6,7 @@ import QtQuick.Controls.Material 2.12
 TextInput{
     color: Material.foreground
     selectByMouse: true
+    activeFocusOnTab: true
     font.pixelSize: 15
     selectionColor: Material.accentColor
     selectedTextColor: Material.primaryHighlightedTextColor
