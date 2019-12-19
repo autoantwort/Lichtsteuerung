@@ -2,7 +2,7 @@
 #include <QtDebug>
 
 #ifdef Q_OS_MAC
-OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void * /*inClientData*/) {
+OSStatus SystemVolume::callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void * /*inClientData*/) {
     for (UInt32 i = 0; i < inNumberAddresses; ++i) {
         const auto &cur = inAddresses[i];
         if (cur.mScope == kAudioDevicePropertyScopeOutput && cur.mSelector == kAudioDevicePropertyVolumeScalar && cur.mElement == 1 /*LEFT_CHANNEL*/) {
@@ -14,7 +14,8 @@ OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const Audi
             UInt32 volumedataSize = sizeof(volume);
             auto result = AudioObjectGetPropertyData(inObjectID, &volumePropertyAddress, 0, nullptr, &volumedataSize, &volume);
             if (result == kAudioHardwareNoError) {
-                SystemVolume::get().setVolume(static_cast<double>(volume));
+                get().volume = static_cast<double>(volume);
+                emit get().volumeChanged();
             }
             break;
         }
