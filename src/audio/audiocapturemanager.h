@@ -10,6 +10,7 @@
 #include <RtAudio.h>
 #include <boost/beast/core/span.hpp> // TODO use std::span in c++20
 #include <map>
+#include <optional>
 #include <thread>
 
 namespace Audio {
