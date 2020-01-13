@@ -1,6 +1,7 @@
 #include "controlitemdata.h"
 #include <QJsonArray>
 #include <QQmlEngine>
+#include <QQuickItem>
 
 namespace GUI{
 
@@ -362,14 +363,14 @@ ProgramBlockControlItemData::ProgramBlockControlItemData(Modules::ProgramBlock *
 
 ProgramBlockControlItemData::ProgramBlockControlItemData(const QJsonObject &o,QObject *parent):
     ControlItemData(o,parent){
-    ID id(o);
+    const auto id = o["programBlock"].toString().toLongLong();
     for(const auto & p : Modules::ProgramBlockManager::model){
         if(p->getID() == id){
             setProgramBlock(p.get());
             return;
         }
     }
-    throw std::runtime_error("No ProgramBlock with id " + std::to_string(id.value()) + " exists.");
+    throw std::runtime_error("No ProgramBlock with id " + std::to_string(id) + " exists.");
 }
 
 void ProgramBlockControlItemData::writeJsonObject(QJsonObject &o){
@@ -383,7 +384,8 @@ void ProgramBlockControlItemData::setProgramBlock(Modules::ProgramBlock *p){
         program = p;
         if(program){
             QQmlEngine::setObjectOwnership(program,QQmlEngine::CppOwnership);
-            connection = QObject::connect(program,&QObject::destroyed,[this](){
+            connection = QObject::connect(program, &QObject::destroyed, [this]() {
+                static_cast<QQuickItem *>(parent())->setParentItem(nullptr);
                 setProgramBlock(nullptr);
             });
         }
