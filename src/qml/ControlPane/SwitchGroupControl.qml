@@ -18,6 +18,12 @@ ControlItem{
         }else{
             play.opacity = 1;
         }
+        if(controlData.activated){
+            disabledRectAni.duration = controlData.activateCooldown
+        }else{
+            disabledRectAni.duration = controlData.deactivateCooldown
+        }
+        disabledRectAni.start()
     }
     ControlItemBlock{
         Button {
@@ -47,12 +53,6 @@ ControlItem{
             opacity: 1-play.opacity
             onClicked: {
                 controlData.activated=!controlData.activated;
-                if(controlData.activated){
-                    disabledRectAni.duration = controlData.activateCooldown
-                }else{
-                    disabledRectAni.duration = controlData.deactivateCooldown
-                }
-                disabledRectAni.start()
             }
         }
         Rectangle{

@@ -9,6 +9,7 @@ ControlItem{
     id:item
     blockWidth: 3
     blockHeight: 1
+    pressed: controlData.programm.running
     ControlItemBlock{
         Button {
             padding: 1
@@ -19,6 +20,7 @@ ControlItem{
             icon.width: width - 4
             icon.height: height - 4
             background: null
+            opacity: !controlData.programm.running
             Behavior on opacity {
                 NumberAnimation{
                     duration: 100
@@ -37,8 +39,6 @@ ControlItem{
             opacity: 1-play.opacity
             onClicked: {
                 controlData.programm.running = !controlData.programm.running;
-                item.pressed = controlData.programm.running;
-                play.opacity = !controlData.programm.running;
             }
         }
     }

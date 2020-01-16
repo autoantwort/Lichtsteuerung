@@ -33,7 +33,7 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
 
     QString tempOutputFileName = absoluteNewLibraryFilePath+QString::number(rand());
     QProcess p;
-#ifdef Q_OS_MAC
+#if defined(Q_OS_MAC) || defined(Q_OS_UNIX)
     //p.setEnvironment(QProcess::systemEnvironment()<<"PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Library/TeX/texbin:/usr/local/MacGPG2/bin:/usr/local/share/dotnet:/opt/X11/bin:/Library/Frameworks/Mono.framework/Versions/Current/Commands");
     QString cmd = compilerCmd + " "+  compilerLibraryFlags + " " + compilerFlags + " " + file.absoluteFilePath() + " -o " + tempOutputFileName  + " -I\"/"+QFileInfo(includePath).absoluteFilePath() + "\" ";
     p.start("bash", QStringList() << "-c" << cmd);
@@ -74,10 +74,9 @@ std::pair<int,QString> Compiler::compileToLibrary(const QFileInfo &file,const QS
         QFile::remove(tempName);
         return{oToDll.exitCode(),err + oToDll.readAllStandardError()};
 
-#endif
-#ifdef Q_OS_MAC
-        if(p.exitCode()==0){
-            Q_ASSERT(QFile::rename(tempOutputFileName,absoluteNewLibraryFilePath));
+#else
+        if (!QFile::rename(tempOutputFileName, absoluteNewLibraryFilePath)) {
+            return {-1, "Can not rename file '" + tempOutputFileName + "' to '" + absoluteNewLibraryFilePath + "'"};
         }
 #endif
     }

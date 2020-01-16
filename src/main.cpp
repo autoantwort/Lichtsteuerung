@@ -123,12 +123,15 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_UNIX
     // register signal handler to catch a abnormal program termination to release the shared memory
     std::signal(SIGTERM, signal_handler);
-    std::signal(SIGSEGV, signal_handler);
     std::signal(SIGINT, signal_handler);
     std::signal(SIGILL, signal_handler);
     std::signal(SIGABRT, signal_handler);
+#ifdef __clang__
+    // clang does not have SEH, so signals cant be converted to exceptions. We want to close the shared mem in this case.
     std::signal(SIGFPE, signal_handler);
+    std::signal(SIGSEGV, signal_handler);
 #endif
+#endif // Q_OS_UNIX
     // set logging pattern: https://doc.qt.io/qt-5/qtglobal.html#qSetMessagePattern
     qSetMessagePattern(QStringLiteral("[%{time h:mm:ss.zzz}] %{type} %{if-category}%{category}: %{endif}file://%{file}:%{line} (%{function}): %{message}"));
     // init DrMinGW and file logger base path
@@ -286,6 +289,7 @@ int main(int argc, char *argv[]) {
     Settings settings;
     SettingsFileWrapper settingsFileWrapper(settings);
     RemoteVolume remoteVolume(settings);
+    ControlItemSync::get().connect(settings);
 
     if (settings.isStartupVolumeEnabled()) {
         SystemVolume::get().setVolume(settings.getStartupVolume());

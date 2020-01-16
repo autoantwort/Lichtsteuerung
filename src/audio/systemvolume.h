@@ -74,6 +74,11 @@ private:
     static int snd_mixer_elem_callback(snd_mixer_elem_t *elem, unsigned int mask);
 #endif
 
+#ifdef Q_OS_MAC
+private:
+    static OSStatus callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void *inClientData);
+#endif
+
 public:
     static SystemVolume &get() {
         static SystemVolume sv;

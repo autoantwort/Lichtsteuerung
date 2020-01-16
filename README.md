@@ -26,6 +26,11 @@ Features:
 8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
 9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
 
+##### Git Branches
+Kleinere Sachen und Bugfixes werden direkt auf den `master` Branch committed. Soll etwas released werden, wird der `master` Branch in den `windows-release` Branch gemerged. Dann wird automatisch eine neue Version gebaut und die Lichtsteuerung updated sich selber.
+Im `windows-release` Branch kann der Code auch für den Release angepasst werden (keine Tests, Treiber immer laden, ...). 
+Wird ein größeres Feature entwickelt, passiert dies auf einem `feature/...` Branch. Ist das Feature fertig, wird der entsprechende Branch in den `master` Branch gemerged. 
+
 ## Docker/GitlabCI/Cross-Compilation 
 Siehe [hier](Docker.md).
 

@@ -115,7 +115,12 @@ class Programm : public NamedObject, public IDBase<Programm>
 public:
     Programm(const QJsonObject &o);
     Programm(QString name,QString description = ""):NamedObject(name,description){}
-    Q_SLOT void setRunning(bool run){if(run != isRunning_)emit runningChanged(run);isRunning_ = run;}
+    Q_SLOT void setRunning(bool run) {
+        if (run != isRunning_) {
+            isRunning_ = run;
+            emit runningChanged(run);
+        }
+    }
 
     /**
      * @brief run lässt das Programm laufen, wenn es keine Konflikte mit anderen laufenden Programmen gibt
