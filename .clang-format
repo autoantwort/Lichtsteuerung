@@ -6,7 +6,7 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: true
 AlwaysBreakTemplateDeclarations: Yes
-ColumnLimit:     300
+ColumnLimit:     200
 IncludeCategories:
   - Regex:           '"[[:alnum:]\.]*"' # alle im gleichen Ordner
     Priority:        1
