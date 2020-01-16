@@ -1,18 +1,18 @@
 #ifndef PROGRAMBLOCK_H
 #define PROGRAMBLOCK_H
 
-#include "program.hpp"
-#include "filter.hpp"
 #include "consumer.hpp"
-#include <stdexcept>
-#include <map>
-#include <set>
+#include "filter.hpp"
+#include "id.h"
+#include "program.hpp"
 #include <QJsonObject>
+#include <QMetaEnum>
 #include <QObject>
+#include <map>
 #include <memory>
 #include <modelvector.h>
-#include "id.h"
-
+#include <set>
+#include <stdexcept>
 
 namespace Modules {
 
@@ -100,6 +100,8 @@ namespace Modules {
     public:
         enum Status{Stopped=0, Running=1, Paused=2}status = Stopped;
         Q_ENUM(Status)
+        static inline const QMetaEnum statusMetaEnum = QMetaEnum::fromType<Status>();
+
     private:
         Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
         Q_PROPERTY(Status status READ getStatus NOTIFY statusChanged)

@@ -1,6 +1,7 @@
 #ifndef DMXCHANNEL_H
 #define DMXCHANNEL_H
 
+#include <QMetaEnum>
 #include <QObject>
 
 namespace DMX{
@@ -27,6 +28,7 @@ public:
      */
     enum Operation{CUT, REMAP};
     Q_ENUM(Operation)
+    static inline const QMetaEnum operationMetaEnum = QMetaEnum::fromType<Operation>();
 
 private:
     Operation maxOperation = CUT;

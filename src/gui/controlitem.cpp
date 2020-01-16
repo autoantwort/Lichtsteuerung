@@ -76,7 +76,11 @@ void ControlItem::mouseMoveEvent(QMouseEvent *event){
             newPos.setY((parentItem()->height()/rasterSize)*rasterSize-height());
         }
         setProperty("x",newPos.x());
-        setProperty("y",newPos.y());
+        setProperty("y", newPos.y());
+        if (data) {
+            data->setStartXBlock(newPos.x() / rasterSize);
+            data->setStartYBlock(newPos.y() / rasterSize);
+        }
     }
 }
 

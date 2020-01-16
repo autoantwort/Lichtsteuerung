@@ -9,6 +9,8 @@ import custom.licht 1.0
 ControlItemTemplate{
 
     controlData: __controlData
+    x: __controlData.startXBlock * 50
+    y: __controlData.startYBlock * 50
     moveable: UserManagment.currentUser.havePermission(Permission.MOVE_CONTROL_ITEM);
     visible: controlData.isVisibleForUser
     id:item
@@ -125,7 +127,7 @@ ControlItemTemplate{
             text: "Delete"
             onClicked: {
                 item.parent=null;
-                delete item;
+                item.destroy();
             }
 
         }

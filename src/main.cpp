@@ -289,6 +289,7 @@ int main(int argc, char *argv[]) {
     Settings settings;
     SettingsFileWrapper settingsFileWrapper(settings);
     RemoteVolume remoteVolume(settings);
+    ControlItemSync::get().connect(settings);
 
     if (settings.isStartupVolumeEnabled()) {
         SystemVolume::get().setVolume(settings.getStartupVolume());
