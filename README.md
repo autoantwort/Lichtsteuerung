@@ -26,6 +26,9 @@ Features:
 8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
 9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
 
+#### Felgo Hot Reload
+Mit [Felgo Hot Reload](https://felgo.com/updates/release-3-4-0-qml-hot-reload-with-felgo-live) aktualisiert sich die Oberfläche automatisch, wenn man die QML Dateien (in diesen wird die Oberfläche beschrieben) ändert, sodass das Entwickeln von Oberflächen beschleunigt wird, da nicht immer die ganze Lichtsteuerung neu kompiliert und gestartet werden muss, um sich die Änderungen aus den QML Dateien anzusehen. Zum Einrichten von Felgo Hot Reload siehe [hier](documentation/FelgoHotReload.md).  
+
 ##### Git Branches
 Kleinere Sachen und Bugfixes werden direkt auf den `master` Branch committed. Soll etwas released werden, wird der `master` Branch in den `windows-release` Branch gemerged. Dann wird automatisch eine neue Version gebaut und die Lichtsteuerung updated sich selber.
 Im `windows-release` Branch kann der Code auch für den Release angepasst werden (keine Tests, Treiber immer laden, ...). 

@@ -1,5 +1,12 @@
 QT += qml quick networkauth network websockets
 
+# DEFINES += WITH_FELGO
+
+contains(DEFINES, WITH_FELGO) {
+    message("Run with Felgo")
+    CONFIG += felgo felgo-live    
+}
+
 CONFIG += c++1z force_debug_info
 
 TARGET = Lichtsteuerung
