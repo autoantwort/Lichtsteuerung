@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+cd $(dirname "$0")
 
 echo "Build segvcatch"
 cd segvcatch
