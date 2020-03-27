@@ -2,9 +2,19 @@
 
 GIT_DIR="libbacktrace.git"
 
-# wenn es schon da ist, einfach löschen
-rm -f -r $GIT_DIR
-git clone https://github.com/ianlancetaylor/libbacktrace.git $GIT_DIR
+# add or update git
+if [ ! -d "$GIT_DIR" ]; then # if folder "GIT_DIR" does not exists
+  git clone https://github.com/ianlancetaylor/libbacktrace.git "$GIT_DIR"
+  cd "$GIT_DIR"
+else
+  cd "$GIT_DIR"
+  if [[ $(git pull) = "Already up to date." ]]; then
+    # we can skip recompiling, because the last build is already up to date
+    echo "Already up to date."
+    exit 0
+  fi
+fi
+# we are in the "$GIT_DIR" now
 
 cd $GIT_DIR
 
