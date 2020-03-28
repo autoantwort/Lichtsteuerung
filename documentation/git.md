@@ -4,7 +4,7 @@ Git ist eine Software zur verteilten Versionsverwaltung von Dateien. Wenn man no
 ### Git installieren
 *Linux:* `sudo apt install git`  
 *Mac:* Wenn XCode installiert ist: `sudo xcode-select --install`, wenn [brew](https://brew.sh/) installiert ist: `brew install git`, sonst von der [Git Webseite](https://git-scm.com/downloads)  
-*Windows:* Von der [Git Webseite](https://git-scm.com/downloads). Bei der Installation alle voreingestellten Einstellungen so lassen.  
+*Windows:* Lade das _Git for Windows SDK_ [hier](https://github.com/git-for-windows/build-extra/releases) herrunter. Das normale _Git for Windows_ von der [Git Webseite](https://git-scm.com/downloads) reicht nicht aus, da dort nicht alle Tools enthalten sind, die für das Bauen der Abhängigkeiten benötigt werden!  
 
 ### SHH-Key auf git.rwth-aachen.de registrieren
 Um ein git repository klonen, sowie pullen und pushen zu können, muss ein lokaler SSH-Key auf git.rwth-aachen.de registriert werden.  
