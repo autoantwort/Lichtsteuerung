@@ -24,7 +24,7 @@ Features:
 6. Nun Qt Creator wie [hier](documentation/QtCreator.md) beschrieben einrichten
 7. Dann git wie [hier](documentation/git.md) beschrieben einrichten
 8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
-9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
+9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen, sonst schlägt das Bauen der Lichtsteuerung fehl! __Wichtig unter Windows:__ Das Script in der bash Konsole des [Git SDKs](https://github.com/git-for-windows/build-extra/releases) ausführen, da sonst beim Bauen zu Fehlern kommt.
 
 #### Felgo Hot Reload
 Mit [Felgo Hot Reload](https://felgo.com/updates/release-3-4-0-qml-hot-reload-with-felgo-live) aktualisiert sich die Oberfläche automatisch, wenn man die QML Dateien (in diesen wird die Oberfläche beschrieben) ändert, sodass das Entwickeln von Oberflächen beschleunigt wird, da nicht immer die ganze Lichtsteuerung neu kompiliert und gestartet werden muss, um sich die Änderungen aus den QML Dateien anzusehen. Zum Einrichten von Felgo Hot Reload siehe [hier](documentation/FelgoHotReload.md).  
