@@ -52,12 +52,6 @@ Dieses Projekt enthält den aktuellen Treiber, der es ermöglicht, den USB zu DM
 ##### [LedConsumer](https://git.rwth-aachen.de/leander.schulten/comconsumer)
 Ein Consumer für die LEDs für das Module System. Nicht hier im git enthalten.
 
-### Wichtig! OpenSSL (hauptsächlich Windows 7)
-Windows 7, bzw. der Bar Pc aktuell(26.05.19) unterstützten nativ kein SSL, was aber von der Lichsteuerung für bestimmte Features gebraucht wird(Spotify, Updates). Qt untersützt OpenSSL, installieren muss man es aber selber.
-Installiert werden müssen:
-  - Visual Studio 2013 (VC++ 12.0) C++ Runtime [Downloadseite](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) [Downloadlink](https://download.visualstudio.microsoft.com/download/pr/10912036/b519cb85bab02255e6e00e4562942748/vcredist_x64.exe)
-  - OpenSSL [Downloadseite](https://slproweb.com/products/Win32OpenSSL.html) Ausgewählt wurde Win64 v1.0.2r Light [Downloadlink](https://slproweb.com/download/Win64OpenSSL_Light-1_0_2r.exe)
-
 ## Struktur des Projekts 
 Das Projekt ist inzwischen auf Ordnerebene in einzelne Bereiche aufgeteilt, einige werden nun genauer erklärt:
 
