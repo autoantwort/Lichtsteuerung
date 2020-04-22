@@ -5,14 +5,15 @@
 #include <QSGGeometryNode>
 
 using namespace Audio::Aubio;
+using namespace std::chrono;
 
 namespace GUI {
 
 float AudioEventDataView::getX(const Audio::EventSeries *e, int sample) {
-    return static_cast<float>(width()) - (static_cast<float>(e->getNewestSample()) - sample) / (e->getSamplesPerSecond() / pixelPerSecond);
+    return static_cast<float>(width() - static_cast<qreal>(e->getNewestSample() - sample) * pixelPerSecond / e->getSamplesPerSecond());
 }
 
-AudioEventDataView::AudioEventDataView(QQuickItem *parent) : QQuickItem(parent) {
+AudioEventDataView::AudioEventDataView(QQuickItem *parent) : QQuickItem(parent), ownEvents(1000) {
     setFlag(ItemHasContents);
     startTimer(15);
     for (int osf = 0; osf <= to_integral(OnsetDetectionFunction::Last); ++osf) {
@@ -20,8 +21,10 @@ AudioEventDataView::AudioEventDataView(QQuickItem *parent) : QQuickItem(parent) 
             setColor(osf, static_cast<DataType>(dt), QColor(rand() % 255, rand() % 255, rand() % 255));
         }
     }
+    ownColor = QColor(rand() % 255, rand() % 255, rand() % 255);
     enableDetectionFor(OnsetDetectionFunction::KullbackLiebler, OnsetEvent);
     enableDetectionFor(OnsetDetectionFunction::KullbackLiebler, OnsetValue);
+    start = steady_clock::now();
 }
 
 void AudioEventDataView::enableDetectionFor(OnsetDetectionFunction f, AudioEventDataView::DataType type, bool enabled) {
@@ -63,6 +66,14 @@ bool AudioEventDataView::isDetectionEnabledFor(OnsetDetectionFunction onsetDetec
 void AudioEventDataView::setColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage, const QColor &color) { colors[to_integral(onsetDetectionFunction)][usage].second = color; }
 
 QColor AudioEventDataView::getColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage) const { return colors[to_integral(onsetDetectionFunction)][usage].second; }
+
+void AudioEventDataView::ownTick() { ownEvents.addEvent(duration_cast<milliseconds>(steady_clock::now() - start).count()); }
+
+void AudioEventDataView::setOwnColor(QColor ownColor) {
+    if (this->ownColor == ownColor) return;
+    this->ownColor = ownColor;
+    emit ownColorChanged(ownColor);
+}
 
 void AudioEventDataView::timerEvent(QTimerEvent *e) {
     Q_UNUSED(e)
@@ -123,7 +134,7 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
     }
     const auto sectionHeight = height() / eventsEnabledCount;
     auto sectionOffset = 0;
-    const auto fillEvents = [this, &sectionOffset, sectionHeight](auto geometry, const auto &data, float confidence = 1) {
+    const auto fillEvents = [this, &sectionOffset](auto geometry, const auto &data, auto sectionHeight, float confidence = 1) {
         auto events = data->getEvents();
         geometry->allocate(events->size() * 2);
         auto vertexData = geometry->vertexDataAsPoint2D();
@@ -139,14 +150,18 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
         sectionOffset += sectionHeight;
         geometry->setDrawingMode(QSGGeometry::DrawLines);
     };
+    ownEvents.increaseNewestSampleBy(duration_cast<milliseconds>(steady_clock::now() - start).count() - ownEvents.getNewestSample());
+    fillEvents(getGeometry(ownColor), &ownEvents, height());
+    sectionOffset = 0;
+
     for (auto &[f, data] : beatData) {
         if (isDetectionEnabledFor(f, BeatEvent)) {
-            fillEvents(getGeometry(getColor(f, BeatEvent)), data.events, *data.confidence);
+            fillEvents(getGeometry(getColor(f, BeatEvent)), data.events, sectionHeight, *data.confidence);
         }
     }
     for (auto &[f, data] : onsetData) {
         if (isDetectionEnabledFor(f, OnsetEvent)) {
-            fillEvents(getGeometry(getColor(f, OnsetEvent)), data);
+            fillEvents(getGeometry(getColor(f, OnsetEvent)), data, sectionHeight);
         } else if (isDetectionEnabledFor(f, OnsetValue)) {
             sectionOffset += sectionHeight;
         }
@@ -161,14 +176,6 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
                 ++vertexData;
             }
             geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
-        }
-        if (isDetectionEnabledFor(f, OnsetEvent)) {
-            fillEvents(getGeometry(getColor(f, OnsetEvent)), data);
-        }
-    }
-    for (auto &[f, data] : beatData) {
-        if (isDetectionEnabledFor(f, BeatEvent)) {
-            fillEvents(getGeometry(getColor(f, BeatEvent)), data);
         }
     }
     while (currentReused < node->childCount()) {

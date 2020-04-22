@@ -76,6 +76,38 @@ Item {
             // scroll to the bottom at start
             Component.onCompleted: ScrollBar.vertical.position = 1 - ScrollBar.vertical.size;
             Column{
+                GridLayout{
+                    columns: 2
+                    columnSpacing: 0
+                    Label{
+                        Layout.topMargin: 5
+                        Layout.columnSpan: 2
+                        text: "Own Events";
+                    }
+                    Button{
+                        id: tickButton
+                        Layout.preferredHeight: implicitHeight-16
+                        text: "Tick"
+                        onClicked: dataView.ownTick()
+                    }
+                    Rectangle{
+                        Layout.preferredHeight: tickButton.implicitBackgroundHeight - 14
+                        Layout.preferredWidth: tickButton.implicitBackgroundHeight - 14
+                        Layout.leftMargin: 20
+                        color: dataView.ownColor;
+                        onColorChanged: dataView.ownColor = color;
+                        radius: 3
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                colorDialog.component = parent
+                                colorDialog.startColor = parent.color;
+                                colorDialog.visible = true;
+                            }
+                        }
+                    }
+                }
+
                 Repeater{
                     id: rootRepeater
                     property var names: ["Beat Events", "Onset Events", "Onset Values"]
