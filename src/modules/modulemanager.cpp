@@ -1,15 +1,16 @@
 #include "modulemanager.h"
-#include <QLibrary>
-#include "module.h"
-#include <QDebug>
-#include "settings.h"
-#include <QJsonObject>
-#include <QJsonArray>
-#include "audio/audiocapturemanager.h"
 #include "dmxconsumer.h"
-#include "scanner.hpp"
-#include "scanner.h"
 #include "ledconsumer.h"
+#include "module.h"
+#include "scanner.h"
+#include "scanner.hpp"
+#include "settings.h"
+#include "audio/audiocapturemanager.h"
+#include <QDebug>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QLibrary>
+#include <QtDebug>
 
 namespace Modules {
 
@@ -75,10 +76,18 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
     ModuleManager::ModuleManager()
     {
         fftOutputView = Audio::AudioCaptureManager::get().getFFTOutput();
-        captureStatusChangedConnection = QObject::connect(&Audio::AudioCaptureManager::get(),&Audio::AudioCaptureManager::capturingStatusChanged,[this](){
-            for(const auto & info : loadedLibraryMap){
-                if(info.second.supportAudioFunc){
+        captureStatusChangedConnection = QObject::connect(&Audio::AudioCaptureManager::get(), &Audio::AudioCaptureManager::capturingStatusChanged, [this]() {
+            for (const auto &info : loadedLibraryMap) {
+                if (info.second.supportAudioFunc) {
                     info.second.supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
+                }
+            }
+        });
+        QObject::connect(&Audio::AudioCaptureManager::get(), &Audio::AudioCaptureManager::capturingStarted, [this]() {
+            fftOutputView = Audio::AudioCaptureManager::get().getFFTOutput();
+            for (const auto &info : loadedLibraryMap) {
+                if (info.second.setFFTOutputViewFunc) {
+                    info.second.setFFTOutputViewFunc(&fftOutputView);
                 }
             }
         });
@@ -193,8 +202,9 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
             }
             lastLibraryIdentifier++;
             SupportAudioFunc supportAudioFunc = nullptr;
+            SetFFTOutputViewFunc setFFTOutputViewFunc = nullptr;
             if(f(MODUL_TYPE::Audio)){
-                supportAudioFunc = loadAudio(lib,&fftOutputView);
+                std::tie(supportAudioFunc, setFFTOutputViewFunc) = loadAudio(lib, &fftOutputView);
             }
             if(f(MODUL_TYPE::Spotify)){
                 typedef void (*SetSpotifyFunc)(Modules::SpotifyState const *);
@@ -271,8 +281,7 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                 });
             }
 
-
-            loadedLibraryMap.emplace_back(lib.fileName(),LibInfo{lastLibraryIdentifier,supportAudioFunc});
+            loadedLibraryMap.emplace_back(lib.fileName(), LibInfo{lastLibraryIdentifier, supportAudioFunc, setFFTOutputViewFunc});
         }else{
 #ifdef Q_OS_WIN
             if(lib.errorString().endsWith("Unknown error 0x000000c1.")){
@@ -297,19 +306,15 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
         }
     }
 
-    ModuleManager::SupportAudioFunc ModuleManager::loadAudio(QLibrary &lib, Modules::FFTOutputView<float> *fftOutputView) {
-        //typedef void (*SupportAudioFunc )(bool);
-        typedef void (*SetFFTOutputViewFunc )(Modules::FFTOutputView<float>*);
-        //using SupportAudioFunc = unsigned int (bool);
-        //using SetFFTOutputViewFunc = char const * (Modules::FFTOutputView<float>*);
+    std::tuple<ModuleManager::SupportAudioFunc, ModuleManager::SetFFTOutputViewFunc> ModuleManager::loadAudio(QLibrary &lib, Modules::FFTOutputView<float> *fftOutputView) {
         auto supportAudioFunc = reinterpret_cast<SupportAudioFunc>(lib.resolve("_supportAudio"));
         auto setFFTOutputViewFunc = reinterpret_cast<SetFFTOutputViewFunc>(lib.resolve("_setFFTOutputView"));
         if (!supportAudioFunc || !setFFTOutputViewFunc) {
-            qDebug() << "Error loading audio functions : "<< supportAudioFunc << setFFTOutputViewFunc;
-            return nullptr;
+            qWarning() << "Error loading audio functions : " << supportAudioFunc << setFFTOutputViewFunc;
+            return {nullptr, nullptr};
         }
         setFFTOutputViewFunc(fftOutputView);
         supportAudioFunc(Audio::AudioCaptureManager::get().isCapturing());
-        return  supportAudioFunc;
+        return {supportAudioFunc, setFFTOutputViewFunc};
     }
 } // namespace Modules

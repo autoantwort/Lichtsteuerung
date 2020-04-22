@@ -35,7 +35,8 @@ void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     if (GUI::Colorplot::getLast()) {
         GUI::Colorplot::getLast()->setBlockSize(512);
     }
-    spectrumAnalysis.emplace(2048, samplesPerFrame);
+    spectrumAnalysis.emplace(SPECTRUM_BUCKET_COUNT, samplesPerFrame);
+    emit capturingStarted();
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){    

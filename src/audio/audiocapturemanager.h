@@ -43,6 +43,7 @@ class AudioCaptureManager : public QObject
     ModelVector<QString> captureDeviceNames;
     // we use a optional to delay the creation of the object until we know the samplesPerFrame value
     std::optional<Aubio::SpectrumAnalysis> spectrumAnalysis;
+    static constexpr int SPECTRUM_BUCKET_COUNT = 2048;
 
     int channels = -1;
     int samplesPerSecond = -1;
@@ -131,6 +132,11 @@ public:
 signals:
     void capturingStatusChanged();
     void currentCaptureDeviceChanged();
+    /**
+     * @brief capturingStarted is emmited when the capturing really starts (the init callback is called).
+     * You now should update your reference from the getFFTOutput() function
+     */
+    void capturingStarted();
 };
 
 template <typename String>
