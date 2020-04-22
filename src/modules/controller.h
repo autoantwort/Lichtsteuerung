@@ -1,25 +1,26 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <atomic>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "controlpoint.hpp"
 #include "programblock.h"
 #include "spotify.hpp"
 #include "spotify/spotify.h"
-#include "controlpoint.hpp"
 #include <QPointF>
+#include <QThread>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 
 namespace Modules {
 
 /**
  * @brief The Controller class controlls the whole Module system. Its load and execute it
  */
-class Controller
-{
-    std::atomic_bool run_;
-    std::thread thread;
+class Controller : public QObject {
+    Q_OBJECT
+    QThread thread;
+    int timerId = -1;
     std::mutex mutex;
     std::condition_variable wait;
     std::vector<std::shared_ptr<ProgramBlock>> runningProgramms;
@@ -34,6 +35,9 @@ class Controller
     int lastIndexOfCurrentTatum = -1;
     int lastIndexOfCurrentSection = -1;
     int lastIndexOfCurrentSegment = -1;
+
+    std::chrono::steady_clock::time_point startPoint;
+    long lastElapsedMilliseconds = -1;
     // Control Point
     ControlPoint controlPoint;
 
@@ -64,20 +68,25 @@ public:
         controlPoint.positionChanged = true;
     }
     void start(){
-        if(!run_){
-            run_=true;
-            thread = std::thread([this](){
-                run();
-            });
+        if (!thread.isRunning()) {
+            thread.start();
         }
     }
-    void stop(){run_=false;}
-    ~Controller(){run_ = false;if(thread.joinable())thread.join();}
+    void stop() {
+        thread.exit();
+        lastElapsedMilliseconds = -1;
+    }
+    ~Controller();
+
 private:
     void runProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(ProgramBlock* pb);
-    bool isProgramRunning(ProgramBlock * pb);
+    bool isProgramRunning(ProgramBlock *pb);
+
+protected:
+    void timerEvent(QTimerEvent *event) override { run(); }
+
 private:
     /**
      * @brief haveAnalysis checks if currently a spotify analysis exists

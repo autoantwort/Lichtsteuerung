@@ -8,9 +8,14 @@
 
 namespace Modules {
 
-Controller::Controller():run_(false)
-{
+Controller::Controller() {
+    moveToThread(&thread);
 
+    QObject::connect(&thread, &QThread::started, [this]() { timerId = startTimer(1); });
+    QObject::connect(&thread, &QThread::finished, [this]() {
+        killTimer(timerId);
+        timerId = -1;
+    });
 }
 
 void Controller::setSpotify(Spotify::Spotify *spotify){
@@ -50,9 +55,14 @@ void Controller::setSpotify(Spotify::Spotify *spotify){
     }
 }
 
-bool Controller::haveAnalysis()const{
-    return spotify&&spotify->getCurrentAudioAnalysis()&&spotify->getCurrentPlayingObject()&&spotify->getCurrentPlayingObject()->item;
+Controller::~Controller() {
+    if (thread.isRunning()) {
+        thread.exit();
+        thread.wait();
+    }
 }
+
+bool Controller::haveAnalysis() const { return spotify && spotify->getCurrentAudioAnalysis() && spotify->getCurrentPlayingObject() && spotify->getCurrentPlayingObject()->item; }
 
 void Controller::updateSpotifyState(){
     if(haveAnalysis()){
@@ -101,106 +111,104 @@ void Controller::updateSpotifyState(){
 
 }
 
-void Controller::run() noexcept{
+void Controller::run() noexcept {
     using namespace std::chrono;
-    const auto start = steady_clock::now();
-    long lastElapsedMilliseconds = 0;
-    while (run_) {
-        std::this_thread::sleep_for(milliseconds(1));
-        auto elapsedMilliseconds = duration_cast<milliseconds>(steady_clock::now() - start).count();
-        const auto time_diff = elapsedMilliseconds - lastElapsedMilliseconds;
+    int time_diff = 1;
+    if (lastElapsedMilliseconds == -1) {
+        startPoint = steady_clock::now();
+        lastElapsedMilliseconds = 0;
+    } else {
+        auto elapsedMilliseconds = duration_cast<duration<double, std::milli>>(steady_clock::now() - startPoint).count();
+        time_diff = static_cast<int>(std::round(elapsedMilliseconds)) - lastElapsedMilliseconds;
         lastElapsedMilliseconds = elapsedMilliseconds;
-        if (!run_) {
-            break;
-        }
-        std::unique_lock<std::mutex> l(vectorLock);
-        updateSpotifyState();
-        for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
-            try {
-                if ((*pb)->doStep(time_diff)) {
-                    deletingProgramBlock = (*pb).get();
-                    (**pb).stop();
-                    deletingProgramBlock = nullptr;
-                    pb = runningProgramms.erase(pb);
-                } else {
-                    ++pb;
-                }
-            } catch (const error::crash_error &e) {
-                QString msg(e.what());
-                for (const auto &frame : e.getStacktrace()) {
-                    const auto asString = boost::stacktrace::to_string(frame);
-                    if (asString.find("____") != std::string::npos) {
-                        QString filename;
-                        int lineNumber = -1;
-                        QProcess p;
-                        QString cmd = Compiler::compilerCmd;
+    }
+    std::unique_lock<std::mutex> l(vectorLock);
+    updateSpotifyState();
+    for (auto pb = runningProgramms.begin(); pb != runningProgramms.end();) {
+        try {
+            if ((*pb)->doStep(time_diff)) {
+                deletingProgramBlock = (*pb).get();
+                (**pb).stop();
+                deletingProgramBlock = nullptr;
+                pb = runningProgramms.erase(pb);
+            } else {
+                ++pb;
+            }
+        } catch (const error::crash_error &e) {
+            QString msg(e.what());
+            for (const auto &frame : e.getStacktrace()) {
+                const auto asString = boost::stacktrace::to_string(frame);
+                if (asString.find("____") != std::string::npos) {
+                    QString filename;
+                    int lineNumber = -1;
+                    QProcess p;
+                    QString cmd = Compiler::compilerCmd;
 #ifdef Q_OS_WIN
-                        if (!cmd.endsWith(QLatin1String("g++.exe"))) {
-                            qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
-                        } else {
-                            cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
+                    if (!cmd.endsWith(QLatin1String("g++.exe"))) {
+                        qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
+                    } else {
+                        cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
 
-                            auto pos = asString.find(" in ");
+                        auto pos = asString.find(" in ");
+                        if (pos == std::string::npos) {
+                            pos = asString.find(" at ");
                             if (pos == std::string::npos) {
-                                pos = asString.find(" at ");
-                                if (pos == std::string::npos) {
-                                    pos = 0;
-                                } else {
-                                    pos += 4;
-                                }
+                                pos = 0;
                             } else {
                                 pos += 4;
                             }
-                            p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(pos) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
-                            p.waitForFinished();
-                            QByteArray output = p.readAllStandardOutput();
-                            int seperator = output.lastIndexOf(':');
-                            filename = output.left(seperator);
-                            lineNumber = output.mid(seperator + 1).trimmed().toInt();
+                        } else {
+                            pos += 4;
                         }
+                        p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(pos) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
+                        p.waitForFinished();
+                        QByteArray output = p.readAllStandardOutput();
+                        int seperator = output.lastIndexOf(':');
+                        filename = output.left(seperator);
+                        lineNumber = output.mid(seperator + 1).trimmed().toInt();
+                    }
 #else
 #warning OS not supported
 #endif
-                        if (lineNumber >= 0) {
-                            QFile file(filename);
-                            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                                break;
-                            }
-                            msg += " in line " + QString::number(lineNumber) + " in file " + filename.mid(filename.lastIndexOf('/') + 1) + "\n";
-                            int currentLineNumber = 0;
-                            while (!file.atEnd() && currentLineNumber < lineNumber + 2) {
-                                ++currentLineNumber;
-                                QByteArray line = file.readLine();
-                                if (currentLineNumber == lineNumber) {
-                                    msg += "->" + line;
-                                } else if (currentLineNumber == lineNumber - 1 || currentLineNumber == lineNumber + 1) {
-                                    msg += "     " + line;
-                                }
-                            }
-                            file.close();
+                    if (lineNumber >= 0) {
+                        QFile file(filename);
+                        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                            break;
                         }
-                        break;
+                        msg += " in line " + QString::number(lineNumber) + " in file " + filename.mid(filename.lastIndexOf('/') + 1) + "\n";
+                        int currentLineNumber = 0;
+                        while (!file.atEnd() && currentLineNumber < lineNumber + 2) {
+                            ++currentLineNumber;
+                            QByteArray line = file.readLine();
+                            if (currentLineNumber == lineNumber) {
+                                msg += "->" + line;
+                            } else if (currentLineNumber == lineNumber - 1 || currentLineNumber == lineNumber + 1) {
+                                msg += "     " + line;
+                            }
+                        }
+                        file.close();
                     }
+                    break;
                 }
-                ErrorNotifier::showError(QStringLiteral("Error while executing ") + (**pb).getName() + ":\n" + msg);
-                // if it was in a doStep call
-                if (deletingProgramBlock == nullptr) {
-                    try {
-                        deletingProgramBlock = (*pb).get();
-                        (**pb).stop();
-                    } catch (...) {
-                        // we ignore the error (the module is completly broken)
-                    }
-                }
-                // maybe inside the stop call
-                deletingProgramBlock = nullptr;
-                // we remove the programm from the running list
-                pb = runningProgramms.erase(pb);
             }
+            ErrorNotifier::showError(QStringLiteral("Error while executing ") + (**pb).getName() + ":\n" + msg);
+            // if it was in a doStep call
+            if (deletingProgramBlock == nullptr) {
+                try {
+                    deletingProgramBlock = (*pb).get();
+                    (**pb).stop();
+                } catch (...) {
+                    // we ignore the error (the module is completly broken)
+                }
+            }
+            // maybe inside the stop call
+            deletingProgramBlock = nullptr;
+            // we remove the programm from the running list
+            pb = runningProgramms.erase(pb);
         }
-        spotifyState.newTrack = false;
-        controlPoint.positionChanged = false;
     }
+    spotifyState.newTrack = false;
+    controlPoint.positionChanged = false;
 }
 
 void Controller::runProgramm(std::shared_ptr<ProgramBlock> pb){
@@ -222,7 +230,7 @@ void Controller::stopProgramm(ProgramBlock* pb){
 
 bool Controller::isProgramRunning(ProgramBlock * pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    return std::any_of(runningProgramms.cbegin(),runningProgramms.cend(),[=](const auto & p){return p.get()==pb;});
+    return std::any_of(runningProgramms.cbegin(), runningProgramms.cend(), [=](const auto &p) { return p.get() == pb; });
 }
 
-}
+} // namespace Modules
