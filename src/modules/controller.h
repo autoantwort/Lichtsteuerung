@@ -20,6 +20,7 @@ namespace Modules {
 class Controller : public QObject {
     Q_OBJECT
     QThread thread;
+    std::atomic_bool shouldRun;
     int timerId = -1;
     std::mutex mutex;
     std::condition_variable wait;
@@ -69,10 +70,12 @@ public:
     }
     void start(){
         if (!thread.isRunning()) {
+            shouldRun = true;
             thread.start();
         }
     }
     void stop() {
+        shouldRun = false;
         thread.exit();
         lastElapsedMilliseconds = -1;
     }

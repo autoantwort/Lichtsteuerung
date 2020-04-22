@@ -2,6 +2,7 @@
 #include "compiler.h"
 #include "errornotifier.h"
 #include "system_error_handler.h"
+#include <QAbstractEventDispatcher>
 #include <QDebug>
 #include <QProcess>
 #include <mutex>
@@ -12,10 +13,6 @@ Controller::Controller() {
     moveToThread(&thread);
 
     QObject::connect(&thread, &QThread::started, [this]() { timerId = startTimer(1); });
-    QObject::connect(&thread, &QThread::finished, [this]() {
-        killTimer(timerId);
-        timerId = -1;
-    });
 }
 
 void Controller::setSpotify(Spotify::Spotify *spotify){
@@ -56,6 +53,7 @@ void Controller::setSpotify(Spotify::Spotify *spotify){
 }
 
 Controller::~Controller() {
+    shouldRun = false;
     if (thread.isRunning()) {
         thread.exit();
         thread.wait();
@@ -112,103 +110,109 @@ void Controller::updateSpotifyState(){
 }
 
 void Controller::run() noexcept {
+    killTimer(timerId);
+    timerId = -1;
     using namespace std::chrono;
-    int time_diff = 1;
-    if (lastElapsedMilliseconds == -1) {
-        startPoint = steady_clock::now();
-        lastElapsedMilliseconds = 0;
-    } else {
-        auto elapsedMilliseconds = duration_cast<duration<double, std::milli>>(steady_clock::now() - startPoint).count();
-        time_diff = static_cast<int>(std::round(elapsedMilliseconds)) - lastElapsedMilliseconds;
-        lastElapsedMilliseconds = elapsedMilliseconds;
-    }
-    std::unique_lock<std::mutex> l(vectorLock);
-    updateSpotifyState();
-    for (auto pb = runningProgramms.begin(); pb != runningProgramms.end();) {
-        try {
-            if ((*pb)->doStep(time_diff)) {
-                deletingProgramBlock = (*pb).get();
-                (**pb).stop();
-                deletingProgramBlock = nullptr;
-                pb = runningProgramms.erase(pb);
-            } else {
-                ++pb;
-            }
-        } catch (const error::crash_error &e) {
-            QString msg(e.what());
-            for (const auto &frame : e.getStacktrace()) {
-                const auto asString = boost::stacktrace::to_string(frame);
-                if (asString.find("____") != std::string::npos) {
-                    QString filename;
-                    int lineNumber = -1;
-                    QProcess p;
-                    QString cmd = Compiler::compilerCmd;
-#ifdef Q_OS_WIN
-                    if (!cmd.endsWith(QLatin1String("g++.exe"))) {
-                        qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
-                    } else {
-                        cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
+    startPoint = steady_clock::now();
+    lastElapsedMilliseconds = 0;
 
-                        auto pos = asString.find(" in ");
-                        if (pos == std::string::npos) {
-                            pos = asString.find(" at ");
+    while (shouldRun) {
+
+        thread.msleep(1);
+        thread.eventDispatcher()->processEvents(QEventLoop::ExcludeUserInputEvents);
+
+        auto elapsedMilliseconds = duration_cast<duration<double, std::milli>>(steady_clock::now() - startPoint).count();
+        const int time_diff = static_cast<int>(std::round(elapsedMilliseconds)) - lastElapsedMilliseconds;
+        lastElapsedMilliseconds = elapsedMilliseconds;
+
+        std::unique_lock<std::mutex> l(vectorLock);
+        updateSpotifyState();
+        for (auto pb = runningProgramms.begin(); pb != runningProgramms.end();) {
+            try {
+                if ((*pb)->doStep(time_diff)) {
+                    deletingProgramBlock = (*pb).get();
+                    (**pb).stop();
+                    deletingProgramBlock = nullptr;
+                    pb = runningProgramms.erase(pb);
+                } else {
+                    ++pb;
+                }
+            } catch (const error::crash_error &e) {
+                QString msg(e.what());
+                for (const auto &frame : e.getStacktrace()) {
+                    const auto asString = boost::stacktrace::to_string(frame);
+                    if (asString.find("____") != std::string::npos) {
+                        QString filename;
+                        int lineNumber = -1;
+                        QProcess p;
+                        QString cmd = Compiler::compilerCmd;
+#ifdef Q_OS_WIN
+                        if (!cmd.endsWith(QLatin1String("g++.exe"))) {
+                            qDebug() << "Error in " << __FILE__ << " line " << __LINE__ << ": Can not build command to translate address to line. g++.exe not found in Compiler::cmd";
+                        } else {
+                            cmd.replace(QLatin1String("g++.exe"), QLatin1String("addr2line.exe"));
+
+                            auto pos = asString.find(" in ");
                             if (pos == std::string::npos) {
-                                pos = 0;
+                                pos = asString.find(" at ");
+                                if (pos == std::string::npos) {
+                                    pos = 0;
+                                } else {
+                                    pos += 4;
+                                }
                             } else {
                                 pos += 4;
                             }
-                        } else {
-                            pos += 4;
+                            p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(pos) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
+                            p.waitForFinished();
+                            QByteArray output = p.readAllStandardOutput();
+                            int seperator = output.lastIndexOf(':');
+                            filename = output.left(seperator);
+                            lineNumber = output.mid(seperator + 1).trimmed().toInt();
                         }
-                        p.start(cmd, QStringList() << QStringLiteral("-e") << QString::fromStdString(asString).mid(pos) << QString::number(reinterpret_cast<std::size_t>(frame.address()), 16));
-                        p.waitForFinished();
-                        QByteArray output = p.readAllStandardOutput();
-                        int seperator = output.lastIndexOf(':');
-                        filename = output.left(seperator);
-                        lineNumber = output.mid(seperator + 1).trimmed().toInt();
-                    }
 #else
 #warning OS not supported
 #endif
-                    if (lineNumber >= 0) {
-                        QFile file(filename);
-                        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                            break;
-                        }
-                        msg += " in line " + QString::number(lineNumber) + " in file " + filename.mid(filename.lastIndexOf('/') + 1) + "\n";
-                        int currentLineNumber = 0;
-                        while (!file.atEnd() && currentLineNumber < lineNumber + 2) {
-                            ++currentLineNumber;
-                            QByteArray line = file.readLine();
-                            if (currentLineNumber == lineNumber) {
-                                msg += "->" + line;
-                            } else if (currentLineNumber == lineNumber - 1 || currentLineNumber == lineNumber + 1) {
-                                msg += "     " + line;
+                        if (lineNumber >= 0) {
+                            QFile file(filename);
+                            if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+                                break;
                             }
+                            msg += " in line " + QString::number(lineNumber) + " in file " + filename.mid(filename.lastIndexOf('/') + 1) + "\n";
+                            int currentLineNumber = 0;
+                            while (!file.atEnd() && currentLineNumber < lineNumber + 2) {
+                                ++currentLineNumber;
+                                QByteArray line = file.readLine();
+                                if (currentLineNumber == lineNumber) {
+                                    msg += "->" + line;
+                                } else if (currentLineNumber == lineNumber - 1 || currentLineNumber == lineNumber + 1) {
+                                    msg += "     " + line;
+                                }
+                            }
+                            file.close();
                         }
-                        file.close();
+                        break;
                     }
-                    break;
                 }
-            }
-            ErrorNotifier::showError(QStringLiteral("Error while executing ") + (**pb).getName() + ":\n" + msg);
-            // if it was in a doStep call
-            if (deletingProgramBlock == nullptr) {
-                try {
-                    deletingProgramBlock = (*pb).get();
-                    (**pb).stop();
-                } catch (...) {
-                    // we ignore the error (the module is completly broken)
+                ErrorNotifier::showError(QStringLiteral("Error while executing ") + (**pb).getName() + ":\n" + msg);
+                // if it was in a doStep call
+                if (deletingProgramBlock == nullptr) {
+                    try {
+                        deletingProgramBlock = (*pb).get();
+                        (**pb).stop();
+                    } catch (...) {
+                        // we ignore the error (the module is completly broken)
+                    }
                 }
+                // maybe inside the stop call
+                deletingProgramBlock = nullptr;
+                // we remove the programm from the running list
+                pb = runningProgramms.erase(pb);
             }
-            // maybe inside the stop call
-            deletingProgramBlock = nullptr;
-            // we remove the programm from the running list
-            pb = runningProgramms.erase(pb);
         }
+        spotifyState.newTrack = false;
+        controlPoint.positionChanged = false;
     }
-    spotifyState.newTrack = false;
-    controlPoint.positionChanged = false;
 }
 
 void Controller::runProgramm(std::shared_ptr<ProgramBlock> pb){
