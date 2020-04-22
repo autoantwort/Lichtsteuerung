@@ -15,6 +15,13 @@ Graph::~Graph() {
     }
 }
 
+void Graph::setUseLogarithmicScale(bool use) {
+    if (useLogarithmicScale_ != use) {
+        useLogarithmicScale_ = use;
+        emit useLogarithmicScaleChanged();
+    }
+}
+
 void Graph::fillVertexData(QSGGeometry::Point2D *vertices) {
     const auto &data = getData();
     for (int i = 0; i < static_cast<int>(data.size()); ++i) {

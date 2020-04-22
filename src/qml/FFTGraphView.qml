@@ -113,6 +113,13 @@ Item {
                     anchors.horizontalCenter: parent.handle.horizontalCenter
                 }
             }
+
+            Item {}
+            CheckBox {
+                text: "Logarithmic scale"
+                checked: graph.useLogarithmicScale
+                onCheckedChanged: graph.useLogarithmicScale = checked
+            }
         }
     }
 }

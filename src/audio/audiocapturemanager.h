@@ -44,6 +44,7 @@ class AudioCaptureManager : public QObject
     // we use a optional to delay the creation of the object until we know the samplesPerFrame value
     std::optional<Aubio::SpectrumAnalysis> spectrumAnalysis;
     static constexpr int SPECTRUM_BUCKET_COUNT = 2048;
+    std::array<float, SPECTRUM_BUCKET_COUNT + 1> spectrumLogarithmic;
 
     int channels = -1;
     int samplesPerSecond = -1;

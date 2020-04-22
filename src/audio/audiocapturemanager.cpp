@@ -98,10 +98,14 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     }
     // db scale
     auto spectrum = spectrumAnalysis->getSpectrum();
-    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumAnalysis->getPointerToSpectrum(), [](auto i) { return 10 * std::log10(1 + i); });
+    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumLogarithmic.begin(), [](auto i) { return 10 * std::log10(1 + i); });
 
     if (GUI::Graph::getLast() && run) {
-        GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), spectrum.size());
+        if (GUI::Graph::getLast()->useLogarithmicScale()) {
+            GUI::Graph::getLast()->showData(spectrumLogarithmic.data(), static_cast<int>(spectrumLogarithmic.size()));
+        } else {
+            GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), static_cast<int>(spectrum.size()));
+        }
     }
     if (GUI::Colorplot::getLast() && run) {
         GUI::Colorplot::getLast()->startBlock();
