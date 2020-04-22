@@ -11,24 +11,26 @@ namespace GUI {
 class AudioEventDataView : public QQuickItem {
     Q_OBJECT
     std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::OnsetDataSeries *> onsetData;
-    std::map<enum Audio::Aubio::OnsetDetectionFunction, const Audio::EventSeries *> beatData;
+    std::map<enum Audio::Aubio::OnsetDetectionFunction, Audio::TempoAnalysisData> beatData;
     Q_PROPERTY(bool visibleForUser MEMBER visibleForUser NOTIFY visibleForUserChanged)
     Q_PROPERTY(int pixelPerSecond MEMBER pixelPerSecond NOTIFY pixelPerSecondChanged)
+    Q_PROPERTY(QAbstractItemModel *names READ getNames CONSTANT)
     int pixelPerSecond = 100;
     bool visibleForUser = true;
     float getX(const Audio::EventSeries *e, int sample);
+    ModelVector<QString> names;
 
 public:
-    enum DataType { BeatEvent, OnsetEvent, OnsetValue, ThresholdValue, Last = ThresholdValue };
+    enum DataType { BeatEvent, OnsetEvent, OnsetValue, Last = OnsetValue };
     Q_ENUM(DataType)
 
 private:
-    std::array<std::array<std::pair<bool, QColor>, DataType::Last>, static_cast<int>(Audio::Aubio::OnsetDetectionFunction::Last)> colors;
+    std::array<std::array<std::pair<bool, QColor>, DataType::Last + 1>, static_cast<int>(Audio::Aubio::OnsetDetectionFunction::Last) + 1> colors;
 
 public:
     explicit AudioEventDataView(QQuickItem *parent = nullptr);
 
-    Q_INVOKABLE int getNumberOfOnsetDetectionFunctions() const { return static_cast<int>(Audio::Aubio::OnsetDetectionFunction::Last); }
+    Q_INVOKABLE int getNumberOfOnsetDetectionFunctions() const { return static_cast<int>(Audio::Aubio::OnsetDetectionFunction::Last) + 1; }
     Q_INVOKABLE QString getNameOfOnsetDetectionFunctions(int f) const { return Audio::Aubio::toQString(Audio::Aubio::toOnsetDetectionFunction(f)); }
 
     Q_INVOKABLE void enableDetectionFor(int onsetDetectionFunction, DataType type, bool enabled = true) { enableDetectionFor(Audio::Aubio::toOnsetDetectionFunction(onsetDetectionFunction), type, enabled); }
@@ -42,6 +44,8 @@ public:
 
     Q_INVOKABLE QColor getColor(int onsetDetectionFunction, DataType usage) const { return getColor(Audio::Aubio::toOnsetDetectionFunction(onsetDetectionFunction), usage); }
     [[nodiscard]] QColor getColor(Audio::Aubio::OnsetDetectionFunction onsetDetectionFunction, DataType usage) const;
+
+    QAbstractItemModel *getNames() { return &names; }
 
 signals:
     void visibleForUserChanged();

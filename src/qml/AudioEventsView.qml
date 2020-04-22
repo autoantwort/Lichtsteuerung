@@ -23,6 +23,24 @@ Item {
             stepSize: 1;
             onValueChanged: parent.pixelPerSecond = value;
         }
+        Column{
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.bottom: parent.bottom
+            width: 200
+            Repeater{
+                model: dataView.names;
+                id: nameRepeater
+                delegate: Label{
+                    width: 200
+                    height: dataView.height / nameRepeater.count
+                    verticalAlignment: "AlignTop"
+                    topPadding: Math.min(15, Math.max(0, height / 2 - 20))
+                    leftPadding: 5
+                    text: modelData;
+                } // delegate
+            } // Repeater
+        } // Column
     }
     Item{
         property bool show: true
@@ -60,7 +78,7 @@ Item {
             Column{
                 Repeater{
                     id: rootRepeater
-                    property var names: ["Beat Events", "Onset Events", "Onset Values", "Onset Threshold"]
+                    property var names: ["Beat Events", "Onset Events", "Onset Values"]
                     model: dataView.getNumberOfOnsetDetectionFunctions();
                     delegate: ColumnLayout{
                         width: 195
@@ -71,7 +89,7 @@ Item {
                             text: dataView.getNameOfOnsetDetectionFunctions(index);
                         }
                         Repeater{
-                            model: 4
+                            model: 3
                             delegate: CheckBox{
                                 Layout.preferredHeight: implicitHeight-16
                                 Layout.fillWidth: true

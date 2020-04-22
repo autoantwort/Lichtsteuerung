@@ -39,7 +39,7 @@ class EventSeries {
      * @brief newestSample is the count of the newest sample, there is no newer sample
      */
     unsigned newestSample = 0;
-    const unsigned samplesPerSecond;
+    unsigned samplesPerSecond;
     /**
      * @brief events that are older than newestSample - neededRange gets deleted
      */

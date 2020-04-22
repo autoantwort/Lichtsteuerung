@@ -21,6 +21,8 @@ bool TempoAnalysis::processNewSamples(float *newSamples) {
 
 unsigned TempoAnalysis::getLastBeat() { return aubio_tempo_get_last(tempo.get()); }
 
+float TempoAnalysis::getCurrentTempoConfidence() { return aubio_tempo_get_confidence(tempo.get()); }
+
 float TempoAnalysis::getCurrentBPM() { return aubio_tempo_get_bpm(tempo.get()); }
 
 unsigned TempoAnalysis::getLastTatum() { return static_cast<unsigned>(aubio_tempo_get_last_tatum(tempo.get())); }

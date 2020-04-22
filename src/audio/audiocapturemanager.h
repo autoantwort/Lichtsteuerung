@@ -27,6 +27,12 @@ namespace Audio {
  *
  */
 
+struct TempoAnalysisData {
+    const EventSeries *events;
+    const float *confidence;
+    operator bool() { return events != nullptr; }
+};
+
 /**
  * @brief The AudioCaptureManager class gets the data from the captureWindowsSountoutput Project and analyse the data and give the data to the other components
  */
@@ -49,10 +55,19 @@ class AudioCaptureManager : public QObject
     int channels = -1;
     int samplesPerSecond = -1;
     int samplesPerFrame = -1;
+
+    struct TempoAnalysis {
+        Aubio::TempoAnalysis tempoAnalysis;
+        EventSeries events;
+        float currentConfidence;
+        TempoAnalysis(Aubio::OnsetDetectionFunction onsetDetectionFunction, int fftSize, int stepSize, int sampleRate)
+            : tempoAnalysis(onsetDetectionFunction, fftSize, stepSize, sampleRate), events(sampleRate), currentConfidence(0) {}
+        operator TempoAnalysisData() { return {&events, &currentConfidence}; }
+    };
     /**
      * @brief tempoAnalyzes all tempo analyzes that were request by requestTempoAnalysis
      */
-    std::map<Aubio::OnsetDetectionFunction, std::pair<Aubio::TempoAnalysis, EventSeries>> tempoAnalyzes;
+    std::map<Aubio::OnsetDetectionFunction, TempoAnalysis> tempoAnalyzes;
     /**
      * @brief onsetAnalyzes all onset analyzes that were request by requestOnsetAnalysis
      */
@@ -115,9 +130,9 @@ public:
      * @brief requestTempoAnalysis requests the data series from a tempo analysis that uses a spezific onset detection function
      * You can call the function with the same parameters multiple times, the result will be the same
      * @param f the onset function that should be used
-     * @return the Event Series produced by the analysis object using the specific onset detection function
+     * @return the Event Series produced by the analysis object using the specific onset detection function and a confidence level between 0 (no) and 1 (high)
      */
-    const EventSeries *requestTempoAnalysis(Aubio::OnsetDetectionFunction f);
+    TempoAnalysisData requestTempoAnalysis(Aubio::OnsetDetectionFunction f);
     /**
      * @brief requestOnsetAnalysis requests the data series from a onset analysis that uses a spezific onset detection function
      * You can call the function with the same parameters multiple times, the result will be the same
