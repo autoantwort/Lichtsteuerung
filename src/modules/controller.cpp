@@ -102,8 +102,14 @@ void Controller::updateSpotifyState(){
 }
 
 void Controller::run() noexcept{
+    using namespace std::chrono;
+    const auto start = steady_clock::now();
+    long lastElapsedMilliseconds = 0;
     while (run_) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(milliseconds(1));
+        auto elapsedMilliseconds = duration_cast<milliseconds>(steady_clock::now() - start).count();
+        const auto time_diff = elapsedMilliseconds - lastElapsedMilliseconds;
+        lastElapsedMilliseconds = elapsedMilliseconds;
         if (!run_) {
             break;
         }
@@ -111,7 +117,7 @@ void Controller::run() noexcept{
         updateSpotifyState();
         for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
             try {
-                if ((*pb)->doStep(1)) {
+                if ((*pb)->doStep(time_diff)) {
                     deletingProgramBlock = (*pb).get();
                     (**pb).stop();
                     deletingProgramBlock = nullptr;
