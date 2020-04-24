@@ -16,8 +16,7 @@ class MqttImpl : public detail::IMqttClientImpl {
     std::optional<std::tuple<QString, QByteArray, bool>> lastWillDelayed;
     std::optional<std::tuple<QString, int>> connectDelayed;
     std::set<std::pair<std::string, const char *>> callbacks;
-    std::vector<std::pair<const std::string &, std::function<void(std::string)>>> queried;
-    int test = -1;
+    std::vector<std::pair<std::string, std::function<void(std::string)>>> queried;
 
 public:
     MqttImpl();

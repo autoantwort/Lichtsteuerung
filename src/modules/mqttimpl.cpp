@@ -8,14 +8,11 @@ Modules::MqttImpl::MqttImpl() {
     ModuleManager::singletone()->controller().runInController([this]() {
         client = std::make_unique<QMqttClient>();
         QObject::connect(client.get(), &QMqttClient::connected, [this] {
-            qDebug() << this << " gets connected";
-            qDebug() << "finished  from " << QThread::currentThread();
             for (const auto &i : queried) {
                 if (client->state() != QMqttClient::Connected) {
                     // maybe we lose connection. Then we don't want to crash (subscribe adds than to queried)
                     return;
                 }
-                qDebug() << "topic " << i.first.c_str();
                 subscribe(i.first, i.second);
             }
             queried.clear();
@@ -35,7 +32,6 @@ Modules::MqttImpl::MqttImpl() {
 
 Modules::MqttImpl::~MqttImpl() {
     ModuleManager::singletone()->controller().runInController([c = client.release()] { delete c; });
-    qDebug() << this << " gets destroyed";
 }
 
 void Modules::MqttImpl::setLastWillMessage(const std::string &topic, const std::string &message, bool retain) {
@@ -62,19 +58,12 @@ void Modules::MqttImpl::publishMessage(const std::string &topic, const std::stri
 void Modules::MqttImpl::publishValue(const std::string &topic, const std::string &message) { publish(topic, message, true); }
 
 void Modules::MqttImpl::subscribe(const std::string &topic, std::function<void(std::string)> callback) {
-    qDebug() << "sub from " << QThread::currentThread() << this << test;
     if (!client || client->state() != QMqttClient::Connected) {
         // when not yet connected, wait for a connection and add than
-        qDebug() << "topic : " << topic.c_str();
         queried.emplace_back(topic, callback);
-        for (auto i : queried) {
-            qDebug() << "topic : " << i.first.c_str();
-        }
-        test = 200;
         return;
     }
     auto funcPointer = callback.target_type().name();
-    qDebug() << "topic : " << topic.c_str();
     if (callbacks.find(std::make_pair(topic, funcPointer)) != callbacks.end()) {
         // prevent double registrations of callbacks for the same topic
         return;
