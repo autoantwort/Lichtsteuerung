@@ -2,6 +2,7 @@
 #include "dmxconsumer.h"
 #include "ledconsumer.h"
 #include "module.h"
+#include "mqttimpl.h"
 #include "scanner.h"
 #include "scanner.hpp"
 #include "settings.h"
@@ -220,21 +221,31 @@ typedef Modules::Program* (*CreateProgramm)(unsigned int index);
                     func(&controller_.getControlPoint());
                 }
             }
-            if(f(MODUL_TYPE::IScanner)){
-                typedef void (*SetGetScannerByNameCallback)(std::function<IScanner*(const std::string &)>);
-                typedef void (*SetGetScannerByNameOrCreateCallback)(std::function<IScanner*(const std::string &)>);
+            if (f(MODUL_TYPE::IScanner)) {
+                typedef void (*SetGetScannerByNameCallback)(std::function<IScanner *(const std::string &)>);
+                typedef void (*SetGetScannerByNameOrCreateCallback)(std::function<IScanner *(const std::string &)>);
                 SetGetScannerByNameCallback getFunc = reinterpret_cast<SetGetScannerByNameCallback>(lib.resolve("_setGetScannerByNameCallback"));
                 SetGetScannerByNameOrCreateCallback getOrCreateFunc = reinterpret_cast<SetGetScannerByNameOrCreateCallback>(lib.resolve("_setGetScannerByNameOrCreateCallback"));
-                if(getFunc){
-                    getFunc([](const std::string &name){return Scanner::getByName(name);});
-                }else{
+                if (getFunc) {
+                    getFunc([](const std::string &name) { return Scanner::getByName(name); });
+                } else {
                     qDebug() << "getFunc is null, abort loading lib";
                     return;
                 }
-                if(getOrCreateFunc){
-                    getOrCreateFunc([](const std::string &name){return Scanner::getByNameOrCreate(name);});
-                }else{
+                if (getOrCreateFunc) {
+                    getOrCreateFunc([](const std::string &name) { return Scanner::getByNameOrCreate(name); });
+                } else {
                     qDebug() << "getOrCreateFunc is null, abort loading lib";
+                    return;
+                }
+            }
+            if (f(MODUL_TYPE::Mqtt)) {
+                using SetCreateMqttClientCallback = void (*)(std::function<detail::IMqttClientImpl *()>);
+                SetCreateMqttClientCallback getFunc = reinterpret_cast<SetCreateMqttClientCallback>(lib.resolve("_setCreateMqttClientCallback"));
+                if (getFunc) {
+                    getFunc([] { return new MqttImpl; });
+                } else {
+                    qWarning() << "Modules MqttClient: getFunc is null";
                     return;
                 }
             }

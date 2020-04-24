@@ -1036,6 +1036,7 @@ void CodeEditorHelper::compile(){
         stream << "#define HAVE_SPOTIFY" << endl;
         stream << "#define HAVE_CONTROL_POINT" << endl;
         stream << "#define HAVE_ISCANNER" << endl;
+        stream << "#define HAVE_MQTT" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;
@@ -1057,7 +1058,7 @@ void CodeEditorHelper::compile(){
         stream << "using namespace Modules;" << endl;
         stream << "using namespace std;" << endl;
         stream << "" << endl;
-        lineCounter += 15;
+        lineCounter += 16;
         stream << externCode << endl;
         lineCounter += externCode.count("\n") + 1;
         stream << "" << endl;
