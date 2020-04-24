@@ -278,12 +278,6 @@ namespace Modules {
 
     void ProgramBlock::start(Controller * c){
         if(status!=Running && c){
-            for(auto & p : programs){
-                p->start();
-            }
-            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
-                static_cast<Consumer*>(i->source.get())->start();
-            }
             setStatus(Running);
             c->runProgramm(shared_from_this());
             controller = c;
@@ -430,16 +424,25 @@ namespace Modules {
         }
     }
 
-    void ProgramBlockManager::writeToJsonObject(QJsonObject & o){
+    void ProgramBlock::runStartMethods() {
+        for (auto &p : programs) {
+            p->start();
+        }
+        for (auto i = consumer.cbegin(); i != consumer.cend(); ++i) {
+            static_cast<Consumer *>(i->source.get())->start();
+        }
+    }
+
+    void ProgramBlockManager::writeToJsonObject(QJsonObject &o) {
         QJsonArray a;
-        for(const auto & m : model){
+        for (const auto &m : model) {
             QJsonObject o1;
             m->writeJsonObject(o1);
             a.append(o1);
         }
-        o.insert("model",a);
+        o.insert("model", a);
     }
-    void ProgramBlockManager::readFromJsonObject(const QJsonObject & o){
+    void ProgramBlockManager::readFromJsonObject(const QJsonObject &o) {
         auto a = o["model"].toArray();
         for(auto val_:a){
             QJsonObject ob = val_.toObject();
@@ -450,6 +453,4 @@ namespace Modules {
             }
         }
     }
-
-
 }

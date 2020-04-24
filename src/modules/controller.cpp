@@ -126,6 +126,12 @@ void Controller::run() noexcept {
         lastElapsedMilliseconds = elapsedMilliseconds;
 
         std::unique_lock<std::mutex> l(vectorLock);
+        for (auto &i : runnables)
+            i();
+        runnables.clear();
+        for (auto &i : mustBeStartedPrograms)
+            i->runStartMethods();
+        mustBeStartedPrograms.clear();
         updateSpotifyState();
         for (auto pb = runningProgramms.begin(); pb != runningProgramms.end();) {
             try {
@@ -217,7 +223,8 @@ void Controller::run() noexcept {
 
 void Controller::runProgramm(std::shared_ptr<ProgramBlock> pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.push_back(pb);  
+    runningProgramms.push_back(pb);
+    mustBeStartedPrograms.push_back(pb);
 }
 
 void Controller::stopProgramm(std::shared_ptr<ProgramBlock> pb){
@@ -225,11 +232,13 @@ void Controller::stopProgramm(std::shared_ptr<ProgramBlock> pb){
     if(deletingProgramBlock == pb.get())
         return;
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.erase(std::remove(runningProgramms.begin(),runningProgramms.end(),pb),runningProgramms.end());    
+    runningProgramms.erase(std::remove(runningProgramms.begin(), runningProgramms.end(), pb), runningProgramms.end());
+    mustBeStartedPrograms.erase(std::remove(runningProgramms.begin(), runningProgramms.end(), pb), runningProgramms.end());
 }
 void Controller::stopProgramm(ProgramBlock* pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.erase(std::remove_if(runningProgramms.begin(),runningProgramms.end(),[&](const auto &v){return v.get()==pb;}),runningProgramms.end());    
+    runningProgramms.erase(std::remove_if(runningProgramms.begin(), runningProgramms.end(), [&](const auto &v) { return v.get() == pb; }), runningProgramms.end());
+    mustBeStartedPrograms.erase(std::remove_if(runningProgramms.begin(), runningProgramms.end(), [&](const auto &v) { return v.get() == pb; }), runningProgramms.end());
 }
 
 bool Controller::isProgramRunning(ProgramBlock * pb){

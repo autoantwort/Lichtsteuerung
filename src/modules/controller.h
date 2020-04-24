@@ -25,6 +25,8 @@ class Controller : public QObject {
     std::mutex mutex;
     std::condition_variable wait;
     std::vector<std::shared_ptr<ProgramBlock>> runningProgramms;
+    std::vector<std::shared_ptr<ProgramBlock>> mustBeStartedPrograms;
+    std::vector<std::function<void()>> runnables;
     std::mutex vectorLock;
     ProgramBlock * deletingProgramBlock = nullptr;
     // Variables for Spotify:
@@ -78,6 +80,13 @@ public:
         shouldRun = false;
         thread.exit();
         lastElapsedMilliseconds = -1;
+    }
+    /**
+     * @brief runInController executes the func in the controller thread, if the controller thread is stopped, the controller thread must be started to execute the function
+     */
+    void runInController(std::function<void()> func) {
+        std::unique_lock<std::mutex> l(vectorLock);
+        runnables.push_back(func);
     }
     ~Controller();
 

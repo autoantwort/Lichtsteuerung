@@ -86,6 +86,7 @@ namespace Modules {
     {
         Q_OBJECT
         friend class ModuleManager;
+        friend class Controller;
         /*  Input n programms
             m filters
             k consumer
@@ -336,6 +337,10 @@ namespace Modules {
                 emit statusChanged();
             }
         }
+        /**
+         * @brief runStartMethods runs the start methods of the programs and consumer, must be called from the controller thread
+         */
+        void runStartMethods();
     };
 
 
