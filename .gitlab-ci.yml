@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_13_0:latest
+image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_5.14.2:latest
 
 stages:
   - build
