@@ -46,14 +46,14 @@ deploy:
     refs:
       - windows-release
   script: 
-    - cp build/release/Lichtsteuerung.exe windows-release-5.13.0
-    - cp src/lib/boost/lib/libboost_context-mt-x64.dll windows-release-5.13.0
-    - cp src/lib/boost/lib/libboost_coroutine-mt-x64.dll windows-release-5.13.0
-    - mkdir -p windows-release-5.13.0/modulesHeader
-    - cp -r src/modules windows-release-5.13.0/modulesHeader
-    - echo "includePath=modulesHeader" >> windows-release-5.13.0/settings.ini
-#   - echo "moduleDirPath=modules" >> windows-release-5.13.0/settings.ini
-    - cp version.txt windows-release-5.13.0
+    - cp build/release/Lichtsteuerung.exe windows-release
+    - cp src/lib/boost/lib/libboost_context-mt-x64.dll windows-release
+    - cp src/lib/boost/lib/libboost_coroutine-mt-x64.dll windows-release
+    - mkdir -p windows-release/modulesHeader
+    - cp -r src/modules windows-release/modulesHeader
+    - echo "includePath=modulesHeader" >> windows-release/settings.ini
+#   - echo "moduleDirPath=modules" >> windows-release/settings.ini
+    - cp version.txt windows-release
   artifacts:
     paths:
-      - windows-release-5.13.0
+      - windows-release
