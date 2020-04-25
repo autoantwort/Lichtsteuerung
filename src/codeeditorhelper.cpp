@@ -77,7 +77,7 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
     multiLineCommentFormat.setForeground(Qt::red);
 
     quotationFormat.setForeground(Qt::darkGreen);
-    rule.pattern = QRegularExpression("\".*\"");
+    rule.pattern = QRegularExpression("\"(?:[^\"\\\\]|\\\\.)*\""); // js: /"(?:[^"\\]|\\.)*"/
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 
