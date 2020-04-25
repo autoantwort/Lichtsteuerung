@@ -63,6 +63,7 @@ SOURCES += \
     dmx/programmprototype.cpp \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
+    modules/mqttimpl.cpp \
     scanner.cpp \
     settingsfilewrapper.cpp \
     slideshow.cpp \
@@ -136,6 +137,8 @@ HEADERS += \
     dmx/dmxchannelfilter.h \
     modules/controlpoint.hpp \
     modules/ledconsumer.h \
+    modules/mqtt.hpp \
+    modules/mqttimpl.h \
     modules/scanner.hpp \
     scanner.h \
     settingsfilewrapper.h \
@@ -290,3 +293,9 @@ linux{
     # needed for the SystemVolume class
     LIBS += -lasound
 }
+
+# Qt MQTT
+
+INCLUDEPATH += $$PWD/lib/qtmqtt/include
+LIBS += -L$$PWD/lib/qtmqtt/lib -lQt5Mqtt
+

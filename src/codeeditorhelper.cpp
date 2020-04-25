@@ -1,8 +1,8 @@
 #include "codeeditorhelper.h"
-#include <QTextCursor>
-#include <QtQuick>
 #include "settings.h"
 #include "modules/compiler.h"
+#include <QTextCursor>
+#include <QtQuick>
 
 QString toName(Modules::Module::Type t){
     switch (t) {
@@ -264,10 +264,27 @@ void addCompletionsForType(PossibleCodeCompletions & model, QString type){
         model.push_back(new CodeCompletionEntry("setDmxValueForRotation(float rotation, unsigned char dmxValue)","void","Für den Motor der die Rotation nach links oder rechts des Spiegels bestimmt. Wenn der Spiegel nicht nach links oder rechts gedreht ist entspricht dies einenm dmxWert von 128 und einer Rotation von 0 Grad. Rotation nach rechts entspricht positiven graden und nach links negativen. Aus einem Winkel und den dazugehörigen DMX-Wert lassen sich alle anderen DMX-Werte berechnen."));
         model.push_back(new CodeCompletionEntry("computeDmxValuesForPointTo(float x, float y, float z = 0)","PointToResult","Diese Methode bestimmt die DMX-Werte für die beiden Motoren wenn der Scanner auf einen bestimmten Pnkte auf der Karte zeigen soll. Diese Funktion gibt ein PointToResult Objekt zurück."));
     }
-    if(type=="PointToResult"){
-        model.push_back(new CodeCompletionEntry("dmxValueForTilt","brightness_t","Der DMX-Wert den der Motor der für die Neigung zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
-        model.push_back(new CodeCompletionEntry("dmxValueForRotation","brightness_t","Der DMX-Wert den der Motor der für die Rotation zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
-        model.push_back(new CodeCompletionEntry("canBeReached","bool","Dieser Boolean gibt an, ob der Punkt vom Scanner überhaupt erreicht werden kann."));
+    if (type == "PointToResult") {
+        model.push_back(new CodeCompletionEntry("dmxValueForTilt", "brightness_t",
+                                                "Der DMX-Wert den der Motor der für die Neigung zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
+        model.push_back(new CodeCompletionEntry("dmxValueForRotation", "brightness_t",
+                                                "Der DMX-Wert den der Motor der für die Rotation zuständig ist annehmen soll, um auf den Punkt zu leuchtet, wenn canBeReached true ist."));
+        model.push_back(new CodeCompletionEntry("canBeReached", "bool", "Dieser Boolean gibt an, ob der Punkt vom Scanner überhaupt erreicht werden kann."));
+    }
+    if (type == "MqttClient" || type == "Mqtt") {
+        model.push_back(new CodeCompletionEntry("connect(\"example.com\", 1883 /*port*/);", "void", "Verbindet sich mit dem Server host am angegebenen Port."));
+        model.push_back(new CodeCompletionEntry("publishMessage(\"your/topic\", message);", "void", "Veröffentlicht unter der gegebenen Topic einen Wert."));
+        model.push_back(new CodeCompletionEntry("publishValue(\"your/topic\", value);", "void", "Veröffentlicht unter der gegebenen Topic einen Wert. Der Wert wird auf dem Mqtt Server gespeichert."));
+        model.push_back(new CodeCompletionEntry("status()", "MqttClientStatus",
+                                                "Gibt den Status der Verbindung zurück. Werte sind MqttClientStatus::Connected, MqttClientStatusDisconected und MqttClientStatus::Connecting"));
+        model.push_back(new CodeCompletionEntry("subscribe(\"your/topic\", [this](auto message){\n    \n  });", "void",
+                                                "Abboniert eine Topic, jedes mal, wenn dort eine Nachricht veröffentlich wird, wird das Callback aufgerufen"));
+        model.push_back(new CodeCompletionEntry("subscribe<int /* or float or bool */>(\"your/topic\", [this](auto value){\n    \n  });", "void",
+                                                "Abboniert eine Topic, jedes mal, wenn dort eine Nachricht veröffentlich wird, wird das Callback aufgerufen. Das Callback wird mit dem angegeben Typ "
+                                                "aufgerufen. Kann die Nachricht nicht zu diesem konvertiert werden, wird das Callback nicht aufgerufen."));
+        model.push_back(new CodeCompletionEntry("subscribe<int /* or float or bool */>(\"your/topic\", [this](auto message, bool hasValue, auto value){\n    \n  });", "void",
+                                                "Abboniert eine Topic, jedes mal, wenn dort eine Nachricht veröffentlich wird, wird das Callback aufgerufen. Das Callback wird mit dem angegeben Typ "
+                                                "aufgerufen. hasValue ist wahr, wenn die Konvertierung erfolgreich war."));
     }
     //model.push_back(new CodeCompletionEntry("","float",""));
 
@@ -285,8 +302,16 @@ void addDefaultVariables(PossibleCodeCompletions & model, Modules::Module * m){
     model.push_back(new CodeCompletionEntry("spotify->","SpotifyState","Ein Object, dass alle zu Spotify gehörigen Daten enthält."));
     model.push_back(new CodeCompletionEntry("controlPoint->","ControlPoint","Der ControlPoint der in dem Map View gesetzt werden kann."));
     model.push_back(new CodeCompletionEntry("Scanner::getByName(\"yourName\")","IScanner","Mit dieser Funktion kann man sich ein Scanner Objekt für einen bestimmten Name geben lassen. Dieses ist über alle Modules das Selbe."));
-    model.push_back(new CodeCompletionEntry("Scanner::getByNameOrCreate(\"yourName\")","IScanner","Mit dieser Funktion kann man sich ein Scanner Objekt für einen bestimmten Name geben lassen, bzw. wenn es dieses nicht gibt, wird eins erzeugt. Dieses ist dann über alle Modules das Selbe."));
-    model.push_back(new CodeCompletionEntry("IScanner * scanner = Scanner::getByName(\"yourName\")","IScanner","Deklariert eine Scanner Variable die einen per Namen referenzierten Scanner speichert."));
+    model.push_back(new CodeCompletionEntry("Scanner::getByNameOrCreate(\"yourName\")", "IScanner",
+                                            "Mit dieser Funktion kann man sich ein Scanner Objekt für einen bestimmten Name geben lassen, bzw. wenn es dieses nicht gibt, wird eins erzeugt. Dieses "
+                                            "ist dann über alle Modules das Selbe."));
+    model.push_back(
+        new CodeCompletionEntry("IScanner * scanner = Scanner::getByName(\"yourName\")", "IScanner", "Deklariert eine Scanner Variable die einen per Namen referenzierten Scanner speichert."));
+
+    model.push_back(new CodeCompletionEntry("MqttClient mqtt{\"test.com\", 1883}", "MqqtClient", "Deklariert einen Mqtt Klienten der sich mit dem Server test.com auf dem Port 1883 verbindet."));
+    model.push_back(new CodeCompletionEntry("MqttClient mqtt{\"lastWillTopic\", \"lastWillMessage\", bool retainOnServer}", "MqqtClient",
+                                            "Deklariert einen Mqtt Klienten mit einer last will message, diese wird gesendet, falls die Verbindung verloren geht. Mit der connnect Methode kann man "
+                                            "sich dann später mit den Server verbinden."));
 }
 
 void skipWhitespaces(int & cursor, QTextDocument * d){
@@ -582,10 +607,10 @@ QString CodeEditorHelper::getType(QString variable, int pos){
         return "SegmentObject";
     if(variable == "spotify")
         return "SpotifyState";
-    if(variable == "controlPoint")
-        return "ControlPoint";
-    if(variable.toLower().contains("scanner"))
-        return "IScanner";
+    if (variable == "controlPoint") return "ControlPoint";
+    const auto lower = variable.toLower();
+    if (lower.contains("scanner")) return "IScanner";
+    if (lower.contains("client") || lower.contains("mqtt")) return "MqttClient";
     {
         QString text = document->toPlainText();
         auto index = text.lastIndexOf(QRegularExpression(variable + " *="),pos);
@@ -1036,6 +1061,7 @@ void CodeEditorHelper::compile(){
         stream << "#define HAVE_SPOTIFY" << endl;
         stream << "#define HAVE_CONTROL_POINT" << endl;
         stream << "#define HAVE_ISCANNER" << endl;
+        stream << "#define HAVE_MQTT" << endl;
         switch (module->getType()) {
             case Modules::Module::Filter:
                 stream << "#define HAVE_FILTER" << endl;
@@ -1057,7 +1083,7 @@ void CodeEditorHelper::compile(){
         stream << "using namespace Modules;" << endl;
         stream << "using namespace std;" << endl;
         stream << "" << endl;
-        lineCounter += 15;
+        lineCounter += 16;
         stream << externCode << endl;
         lineCounter += externCode.count("\n") + 1;
         stream << "" << endl;
