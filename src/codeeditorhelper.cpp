@@ -43,7 +43,6 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
 {
     HighlightingRule rule;
 
-    keywordFormat.setForeground(Qt::darkBlue);
     keywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
@@ -59,36 +58,52 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
                     << "\\bauto\\b" << "\\bfor\\b"  << "\\bwhile\\b"  << "\\breturn\\b"  ;
     foreach (const QString &pattern, keywordPatterns) {
         rule.pattern = QRegularExpression(pattern);
-        rule.format = keywordFormat;
+        rule.format = &keywordFormat;
         highlightingRules.append(rule);
     }
 
     classFormat.setFontWeight(QFont::Bold);
     classFormat.setForeground(Qt::darkMagenta);
     rule.pattern = QRegularExpression("\\bQ[A-Za-z]+\\b");
-    rule.format = classFormat;
+    rule.format = &classFormat;
     highlightingRules.append(rule);
 
     singleLineCommentFormat.setForeground(Qt::red);
     rule.pattern = QRegularExpression("//[^\n]*");
-    rule.format = singleLineCommentFormat;
+    rule.format = &singleLineCommentFormat;
     highlightingRules.append(rule);
 
     multiLineCommentFormat.setForeground(Qt::red);
 
     quotationFormat.setForeground(Qt::darkGreen);
     rule.pattern = QRegularExpression("\"(?:[^\"\\\\]|\\\\.)*\""); // js: /"(?:[^"\\]|\\.)*"/
-    rule.format = quotationFormat;
+    rule.format = &quotationFormat;
     highlightingRules.append(rule);
 
     functionFormat.setFontItalic(true);
-    functionFormat.setForeground(Qt::blue);
     rule.pattern = QRegularExpression("\\b(?!(for|while|if))[A-Za-z0-9_]+\b*(?=\\()");
-    rule.format = functionFormat;
+    rule.format = &functionFormat;
     highlightingRules.append(rule);
 
     commentStartExpression = QRegularExpression("/\\*");
     commentEndExpression = QRegularExpression("\\*/");
+
+    const auto setColors = [this]() {
+        const auto s = Settings::getLastCreated();
+        const auto theme = s ? s->getTheme() : 0;
+        std::cout << theme << std::endl;
+        if (theme == 1 /* dark */) {
+            keywordFormat.setForeground(Qt::yellow);
+            functionFormat.setForeground(QColor(50, 255, 50));
+        } else {
+            keywordFormat.setForeground(Qt::darkBlue);
+            functionFormat.setForeground(Qt::blue);
+        }
+        rehighlight();
+    };
+    setColors();
+
+    QObject::connect(Settings::getLastCreated(), &Settings::themeChanged, setColors);
 }
 
 bool CodeCompletions::lessThan(const QModelIndex &left, const QModelIndex &right)const{
@@ -880,7 +895,7 @@ void CodeHighlighter::highlightBlock(const QString &text)
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
             QRegularExpressionMatch match = matchIterator.next();
-            setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            setFormat(match.capturedStart(), match.capturedLength(), *rule.format);
         }
     }
     setCurrentBlockState(0);

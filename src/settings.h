@@ -64,6 +64,7 @@ class Settings : public QObject {
     Q_PROPERTY(int theme READ getTheme WRITE setTheme NOTIFY themeChanged)
     Q_PROPERTY(unsigned int updatePauseInMs READ getUpdatePauseInMs WRITE setUpdatePauseInMs NOTIFY updatePauseInMsChanged)
     static inline QFileInfo localSettingsFile;
+    inline static Settings *lastSettings = nullptr;
 
 public:
     static constexpr auto OrganisationName = "Turmstraße 1 e.V.";
@@ -80,6 +81,7 @@ protected:
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant())const;
 public:
     explicit Settings(QObject *parent = nullptr);
+    static Settings *getLastCreated() { return lastSettings; }
 
     /**
      * @brief setJsonSettingsFilePath only sets the settings file path to the given path. For an advanced
