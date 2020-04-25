@@ -38,6 +38,12 @@ public:
     unsigned getLastBeat();
 
     /**
+     * @brief getCurrentTempoConfidence returns the current confidence about the tempo
+     * @return the confidence from 0.0 (no) to 1.0 (high)
+     */
+    float getCurrentTempoConfidence();
+
+    /**
      * @brief getCurrentBPM return the current determined beats per second
      * @return the currently determined beats per minute
      */

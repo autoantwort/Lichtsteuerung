@@ -57,6 +57,11 @@
 #include <id.h>
 #include <limits>
 
+#ifdef WITH_FELGO
+#include <FelgoApplication>
+#include <FelgoLiveClient>
+#endif
+
 #ifdef Q_OS_WIN
 #include <winuser.h>
 #endif
@@ -244,6 +249,10 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     CatchingErrorApplication app(argc, argv);
     QQmlApplicationEngine engine;
+#ifdef WITH_FELGO
+    FelgoApplication felgo;
+    felgo.initialize(&engine);
+#endif
     ControlPanel::setQmlEngine(&engine);
     ProgramBlockEditor::engine = &engine;
     Driver::dmxValueModel.setQMLEngineThread(engine.thread());
@@ -409,8 +418,10 @@ int main(int argc, char *argv[]) {
     engine.rootContext()->setContextProperty(QStringLiteral("SlideShow"), &SlideShow::get());
     engine.rootContext()->setContextProperty(QStringLiteral("SettingsFile"), &settingsFileWrapper);
     engine.rootContext()->setContextProperty(QStringLiteral("System"), &SystemVolume::get());
+#ifndef WITH_FELGO
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     engine.load(QUrl(QStringLiteral("qrc:/qml/SlideShowWindow.qml")));
+#endif
 
 
     // laden erst nach dem laden des qml ausführen
@@ -451,5 +462,8 @@ int main(int argc, char *argv[]) {
 
     Modules::ModuleManager::singletone()->controller().start();
     //ControlPanel::getLastCreated()->addDimmerGroupControl();
+#ifdef WITH_FELGO
+    FelgoLiveClient liveClient(&engine);
+#endif
     return CatchingErrorApplication::exec();
 }

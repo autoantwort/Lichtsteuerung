@@ -18,6 +18,10 @@ Um Docker für Windows herunterladen zu können muss man sich auf [Docker.com](h
 4. Führe zum bauen `docker build -t TAG .` aus, wobei du `TAG` durch `registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_current_qt_version` (current_qt_version durch z.B. 5_12_4 ersetzen) ersetzt wenn du das Image/den Container hochladen willst oder durch z.B. `lichtsteuerung/build_last_qt_version` oder was ähnliches wenn du das Image nur lokal für dich erstellstellen möchtest. Ist seit dem letzten mal eine neue Qt Version herausgekommen ([Blog](https://blog.qt.io/) [Versionsübersicht](https://wiki.qt.io/Template:Release_Information)) ist es notwendig, an den Befehl `--no-cache` anzuhängen, da Docker sonst einfach das Image vom letzten mal wiederverwendet und die alte Qt Version weiter benutzt.  
 5. Das Image kann nun mit `docker push TAG` (TAG vom Punkt 4 benutzten) in die Container Registry von GitLab hochgeladen werden. Lese davor [hier](https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/container_registry) die __komplette__ Seite, benutzte vor allem einen vernünftigen Image Namen oder Tag.
 
+#### Image Dateisystem ansehen
+- **Windows** (git bash): `winpty docker run --rm -it TAG bash` mit TAG z.B. `registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_14_2`
+- **Rest**: `docker run --rm -it TAG bash` mit TAG z.B. `registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_14_2`
+
 ## Cross compiling und Dockerfile
 Wir wollen auf einem Linux Container die Lichtsteuerung für Windows bauen. Nicht ganz trivial. Gott sei Dank gibt es dafür fertige Tools wie [MXE](https://github.com/mxe/mxe) die auch schon Qt fertig konfiguriert dabei haben. Vorgefertigte Docker-Images für die verschiedenen Betriebssysteme gibt es auch schon von [Dockcross](https://github.com/dockcross/dockcross), aber leider enthielten diese Fehler, weshalb ich ein neues Dockerfile aus dem bestehenden konstruiert habe. 
 

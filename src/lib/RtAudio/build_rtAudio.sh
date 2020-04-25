@@ -1,13 +1,22 @@
 #!/bin/bash
-
+set -e
 # see https://github.com/thestk/rtaudio/blob/master/install.txt
 
-# add and update git submodule
-git submodule init
-git submodule update
-# cd into git repo
 GIT_DIR=rtaudio
-cd $GIT_DIR
+# add or update git
+if [ ! -d "$GIT_DIR" ]; then # if folder "GIT_DIR" does not exists
+  git clone https://github.com/thestk/rtaudio.git "$GIT_DIR"
+  cd "$GIT_DIR"
+else
+  cd "$GIT_DIR"
+  if [[ $(git pull) = "Already up to date." ]]; then
+    # we can skip recompiling, because the last build is already up to date
+    echo "Already up to date."
+    exit 0
+  fi
+fi
+# we are in the "$GIT_DIR" now
+
 # build
 if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
     # we are on windows or on the gitlab ci

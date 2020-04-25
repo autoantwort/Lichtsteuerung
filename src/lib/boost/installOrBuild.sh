@@ -7,19 +7,12 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
         echo 'Error: you need brew to install boost. See https://brew.sh/.' >&2
         exit 1
     fi
-    if [[ -z "$(brew ls --versions boost)" ]]; then
-        echo "Installing boost..."
-        brew install boost
-    else
-        echo "Updating boost..."
-        brew upgrade boost
-    fi
-    if [[ -z "$(brew ls --versions boost-build)" ]]; then
-        echo "Installing boost-build..."
-        brew install boost-build
-    else
-        echo "Updating boost-build..."
-        brew upgrade boost-build
+    # we use git to check for the newest version, because it is a way faster (1 second vs 10)
+    echo "Get newest version of boost."
+    NEWEST_VERSION=$(git ls-remote --tags https://github.com/boostorg/boost.git | grep -ohE \\d\+\.\\d\+\.\\d\+$ | tail -1)
+    if [ "$(brew ls --versions boost boost-build | grep -c "$NEWEST_VERSION")" -ne "2" ]; then
+        echo "Installing boost and boost-build. If they are already installed, they get updated"
+        brew install boost boost-build
     fi
     echo "Boost installation complete"
 elif [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then

@@ -1,28 +1,32 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include <atomic>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
+#include "controlpoint.hpp"
 #include "programblock.h"
 #include "spotify.hpp"
 #include "spotify/spotify.h"
-#include "controlpoint.hpp"
 #include <QPointF>
+#include <QThread>
+#include <atomic>
+#include <chrono>
+#include <condition_variable>
+#include <mutex>
 
 namespace Modules {
 
 /**
  * @brief The Controller class controlls the whole Module system. Its load and execute it
  */
-class Controller
-{
-    std::atomic_bool run_;
-    std::thread thread;
+class Controller : public QObject {
+    Q_OBJECT
+    QThread thread;
+    std::atomic_bool shouldRun;
+    int timerId = -1;
     std::mutex mutex;
     std::condition_variable wait;
     std::vector<std::shared_ptr<ProgramBlock>> runningProgramms;
+    std::vector<std::shared_ptr<ProgramBlock>> mustBeStartedPrograms;
+    std::vector<std::function<void()>> runnables;
     std::mutex vectorLock;
     ProgramBlock * deletingProgramBlock = nullptr;
     // Variables for Spotify:
@@ -34,6 +38,9 @@ class Controller
     int lastIndexOfCurrentTatum = -1;
     int lastIndexOfCurrentSection = -1;
     int lastIndexOfCurrentSegment = -1;
+
+    std::chrono::steady_clock::time_point startPoint;
+    long lastElapsedMilliseconds = -1;
     // Control Point
     ControlPoint controlPoint;
 
@@ -64,20 +71,34 @@ public:
         controlPoint.positionChanged = true;
     }
     void start(){
-        if(!run_){
-            run_=true;
-            thread = std::thread([this](){
-                run();
-            });
+        if (!thread.isRunning()) {
+            shouldRun = true;
+            thread.start();
         }
     }
-    void stop(){run_=false;}
-    ~Controller(){run_ = false;if(thread.joinable())thread.join();}
+    void stop() {
+        shouldRun = false;
+        thread.exit();
+        lastElapsedMilliseconds = -1;
+    }
+    /**
+     * @brief runInController executes the func in the controller thread, if the controller thread is stopped, the controller thread must be started to execute the function
+     */
+    void runInController(std::function<void()> func) {
+        std::unique_lock<std::mutex> l(vectorLock);
+        runnables.push_back(func);
+    }
+    ~Controller();
+
 private:
     void runProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(ProgramBlock* pb);
-    bool isProgramRunning(ProgramBlock * pb);
+    bool isProgramRunning(ProgramBlock *pb);
+
+protected:
+    void timerEvent(QTimerEvent *event) override { run(); }
+
 private:
     /**
      * @brief haveAnalysis checks if currently a spotify analysis exists

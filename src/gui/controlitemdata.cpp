@@ -378,7 +378,7 @@ void DimmerGroupControlItemData::initRemoteProperties() {
                      [this]() { propertyChangedForRemote("canEditMinMaxMapping", UserManagment::get()->getCurrentUser()->havePermission(UserManagment::CHANGE_MIN_MAX_MAPPING) ? "true" : "false"); });
 
     const auto &mE = DMX::DMXChannelFilter::operationMetaEnum;
-    setRemotePropertyChangeCallback("maxOperation", [this](const QString &s) {
+    setRemotePropertyChangeCallback("maxOperation", [this, mE](const QString &s) {
         if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::CHANGE_MIN_MAX_MAPPING)) {
             auto data = s.toUtf8();
             auto v = mE.keyToValue(data.data());
@@ -389,7 +389,7 @@ void DimmerGroupControlItemData::initRemoteProperties() {
         }
         propertyChangedForRemote("maxOperation", mE.valueToKey(maxOperation));
     });
-    setRemotePropertyChangeCallback("minOperation", [this](const QString &s) {
+    setRemotePropertyChangeCallback("minOperation", [this, mE](const QString &s) {
         if (UserManagment::get()->getCurrentUser()->havePermission(UserManagment::CHANGE_MIN_MAX_MAPPING)) {
             auto data = s.toUtf8();
             auto v = mE.keyToValue(data.data());

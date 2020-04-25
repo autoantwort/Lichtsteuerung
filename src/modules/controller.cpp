@@ -2,15 +2,17 @@
 #include "compiler.h"
 #include "errornotifier.h"
 #include "system_error_handler.h"
+#include <QAbstractEventDispatcher>
 #include <QDebug>
 #include <QProcess>
 #include <mutex>
 
 namespace Modules {
 
-Controller::Controller():run_(false)
-{
+Controller::Controller() {
+    moveToThread(&thread);
 
+    QObject::connect(&thread, &QThread::started, [this]() { timerId = startTimer(1); });
 }
 
 void Controller::setSpotify(Spotify::Spotify *spotify){
@@ -50,9 +52,15 @@ void Controller::setSpotify(Spotify::Spotify *spotify){
     }
 }
 
-bool Controller::haveAnalysis()const{
-    return spotify&&spotify->getCurrentAudioAnalysis()&&spotify->getCurrentPlayingObject()&&spotify->getCurrentPlayingObject()->item;
+Controller::~Controller() {
+    shouldRun = false;
+    if (thread.isRunning()) {
+        thread.exit();
+        thread.wait();
+    }
 }
+
+bool Controller::haveAnalysis() const { return spotify && spotify->getCurrentAudioAnalysis() && spotify->getCurrentPlayingObject() && spotify->getCurrentPlayingObject()->item; }
 
 void Controller::updateSpotifyState(){
     if(haveAnalysis()){
@@ -101,17 +109,33 @@ void Controller::updateSpotifyState(){
 
 }
 
-void Controller::run() noexcept{
-    while (run_) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        if (!run_) {
-            break;
-        }
+void Controller::run() noexcept {
+    killTimer(timerId);
+    timerId = -1;
+    using namespace std::chrono;
+    startPoint = steady_clock::now();
+    lastElapsedMilliseconds = 0;
+
+    while (shouldRun) {
+
+        thread.msleep(1);
+        thread.eventDispatcher()->processEvents(QEventLoop::ExcludeUserInputEvents);
+
+        auto elapsedMilliseconds = duration_cast<duration<double, std::milli>>(steady_clock::now() - startPoint).count();
+        const int time_diff = static_cast<int>(std::round(elapsedMilliseconds)) - lastElapsedMilliseconds;
+        lastElapsedMilliseconds = elapsedMilliseconds;
+
         std::unique_lock<std::mutex> l(vectorLock);
+        for (auto &i : runnables)
+            i();
+        runnables.clear();
+        for (auto &i : mustBeStartedPrograms)
+            i->runStartMethods();
+        mustBeStartedPrograms.clear();
         updateSpotifyState();
-        for(auto pb = runningProgramms.begin() ; pb != runningProgramms.end();){
+        for (auto pb = runningProgramms.begin(); pb != runningProgramms.end();) {
             try {
-                if ((*pb)->doStep(1)) {
+                if ((*pb)->doStep(time_diff)) {
                     deletingProgramBlock = (*pb).get();
                     (**pb).stop();
                     deletingProgramBlock = nullptr;
@@ -199,7 +223,8 @@ void Controller::run() noexcept{
 
 void Controller::runProgramm(std::shared_ptr<ProgramBlock> pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.push_back(pb);  
+    runningProgramms.push_back(pb);
+    mustBeStartedPrograms.push_back(pb);
 }
 
 void Controller::stopProgramm(std::shared_ptr<ProgramBlock> pb){
@@ -207,16 +232,18 @@ void Controller::stopProgramm(std::shared_ptr<ProgramBlock> pb){
     if(deletingProgramBlock == pb.get())
         return;
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.erase(std::remove(runningProgramms.begin(),runningProgramms.end(),pb),runningProgramms.end());    
+    runningProgramms.erase(std::remove(runningProgramms.begin(), runningProgramms.end(), pb), runningProgramms.end());
+    mustBeStartedPrograms.erase(std::remove(runningProgramms.begin(), runningProgramms.end(), pb), runningProgramms.end());
 }
 void Controller::stopProgramm(ProgramBlock* pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    runningProgramms.erase(std::remove_if(runningProgramms.begin(),runningProgramms.end(),[&](const auto &v){return v.get()==pb;}),runningProgramms.end());    
+    runningProgramms.erase(std::remove_if(runningProgramms.begin(), runningProgramms.end(), [&](const auto &v) { return v.get() == pb; }), runningProgramms.end());
+    mustBeStartedPrograms.erase(std::remove_if(runningProgramms.begin(), runningProgramms.end(), [&](const auto &v) { return v.get() == pb; }), runningProgramms.end());
 }
 
 bool Controller::isProgramRunning(ProgramBlock * pb){
     std::unique_lock<std::mutex> l(vectorLock);
-    return std::any_of(runningProgramms.cbegin(),runningProgramms.cend(),[=](const auto & p){return p.get()==pb;});
+    return std::any_of(runningProgramms.cbegin(), runningProgramms.cend(), [=](const auto &p) { return p.get() == pb; });
 }
 
-}
+} // namespace Modules

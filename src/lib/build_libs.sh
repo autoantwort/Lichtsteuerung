@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+cd $(dirname "$0")
 
 echo "Build segvcatch"
 cd segvcatch
@@ -23,6 +25,11 @@ cd ..
 echo $'\n\nBuild RtAudio'
 cd RtAudio
 ./build_rtAudio.sh
+cd ..
+
+echo $'\n\nUpdate Qt MQTT'
+cd qtmqtt
+./getAndUpdate.sh
 cd ..
 
 echo "Lib installation complete"

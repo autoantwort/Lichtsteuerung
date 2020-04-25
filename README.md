@@ -24,7 +24,10 @@ Features:
 6. Nun Qt Creator wie [hier](documentation/QtCreator.md) beschrieben einrichten
 7. Dann git wie [hier](documentation/git.md) beschrieben einrichten
 8. Linux only: Die folgenden Pakete werden zum Bauen der Lichtsteuerung benötigt: `gcc make cmake autoconf libtool automake libasound2-dev libgl1-mesa-dev mesa-common-dev`. Man kann sie z.B. durch den Befehl `sudo apt install gcc make cmake ...` installieren.
-9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen.
+9. Im Ordner `src/lib` das Script `build_libs.sh` ausführen, sonst schlägt das Bauen der Lichtsteuerung fehl! __Wichtig unter Windows:__ Das Script in der bash Konsole des [Git SDKs](https://github.com/git-for-windows/build-extra/releases) ausführen, da sonst beim Bauen zu Fehlern kommt.
+
+#### Felgo Hot Reload
+Mit [Felgo Hot Reload](https://felgo.com/updates/release-3-4-0-qml-hot-reload-with-felgo-live) aktualisiert sich die Oberfläche automatisch, wenn man die QML Dateien (in diesen wird die Oberfläche beschrieben) ändert, sodass das Entwickeln von Oberflächen beschleunigt wird, da nicht immer die ganze Lichtsteuerung neu kompiliert und gestartet werden muss, um sich die Änderungen aus den QML Dateien anzusehen. Zum Einrichten von Felgo Hot Reload siehe [hier](documentation/FelgoHotReload.md).  
 
 ##### Git Branches
 Kleinere Sachen und Bugfixes werden direkt auf den `master` Branch committed. Soll etwas released werden, wird der `master` Branch in den `windows-release` Branch gemerged. Dann wird automatisch eine neue Version gebaut und die Lichtsteuerung updated sich selber.
@@ -48,12 +51,6 @@ Dieses Projekt enthält den aktuellen Treiber, der es ermöglicht, den USB zu DM
 
 ##### [LedConsumer](https://git.rwth-aachen.de/leander.schulten/comconsumer)
 Ein Consumer für die LEDs für das Module System. Nicht hier im git enthalten.
-
-### Wichtig! OpenSSL (hauptsächlich Windows 7)
-Windows 7, bzw. der Bar Pc aktuell(26.05.19) unterstützten nativ kein SSL, was aber von der Lichsteuerung für bestimmte Features gebraucht wird(Spotify, Updates). Qt untersützt OpenSSL, installieren muss man es aber selber.
-Installiert werden müssen:
-  - Visual Studio 2013 (VC++ 12.0) C++ Runtime [Downloadseite](https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads) [Downloadlink](https://download.visualstudio.microsoft.com/download/pr/10912036/b519cb85bab02255e6e00e4562942748/vcredist_x64.exe)
-  - OpenSSL [Downloadseite](https://slproweb.com/products/Win32OpenSSL.html) Ausgewählt wurde Win64 v1.0.2r Light [Downloadlink](https://slproweb.com/download/Win64OpenSSL_Light-1_0_2r.exe)
 
 ## Struktur des Projekts 
 Das Projekt ist inzwischen auf Ordnerebene in einzelne Bereiche aufgeteilt, einige werden nun genauer erklärt:

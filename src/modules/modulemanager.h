@@ -267,10 +267,12 @@ signals:
         typedef ModuleContainer<detail::Entry<Program>> ProgrammModuleContainer;
         typedef ModuleContainer<detail::Entry<Filter>> FilterModuleContainer;
         typedef ModuleContainer<detail::Entry<Consumer>> ConsumerModuleContainer;
-        typedef void (*SupportAudioFunc)(bool);
+        using SupportAudioFunc = void (*)(bool);
+        using SetFFTOutputViewFunc = void (*)(Modules::FFTOutputView<float> *);
         struct LibInfo{
             int libraryIdentifier = -1;
             SupportAudioFunc supportAudioFunc = nullptr;
+            SetFFTOutputViewFunc setFFTOutputViewFunc = nullptr;
         };
         std::vector<std::pair<QString,LibInfo>> loadedLibraryMap;
         int lastLibraryIdentifier = 0;
@@ -286,7 +288,7 @@ signals:
         template<typename Type, typename String, typename Callback>
         static void loadType(QLibrary & lib, ModuleContainer<detail::Entry<Type>> &c,String name, int libraryIdentifier, Callback = nullptr);
 
-        static SupportAudioFunc loadAudio(QLibrary & lib,Modules::FFTOutputView<float> * fftOutputView);
+        static std::tuple<SupportAudioFunc, SetFFTOutputViewFunc> loadAudio(QLibrary &lib, Modules::FFTOutputView<float> *fftOutputView);
 
     public:
         ModuleManager();

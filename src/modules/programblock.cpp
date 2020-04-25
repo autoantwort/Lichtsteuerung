@@ -1,16 +1,14 @@
 #include "programblock.h"
-#include <QJsonArray>
-#include <stdexcept>
 #include "modulemanager.h"
 #include "json_storage.h"
-
+#include <QJsonArray>
+#include <stdexcept>
 
 namespace Modules {
 
+ProgrammBlockVector ProgramBlockManager::model;
 
-    ProgrammBlockVector ProgramBlockManager::model;
-
-    namespace detail {
+namespace detail {
     template<typename PointerType>
     class SharedPtrComperator{
         public:
@@ -199,8 +197,9 @@ namespace Modules {
         bool isRunning = ModuleManager::singletone()->controller().isProgramRunning(this);
         programs.erase(it);
         programs.insert(newProgram);
-        if(isRunning)
-            newProgram->start();
+        if (isRunning) {
+            controller->runInController([=] { newProgram->start(); });
+        }
         for(auto & f : filter){
             for(auto &con : f.second.targeds){
                 if(con.second.targed == original.get()){
@@ -246,21 +245,22 @@ namespace Modules {
     void ProgramBlock::replaceConsumer(std::shared_ptr<Consumer> original, std::shared_ptr<Consumer> newConsumer){
         if(std::find_if(std::cbegin(consumer),std::cend(consumer),[&](const auto &c){return c.source == original;}) == std::end(consumer))
             return;
-        if(getStatus() == Running)
-            original->stop();
-        transferProperties(original.get(),newConsumer.get());
-        for(auto & f : consumer){
-            if(f.source == original){
+        if (getStatus() == Running) {
+            controller->runInController([=] { original->stop(); });
+        }
+        transferProperties(original.get(), newConsumer.get());
+        for (auto &f : consumer) {
+            if (f.source == original) {
                 f.source = newConsumer;
             }
         }
-        if(getStatus() == Running)
-            newConsumer->start();
-        emit propertyBaseChanged(original.get(),newConsumer.get());
+        if (getStatus() == Running) {
+            controller->runInController([=] { newConsumer->start(); });
+        }
+        emit propertyBaseChanged(original.get(), newConsumer.get());
     }
 
-
-    void ProgramBlock::restart(Controller * c){
+    void ProgramBlock::restart(Controller *c) {
         stop();
         start(c);
     }
@@ -278,12 +278,6 @@ namespace Modules {
 
     void ProgramBlock::start(Controller * c){
         if(status!=Running && c){
-            for(auto & p : programs){
-                p->start();
-            }
-            for(auto i = consumer.cbegin(); i != consumer.cend();++i){
-                static_cast<Consumer*>(i->source.get())->start();
-            }
             setStatus(Running);
             c->runProgramm(shared_from_this());
             controller = c;
@@ -430,16 +424,25 @@ namespace Modules {
         }
     }
 
-    void ProgramBlockManager::writeToJsonObject(QJsonObject & o){
+    void ProgramBlock::runStartMethods() {
+        for (auto &p : programs) {
+            p->start();
+        }
+        for (auto i = consumer.cbegin(); i != consumer.cend(); ++i) {
+            static_cast<Consumer *>(i->source.get())->start();
+        }
+    }
+
+    void ProgramBlockManager::writeToJsonObject(QJsonObject &o) {
         QJsonArray a;
-        for(const auto & m : model){
+        for (const auto &m : model) {
             QJsonObject o1;
             m->writeJsonObject(o1);
             a.append(o1);
         }
-        o.insert("model",a);
+        o.insert("model", a);
     }
-    void ProgramBlockManager::readFromJsonObject(const QJsonObject & o){
+    void ProgramBlockManager::readFromJsonObject(const QJsonObject &o) {
         auto a = o["model"].toArray();
         for(auto val_:a){
             QJsonObject ob = val_.toObject();
@@ -450,6 +453,4 @@ namespace Modules {
             }
         }
     }
-
-
-}
+    } // namespace Modules

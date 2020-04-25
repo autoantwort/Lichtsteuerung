@@ -1,5 +1,12 @@
 QT += qml quick networkauth network websockets
 
+# DEFINES += WITH_FELGO
+
+contains(DEFINES, WITH_FELGO) {
+    message("Run with Felgo")
+    CONFIG += felgo felgo-live    
+}
+
 CONFIG += c++1z force_debug_info
 
 TARGET = Lichtsteuerung
@@ -56,6 +63,7 @@ SOURCES += \
     dmx/programmprototype.cpp \
     modules/dmxconsumer.cpp \
     modules/ledconsumer.cpp \
+    modules/mqttimpl.cpp \
     scanner.cpp \
     settingsfilewrapper.cpp \
     slideshow.cpp \
@@ -129,6 +137,8 @@ HEADERS += \
     dmx/dmxchannelfilter.h \
     modules/controlpoint.hpp \
     modules/ledconsumer.h \
+    modules/mqtt.hpp \
+    modules/mqttimpl.h \
     modules/scanner.hpp \
     scanner.h \
     settingsfilewrapper.h \
@@ -283,3 +293,9 @@ linux{
     # needed for the SystemVolume class
     LIBS += -lasound
 }
+
+# Qt MQTT
+
+INCLUDEPATH += $$PWD/lib/qtmqtt/include
+LIBS += -L$$PWD/lib/qtmqtt/lib -lQt5Mqtt
+

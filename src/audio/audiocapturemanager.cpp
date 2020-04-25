@@ -35,7 +35,8 @@ void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     if (GUI::Colorplot::getLast()) {
         GUI::Colorplot::getLast()->setBlockSize(512);
     }
-    spectrumAnalysis.emplace(2048, samplesPerFrame);
+    spectrumAnalysis.emplace(SPECTRUM_BUCKET_COUNT, samplesPerFrame);
+    emit capturingStarted();
 }
 
 void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){    
@@ -85,11 +86,12 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
                     pair.second.increaseNewestSampleBy(samplesPerFrame);
                 }
                 for (auto &[onsetFunction, pair] : tempoAnalyzes) {
-                    bool wasBeat = pair.first.processNewSamples(sample.data() + sample.size() - restFrames);
+                    bool wasBeat = pair.tempoAnalysis.processNewSamples(sample.data() + sample.size() - restFrames);
                     if (wasBeat) {
-                        pair.second.addEvent(pair.first.getLastBeat());
+                        pair.events.addEvent(pair.tempoAnalysis.getLastBeat());
                     }
-                    pair.second.increaseNewestSampleBy(samplesPerFrame);
+                    pair.events.increaseNewestSampleBy(samplesPerFrame);
+                    pair.currentConfidence = pair.tempoAnalysis.getCurrentTempoConfidence();
                 }
                 restFrames -= samplesPerFrame;
             }
@@ -97,10 +99,14 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
     }
     // db scale
     auto spectrum = spectrumAnalysis->getSpectrum();
-    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumAnalysis->getPointerToSpectrum(), [](auto i) { return 10 * std::log10(1 + i); });
+    std::transform(spectrum.cbegin(), spectrum.cend(), spectrumLogarithmic.begin(), [](auto i) { return 10 * std::log10(1 + i); });
 
     if (GUI::Graph::getLast() && run) {
-        GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), spectrum.size());
+        if (GUI::Graph::getLast()->useLogarithmicScale()) {
+            GUI::Graph::getLast()->showData(spectrumLogarithmic.data(), static_cast<int>(spectrumLogarithmic.size()));
+        } else {
+            GUI::Graph::getLast()->showData(spectrumAnalysis->getPointerToSpectrum(), static_cast<int>(spectrum.size()));
+        }
     }
     if (GUI::Colorplot::getLast() && run) {
         GUI::Colorplot::getLast()->startBlock();
@@ -273,16 +279,16 @@ void AudioCaptureManager::setCurrentCaptureDevice(int index) {
     }
 }
 
-const EventSeries *AudioCaptureManager::requestTempoAnalysis(Aubio::OnsetDetectionFunction f) {
+TempoAnalysisData AudioCaptureManager::requestTempoAnalysis(Aubio::OnsetDetectionFunction f) {
     if (samplesPerSecond < 0) {
-        return nullptr;
+        return {nullptr, nullptr};
     }
     // check if already there
     if (const auto i = tempoAnalyzes.find(f); i != tempoAnalyzes.end()) {
-        return &i->second.second;
+        return i->second;
     }
     // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
-    return &tempoAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond), std::forward_as_tuple(samplesPerSecond))).first->second.second;
+    return tempoAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond)).first->second;
     // short:  tempoAnalyzes.emplace(f, {Aubio::TempoAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
 }
 

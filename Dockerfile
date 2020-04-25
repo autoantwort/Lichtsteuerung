@@ -26,6 +26,9 @@ ENV CMAKE_TOOLCHAIN_FILE /usr/src/mxe/usr/${MXE_TARGET_ARCH}-w64-mingw32.${MXE_T
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+# next line from https://github.com/romaricp/kit-starter-symfony-4-docker/issues/10
+RUN sudo rm -rf /var/lib/apt/lists/* && sudo apt update
+
 #
 # WINE is used as an emulator for try_run and tests with CMake.
 #
