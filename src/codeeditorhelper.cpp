@@ -83,7 +83,7 @@ CodeHighlighter::CodeHighlighter(QTextDocument * parent):QSyntaxHighlighter (par
 
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
-    rule.pattern = QRegularExpression("\\b[A-Za-z0-9_]+(?=\\()");
+    rule.pattern = QRegularExpression("\\b(?!(for|while|if))[A-Za-z0-9_]+\b*(?=\\()");
     rule.format = functionFormat;
     highlightingRules.append(rule);
 
