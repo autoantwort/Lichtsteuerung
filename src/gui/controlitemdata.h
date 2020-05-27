@@ -57,6 +57,7 @@ private:
     int mobileStartXBlock = 0;
     int mobileStartYBlock = 0;
     UserVisibilityModel userVisibilityModel;
+    QMetaObject::Connection userChangedConnection;
     static inline int counter = 0;
 
 public:

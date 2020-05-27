@@ -83,7 +83,7 @@ ControlItemData::ControlItemData(Type t, QObject *parent) : QObject(parent), typ
 ControlItemData::ControlItemData(const QJsonObject &o, QObject *parent)
     : QObject(parent), startXBlock(o["startXBlock"].toInt()), startYBlock(o["startYBlock"].toInt()), mobileStartXBlock(o["mobileStartXBlock"].toInt(startXBlock)),
       mobileStartYBlock(o["mobileStartYBlock"].toInt(startYBlock)), userVisibilityModel(o), type(static_cast<Type>(o["type"].toInt())) {
-    QObject::connect(UserManagment::get(), &UserManagment::currentUserChanged, [this]() {
+    userChangedConnection = QObject::connect(UserManagment::get(), &UserManagment::currentUserChanged, [this]() {
         emit isVisibleForUserChanged();
         propertyChangedForRemote("isVisibleForUser", isVisibleForUser() ? "true" : "false");
     });
@@ -154,6 +154,7 @@ void ControlItemData::setStartYBlock(int i) {
 
 GUI::ControlItemData::~ControlItemData() {
     ControlItemSync::get().deregisterControlItenData(this);
+    QObject::disconnect(userChangedConnection);
 }
 
 // start ProgrammControlItemData
