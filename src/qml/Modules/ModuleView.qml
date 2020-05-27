@@ -347,8 +347,8 @@ Item{
             TextArea{
                 z: 2
                 property real lineHeight: contentHeight/lineCount
-                font.family: "Liberation Mono"
-                font.pointSize: 10
+                font.family: "Courier"
+                font.pointSize: 12
                 tabStopDistance: 16
                 hoverEnabled: false
 
@@ -554,9 +554,9 @@ Item{
                 Repeater{
                     model: codeEditorHelper.codeMarkups
                     Rectangle{
-                        x: modelData.column * (textMetrics.width+1)
+                        x: modelData.column * (textMetrics.advanceWidth)
                         y: modelData.row * height
-                        width: modelData.markupLength * (textMetrics.width+1)
+                        width: modelData.markupLength * (textMetrics.advanceWidth)
                         height: codeEditor.lineHeight
                         color: modelData.error ? "red" : "orange"
                         MouseArea{
