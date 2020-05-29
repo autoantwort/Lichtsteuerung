@@ -45,12 +45,11 @@ else
     exit 1
   fi
 fi
-export QT_LATEST="$LATEST"
-
-BUILD=$(ls "$QT/$LATEST/" | grep _64)  
+export QT_LATEST="$LATEST" 
 
 # on windows we have to set the path to use the right compiler
 if [[ "$OSTYPE" == "msys" ]];then
+    BUILD=$(ls "$QT/$LATEST/" | grep _64) 
     compilerDir=$(echo $BUILD | sed s/_/0_/ ) # build is e.g. mingw73_64, but the compiler dir is than mingw730_64
     export PATH="$QT\\$LATEST\\$BUILD\\bin;$QT\\Tools\\$compilerDir\\bin;$PATH"
     QT_N=$(echo $QT | sed 's/\\/\//' ) # here we need normal slashed, but in path backslashes -.-
@@ -62,11 +61,12 @@ fi
 if [ ! -z "$GITLAB_CI" ]; then # in gitlab CI
   qmake=/usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake
 else
+  BUILD=$(ls "$QT/$LATEST/" | grep _64) 
   qmake="$QT/$LATEST/$BUILD/bin/qmake"
 fi
 export qmake=$qmake
 
-if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
   make="mingw32-make.exe"
 else
   make="make"

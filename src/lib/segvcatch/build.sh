@@ -26,7 +26,7 @@ mkdir -p release
 cd release
 
 # build
-if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
     # we are on windows
     # from build_mingw_release.bat
     cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release ../lib

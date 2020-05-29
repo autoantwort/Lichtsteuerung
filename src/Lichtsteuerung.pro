@@ -299,12 +299,19 @@ LIBS += -L$$PWD/lib/qtmqtt/lib -lQt5Mqtt
 
 
     # QuaZip
-
+GITLAB_CI=$$(GITLAB_CI)
+!isEmpty(GITLAB_CI){
+    # in the gitlab CI quazip and zlib is build by mxe
+    LIBS += -L/usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/bin
+    LIBS += -lquazip -lzlib1
+}else{
     INCLUDEPATH += $$PWD/lib/quazip/dist/include
-    LIBS += -L$$PWD/lib/quazip/dist/bin -lQt5Quazip1
-win32 {
-    LIBS += -L$$PWD/lib/quazip/zlib_windows/bin -lzlib1
-} else {
-    LIBS += -lz
+    win32 {
+        LIBS += -L$$PWD/lib/quazip/dist/bin -lQt5Quazip1
+        LIBS += -L$$PWD/lib/quazip/zlib_windows/bin -lzlib1
+    } else { # macOS and linux
+        LIBS += -L$$PWD/lib/quazip/dist/lib -lQt5Quazip
+        LIBS += -lz
+    }
 }
 

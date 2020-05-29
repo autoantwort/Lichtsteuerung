@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -o xtrace
 cd $(dirname "$0")
 
 source ./scripts/set_env.sh

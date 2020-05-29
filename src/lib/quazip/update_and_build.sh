@@ -3,10 +3,15 @@ set -e
 # set -o xtrace to debug commands
 # see https://stachenov.github.io/quazip/
 
+if ! [[ -z "$GITLAB_CI" ]];then
+  # in the ci we can skip this step because quazip is already installed via mxe
+  exit 0
+fi
+
 source ../scripts/set_env.sh
 
 # if we are on windows, we first have to build zlib
-if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
   cd zlib_windows
   ./build_windows.sh
   cd ..
@@ -18,7 +23,7 @@ GIT_DIR=quazip
 cd $GIT_DIR
 # we are in the "$GIT_DIR" now
 
-if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
+if [[ "$OSTYPE" == "msys" ]]; then
   qmakeOptions=("LIBS += -L'\$\$PWD/../../zlib_windows/bin' -lzlib1" "INCLUDEPATH += '\$\$PWD../../zlib_windows/include'" PREFIX=../../dist quazip.pro)
 else
   qmakeOptions=("LIBS += -lz" PREFIX=../../dist quazip.pro)
