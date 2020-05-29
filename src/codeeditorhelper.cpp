@@ -520,7 +520,7 @@ void addUserVariables(PossibleCodeCompletions & model, int cursorPos, Modules::M
                 ++startIndex;
                 CHECK_END(startIndex)
             }
-            for(const auto & parts : parameters.splitRef(",",QString::SplitBehavior::SkipEmptyParts)){
+            for (const auto &parts : parameters.splitRef(",", Qt::SplitBehaviorFlags::SkipEmptyParts)) {
                 model.push_back(new CodeCompletionEntry(parts.mid(parts.lastIndexOf(" ")).toString(),parts.left(parts.lastIndexOf(" ")).toString(),""));
             }
         }
@@ -926,21 +926,21 @@ void CodeHighlighter::highlightBlock(const QString &text)
 QTextStream& writeDeclaration(QTextStream& out, const Modules::detail::PropertyInformation *p){
     using namespace Modules;
     if (p->getType() == Property::Bool) {
-        out << "BoolProperty _" << p->getName() << ';' << endl;
+        out << "BoolProperty _" << p->getName() << ';' << Qt::endl;
     } else if (p->getType() == Property::String) {
-        out << "StringProperty _" << p->getName() << ";" << endl;
+        out << "StringProperty _" << p->getName() << ";" << Qt::endl;
     } else if (p->getType() == Property::RGB) {
-        out << "RGBProperty _" << p->getName() << ";" << endl;
+        out << "RGBProperty _" << p->getName() << ";" << Qt::endl;
     } else {
-        out << "NumericProperty<" << toName(p->getType()) << "> _" << p->getName() << ";" << endl;
+        out << "NumericProperty<" << toName(p->getType()) << "> _" << p->getName() << ";" << Qt::endl;
     }
     return out;
 }
 QTextStream& writeConstructor(QTextStream& out, const Modules::detail::PropertyInformation *p){
     using namespace Modules;
-    out << "properties.push_back(& _"<< p->getName()<< ");" << endl;
-    out << "_" << p->getName() << ".setName(\""<< p->getName() << "\");" << endl;
-    out << "_" << p->getName() << ".setDescription(\""<< p->getDescription() << "\");" << endl;
+    out << "properties.push_back(& _" << p->getName() << ");" << Qt::endl;
+    out << "_" << p->getName() << ".setName(\"" << p->getName() << "\");" << Qt::endl;
+    out << "_" << p->getName() << ".setDescription(\"" << p->getDescription() << "\");" << Qt::endl;
     return out;
 }
 
@@ -1028,8 +1028,8 @@ QString getPropertiesNumericContructors(const Modules::PropertiesVector & vec){
         case Modules::Property::Long:
             s += "_" + p->getName() + "("+ QString::number(p->getMinValue())+","+QString::number(p->getMaxValue())+","+QString::number(p->getDefaultValue()) +"),";
             break;
-        case Modules::Property::Bool: s += "_" + p->getName() + "(" + QString::number(p->getDefaultValue()) + "),";
-        case Modules::Property::String: s += "_" + p->getName() + "(\"\"),";
+        case Modules::Property::Bool: s += "_" + p->getName() + "(" + QString::number(p->getDefaultValue()) + "),"; break;
+        case Modules::Property::String: s += "_" + p->getName() + "(\"\"),"; break;
         }
     }
     if(s.length()==1)
@@ -1071,109 +1071,102 @@ void CodeEditorHelper::compile(){
         QString inputType = toName(module->getInputType());
         QString outputType = toName(module->getOutputType());
         QTextStream stream( &file );
-        stream << "#define MODULE_LIBRARY" << endl;
-        stream << "#define HAVE_AUDIO" << endl;
-        stream << "#define HAVE_SPOTIFY" << endl;
-        stream << "#define HAVE_CONTROL_POINT" << endl;
-        stream << "#define HAVE_ISCANNER" << endl;
-        stream << "#define HAVE_MQTT" << endl;
+        stream << "#define MODULE_LIBRARY" << Qt::endl;
+        stream << "#define HAVE_AUDIO" << Qt::endl;
+        stream << "#define HAVE_SPOTIFY" << Qt::endl;
+        stream << "#define HAVE_CONTROL_POINT" << Qt::endl;
+        stream << "#define HAVE_ISCANNER" << Qt::endl;
+        stream << "#define HAVE_MQTT" << Qt::endl;
         switch (module->getType()) {
-            case Modules::Module::Filter:
-                stream << "#define HAVE_FILTER" << endl;
-                break;
-            case Modules::Module::Program:
-                stream << "#define HAVE_PROGRAM" << endl;
-                break;
-            case Modules::Module::LoopProgram:
-                stream << "#define HAVE_LOOP_PROGRAM" << endl;
-                break;
-            default:
-                return;
+        case Modules::Module::Filter: stream << "#define HAVE_FILTER" << Qt::endl; break;
+        case Modules::Module::Program: stream << "#define HAVE_PROGRAM" << Qt::endl; break;
+        case Modules::Module::LoopProgram: stream << "#define HAVE_LOOP_PROGRAM" << Qt::endl; break;
+        default: return;
         }
-        stream << "#include <module.h>" << endl;
-        stream << "#include <iostream>" << endl;
-        stream << "#define _USE_MATH_DEFINES"<<endl;
-        stream << "#include <cmath>"<<endl;
-        stream << "" << endl;
-        stream << "using namespace Modules;" << endl;
-        stream << "using namespace std;" << endl;
-        stream << "" << endl;
+        stream << "#include <module.h>" << Qt::endl;
+        stream << "#include <iostream>" << Qt::endl;
+        stream << "#define _USE_MATH_DEFINES" << Qt::endl;
+        stream << "#include <cmath>" << Qt::endl;
+        stream << "" << Qt::endl;
+        stream << "using namespace Modules;" << Qt::endl;
+        stream << "using namespace std;" << Qt::endl;
+        stream << "" << Qt::endl;
         lineCounter += 16;
-        stream << externCode << endl;
+        stream << externCode << Qt::endl;
         lineCounter += externCode.count("\n") + 1;
-        stream << "" << endl;
+        stream << "" << Qt::endl;
         if(module->getType() == Modules::Module::Filter){
-            stream << "class Impl : public Typed" << typeName << "<"<<inputType<<","<<outputType<<">{"<< endl;
+            stream << "class Impl : public Typed" << typeName << "<" << inputType << "," << outputType << ">{" << Qt::endl;
         }else{
-            stream << "class Impl : public Typed" << typeName << "<"<<outputType<<">{"<< endl;
+            stream << "class Impl : public Typed" << typeName << "<" << outputType << ">{" << Qt::endl;
         }
         lineCounter += 2;
         for(const auto &p : module->getProperties()){
             writeDeclaration(stream,p);
             ++lineCounter;
         }
-        stream << "public:" << endl;
-        stream << "Impl()" << getPropertiesNumericContructors(module->getProperties()) <<"{" << endl;
+        stream << "public:" << Qt::endl;
+        stream << "Impl()" << getPropertiesNumericContructors(module->getProperties()) << "{" << Qt::endl;
         lineCounter += 2;
         for(const auto &p : module->getProperties()){
             writeConstructor(stream,p);
             lineCounter += 3;
         }
-        stream << "}" << endl;
-        stream << "const char* getName()const final override{" << endl;
-        stream <<   "return \"" << module->getName()<< "\";" << endl;
-        stream << "}" << endl;
-        stream << "" << endl;
+        stream << "}" << Qt::endl;
+        stream << "const char* getName()const final override{" << Qt::endl;
+        stream << "return \"" << module->getName() << "\";" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "" << Qt::endl;
         lineCounter += 5;
-        stream << userCode << endl; // write Code from document
-        stream << "" << endl;
-        stream << "};" << endl; // class end
-        stream << "" << endl;
+        stream << userCode << Qt::endl; // write Code from document
+        stream << "" << Qt::endl;
+        stream << "};" << Qt::endl; // class end
+        stream << "" << Qt::endl;
         if(module->isSpotifyResponder()){
             //subclass to override doStep
-            stream << "class ImplSpotify : public Impl{"<<endl;
-            stream << " virtual " <<((module->getType() == Modules::Module::Filter)?"void":"ProgramState") << " doStep(time_diff_t t)override{"<<endl;
-            stream << "  if(spotify->newTrack)newTrack(spotify->currentTrack);"<<endl;
-            stream << "  if(spotify->newSection)onSection(spotify->currentSection);"<<endl;
-            stream << "  if(spotify->newSegment)onSegment(spotify->currentSegment);"<<endl;
-            stream << "  if(spotify->newTatum)onTatum(spotify->currentTatum);"<<endl;
-            stream << "  if(spotify->newBar)onBar(spotify->currentBar);"<<endl;
-            stream << "  if(spotify->newBeat)onBeat(spotify->currentBeat);"<<endl;
-            stream << "  "<< ((module->getType() == Modules::Module::Filter)?"Impl::doStep(t);":"return Impl::doStep(t);") << endl;
-            stream << " }"<<endl;
-            stream << "};"<<endl;
+            stream << "class ImplSpotify : public Impl{" << Qt::endl;
+            stream << " virtual " << ((module->getType() == Modules::Module::Filter) ? "void" : "ProgramState") << " doStep(time_diff_t t)override{" << Qt::endl;
+            stream << "  if(spotify->newTrack)newTrack(spotify->currentTrack);" << Qt::endl;
+            stream << "  if(spotify->newSection)onSection(spotify->currentSection);" << Qt::endl;
+            stream << "  if(spotify->newSegment)onSegment(spotify->currentSegment);" << Qt::endl;
+            stream << "  if(spotify->newTatum)onTatum(spotify->currentTatum);" << Qt::endl;
+            stream << "  if(spotify->newBar)onBar(spotify->currentBar);" << Qt::endl;
+            stream << "  if(spotify->newBeat)onBeat(spotify->currentBeat);" << Qt::endl;
+            stream << "  " << ((module->getType() == Modules::Module::Filter) ? "Impl::doStep(t);" : "return Impl::doStep(t);") << Qt::endl;
+            stream << " }" << Qt::endl;
+            stream << "};" << Qt::endl;
         }
-        stream << "" << endl;
-        stream << "unsigned int getNumberOf"<<typeName<<"s(){" << endl;
-        stream << " return 1;" << endl;
-        stream << "}" << endl;
-        stream << "" << endl;
-        stream << "char const * getNameOf"<<typeName<<"(unsigned int index){" << endl;
-        stream <<   "switch (index) {" << endl;
-        stream <<       "case 0:" << endl;
-        stream <<           "return \""<<module->getName()<<"\";" << endl;
-        stream <<       "default:" << endl;
-        stream <<           "return \"Wrong index\";" << endl;
-        stream <<   "}" << endl;
-        stream << "}" << endl;
-        stream << "" << endl;
-        stream << "char const * getDescriptionOf"<<typeName<<"(unsigned int index){" << endl;
-        stream <<   "switch (index) {" << endl;
-        stream <<       "case 0:" << endl;
-        stream <<           "return \""<<module->getDescription()<<"\";" << endl;
-        stream <<       "default:" << endl;
-        stream <<           "return \"Wrong index\";" << endl;
-        stream <<   "}" << endl;
-        stream << "}" << endl;
-        stream << "" << endl;
-        stream << typeName << " * create"<< typeName <<"(unsigned int index){ " << endl;
-        stream << "  switch (index) {" << endl;
-        stream << "    case 0:" << endl;
-        stream << "      return new " << (module->isSpotifyResponder()? "ImplSpotify":"Impl") << ";" << endl;
-        stream << "    default:" << endl;
-        stream << "      return nullptr;" << endl;
-        stream << "  }" << endl;
-        stream << "}" << endl;
+        stream << "" << Qt::endl;
+        stream << "unsigned int getNumberOf" << typeName << "s(){" << Qt::endl;
+        stream << " return 1;" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "" << Qt::endl;
+        stream << "char const * getNameOf" << typeName << "(unsigned int index){" << Qt::endl;
+        stream << "switch (index) {" << Qt::endl;
+        stream << "case 0:" << Qt::endl;
+        stream << "return \"" << module->getName() << "\";" << Qt::endl;
+        stream << "default:" << Qt::endl;
+        stream << "return \"Wrong index\";" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "" << Qt::endl;
+        stream << "char const * getDescriptionOf" << typeName << "(unsigned int index){" << Qt::endl;
+        stream << "switch (index) {" << Qt::endl;
+        stream << "case 0:" << Qt::endl;
+        stream << "return \"" << module->getDescription() << "\";" << Qt::endl;
+        stream << "default:" << Qt::endl;
+        stream << "return \"Wrong index\";" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "}" << Qt::endl;
+        stream << "" << Qt::endl;
+        stream << typeName << " * create" << typeName << "(unsigned int index){ " << Qt::endl;
+        stream << "  switch (index) {" << Qt::endl;
+        stream << "    case 0:" << Qt::endl;
+        stream << "      return new " << (module->isSpotifyResponder() ? "ImplSpotify" : "Impl") << ";" << Qt::endl;
+        stream << "    default:" << Qt::endl;
+        stream << "      return nullptr;" << Qt::endl;
+        stream << "  }" << Qt::endl;
+        stream << "}" << Qt::endl;
         stream.flush();
         file.close();
 

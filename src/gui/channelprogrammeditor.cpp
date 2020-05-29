@@ -60,7 +60,7 @@ double CurrentTimePointWrapper::getTime() const {
     return 0;
 }
 
-ChannelProgrammEditor::ChannelProgrammEditor() : currentTimePointWrapper(this), modifier(0) {
+ChannelProgrammEditor::ChannelProgrammEditor() : currentTimePointWrapper(this), modifier() {
     setFlag(ItemHasContents, true);
     setFlag(ItemIsFocusScope, true);
     setAcceptedMouseButtons(Qt::AllButtons);
@@ -385,7 +385,6 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event) {
                 updateHoverSegment();
             }
         } else {
-            auto oldIter = currentTimePoint;
             currentTimePoint = getTimePointForPosition(event->x(), event->y());
             if (currentTimePoint == channelProgramm->timeline.end()) {
                 // no timepoints gets selected, lets select a segment

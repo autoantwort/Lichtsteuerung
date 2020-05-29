@@ -97,7 +97,7 @@ private:
     bool isProgramRunning(ProgramBlock *pb);
 
 protected:
-    void timerEvent(QTimerEvent *event) override { run(); }
+    void timerEvent(QTimerEvent * /*event*/) override { run(); }
 
 private:
     /**
