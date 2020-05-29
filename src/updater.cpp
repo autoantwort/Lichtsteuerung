@@ -1,12 +1,15 @@
 #include "updater.h"
 
-#include "zip.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QFuture>
+#include <QFutureWatcher>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
 #include <QTemporaryFile>
+#include <QtConcurrent/QtConcurrentRun>
+#include <quazip/JlCompress.h>
 
 QByteArray getFileContent(const QString & filename){
     QFile file(filename);
@@ -44,7 +47,11 @@ void Updater::checkForUpdate(){
         version.write(response->readAll());
         version.close();
         response->deleteLater();
-        Zip::unzip(QFileInfo(version), QFileInfo(version).absolutePath(), [this, version = QFileInfo(version)](auto success) {
+
+        auto watcher = new QFutureWatcher<bool>;
+        connect(watcher, &QFutureWatcher<bool>::finished, [this, version = QFileInfo(version), watcher]() {
+            watcher->deleteLater();
+            bool success = watcher->future().result();
             if (!success) {
                 qDebug() << "not successful when unzipping version.zip";
                 state = UpdaterState::NoUpdateAvailible;
@@ -66,6 +73,10 @@ void Updater::checkForUpdate(){
                 emit stateChanged();
             }
         });
+
+        // Start the computation.
+        QFuture<bool> future = QtConcurrent::run([path = QFileInfo(version).absoluteFilePath(), dest = QFileInfo(version).absolutePath()] { return !JlCompress::extractDir(path, dest).empty(); });
+        watcher->setFuture(future);
     });
 }
 
@@ -106,7 +117,10 @@ void Updater::update(){
         deploy->close();
         state = UpdaterState::UnzippingUpdate;
         emit stateChanged();
-        Zip::unzip(QFileInfo(*deploy), QFileInfo(*deploy).absolutePath(), [this, deploy](auto success) {
+        auto watcher = new QFutureWatcher<bool>;
+        connect(watcher, &QFutureWatcher<bool>::finished, [this, deploy, watcher]() {
+            watcher->deleteLater();
+            bool success = watcher->future().result();
             std::unique_ptr<QFile> deleteMe(deploy);
             if (!success) {
                 qDebug() << "not successful when unzipping deploy.zip";
@@ -139,6 +153,10 @@ void Updater::update(){
             state = UpdaterState::ReadyToInstall;
             emit stateChanged();
         });
+
+        // Start the computation.
+        QFuture<bool> future = QtConcurrent::run([path = QFileInfo(*deploy).absoluteFilePath(), dest = QFileInfo(*deploy).absolutePath()] { return !JlCompress::extractDir(path, dest).empty(); });
+        watcher->setFuture(future);
     });
 }
 
