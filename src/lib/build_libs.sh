@@ -2,6 +2,8 @@
 set -e
 cd $(dirname "$0")
 
+source ./scripts/set_env.sh
+
 echo "Build segvcatch"
 cd segvcatch
 ./build.sh

@@ -1,36 +1,40 @@
 #!/bin/bash
 
+if ! [ -x "$(command -v cmake)" ]; then
+  echo "#############################################"
+  echo "################### ERROR ###################"
+  echo "## cmake must be installed and on the PATH ##"
+  echo "######## https://cmake.org/download/ ########"
+  echo "#############################################"
+  echo "#############################################"
+  echo "PS: You have to restart the console after installing to 'reload' the PATH variable"
+  exit 1
+fi
+
+source ../scripts/set_env.sh
+
 mkdir -p lib
 mkdir -p include
 
 GIT_DIR=segvcatch.git
 # add or update git
-if [ ! -d "$GIT_DIR" ]; then # if folder "GIT_DIR" does not exists
-  git clone https://github.com/Plaristote/segvcatch.git "$GIT_DIR"
-  cd "$GIT_DIR"
-else
-  cd "$GIT_DIR"
-  if [[ $(git pull) = "Already up to date." ]]; then
-    # we can skip recompiling, because the last build is already up to date
-    echo "Already up to date."
-    exit 0
-  fi
-fi
+../scripts/clone_or_pull.sh $GIT_DIR https://github.com/Plaristote/segvcatch.git && exit 0
+cd $GIT_DIR
 # we are in the "$GIT_DIR" now
 
-mkdir release
+mkdir -p release
 cd release
 
 # build
-if [ "$(expr substr $(uname -s) 1 5)" == "MINGW" ]; then
+if [[ "$OSTYPE" == "msys" ]] || ! [[ -z "$GITLAB_CI" ]]; then
     # we are on windows
     # from build_mingw_release.bat
     cmake -G "MSYS Makefiles" -DCMAKE_BUILD_TYPE=Release ../lib
-    mingw32-make
+    $make
     cd ..
 else
     cmake ..
-    make 
+    $make 
     cd ..
     EXTRA_DIR="lib"
     # we are on linux and cross compile
