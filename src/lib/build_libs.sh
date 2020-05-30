@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
+set -o xtrace
 cd $(dirname "$0")
+
+source ./scripts/set_env.sh
 
 echo "Build segvcatch"
 cd segvcatch
@@ -31,5 +34,11 @@ echo $'\n\nUpdate Qt MQTT'
 cd qtmqtt
 ./getAndUpdate.sh
 cd ..
+
+echo $'\n\nUpdate quazip'
+cd quazip
+./update_and_build.sh
+cd ..
+
 
 echo "Lib installation complete"

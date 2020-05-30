@@ -2,19 +2,12 @@
 set -e
 # see https://github.com/thestk/rtaudio/blob/master/install.txt
 
+source ../scripts/set_env.sh
+
 GIT_DIR=rtaudio
 # add or update git
-if [ ! -d "$GIT_DIR" ]; then # if folder "GIT_DIR" does not exists
-  git clone https://github.com/thestk/rtaudio.git "$GIT_DIR"
-  cd "$GIT_DIR"
-else
-  cd "$GIT_DIR"
-  if [[ $(git pull) = "Already up to date." ]]; then
-    # we can skip recompiling, because the last build is already up to date
-    echo "Already up to date."
-    exit 0
-  fi
-fi
+../scripts/clone_or_pull.sh $GIT_DIR https://github.com/thestk/rtaudio.git && exit 0
+cd $GIT_DIR
 # we are in the "$GIT_DIR" now
 
 # build
@@ -36,7 +29,7 @@ else
     ./autogen.sh --with-alsa
     FILES_TO_COPY="librtaudio.so*"
 fi
-make
+$make
 cd ..
 
 #copy headers and lib

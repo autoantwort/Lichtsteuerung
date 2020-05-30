@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source ./scripts/set_env.sh
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # Mac OSX
     echo "You are on macOS. Check if brew is installed..."

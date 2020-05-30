@@ -448,7 +448,7 @@ namespace detail {
             QJsonObject ob = val_.toObject();
             try {
                 model.push_back(std::make_shared<ProgramBlock>(ob));
-            } catch (std::runtime_error e) {
+            } catch (std::runtime_error &e) {
                 qDebug() << "Cant parse ProgramBlock : " << e.what();
             }
         }

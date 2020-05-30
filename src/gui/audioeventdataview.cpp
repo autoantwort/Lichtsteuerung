@@ -132,7 +132,7 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
             ++eventsEnabledCount;
         }
     }
-    const auto sectionHeight = height() / eventsEnabledCount;
+    const auto sectionHeight = eventsEnabledCount ? height() / eventsEnabledCount : 0;
     auto sectionOffset = 0;
     const auto fillEvents = [this, &sectionOffset](auto geometry, const auto &data, auto sectionHeight, float confidence = 1) {
         auto events = data->getEvents();
@@ -153,29 +153,30 @@ QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePa
     ownEvents.increaseNewestSampleBy(duration_cast<milliseconds>(steady_clock::now() - start).count() - ownEvents.getNewestSample());
     fillEvents(getGeometry(ownColor), &ownEvents, height());
     sectionOffset = 0;
-
-    for (auto &[f, data] : beatData) {
-        if (isDetectionEnabledFor(f, BeatEvent)) {
-            fillEvents(getGeometry(getColor(f, BeatEvent)), data.events, sectionHeight, *data.confidence);
-        }
-    }
-    for (auto &[f, data] : onsetData) {
-        if (isDetectionEnabledFor(f, OnsetEvent)) {
-            fillEvents(getGeometry(getColor(f, OnsetEvent)), data, sectionHeight);
-        } else if (isDetectionEnabledFor(f, OnsetValue)) {
-            sectionOffset += sectionHeight;
-        }
-        if (isDetectionEnabledFor(f, OnsetValue)) {
-            QSGGeometry *geometry = getGeometry(getColor(f, OnsetValue));
-            const auto lockedData = data->getOnsetData();
-            geometry->allocate(lockedData->size());
-            auto vertexData = geometry->vertexDataAsPoint2D();
-            for (const auto &o : *lockedData) {
-                vertexData->x = getX(data, o.sample);
-                vertexData->y = sectionOffset - ((o.onsetValue / data->getMaxOnsetValue()) * (sectionHeight));
-                ++vertexData;
+    if (eventsEnabledCount > 0) {
+        for (auto &[f, data] : beatData) {
+            if (isDetectionEnabledFor(f, BeatEvent)) {
+                fillEvents(getGeometry(getColor(f, BeatEvent)), data.events, sectionHeight, *data.confidence);
             }
-            geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
+        }
+        for (auto &[f, data] : onsetData) {
+            if (isDetectionEnabledFor(f, OnsetEvent)) {
+                fillEvents(getGeometry(getColor(f, OnsetEvent)), data, sectionHeight);
+            } else if (isDetectionEnabledFor(f, OnsetValue)) {
+                sectionOffset += sectionHeight;
+            }
+            if (isDetectionEnabledFor(f, OnsetValue)) {
+                QSGGeometry *geometry = getGeometry(getColor(f, OnsetValue));
+                const auto lockedData = data->getOnsetData();
+                geometry->allocate(lockedData->size());
+                auto vertexData = geometry->vertexDataAsPoint2D();
+                for (const auto &o : *lockedData) {
+                    vertexData->x = getX(data, o.sample);
+                    vertexData->y = sectionOffset - ((o.onsetValue / data->getMaxOnsetValue()) * (sectionHeight));
+                    ++vertexData;
+                }
+                geometry->setDrawingMode(QSGGeometry::DrawLineStrip);
+            }
         }
     }
     while (currentReused < node->childCount()) {

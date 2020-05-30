@@ -157,7 +157,7 @@ void SlideShow::checkCustomShowTime(const QString &path) {
 }
 
 void SlideShow::removeImage(int index) {
-    if (index >= 0 && index < images.size() && imageMutex.try_lock()) {
+    if (index >= 0 && index < static_cast<int>(images.size()) && imageMutex.try_lock()) {
         alreadyScanned.erase(images[index].filePath());
         images.erase(images.cbegin() + index);
         dis = std::uniform_int_distribution<size_t>(0, images.size() - 1);
