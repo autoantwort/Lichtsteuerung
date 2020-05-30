@@ -71,7 +71,7 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
             }
         } else {
             while (restFrames != 0) {
-                if (restFrames >= sample.size()) {
+                if (restFrames >= static_cast<int>(sample.size())) {
                     // we have to ignore some data
                     restFrames -= samplesPerFrame;
                     continue;

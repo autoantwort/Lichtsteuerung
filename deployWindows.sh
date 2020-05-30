@@ -7,7 +7,7 @@ if [[ $1 == *"MinGW_32"* ]];then
 	mingw_folder="mingw53_32"
 	bit="32"
 elif [[ $1 == *"MinGW_64"* ]];then
-	mingw_folder="mingw73_64"
+	mingw_folder="mingw81_64"
 	bit="64"
 else
 	echo "Only MinGW builds are supported."
@@ -53,7 +53,10 @@ else
 fi
 
 # copy aubio
-cp "src/lib/aubio/lib/libaubio-5.dll" "$target_folder"
+cp "src/lib/aubio/lib/aubio-5.dll" "$target_folder"
+
+# copy quazip dependency zlib
+cp "src/lib/quazip/zlib_windows/bin/zlib1.dll" "$target_folder"
 
 #copy DrMinGw
 if [[ $bit == "64" ]]; then

@@ -42,11 +42,16 @@ void Updater::checkForUpdate(){
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     auto response = http->get(request);
     QObject::connect(response, &QNetworkReply::finished, [this, response]() {
+        response->deleteLater();
+        if (response->attribute(QNetworkRequest::HttpStatusCodeAttribute) != 200) {
+            state = NoUpdateAvailible;
+            emit stateChanged();
+            return;
+        }
         QFile version(QDir::tempPath() + QStringLiteral("/version.zip"));
         version.open(QFile::WriteOnly);
         version.write(response->readAll());
         version.close();
-        response->deleteLater();
 
         auto watcher = new QFutureWatcher<bool>;
         connect(watcher, &QFutureWatcher<bool>::finished, [this, version = QFileInfo(version), watcher]() {
@@ -90,7 +95,7 @@ void Updater::update(){
     QNetworkRequest request{QUrl(deployDownloadURL)};
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     auto response = http->get(request);
-    QObject::connect(response, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [this, response](auto error) {
+    QObject::connect(response, &QNetworkReply::errorOccurred, [this, response](auto error) {
         qWarning() << "Error while redirecting to deploy.zip! " << error << response->errorString();
         response->deleteLater();
         state = UpdaterState::DownloadUpdateFailed;
@@ -98,7 +103,7 @@ void Updater::update(){
     });
     QFile *deploy = new QFile(QDir::tempPath() + QStringLiteral("/deploy.zip"));
     deploy->open(QFile::WriteOnly);
-    QObject::connect(response, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [this, response, deploy](auto error) {
+    QObject::connect(response, &QNetworkReply::errorOccurred, [this, response, deploy](auto error) {
         qWarning() << "Error while downloading deploy.zip! " << error << response->errorString();
         deploy->close();
         deploy->deleteLater();
@@ -115,6 +120,11 @@ void Updater::update(){
         qDebug() << response->atEnd();
         response->deleteLater();
         deploy->close();
+        if (response->attribute(QNetworkRequest::HttpStatusCodeAttribute) != 200) {
+            state = DownloadUpdateFailed;
+            emit stateChanged();
+            return;
+        }
         state = UpdaterState::UnzippingUpdate;
         emit stateChanged();
         auto watcher = new QFutureWatcher<bool>;
