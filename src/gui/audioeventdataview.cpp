@@ -98,7 +98,7 @@ QSGGeometryNode *createNode() {
     return gNode;
 }
 
-QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData *transformNode) {
+QSGNode *AudioEventDataView::updatePaintNode(QSGNode *node, QQuickItem::UpdatePaintNodeData * /*transformNode*/) {
     if (!node) {
         node = new QSGNode;
     }
