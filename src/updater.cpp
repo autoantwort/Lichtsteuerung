@@ -95,7 +95,7 @@ void Updater::update(){
     QNetworkRequest request{QUrl(deployDownloadURL)};
     request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
     auto response = http->get(request);
-    QObject::connect(response, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [this, response](auto error) {
+    QObject::connect(response, &QNetworkReply::errorOccurred, [this, response](auto error) {
         qWarning() << "Error while redirecting to deploy.zip! " << error << response->errorString();
         response->deleteLater();
         state = UpdaterState::DownloadUpdateFailed;
@@ -103,7 +103,7 @@ void Updater::update(){
     });
     QFile *deploy = new QFile(QDir::tempPath() + QStringLiteral("/deploy.zip"));
     deploy->open(QFile::WriteOnly);
-    QObject::connect(response, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error), [this, response, deploy](auto error) {
+    QObject::connect(response, &QNetworkReply::errorOccurred, [this, response, deploy](auto error) {
         qWarning() << "Error while downloading deploy.zip! " << error << response->errorString();
         deploy->close();
         deploy->deleteLater();
