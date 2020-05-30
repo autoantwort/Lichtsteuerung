@@ -15,7 +15,7 @@ if [ ! -z "${QT_DIR}" ]; then # from env variable
 elif [ -d "/c/Qt" ]; then # windows
   QT="C:\\Qt"
 elif [ -d ~/Qt ]; then # mainly mac and linux
-  QT="~/Qt"
+  QT=~/Qt
 elif [ -d "/opt/Qt" ]; then # some stackoverflow answers recommends that
   QT="/opt/Qt"
 elif [ ! -z "$GITLAB_CI" ]; then
