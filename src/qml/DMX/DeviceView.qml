@@ -309,4 +309,23 @@ ModelView{
             }
         } // contentItem: ColumnLayout
     } // CenteredPopup
+
+    Item {
+        Layout.alignment: Qt.AlignBottom | Qt.AlignRight
+        width: 5
+        Layout.row: 7
+        Layout.column: 3
+        RoundButton{
+            text: "Channel usage"
+            onClicked: channelUsage.visible = true
+            anchors.right: parent.left
+            anchors.bottom: parent.bottom
+        }
+    }
+
+
+    CenteredPopup{
+        id: channelUsage
+        contentItem: DMXChannelUsage{}
+    }
 }

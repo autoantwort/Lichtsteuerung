@@ -86,5 +86,6 @@
         <file>qml/components/ModalPopupBackground.qml</file>
         <file>qml/SlideShowWindow.qml</file>
         <file>qml/components/SystemFileDialog.qml</file>
+        <file>qml/DMX/DMXChannelUsage.qml</file>
     </qresource>
 </RCC>
