@@ -121,9 +121,17 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
 }
 
 void AudioCaptureManager::rtAudioErrorCallback(RtAudioError::Type /*type*/, const std::string &errorText) {
-    get().currentCaptureDevice = -1;
-    emit get().currentCaptureDeviceChanged();
-    ErrorNotifier::showError("Error while capturing from capture device. Capturing stopped.\nError: " + QString::fromStdString(errorText) + "\nPlease select a new audio capture device the settings tab.");
+    // run the ui code in the event loop
+    QMetaObject::invokeMethod(&get(), [=]() {
+        get().currentCaptureDevice = -1;
+        get().updateCaptureDeviceList();
+        emit get().currentCaptureDeviceChanged();
+        if (!get().startCapturingFromDefaultInput()) {
+            // only show an error if we can not automatically capture the default input
+            ErrorNotifier::showError("Error while capturing from capture device. Capturing stopped.\nError: " + QString::fromStdString(errorText) +
+                                     "\nPlease select a new audio capture device the settings tab.");
+        }
+    });
 }
 
 bool AudioCaptureManager::startCapturingFromInput(unsigned input) {
@@ -227,19 +235,22 @@ void AudioCaptureManager::stopCapturing() {
 }
 
 void AudioCaptureManager::stopCapturingAndWait() {
-    try {
-        if (rtAudio.isStreamOpen()) {
+    if (rtAudio.isStreamOpen()) {
+        try {
             rtAudio.closeStream();
-            std::this_thread::yield();
-            while (rtAudio.isStreamRunning()) {
-                std::this_thread::sleep_for(std::chrono::microseconds(500));
-            }
+        } catch (const RtAudioError &e) {
+            ErrorNotifier::showError("Error while stopping audio stream: " + QString(e.what()));
+            return;
         }
-        run = false;
-    } catch (const RtAudioError &e) {
-        ErrorNotifier::showError("Error while stopping audio stream: " + QString(e.what()));
+        std::this_thread::yield();
+        while (rtAudio.isStreamRunning()) {
+            std::this_thread::sleep_for(std::chrono::microseconds(500));
+        }
     }
-    emit capturingStatusChanged();
+    if (run) {
+        run = false;
+        emit capturingStatusChanged();
+    }
 }
 
 bool AudioCaptureManager::isCapturing() const {
