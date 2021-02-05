@@ -11,7 +11,7 @@ void SpectrumAnalysis::processNewSamples(float *newSamples) {
     aubio_pvoc_do(spectrumAnalyser.get(), &inputData, fftOutputData.get());
 }
 
-boost::beast::span<float> SpectrumAnalysis::getSpectrum() const {
+span<float> SpectrumAnalysis::getSpectrum() const {
     return {fftOutputData->norm, fftOutputData->length};
 }
 

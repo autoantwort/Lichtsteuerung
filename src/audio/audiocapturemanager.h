@@ -4,11 +4,11 @@
 #include "audioeventdata.h"
 #include "modelvector.h"
 #include "sample.h"
+#include "span.h"
 #include "aubio/onsetanalysis.h"
 #include "aubio/spectrumanalysis.h"
 #include "aubio/tempoanalysis.h"
 #include <RtAudio.h>
-#include <boost/beast/core/span.hpp> // TODO use std::span in c++20
 #include <map>
 #include <optional>
 #include <thread>
@@ -125,7 +125,7 @@ public:
      */
     const std::vector<QString> &getCaptureDeviceNames() const { return captureDeviceNames.getVector(); }
 
-    boost::beast::span<float> getFFTOutput() { return (spectrumAnalysis ? spectrumAnalysis->getSpectrum() : boost::beast::span<float>{nullptr, 0}); }
+    span<float> getFFTOutput() { return (spectrumAnalysis ? spectrumAnalysis->getSpectrum() : span<float>{nullptr, 0}); }
     /**
      * @brief requestTempoAnalysis requests the data series from a tempo analysis that uses a spezific onset detection function
      * You can call the function with the same parameters multiple times, the result will be the same

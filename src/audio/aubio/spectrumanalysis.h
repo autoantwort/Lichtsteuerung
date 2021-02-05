@@ -2,7 +2,7 @@
 #define SPECTRUMANALYSIS_H
 
 #include "aubiocapi.h"
-#include <boost/beast/core/span.hpp> // TODO use std::span in c++20
+#include "span.h"
 #include <memory>
 
 namespace Audio::Aubio {
@@ -33,7 +33,7 @@ public:
      * @brief getSpectrum returns the spectrum (the enery for every block)
      * @return the spectrum
      */
-    [[nodiscard]] boost::beast::span<float> getSpectrum() const;
+    [[nodiscard]] span<float> getSpectrum() const;
 
     /**
      * @brief getPointerToSpectrum See getSpectrum().
