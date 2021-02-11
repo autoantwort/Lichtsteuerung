@@ -39,7 +39,7 @@ void Updater::checkForUpdate(){
         return;
     }
     QNetworkRequest request{QUrl(versionDownloadURL)};
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto response = http->get(request);
     QObject::connect(response, &QNetworkReply::finished, [this, response]() {
         response->deleteLater();
@@ -93,7 +93,7 @@ void Updater::update(){
     state = UpdaterState::DownloadingUpdate;
     emit stateChanged();
     QNetworkRequest request{QUrl(deployDownloadURL)};
-    request.setAttribute(QNetworkRequest::FollowRedirectsAttribute, true);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto response = http->get(request);
     QObject::connect(response, &QNetworkReply::errorOccurred, [this, response](auto error) {
         qWarning() << "Error while redirecting to deploy.zip! " << error << response->errorString();

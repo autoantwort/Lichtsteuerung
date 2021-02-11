@@ -39,7 +39,6 @@ public:
     const QString currently_playing_type;
 public:
     CurrentPlayingObject(const QJsonObject &object, const long receivedTimestamp);
-    CurrentPlayingObject() = default;
     /**
      * @brief getProgressInMs return the progress in ms at the current timestamp
      * @return the progress in ms or -1, if the Track is not playing

@@ -150,7 +150,7 @@ protected:
 public:
     ProgrammControlItemData(DMX::Programm * p,QObject *parent = nullptr);
     ProgrammControlItemData(const QJsonObject &o,QObject *parent = nullptr);
-    virtual void writeJsonObject(QJsonObject &o);
+    void writeJsonObject(QJsonObject &o) override;
     void setProgramm(DMX::Programm * );
     DMX::Programm * getProgramm()const{return programm;}
 signals:
@@ -229,7 +229,7 @@ protected:
 public:
     GroupControlItemData(ControlItemData::Type t, QObject *parent = nullptr) : ControlItemData(t, parent) {}
     GroupControlItemData(const QJsonObject &o,QObject *parent = nullptr);
-    virtual void writeJsonObject(QJsonObject &o);
+    void writeJsonObject(QJsonObject &o) override;
     GroupModel * getGroupModel(){return &groupModel;}
     void forEach(std::function<void(DMX::Device*)> f);
 
@@ -256,7 +256,7 @@ protected:
 public:
     SwitchGroupControlItemData(QObject *parent = nullptr) : GroupControlItemData(SWITCH_GROUP, parent) { initRemoteProperties(); }
     SwitchGroupControlItemData(const QJsonObject &o,QObject *parent = nullptr);
-    virtual void writeJsonObject(QJsonObject &o);
+    void writeJsonObject(QJsonObject &o) override;
     void setActivated(bool a);
     bool isActivated()const{return activated;}
     void setActivateCooldown(int c);
@@ -292,7 +292,7 @@ protected:
 public:
     DimmerGroupControlItemData(QObject *parent = nullptr) : GroupControlItemData(DIMMER_GROUP, parent) { initRemoteProperties(); }
     DimmerGroupControlItemData(const QJsonObject &o);
-    virtual void writeJsonObject(QJsonObject &o);
+    void writeJsonObject(QJsonObject &o) override;
 
     Q_SLOT void setMaxOperation(Operation o, bool updateRemote = true);
     Operation getMaxOperation()const{return maxOperation;}

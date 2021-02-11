@@ -24,7 +24,6 @@ public:
      */
     const float confidence;
 public:
-    TimeIntervalObject() = default;
     TimeIntervalObject(const QJsonObject &object);
 };
 

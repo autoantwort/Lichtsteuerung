@@ -76,7 +76,6 @@ public:
      */
     const float valence;
 public:
-    AudioFeaturesObject() = default;
     AudioFeaturesObject(const QJsonObject &object);
 };
 
