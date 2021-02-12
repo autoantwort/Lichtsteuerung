@@ -67,6 +67,7 @@ RUN \
     perl \
     pkg-config \
     python \
+    python-mako \
     ruby \
     scons \
     sed \
