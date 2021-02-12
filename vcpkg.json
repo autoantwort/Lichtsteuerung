@@ -1,0 +1,15 @@
+{
+    "name": "lichtsteuerung",
+    "version-string": "2.0.0",
+    "dependencies": [
+        "boost-coroutine",
+        "boost-coroutine2",
+        "boost-stacktrace",
+        "span-lite",
+        "rtaudio",
+        {
+            "name": "aubio",
+            "default-features": false
+        }
+    ]
+}
