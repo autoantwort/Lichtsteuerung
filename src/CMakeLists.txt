@@ -119,9 +119,14 @@ target_include_directories(lichtsteuerung PRIVATE ${AUBIO_INCLUDE_DIR})
 target_link_libraries(lichtsteuerung ${AUBIO_LIBRARY})
 
 # RtAudio
-find_path(RtAudio_INCLUDE_DIR rtaudio/RtAudio.h)
+if(WIN32)
+    find_path(RtAudio_INCLUDE_DIR rtaudio/RtAudio.h)
+    target_include_directories(lichtsteuerung PRIVATE ${RtAudio_INCLUDE_DIR}/rtaudio)
+else()
+    find_path(RtAudio_INCLUDE_DIR RtAudio.h)
+    target_include_directories(lichtsteuerung PRIVATE ${RtAudio_INCLUDE_DIR})
+endif()
 find_library(RtAudio_LIBRARY rtaudio)
-target_include_directories(lichtsteuerung PRIVATE ${RtAudio_INCLUDE_DIR})
 target_link_libraries(lichtsteuerung ${RtAudio_LIBRARY})
 if(APPLE)
     target_link_libraries(lichtsteuerung "-framework CoreAudio")
@@ -159,9 +164,9 @@ if(APPLE)
     target_link_libraries(lichtsteuerung "-framework CoreAudio")
 elseif(CMAKE_SYSTEM_NAME MATCHES Linux)
     # needed for dynamic libs
-    target_link_libraries(module -ldl)
+    target_link_libraries(lichtsteuerung dl)
     # needed for the SystemVolume class
-    target_link_libraries(module -lasound)
+    target_link_libraries(lichtsteuerung asound)
 endif()
 
 # SpanLite

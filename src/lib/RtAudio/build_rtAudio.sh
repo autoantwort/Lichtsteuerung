@@ -37,5 +37,5 @@ mkdir -p lib
 cd $GIT_DIR/.libs/
 cp $FILES_TO_COPY ../../lib
 cd ../../
-mkdir -p include/rtaudio
-cp $GIT_DIR/RtAudio.h include/rtaudio
+mkdir -p include
+cp $GIT_DIR/RtAudio.h include
