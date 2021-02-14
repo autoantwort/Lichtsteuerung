@@ -44,8 +44,6 @@ add_executable(lichtsteuerung
     gui/programblockeditor.cpp gui/programblockeditor.h
     id.cpp id.h
     idbase.h
-    lib/SingleApplication/git/SingleApplication
-    lib/SingleApplication/git/singleapplication.cpp lib/SingleApplication/git/singleapplication.h lib/SingleApplication/git/singleapplication_p.cpp lib/SingleApplication/git/singleapplication_p.h
     main.cpp
     modelmanager.cpp modelmanager.h
     modelvector.cpp modelvector.h
@@ -121,7 +119,7 @@ target_include_directories(lichtsteuerung PRIVATE ${AUBIO_INCLUDE_DIR})
 target_link_libraries(lichtsteuerung ${AUBIO_LIBRARY})
 
 # RtAudio
-find_path(RtAudio_INCLUDE_DIR RtAudio.h)
+find_path(RtAudio_INCLUDE_DIR rtaudio/RtAudio.h)
 find_library(RtAudio_LIBRARY rtaudio)
 target_include_directories(lichtsteuerung PRIVATE ${RtAudio_INCLUDE_DIR})
 target_link_libraries(lichtsteuerung ${RtAudio_LIBRARY})
@@ -129,7 +127,7 @@ if(APPLE)
     target_link_libraries(lichtsteuerung "-framework CoreAudio")
     target_link_libraries(lichtsteuerung "-framework CoreFoundation")
 elseif(WIN32)
-    target_link_libraries(lichtsteuerung "-lole32 -lwinmm -lksuser -lmfplat -lmfuuid -lwmcodecdspuuid")
+    target_link_libraries(lichtsteuerung ole32 winmm ksuser mfplat mfuuid wmcodecdspuuid)
 endif()
 
 # boost
@@ -150,8 +148,10 @@ endif()
 
 if(WIN32)
     # DrMinGW
-    target_include_directories(lichtsteuerung ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/include)
-    target_compile_definitions(lichtsteuerung DrMinGW)
+    target_compile_definitions(lichtsteuerung PRIVATE DrMinGW)
+    target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/include)
+    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/bin)
+    target_link_libraries(lichtsteuerung exchndl)
 endif()
 
 # Needed by the SystemVolume class
@@ -174,12 +174,18 @@ target_compile_definitions(lichtsteuerung PRIVATE USE_SPAN_LITE)
 
 # Qt MQTT
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/include)
-set_target_properties(lichtsteuerung PROPERTIES LINK_FLAGS "-Wl,-F${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/lib")
-target_link_libraries(lichtsteuerung "-framework QtMqtt")
+if(APPLE)
+    set_target_properties(lichtsteuerung PROPERTIES LINK_FLAGS "-Wl,-F${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/lib")
+    target_link_libraries(lichtsteuerung "-framework QtMqtt")
+else()
+    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/lib)
+    target_link_libraries(lichtsteuerung Qt5Mqtt)
+endif()
 
 # Segvcatch
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/include)
-target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/'lib/segvcatch/lib' -lsegvcatch")
+target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/lib)
+target_link_libraries(lichtsteuerung segvcatch)
 
 # Quazip
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/include)
@@ -188,6 +194,9 @@ if(UNIX)
     target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/lib -lQt5Quazip")
     target_link_libraries(lichtsteuerung "-lz")
 elseif(WIN32)
-    target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/bin -lQt5Quazip1")
-    target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/zlib_windows/bin -lzlib1")
+    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/bin)
+    target_link_libraries(lichtsteuerung Qt5Quazip1)
+
+    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/zlib_windows/bin)
+    target_link_libraries(lichtsteuerung zlib1)
 endif()
