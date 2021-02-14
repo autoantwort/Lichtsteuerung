@@ -134,7 +134,7 @@ endif()
 
 # boost
 if(APPLE)  # don't use boost on mac. See https://github.com/microsoft/vcpkg/issues/16052
-    target_include_directories(lichtsteuerung PUBLIC ${Boost_INCLUDE_DIRS})
+    target_link_libraries(lichtsteuerung "-L/usr/local/lib -lboost_coroutine -lboost_context-mt")
 else()
     find_package(Boost REQUIRED COMPONENTS context coroutine thread)
     target_link_libraries(lichtsteuerung ${Boost_LIBRARIES})
