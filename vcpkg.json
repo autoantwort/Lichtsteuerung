@@ -5,6 +5,7 @@
         "boost-coroutine",
         "boost-coroutine2",
         "boost-stacktrace",
+        "libbacktrace",
         "span-lite",
         "rtaudio",
         {

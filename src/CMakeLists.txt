@@ -136,10 +136,13 @@ elseif(WIN32)
 endif()
 
 # boost
-if(APPLE)  # don't use boost on mac. See https://github.com/microsoft/vcpkg/issues/16052
-    target_link_libraries(lichtsteuerung "-L/usr/local/lib -lboost_coroutine -lboost_context-mt")
+if(DEFINED ENV{GITLAB_CI})
+    # use `message(STATUS "${Boost_LIBRARIES}")` to find out which libs are needed
+    # use this as a workaround until https://github.com/microsoft/vcpkg/issues/17163 is fixed
+    target_link_libraries(lichtsteuerung "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_thread.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_context.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_coroutine.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_chrono.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_date_time.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_atomic.a")
+    target_include_directories(lichtsteuerung PRIVATE "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
 else()
-    find_package(Boost REQUIRED COMPONENTS context coroutine thread)
+    find_package(Boost 1.75.0 REQUIRED COMPONENTS thread context coroutine)
     target_link_libraries(lichtsteuerung ${Boost_LIBRARIES})
     target_include_directories(lichtsteuerung PRIVATE ${Boost_INCLUDE_DIRS})
 endif()
@@ -195,7 +198,11 @@ target_link_libraries(lichtsteuerung segvcatch)
 # Quazip
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/include)
 #target_link_directories(lichtsteuerung PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/lib)
-if(UNIX)
+if(DEFINED ENV{GITLAB_CI})
+    # in the gitlab CI quazip and zlib is build by mxe
+    target_link_directories(lichtsteuerung PRIVATE /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/bin)
+    target_link_libraries(lichtsteuerung quazip zlib1)
+elseif(UNIX)
     target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/lib -lQt5Quazip")
     target_link_libraries(lichtsteuerung "-lz")
 elseif(WIN32)
