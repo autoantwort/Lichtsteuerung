@@ -14,7 +14,7 @@ Um Docker für Windows herunterladen zu können muss man sich auf [Docker.com](h
 0. Docker starten wenn es noch nicht im Hintergrund läuft
 1. Öffne eine Konsole
 2. cd dich in den Lichtsteuerungs Git Ordner
-3. Wenn du das Image später hochladen willst, führe `docker login registry.git.rwth-aachen.de` aus
+3. Wenn du das Image später hochladen willst, führe `docker login registry.git.rwth-aachen.de` aus. (Username ist `Vorname.Nachname`, als Passwort kann man [hier](https://git.rwth-aachen.de/-/profile/personal_access_tokens) ein access token erstellen mit den Rechten `read_registry` und `write_registry`)
 4. Führe zum bauen `docker build -t TAG .` aus, wobei du `TAG` durch `registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_current_qt_version` (current_qt_version durch z.B. 5_12_4 ersetzen) ersetzt wenn du das Image/den Container hochladen willst oder durch z.B. `lichtsteuerung/build_last_qt_version` oder was ähnliches wenn du das Image nur lokal für dich erstellstellen möchtest. Ist seit dem letzten mal eine neue Qt Version herausgekommen ([Blog](https://blog.qt.io/) [Versionsübersicht](https://wiki.qt.io/Template:Release_Information)) ist es notwendig, an den Befehl `--no-cache` anzuhängen, da Docker sonst einfach das Image vom letzten mal wiederverwendet und die alte Qt Version weiter benutzt.  
 5. Das Image kann nun mit `docker push TAG` (TAG vom Punkt 4 benutzten) in die Container Registry von GitLab hochgeladen werden. Lese davor [hier](https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/container_registry) die __komplette__ Seite, benutzte vor allem einen vernünftigen Image Namen oder Tag.
 
