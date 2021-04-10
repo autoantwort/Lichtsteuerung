@@ -175,6 +175,10 @@ target_compile_definitions(lichtsteuerung PRIVATE USE_SPAN_LITE)
 # SingleApplication
 # target_link_libraries(${PROJECT_NAME} SingleApplication::SingleApplication)
 
+# kubazip
+find_package(kubazip REQUIRED)
+target_link_libraries(lichtsteuerung kubazip::kubazip)
+
 # Qt MQTT
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/include)
 if(APPLE)
@@ -189,21 +193,3 @@ endif()
 target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/include)
 target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/lib)
 target_link_libraries(lichtsteuerung segvcatch)
-
-# Quazip
-target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/include)
-#target_link_directories(lichtsteuerung PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/lib)
-if(DEFINED ENV{GITLAB_CI})
-    # in the gitlab CI quazip and zlib is build by mxe
-    target_link_directories(lichtsteuerung PRIVATE /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/bin)
-    target_link_libraries(lichtsteuerung quazip zlib1)
-elseif(UNIX)
-    target_link_libraries(lichtsteuerung "-L${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/lib -lQt5Quazip")
-    target_link_libraries(lichtsteuerung "-lz")
-elseif(WIN32)
-    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/dist/bin)
-    target_link_libraries(lichtsteuerung Qt5Quazip1)
-
-    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/quazip/zlib_windows/bin)
-    target_link_libraries(lichtsteuerung zlib1)
-endif()
