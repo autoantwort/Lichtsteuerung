@@ -10,7 +10,7 @@
 #include "aubio/tempoanalysis.h"
 #include <map>
 #include <optional>
-#include <RtAudio.h>
+#include <rtaudio/RtAudio.h>
 #include <thread>
 
 namespace Audio {
