@@ -15,10 +15,5 @@ cd qtmqtt
 ./getAndUpdate.sh
 cd ..
 
-echo $'\n\nUpdate quazip'
-cd quazip
-./update_and_build.sh
-cd ..
-
 
 echo "Lib installation complete"

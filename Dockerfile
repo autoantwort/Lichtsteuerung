@@ -156,8 +156,6 @@ RUN make qtquickcontrols2
 RUN make qtserialport
 RUN make qttools
 RUN make qtwebsockets
-RUN make zlib
-RUN make quazip
 
 #set path to mxe compiler
 RUN export PATH=/usr/src/mxe/usr/bin:$PATH

@@ -9,7 +9,7 @@
 #include <QProcess>
 #include <QTemporaryFile>
 #include <QtConcurrent/QtConcurrentRun>
-#include <quazip/JlCompress.h>
+#include <zip/zip.h>
 
 QByteArray getFileContent(const QString &filename) {
     QFile file(filename);
@@ -25,6 +25,11 @@ Updater::Updater() {
         state = UpdaterState::IDE_ENV;
         emit stateChanged();
     }
+}
+
+QFuture<bool> extractZip(const QFile &file) {
+    return QtConcurrent::run(
+        [path = QFileInfo(file).absoluteFilePath().toStdString(), dest = QFileInfo(file).absolutePath().toStdString()] { return zip_extract(path.c_str(), dest.c_str(), nullptr, nullptr) == 0; });
 }
 
 void Updater::checkForUpdate() {
@@ -80,7 +85,7 @@ void Updater::checkForUpdate() {
         });
 
         // Start the computation.
-        QFuture<bool> future = QtConcurrent::run([path = QFileInfo(version).absoluteFilePath(), dest = QFileInfo(version).absolutePath()] { return !JlCompress::extractDir(path, dest).empty(); });
+        QFuture<bool> future = extractZip(version);
         watcher->setFuture(future);
     });
 }
@@ -165,7 +170,7 @@ void Updater::update() {
         });
 
         // Start the computation.
-        QFuture<bool> future = QtConcurrent::run([path = QFileInfo(*deploy).absoluteFilePath(), dest = QFileInfo(*deploy).absolutePath()] { return !JlCompress::extractDir(path, dest).empty(); });
+        QFuture<bool> future = extractZip(*deploy);
         watcher->setFuture(future);
     });
 }

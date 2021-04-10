@@ -8,6 +8,7 @@
         "libbacktrace",
         "span-lite",
         "rtaudio",
+        "kubazip",
         {
             "name": "aubio",
             "default-features": false
