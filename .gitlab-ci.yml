@@ -9,31 +9,29 @@ build:
   stage: build
   script:
     - git submodule update --init --recursive
+    - cd vcpkg
+    - git fetch origin pull/16740/head:pr_16740_$CI_JOB_ID
+    - git checkout pr_16740_$CI_JOB_ID
+    - cd ..
     - rm -rf vcpkg/packages vcpkg/buildtrees
     - CC=/usr/bin/gcc
     - CXX=/usr/bin/g++
     - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
     - ./vcpkg/bootstrap-vcpkg.sh
     - cp x64-linux-windows-static.cmake ./vcpkg/triplets/community
-    #- ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
-    - cd src/lib
-    - ./build_libs.sh
-    - cd ../..
-    - mkdir -p build
-    - cd build
-    - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
-    - ninja
-    - cd ..
+    - ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
+    
   cache:
     key: vcpkg_cache
+    when: always
     paths:
       - vcpkg_cache/
   artifacts:
-    # when: always
+    when: always
     paths:
-      - build/src/lichtsteuerung.exe
-      # - vcpkg/buildtrees/libbacktrace
-      # - build/vcpkg_installed/
+      - vcpkg/buildtrees/libpq
+      - vcpkg/installed
+      - vcpkg/packages/libpq*
 
 # we use this version file to check if a new version exists 
 version:
