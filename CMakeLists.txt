@@ -30,6 +30,16 @@ set(CMAKE_AUTOUIC ON)
 #  list(POP_FRONT CMAKE_FIND_ROOT_PATH MXE_PATH)
 #  list(APPEND CMAKE_FIND_ROOT_PATH ${MXE_PATH})
 #endif()
+set(BOOST_ROOT ${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET})
+set(BOOST_INCLUDEDIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
+set(Boost_LIBRARY_DIR "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib")
+message(STATUS "BOOST_ROOT ${BOOST_ROOT}")
+#set(Boost_DIR ${_VCPKG_INSTALLED_DIR}) # don't set this one. 
+set(Boost_NO_SYSTEM_PATHS ON)
+set(Boost_NO_BOOST_CMAKE  ON) # additional set this one
+set(Boost_DEBUG ON)
+
+execute_process(COMMAND ls -al /builds/leander.schulten/Lichtsteuerung/build/vcpkg_installed/x64-linux-windows-static/lib)
 
 find_package(Qt5
   COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets

@@ -17,8 +17,10 @@ build:
     - cp x64-linux-windows-static.cmake ./vcpkg/triplets/community
     # - sed -i /CMAKE_MODULE_PATH/d $CMAKE_TOOLCHAIN_FILE
     - cat $CMAKE_TOOLCHAIN_FILE
+    - sed -i "s/find_path(Boost_INCLUDE_DIR/find_path(Boost_INCLUDE_DIR NO_CMAKE_FIND_ROOT_PATH/" /usr/src/mxe/usr/x86_64-pc-linux-gnu/share/cmake-3.19/Modules/FindBoost.cmake
+    - cat /usr/src/mxe/usr/x86_64-pc-linux-gnu/share/cmake-3.19/Modules/FindBoost.cmake
     # - unset CMAKE_TOOLCHAIN_FILE
-    #- ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
+    # - ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
     - cd src/lib
     - ./build_libs.sh
     - cd ../..
