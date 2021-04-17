@@ -26,10 +26,10 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 
-if(DEFINED ENV{GITLAB_CI}) # see https://github.com/microsoft/vcpkg/issues/17163
-  list(POP_FRONT CMAKE_FIND_ROOT_PATH MXE_PATH)
-  list(APPEND CMAKE_FIND_ROOT_PATH ${MXE_PATH})
-endif()
+#if(DEFINED ENV{GITLAB_CI}) # see https://github.com/microsoft/vcpkg/issues/17163
+#  list(POP_FRONT CMAKE_FIND_ROOT_PATH MXE_PATH)
+#  list(APPEND CMAKE_FIND_ROOT_PATH ${MXE_PATH})
+#endif()
 
 find_package(Qt5
   COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets
