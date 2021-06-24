@@ -131,16 +131,9 @@ elseif(WIN32)
 endif()
 
 # boost
-if(DEFINED ENV{GITLAB_CI})
-    # use `message(STATUS "${Boost_LIBRARIES}")` to find out which libs are needed
-    # use this as a workaround until https://github.com/microsoft/vcpkg/issues/17163 is fixed
-    target_link_libraries(lichtsteuerung "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_thread.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_context.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_coroutine.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_chrono.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_date_time.a;${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/lib/libboost_atomic.a")
-    target_include_directories(lichtsteuerung PRIVATE "${_VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/include")
-else()
-    find_package(Boost 1.75.0 REQUIRED COMPONENTS thread context coroutine)
-    target_link_libraries(lichtsteuerung ${Boost_LIBRARIES})
-    target_include_directories(lichtsteuerung PRIVATE ${Boost_INCLUDE_DIRS})
-endif()
+find_package(Boost 1.75.0 REQUIRED COMPONENTS thread context coroutine)
+target_link_libraries(lichtsteuerung ${Boost_LIBRARIES})
+target_include_directories(lichtsteuerung PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(APPLE)
     # damit boost stacktrace funktioniert
