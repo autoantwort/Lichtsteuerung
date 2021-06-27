@@ -1,43 +1,19 @@
 FROM dockcross/base:latest
-MAINTAINER Leander Schulten "leander.Schulten@rwth-aachen.de"
-
-ENV WINEARCH win64
-ARG MXE_TARGET_ARCH=x86_64
-ARG MXE_TARGET_THREAD=.posix
-ARG MXE_TARGET_LINK=shared
-
-#
-# Before including this script, make sure to set:
-#
-# WINEARCH environment variable to either "win64" or "win32"
-# MXE_TARGET_ARCH argument to either "x86_64" or "i686". See http://mxe.cc/
-# MXE_TARGET_THREAD argument to either "" or ".posix". Default is win32. See http://mxe.cc/
-# MXE_TARGET_LINK argument to either "static" or "shared"
-#
-# For example:
-#
-#  ENV WINEARCH win64
-#  ARG MXE_TARGET_ARCH=x86_64
-#  ARG MXE_TARGET_THREAD=
-#  ARG MXE_TARGET_LINK=shared
-#
-
-ENV CMAKE_TOOLCHAIN_FILE /usr/src/mxe/usr/${MXE_TARGET_ARCH}-w64-mingw32.${MXE_TARGET_LINK}${MXE_TARGET_THREAD}/share/cmake/mxe-conf.cmake
+LABEL Leander Schulten "leander.Schulten@rwth-aachen.de"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 # next line from https://github.com/romaricp/kit-starter-symfony-4-docker/issues/10
 RUN sudo rm -rf /var/lib/apt/lists/* && sudo apt update
 
-#
-# WINE is used as an emulator for try_run and tests with CMake.
-#
+# use testing to get gcc-10
+RUN echo 'deb http://deb.debian.org/debian testing main' >> /etc/apt/sources.list
 # Other dependencies are from the listed MXE requirements:
 #   http://mxe.cc/#requirements
 # 'cmake' is omitted because it is installed from source in the base image
 #
 RUN \
-  apt-get update && \
+  apt-get update -y && \
   apt-get install --no-install-recommends --yes \
     autoconf \
     automake \
@@ -66,25 +42,42 @@ RUN \
     patch \
     perl \
     pkg-config \
-    python \
+    python3 \
     ruby \
     scons \
     sed \
     unzip \
     wget \
-    wine \
-    xz-utils \
-  && \
-  #
-  # Install Wine
-  #
-  dpkg --add-architecture i386 && \
-  apt-get update && \
-  apt-get install -y wine32 && \
-  wine hostname && \
-  #
-  # Download MXE sources
-  #
+    xz-utils
+
+
+ENV WINEARCH win64
+ARG MXE_TARGET_ARCH=x86_64
+ARG MXE_TARGET_THREAD=.posix
+ARG MXE_TARGET_LINK=shared
+
+#
+# Before including this script, make sure to set:
+#
+# WINEARCH environment variable to either "win64" or "win32"
+# MXE_TARGET_ARCH argument to either "x86_64" or "i686". See http://mxe.cc/
+# MXE_TARGET_THREAD argument to either "" or ".posix". Default is win32. See http://mxe.cc/
+# MXE_TARGET_LINK argument to either "static" or "shared"
+#
+# For example:
+#
+#  ENV WINEARCH win64
+#  ARG MXE_TARGET_ARCH=x86_64
+#  ARG MXE_TARGET_THREAD=
+#  ARG MXE_TARGET_LINK=shared
+#
+
+ENV CMAKE_TOOLCHAIN_FILE /usr/src/mxe/usr/${MXE_TARGET_ARCH}-w64-mingw32.${MXE_TARGET_LINK}${MXE_TARGET_THREAD}/share/cmake/mxe-conf.cmake
+
+#
+# Download MXE sources
+#
+RUN \
   cd /usr/src && \
   git clone https://github.com/mxe/mxe.git && \
   cd mxe && \
@@ -97,7 +90,7 @@ RUN \
   echo "LOCAL_PKG_LIST := cc cmake"                                              >> settings.mk && \
   echo ".DEFAULT local-pkg-list:"                                                >> settings.mk && \
   echo "local-pkg-list: \$(LOCAL_PKG_LIST)"                                      >> settings.mk && \
-  echo "MXE_PLUGIN_DIRS := plugins/gcc8"                                      >> settings.mk && \
+  echo "MXE_PLUGIN_DIRS := plugins/gcc10"                                        >> settings.mk && \
   #
   # Build MXE
   #
@@ -108,10 +101,6 @@ RUN \
   #          additional packages.
   #
   rm -rf log pkg && \
-  #
-  # Update MXE toolchain file
-  #
-  echo 'set(CMAKE_CROSSCOMPILING_EMULATOR "/usr/bin/wine")' >> ${CMAKE_TOOLCHAIN_FILE} && \
   #
   # Replace cmake and cpack binaries
   #
@@ -156,5 +145,16 @@ RUN make qtserialport
 RUN make qttools
 RUN make qtwebsockets
 
+# install powershell from https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-7.1#installation-via-package-repository---debian-9
+RUN apt-get update && \
+    apt-get install -y curl gnupg apt-transport-https && \
+    curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add - && \
+    sh -c 'echo "deb [arch=amd64] https://packages.microsoft.com/repos/microsoft-debian-stretch-prod stretch main" > /etc/apt/sources.list.d/microsoft.list' && \
+    apt-get update && \
+    apt-get install -y powershell
+
 #set path to mxe compiler
 RUN export PATH=/usr/src/mxe/usr/bin:$PATH
+
+# remove large not needed folders (download folder)
+RUN rm -r /usr/src/mxe/pkg
