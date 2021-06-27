@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5.15.2:latest
+image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5.15.2-shared-without-wine-with-gcc-10
 
 stages:
   - build
@@ -10,8 +10,8 @@ build:
   script:
     - git submodule update --init --recursive
     - rm -rf vcpkg/packages vcpkg/buildtrees
-    - CC=/usr/bin/gcc
-    - CXX=/usr/bin/g++
+    - CC=/usr/bin/gcc-10
+    - CXX=/usr/bin/g++-10
     - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
     - ./vcpkg/bootstrap-vcpkg.sh
     - cp x64-linux-windows-static.cmake ./vcpkg/triplets/community
