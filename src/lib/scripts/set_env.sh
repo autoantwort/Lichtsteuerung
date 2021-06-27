@@ -36,7 +36,7 @@ fi
 export QT_DIR="$QT"
 
 if [ ! -z "$GITLAB_CI" ]; then # in gitlab CI
-  LATEST=$(/usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake --version | grep -oh '5\.[0-9]\+.[0-9]\+')
+  LATEST=$(/usr/src/mxe/usr/$CROSS_TRIPLE/qt5/bin/qmake --version | grep -oh '5\.[0-9]\+.[0-9]\+')
 else
   LATEST=$(ls "$QT" | grep 5. | tail -1)
   if [ -z $LATEST ]; then
@@ -59,7 +59,7 @@ fi
 
 
 if [ ! -z "$GITLAB_CI" ]; then # in gitlab CI
-  qmake=/usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake
+  qmake="/usr/src/mxe/usr/$CROSS_TRIPLE/qt5/bin/qmake"
 else
   BUILD=$(ls "$QT/$LATEST/" | grep _64) 
   qmake="$QT/$LATEST/$BUILD/bin/qmake"
