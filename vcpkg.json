@@ -12,6 +12,7 @@
         {
             "name": "aubio",
             "default-features": false
-        }
+        },
+        "qt5-mqtt"
     ]
 }
