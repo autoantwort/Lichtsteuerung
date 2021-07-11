@@ -13,7 +13,9 @@
             "name": "aubio",
             "default-features": false
         },
-        "qt",
+        "qtquickcontrols2",
+        "qtmqtt",
+        "qtnetworkauth",
         {
             "name": "qtbase",
             "host": true,
