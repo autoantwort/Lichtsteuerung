@@ -12,6 +12,12 @@
         {
             "name": "aubio",
             "default-features": false
+        },
+        "qt",
+        {
+            "name": "qtbase",
+            "host": true,
+            "default-features": false
         }
     ]
 }
