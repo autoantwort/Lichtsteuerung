@@ -21,6 +21,7 @@ build:
     - cd ../..
     - mkdir -p build
     - cd build
+    - minja --version
     - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
     - ninja
     - cd ..
