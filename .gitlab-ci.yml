@@ -26,6 +26,7 @@ build:
     - cd ..
   cache:
     key: vcpkg_cache
+    when: always
     paths:
       - vcpkg_cache/
   artifacts:
