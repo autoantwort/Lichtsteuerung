@@ -21,7 +21,9 @@ build:
     - cd ../..
     - mkdir -p build
     - cd build
-    - minja --version
+    - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    - ninja --version
+    - cmake --version
     - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
     - ninja
     - cd ..
@@ -31,10 +33,13 @@ build:
     paths:
       - vcpkg_cache/
   artifacts:
-    # when: always
+    when: always
     paths:
       - build/src/lichtsteuerung.exe
-      # - vcpkg/buildtrees/libbacktrace
+      - vcpkg/buildtrees/*/*.log
+      - vcpkg/buildtrees/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*.log
       # - build/vcpkg_installed/
 
 # we use this version file to check if a new version exists 
