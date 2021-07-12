@@ -37,6 +37,7 @@ build:
     when: always
     paths:
       - build/src/lichtsteuerung.exe
+      - vcpkg/buildtrees/harfbuzz/
       - vcpkg/buildtrees/*/*.log
       - vcpkg/buildtrees/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*.log

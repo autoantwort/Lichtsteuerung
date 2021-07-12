@@ -2,25 +2,6 @@
     "name": "lichtsteuerung",
     "version-string": "2.0.0",
     "dependencies": [
-        "boost-coroutine",
-        "boost-coroutine2",
-        "boost-stacktrace",
-        "libbacktrace",
-        "span-lite",
-        "rtaudio",
-        "kubazip",
-        {
-            "name": "aubio",
-            "default-features": false
-        },
-        "qtquickcontrols2",
-        "qtmqtt",
-        "qtnetworkauth",
-        {
-            "name": "qtbase",
-            "host": true,
-            "default-features": false,
-            "features": ["doubleconversion"]
-        }
+        "harfbuzz"
     ]
 }
