@@ -37,6 +37,10 @@ build:
     when: always
     paths:
       - build/src/lichtsteuerung.exe
+      - vcpkg/buildtrees/**/*.a
+      - vcpkg/buildtrees/**/*.lib
+      - vcpkg/buildtrees/**/*.dll
+      - vcpkg/buildtrees/**/*.exe
       - vcpkg/buildtrees/*/*.log
       - vcpkg/buildtrees/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*.log
