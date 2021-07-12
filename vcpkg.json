@@ -19,7 +19,8 @@
         {
             "name": "qtbase",
             "host": true,
-            "default-features": false
+            "default-features": false,
+            "features": ["doubleconversion"]
         }
     ]
 }
