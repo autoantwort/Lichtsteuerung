@@ -7,6 +7,7 @@ stages:
 
 build:
   stage: build
+  timeout: 3h
   script:
     - git submodule update --init --recursive
     - rm -rf vcpkg/packages vcpkg/buildtrees
@@ -40,6 +41,12 @@ build:
       - vcpkg/buildtrees/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*.log
+      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
 
 # we use this version file to check if a new version exists 
