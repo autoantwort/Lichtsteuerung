@@ -10,10 +10,4 @@ cd segvcatch
 ./build.sh
 cd ..
 
-echo $'\n\nUpdate Qt MQTT'
-cd qtmqtt
-./getAndUpdate.sh
-cd ..
-
-
 echo "Lib installation complete"
