@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5.15.2-shared-without-wine-with-gcc-10
+image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/mxe-dynamic
 
 stages:
   - build
@@ -22,7 +22,7 @@ build:
     - cd ../..
     - mkdir -p build
     - cd build
-    - minja --version
+    - ln -s /usr/bin/ninja /usr/bin/ninja-build
     - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
     - ninja
     - cd ..
