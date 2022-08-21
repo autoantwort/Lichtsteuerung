@@ -12,6 +12,9 @@ else()
   message(STATUS "VCPKG_CHAINLOAD_TOOLCHAIN_FILE is already set to '${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}'")
 endif()
 
+set(VCPKG_INSTALL_OPTIONS --allow-unsupported)
+set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/overlay-ports")
+
 project(lichtsteuerung VERSION 2.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)

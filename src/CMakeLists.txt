@@ -183,6 +183,7 @@ else()
 endif()
 
 # Segvcatch
-target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/include)
-target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/segvcatch/lib)
-target_link_libraries(lichtsteuerung segvcatch)
+find_path(segvcatch_INCLUDE_DIR segvcatch.h)
+target_include_directories(lichtsteuerung PRIVATE ${segvcatch_INCLUDE_DIR})
+find_library(segvcatch_LIBRARY segvcatch)
+target_link_libraries(lichtsteuerung PRIVATE ${segvcatch_LIBRARY})

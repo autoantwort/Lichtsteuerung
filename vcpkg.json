@@ -21,6 +21,7 @@
             "host": true,
             "default-features": false,
             "features": ["doubleconversion"]
-        }
+        },
+        "segvcatch"
     ]
 }
