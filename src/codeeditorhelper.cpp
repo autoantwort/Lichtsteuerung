@@ -118,7 +118,7 @@ bool CodeCompletions::filterAcceptsRow(int sourceRow,
       QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
       CodeCompletionEntry* data = sourceModel()->data(index, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
       if(data) {
-          return data->completion.contains(this->filterRegExp());
+          return data->completion.contains(this->filterRegularExpression());
       } else {
           return false;
       }
@@ -520,8 +520,8 @@ void addUserVariables(PossibleCodeCompletions & model, int cursorPos, Modules::M
                 ++startIndex;
                 CHECK_END(startIndex)
             }
-            for (const auto &parts : parameters.splitRef(",", Qt::SplitBehaviorFlags::SkipEmptyParts)) {
-                model.push_back(new CodeCompletionEntry(parts.mid(parts.lastIndexOf(" ")).toString(),parts.left(parts.lastIndexOf(" ")).toString(),""));
+            for (const auto &parts : parameters.split(",", Qt::SplitBehaviorFlags::SkipEmptyParts)) {
+                model.push_back(new CodeCompletionEntry(parts.mid(parts.lastIndexOf(" ")), parts.left(parts.lastIndexOf(" ")), ""));
             }
         }
     }
@@ -549,7 +549,7 @@ void CodeEditorHelper::updateCodeCompletionModel(int cursorPos){
                 find += document->characterAt(i);
             }
             codeCompletions.setFilterCaseSensitivity(Qt::CaseInsensitive);
-            codeCompletions.setFilterRegExp("^" + find);
+            codeCompletions.setFilterRegularExpression("^" + find);
         }
     }
     bool objectCompletion = false;
@@ -631,10 +631,10 @@ QString CodeEditorHelper::getType(QString variable, int pos){
         auto index = text.lastIndexOf(QRegularExpression(variable + " *="),pos);
         if(index < 0)
             return "unknown";
-        auto start = std::max(0, text.lastIndexOf('\n',index));
+        auto start = std::max({}, text.lastIndexOf('\n', index));
         start = std::max(start, text.lastIndexOf(';',index));
         auto end = std::min(text.length(),text.indexOf(";",index));
-        auto line = text.midRef(start,end-start);
+        auto line = text.mid(start, end - start);
         // get line:
         if(line.contains("computeDmxValuesForPointTo")){
             return "PointToResult";
@@ -1170,10 +1170,9 @@ void CodeEditorHelper::compile(){
         stream.flush();
         file.close();
 
+        auto result = Modules::Compiler::compileAndLoadModule(QFileInfo(file), module->getName(), module->getCompiledName(), [&](auto) { return module->getCompiledName().toStdString(); });
 
-        auto result = Modules::Compiler::compileAndLoadModule(file,module->getName(),module->getCompiledName(),[&](auto){return module->getCompiledName().toStdString();});
-
-        QFileInfo finfo = file;
+        QFileInfo finfo(file);
         extractErrors(result.second, finfo.absoluteFilePath(), lineCounter);
         if(result.first){
             emit information(result.second.replace(finfo.absoluteFilePath(),""));
@@ -1188,7 +1187,7 @@ void CodeEditorHelper::compile(){
 
 void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer){
     codeMarkups.clear();
-    for(const auto & line : compilerOutput.splitRef('\n')){
+    for (const auto &line : compilerOutput.split('\n')) {
         if(line.startsWith(absoluteFilePath)){
             auto error = line.mid(absoluteFilePath.length() + 1);
             if(!error.at(0).isNumber()){
@@ -1203,7 +1202,7 @@ void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QStrin
             error = error.mid(index+2);
             bool isError = error.startsWith(QStringLiteral("error"));
             index = error.indexOf(':');
-            const QString message = error.mid(index + 1).toString().trimmed();
+            const QString message = error.mid(index + 1).trimmed();
             index = message.lastIndexOf('\'');
             int markupLength = 2;
             if(index >= 0){

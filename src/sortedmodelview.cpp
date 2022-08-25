@@ -79,7 +79,7 @@ bool SortedModelVectorView::lessThan(const QModelIndex &source_left, const QMode
     }
     const auto left = getValue(source_left.data(sortRole()).value<QObject*>(),sortPropertyNameAsStdStrings);
     const auto right = getValue(source_right.data(sortRole()).value<QObject*>(),sortPropertyNameAsStdStrings);
-    return left < right;
+    return QPartialOrdering::Less == QVariant::compare(left, right);
 }
 
 QString SortedModelVectorView::getSortPropertyNameAsString() const{

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.12.0)
 
+set(QT_CREATOR_SKIP_VCPKG_SETUP ON)
+
 # vcpkg integration
 if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
   set(CMAKE_TOOLCHAIN_FILE "./vcpkg/scripts/buildsystems/vcpkg.cmake" CACHE STRING "")
@@ -13,6 +15,9 @@ else()
 endif()
 
 set(VCPKG_INSTALL_OPTIONS --allow-unsupported)
+if(APPLE)
+    set(VCPKG_APPLOCAL_DEPS OFF)
+endif()
 set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/overlay-ports")
 
 project(lichtsteuerung VERSION 2.0.0 LANGUAGES CXX)
@@ -28,8 +33,8 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 
-find_package(Qt5
-  COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets
+find_package(Qt6
+  COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets Mqtt Core5Compat Svg
   REQUIRED
 )
 

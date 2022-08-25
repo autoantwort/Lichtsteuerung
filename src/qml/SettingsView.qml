@@ -3,6 +3,7 @@ import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Window 2.12
+import QtQuick.Dialogs
 import custom.licht 1.0
 import "components"
 
@@ -11,6 +12,7 @@ ScrollView{
     onVisibleForUserChanged: {
         if (visibleForUser) {
             fileDialogLoader.load();
+            folderDialogLoader.load();
             // show the scroll bar for a short time so that the user can see that you can scroll here
             ScrollBar.vertical.active = true;
             ScrollBar.vertical.active = false;
@@ -44,7 +46,7 @@ ScrollView{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Save as"
                 onClicked: {
-                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false, false);
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, FileDialog.SaveFile);
                     fileDialogLoader.item.callback = function(file){
                         Settings.setJsonSettingsFilePath(file, false);
                     };
@@ -56,7 +58,7 @@ ScrollView{
                 Layout.preferredHeight: implicitHeight - 15
                 text: "Load from"
                 onClicked: {
-                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath, false);
+                    fileDialogLoader.item.openAt(Settings.jsonSettingsFilePath);
                     fileDialogLoader.item.callback = function(file){
                         if(Settings.setJsonSettingsFilePath(file, true)){
                             popupChangedSettingsFile.visible = true;
@@ -75,7 +77,6 @@ ScrollView{
         TextFieldFileChooser{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_DMX_DRIVER_LIB)
             Layout.fillWidth: true
-            folder: false
             path: Settings.driverFilePath
             onPathChanged: {Settings.driverFilePath = path;path = Settings.driverFilePath;}
             fileChooser: fileDialogLoader.item
@@ -101,10 +102,9 @@ ScrollView{
         TextFieldFileChooser{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
-            folder: true
             path: Settings.moduleDirPath
             onPathChanged: {Settings.moduleDirPath = path;path = Settings.moduleDirPath;}
-            fileChooser: fileDialogLoader.item
+            fileChooser: folderDialogLoader.item
         }
 
         Label{
@@ -114,7 +114,6 @@ ScrollView{
         TextFieldFileChooser{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
-            folder: true
             path: Settings.compilerPath
             onPathChanged: {Settings.compilerPath = path;path = Settings.compilerPath;}
             fileChooser: fileDialogLoader.item
@@ -127,10 +126,9 @@ ScrollView{
         TextFieldFileChooser{
             enabled: UserManagment.currentUser.havePermission(Permission.CHANGE_MODULE_SETTINGS)
             Layout.fillWidth: true
-            folder: true
             path: Settings.includePath
             onPathChanged: {Settings.includePath = path;path = Settings.includePath;}
-            fileChooser: fileDialogLoader.item
+            fileChooser: folderDialogLoader.item
         }
 
         Label{
@@ -231,10 +229,9 @@ ScrollView{
 
                 TextFieldFileChooser {
                     anchors.fill: parent
-                    folder: true
                     path: SlideShow.path
                     onPathChanged: SlideShow.path = path;
-                    fileChooser: fileDialogLoader.item
+                    fileChooser: folderDialogLoader.item
                     id: shouldBeParent
                 }
             }
@@ -326,6 +323,15 @@ ScrollView{
         function load() {
             if (source == "") {
                 source = "components/SystemFileDialog.qml";
+            }
+        }
+    }
+    Loader {
+        id: folderDialogLoader
+        asynchronous: true
+        function load() {
+            if (source == "") {
+                source = "components/SystemFolderDialog.qml";
             }
         }
     }

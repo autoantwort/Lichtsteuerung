@@ -626,7 +626,7 @@ ControlItemSync::ControlItemSync() {
     QObject::connect(&webSocket, &QWebSocket::textMessageReceived, [this](const QString &message) {
         auto dot = message.indexOf('.');
         bool ok;
-        auto id = message.leftRef(dot).toInt(&ok);
+        auto id = message.left(dot).toInt(&ok);
         if (!ok) {
             qWarning() << "Message for ControlPane has wrong format: " << message;
             return;

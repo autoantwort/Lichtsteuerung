@@ -19,12 +19,12 @@ namespace Test{
         }
         void runTest(){
              auto t1 = high_resolution_clock::now();
-            Compiler::compileToLibrary(QFile("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.cpp"),"/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
-            auto t2 = high_resolution_clock::now();
-            ModuleManager::singletone()->loadModule("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
-            auto t3 = high_resolution_clock::now();
-            for(const auto& i:ModuleManager::singletone()->getFilterModules()){
-                std::cout <<i.name()<< " , " << i.description();
+             Compiler::compileToLibrary(QFileInfo("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.cpp"), "/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
+             auto t2 = high_resolution_clock::now();
+             ModuleManager::singletone()->loadModule("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
+             auto t3 = high_resolution_clock::now();
+             for (const auto &i : ModuleManager::singletone()->getFilterModules()) {
+                 std::cout << i.name() << " , " << i.description();
             }
             auto blurFilter = ModuleManager::singletone()->createFilter("Blur");
             qDebug()<<blurFilter.get();
