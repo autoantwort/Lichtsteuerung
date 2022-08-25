@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/mxe-dynamic
+image: gcc
 
 stages:
   - build
@@ -9,21 +9,16 @@ build:
   stage: build
   timeout: 3h
   script:
-    - git submodule update --init --recursive
-    - rm -rf vcpkg/packages vcpkg/buildtrees
-    - CC=/usr/bin/gcc-10
-    - CXX=/usr/bin/g++-10
-    - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
-    - if [ ! -e ./vcpkg/vcpkg ]; then ./vcpkg/bootstrap-vcpkg.sh; fi;
-    - cp x64-linux-windows-static.cmake ./vcpkg/triplets/community
-    #- ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
-    - cd src/lib
-    - ./build_libs.sh
-    - cd ../..
+    - apt update -y && apt install -y ninja-build curl zip unzip tar autoconf-archive bison xcb libxcb-xkb-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev  libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev
+    - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
     - mkdir -p build
     - cd build
-    - ln -s /usr/bin/ninja /usr/bin/ninja-build
-    - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
+    # - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    - export VCPKG_FORCE_SYSTEM_BINARIES=1
+    - wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-linux-x86_64.tar.gz
+    - tar -xf cmake-3.24.1-linux-x86_64.tar.gz
+    - export PATH=$PATH:$(pwd)/cmake-3.24.1-linux-x86_64/bin
+    - cmake -G Ninja .. 
     - ninja
     - cd ..
   cache:
@@ -32,47 +27,27 @@ build:
     paths:
       - vcpkg_cache/
   artifacts:
-    # when: always
+    when: always
     paths:
-      - build/src/lichtsteuerung.exe
-      - vcpkg/buildtrees/*/*.log
-      - vcpkg/buildtrees/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
+      - "build/**/*.log"
+      - "build/**/*.md"
       # - build/vcpkg_installed/
-
-# we use this version file to check if a new version exists 
-version:
-  stage: version
-  only:
-    refs:
-      - windows-release
+windows-build:
+  stage: build
+  timeout: 4h
+  tags: 
+    - windows-shell
+  variables:  
+    VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
   script:
-    - echo $(git rev-parse --short HEAD) > version.txt
-  artifacts:
-    name: version
-    paths:
-      - version.txt
+    - mkdir buildtree
+    - 'if(-not(Test-Path -Path z:)) {subst z: buildtree}'
+    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build;--x-buildtrees-root=z:/;--allow-unsupported"
+    - cmake --build build
 
-
-deploy:
-  stage: deploy
-  only:
-    refs:
-      - windows-release
-  script: 
-    - cp build/release/Lichtsteuerung.exe windows-release
-    - mkdir -p windows-release/modulesHeader
-    - cp -r src/modules windows-release/modulesHeader
-    - echo "includePath=modulesHeader" >> windows-release/settings.ini
-#   - echo "moduleDirPath=modules" >> windows-release/settings.ini
-    - cp version.txt windows-release
   artifacts:
+    when: always
     paths:
-      - windows-release
+      - "build/**/*.log"
+      - "build/**/*.md"
+    # - docker run my-docker-image /script/to/run/tests

@@ -1,11 +1,15 @@
 {
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
     "name": "lichtsteuerung",
     "version-string": "2.0.0",
     "dependencies": [
         "boost-coroutine",
         "boost-coroutine2",
         "boost-stacktrace",
-        "libbacktrace",
+        {
+          "name": "libbacktrace",
+          "platform": "!(windows & !mingw)"
+        },
         "span-lite",
         "rtaudio",
         "kubazip",
@@ -20,5 +24,10 @@
         "qt5compat",
         "qtsvg",
         "segvcatch"
-    ]
+    ],
+    "vcpkg-configuration": {
+        "overlay-ports": [
+            "overlay-ports"
+        ]
+    }
 }
