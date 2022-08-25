@@ -10,7 +10,7 @@ FetchContent_Declare(
 )
 #if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     FetchContent_Populate(vcpkg)
-    set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake" FORCE)
+    set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
 #endif()
 
 # vcpkg integration
