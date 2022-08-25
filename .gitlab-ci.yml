@@ -14,7 +14,7 @@ build:
     - mkdir -p build
     - cd build
     # - ln -s /usr/bin/ninja /usr/bin/ninja-build
-    - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
+    - cmake -G Ninja .. 
     - ninja
     - cd ..
   cache:
