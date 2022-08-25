@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/mxe-dynamic
+image: gcc
 
 stages:
   - build
@@ -9,20 +9,11 @@ build:
   stage: build
   timeout: 3h
   script:
-    - git submodule update --init --recursive
-    - rm -rf vcpkg/packages vcpkg/buildtrees
-    - CC=/usr/bin/gcc-10
-    - CXX=/usr/bin/g++-10
+    - apt install -y cmake ninja-build
     - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
-    - if [ ! -e ./vcpkg/vcpkg ]; then ./vcpkg/bootstrap-vcpkg.sh; fi;
-    - cp x64-linux-windows-static.cmake ./vcpkg/triplets/community
-    #- ./vcpkg/vcpkg install --triplet=x64-linux-windows-static --feature-flags=manifests
-    - cd src/lib
-    - ./build_libs.sh
-    - cd ../..
     - mkdir -p build
     - cd build
-    - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    # - ln -s /usr/bin/ninja /usr/bin/ninja-build
     - cmake -G Ninja .. -DVCPKG_TARGET_TRIPLET=x64-linux-windows-static
     - ninja
     - cd ..
@@ -34,7 +25,6 @@ build:
   artifacts:
     # when: always
     paths:
-      - build/src/lichtsteuerung.exe
       - vcpkg/buildtrees/*/*.log
       - vcpkg/buildtrees/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*.log
@@ -46,33 +36,3 @@ build:
       - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*.log
       - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
-
-# we use this version file to check if a new version exists 
-version:
-  stage: version
-  only:
-    refs:
-      - windows-release
-  script:
-    - echo $(git rev-parse --short HEAD) > version.txt
-  artifacts:
-    name: version
-    paths:
-      - version.txt
-
-
-deploy:
-  stage: deploy
-  only:
-    refs:
-      - windows-release
-  script: 
-    - cp build/release/Lichtsteuerung.exe windows-release
-    - mkdir -p windows-release/modulesHeader
-    - cp -r src/modules windows-release/modulesHeader
-    - echo "includePath=modulesHeader" >> windows-release/settings.ini
-#   - echo "moduleDirPath=modules" >> windows-release/settings.ini
-    - cp version.txt windows-release
-  artifacts:
-    paths:
-      - windows-release
