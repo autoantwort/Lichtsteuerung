@@ -2,13 +2,14 @@
 #include <QtDebug>
 
 #ifdef Q_OS_MAC
+
+constexpr auto OSX_MAIN_CHANNEL = 0;
+
 OSStatus SystemVolume::callback(AudioObjectID inObjectID, UInt32 inNumberAddresses, const AudioObjectPropertyAddress *inAddresses, void * /*inClientData*/) {
     for (UInt32 i = 0; i < inNumberAddresses; ++i) {
         const auto &cur = inAddresses[i];
-        if (cur.mScope == kAudioDevicePropertyScopeOutput && cur.mSelector == kAudioDevicePropertyVolumeScalar && cur.mElement == 1 /*LEFT_CHANNEL*/) {
-            AudioObjectPropertyAddress volumePropertyAddress = {
-                kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
-            };
+        if (cur.mScope == kAudioDevicePropertyScopeOutput && cur.mSelector == kAudioDevicePropertyVolumeScalar && cur.mElement == OSX_MAIN_CHANNEL) {
+            AudioObjectPropertyAddress volumePropertyAddress = {kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, OSX_MAIN_CHANNEL};
 
             Float32 volume;
             UInt32 volumedataSize = sizeof(volume);
@@ -16,6 +17,8 @@ OSStatus SystemVolume::callback(AudioObjectID inObjectID, UInt32 inNumberAddress
             if (result == kAudioHardwareNoError) {
                 get().volume = static_cast<double>(volume);
                 emit get().volumeChanged();
+            } else {
+                qWarning() << "Failed to get new volume";
             }
             break;
         }
@@ -77,7 +80,7 @@ SystemVolume::SystemVolume() {
     emit volumeChanged();
 #endif
 #ifdef Q_OS_MAC
-    AudioObjectPropertyAddress getDefaultOutputDevicePropertyAddress = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMaster};
+    AudioObjectPropertyAddress getDefaultOutputDevicePropertyAddress = {kAudioHardwarePropertyDefaultOutputDevice, kAudioObjectPropertyScopeGlobal, kAudioObjectPropertyElementMain};
 
     UInt32 outputDeviceSize = sizeof(defaultOutputDeviceID);
     OSStatus result = AudioObjectGetPropertyData(kAudioObjectSystemObject, &getDefaultOutputDevicePropertyAddress, 0, nullptr, &outputDeviceSize, &defaultOutputDeviceID);
@@ -87,9 +90,7 @@ SystemVolume::SystemVolume() {
     }
 
     // register a listener so that we get an event when the volume changed
-    AudioObjectPropertyAddress volumePropertyAddress = {
-        kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
-    };
+    AudioObjectPropertyAddress volumePropertyAddress = {kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, OSX_MAIN_CHANNEL};
 
     result = AudioObjectAddPropertyListener(defaultOutputDeviceID, &volumePropertyAddress, &callback, nullptr);
     if (result != kAudioHardwareNoError) {
@@ -103,6 +104,8 @@ SystemVolume::SystemVolume() {
     if (result == kAudioHardwareNoError) {
         this->volume = static_cast<double>(volume);
         emit volumeChanged();
+    } else {
+        qWarning() << "Failed to get audio volume";
     }
 #endif
 #ifdef Q_OS_LINUX
@@ -222,20 +225,11 @@ void SystemVolume::setVolume(double volume) {
 #ifdef Q_OS_MAC
         if (defaultOutputDeviceID != kAudioDeviceUnknown) {
 
-            AudioObjectPropertyAddress volumePropertyAddress = {
-                kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, 1 /*LEFT_CHANNEL*/
-            };
+            AudioObjectPropertyAddress volumePropertyAddress = {kAudioDevicePropertyVolumeScalar, kAudioDevicePropertyScopeOutput, OSX_MAIN_CHANNEL};
             Float32 volume = static_cast<Float32>(this->volume);
             auto result = AudioObjectSetPropertyData(defaultOutputDeviceID, &volumePropertyAddress, 0, nullptr, sizeof(volume), &volume);
             if (result != kAudioHardwareNoError) {
-                qWarning() << "Can not set system volume";
-            } else {
-                // setting right channel
-                volumePropertyAddress.mElement = 2 /*RIGHT_CHANNEL*/;
-                result = AudioObjectSetPropertyData(defaultOutputDeviceID, &volumePropertyAddress, 0, nullptr, sizeof(volume), &volume);
-                if (result != kAudioHardwareNoError) {
-                    qWarning() << "Can not set system volume of right channel";
-                }
+                qWarning() << "Can not set system volume " << result;
             }
         }
 #endif
