@@ -1,27 +1,23 @@
 #ifndef ALBUMOBJECT_H
 #define ALBUMOBJECT_H
 
-#include <QObject>
-#include <optional>
 #include "artistobject.h"
 #include "imageobject.h"
 #include "modelvector.h"
 #include <QJsonObject>
-namespace Spotify::Objects{
-
-
-
-
+#include <QObject>
+#include <optional>
+namespace Spotify::Objects {
 
 /**
  * @brief The AlbumObject_simplified class https://developer.spotify.com/documentation/web-api/reference/object-model/#album-object-simplified
  */
-class AlbumObject_simplified
-{
+class AlbumObject_simplified {
     Q_GADGET
 public:
     /**
-     * @brief album_group The field is present when getting an artist’s albums. Possible values are “album”, “single”, “compilation”, “appears_on”. Compare to album_type this field represents relationship between the artist and the album.
+     * @brief album_group The field is present when getting an artist’s albums. Possible values are “album”, “single”, “compilation”, “appears_on”. Compare to album_type this field represents
+     * relationship between the artist and the album.
      */
     const std::optional<QString> album_group;
     /**
@@ -46,9 +42,9 @@ public:
     const QString name;
 
 public:
-    AlbumObject_simplified(const QJsonObject& object);
+    AlbumObject_simplified(const QJsonObject &object);
 };
 
-}
+} // namespace Spotify::Objects
 
 #endif // ALBUMOBJECT_H

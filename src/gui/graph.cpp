@@ -7,7 +7,9 @@ namespace GUI {
 
 Graph *Graph::lastCreated = nullptr;
 
-Graph::Graph(QQuickItem *parent) : LineGeometry(parent) { lastCreated = this; }
+Graph::Graph(QQuickItem *parent) : LineGeometry(parent) {
+    lastCreated = this;
+}
 
 Graph::~Graph() {
     if (lastCreated == this) {
@@ -31,6 +33,8 @@ void Graph::fillVertexData(QSGGeometry::Point2D *vertices) {
     }
 }
 
-void Graph::processNewData() { setImplicitWidth(getData().size() * 2); }
+void Graph::processNewData() {
+    setImplicitWidth(getData().size() * 2);
+}
 
 } // namespace GUI

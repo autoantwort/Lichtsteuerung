@@ -39,26 +39,23 @@ void AudioCaptureManager::initCallback(int channels, int samplesPerSecond) {
     emit capturingStarted();
 }
 
-void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*done){    
+void AudioCaptureManager::dataCallback(float *data, unsigned int frames, bool *done) {
     *done = !run;
     if (!run) {
         return;
     }
-    if(!data)
-        return;
-    if(channels<0)
-        return;
+    if (!data) return;
+    if (channels < 0) return;
     int firstIndex = -1;
     for (int i = 0; i < channels; ++i) {
-        if(data[i]!=0){
-            firstIndex=i;
+        if (data[i] != 0) {
+            firstIndex = i;
             break;
         }
     }
-    if(firstIndex==-1)
-        return;
+    if (firstIndex == -1) return;
 
-    sample.addData(data,data+frames*static_cast<unsigned>(channels),channels-1,firstIndex);
+    sample.addData(data, data + frames * static_cast<unsigned>(channels), channels - 1, firstIndex);
 
     {
         // feed the *analysis classes with new samples
@@ -67,7 +64,9 @@ void AudioCaptureManager::dataCallback(float* data, unsigned int frames, bool*do
             static bool once = false;
             if (!once) {
                 once = true;
-                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of %1 or x * %1. The length is %2. Can not analyse audio data.").arg(samplesPerFrame).arg(frames));
+                ErrorNotifier::showError(QStringLiteral("The samples from the audio capture service does not have a length of %1 or x * %1. The length is %2. Can not analyse audio data.")
+                                             .arg(samplesPerFrame)
+                                             .arg(frames));
             }
         } else {
             while (restFrames != 0) {
@@ -312,7 +311,10 @@ const OnsetDataSeries *AudioCaptureManager::requestOnsetAnalysis(Aubio::OnsetDet
         return &i->second.second;
     }
     // We need this ugly syntax, because we can not copy or move a EventRange object. See https://stackoverflow.com/a/25767752/10162645
-    return &onsetAnalyzes.emplace(std::piecewise_construct, std::make_tuple(f), std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond), std::forward_as_tuple(samplesPerSecond))).first->second.second;
+    return &onsetAnalyzes
+                .emplace(std::piecewise_construct, std::make_tuple(f),
+                         std::forward_as_tuple(std::piecewise_construct, std::forward_as_tuple(f, 1024, samplesPerFrame, samplesPerSecond), std::forward_as_tuple(samplesPerSecond)))
+                .first->second.second;
     // short:  onsetAnalyzes.emplace(f, {Aubio::OnsetAnalysis(f, 1024, 441, 44100), OnsetDataSeries(44100)});
 }
 

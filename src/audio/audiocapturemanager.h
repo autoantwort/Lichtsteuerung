@@ -36,13 +36,12 @@ struct TempoAnalysisData {
 /**
  * @brief The AudioCaptureManager class gets the data from the captureWindowsSountoutput Project and analyse the data and give the data to the other components
  */
-class AudioCaptureManager : public QObject
-{
+class AudioCaptureManager : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool capturing READ isCapturing NOTIFY capturingStatusChanged)
     Q_PROPERTY(int currentCaptureDevice READ getCurrentCaptureDevice WRITE setCurrentCaptureDevice NOTIFY currentCaptureDeviceChanged)
     Q_PROPERTY(QAbstractItemModel *captureDeviceNames READ getCaptureDeviceNamesModel CONSTANT)
-    Sample<float,4096> sample;
+    Sample<float, 4096> sample;
     std::atomic_bool run;
     int currentCaptureDevice = -1;
     RtAudio rtAudio;
@@ -61,7 +60,9 @@ class AudioCaptureManager : public QObject
         EventSeries events;
         float currentConfidence;
         TempoAnalysis(Aubio::OnsetDetectionFunction onsetDetectionFunction, int fftSize, int stepSize, int sampleRate)
-            : tempoAnalysis(onsetDetectionFunction, fftSize, stepSize, sampleRate), events(sampleRate), currentConfidence(0) {}
+            : tempoAnalysis(onsetDetectionFunction, fftSize, stepSize, sampleRate)
+            , events(sampleRate)
+            , currentConfidence(0) {}
         operator TempoAnalysisData() { return {&events, &currentConfidence}; }
     };
     /**
@@ -75,6 +76,7 @@ class AudioCaptureManager : public QObject
 
 private:
     AudioCaptureManager();
+
 private:
     static void rtAudioErrorCallback(RtAudioError::Type type, const std::string &errorText);
     static int rtAudioCallback(void *outputBuffer, void *inputBuffer, unsigned int nFrames, double streamTime, RtAudioStreamStatus status, void *userData);
@@ -142,9 +144,12 @@ public:
     const OnsetDataSeries *requestOnsetAnalysis(Aubio::OnsetDetectionFunction f);
 
 public:
-    AudioCaptureManager(AudioCaptureManager const&)               = delete;
-    void operator=(AudioCaptureManager const&)  = delete;
-    static AudioCaptureManager & get(){static AudioCaptureManager m;return m;}
+    AudioCaptureManager(AudioCaptureManager const &) = delete;
+    void operator=(AudioCaptureManager const &) = delete;
+    static AudioCaptureManager &get() {
+        static AudioCaptureManager m;
+        return m;
+    }
 signals:
     void capturingStatusChanged();
     void currentCaptureDeviceChanged();

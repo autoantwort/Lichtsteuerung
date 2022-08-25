@@ -1,14 +1,16 @@
 #include "programblockeditor.h"
-#include <QQmlEngine>
-#include <QPropertyAnimation>
-#include "modules/property.hpp"
 #include "errornotifier.h"
+#include "modules/property.hpp"
+#include <QPropertyAnimation>
+#include <QQmlEngine>
 
-QQmlEngine*  GUI::ProgramBlockEditor::engine = nullptr;
+QQmlEngine *GUI::ProgramBlockEditor::engine = nullptr;
 
-namespace GUI{
+namespace GUI {
 
-ProgramBlockEditor::ProgramBlockEditor() : programBlockEntry(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockEntry.qml"))), programBlockConnection(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockConnection.qml"))) {
+ProgramBlockEditor::ProgramBlockEditor()
+    : programBlockEntry(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockEntry.qml")))
+    , programBlockConnection(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockConnection.qml"))) {
     setAcceptedMouseButtons(Qt::AllButtons);
     /*QQuickItem *c1 ;
     if(programBlockEntry.isReady()){
@@ -69,120 +71,116 @@ ProgramBlockEditor::ProgramBlockEditor() : programBlockEntry(engine, QUrl(QStrin
     property real sourceBaseline*/
 }
 
-void ProgramBlockEditor::updatePossibleEntries(){
+void ProgramBlockEditor::updatePossibleEntries() {
     QStringList l;
     using namespace Modules;
-    for(const auto & m : ModuleManager::singletone()->getProgrammModules()){
+    for (const auto &m : ModuleManager::singletone()->getProgrammModules()) {
         l << QString::fromStdString(m.name()) + "(Program)";
     }
-    for(const auto & m : ModuleManager::singletone()->getFilterModules()){
+    for (const auto &m : ModuleManager::singletone()->getFilterModules()) {
         l << QString::fromStdString(m.name()) + "(Filter)";
     }
-    for(const auto & m : ModuleManager::singletone()->getConsumerModules()){
+    for (const auto &m : ModuleManager::singletone()->getConsumerModules()) {
         l << QString::fromStdString(m.name()) + "(Consumer)";
     }
     possibleEntryModel.setStringList(l);
 }
 
-void ProgramBlockEditor::updateInputOutputModels(){
+void ProgramBlockEditor::updateInputOutputModels() {
     QStringList in, out;
     using namespace Modules;
-    for(const auto & p : programBlock->getPrograms()){
+    for (const auto &p : programBlock->getPrograms()) {
         out << QString::fromLatin1(p->getName()) + "(Program)";
     }
-    for(const auto & p : programBlock->getFilter()){
-        out << QString::fromLatin1(static_cast<Filter*>(p.second.source.get())->getName()) + "(Filter)";
-        in << QString::fromLatin1(static_cast<Filter*>(p.second.source.get())->getName()) + "(Filter)";
+    for (const auto &p : programBlock->getFilter()) {
+        out << QString::fromLatin1(static_cast<Filter *>(p.second.source.get())->getName()) + "(Filter)";
+        in << QString::fromLatin1(static_cast<Filter *>(p.second.source.get())->getName()) + "(Filter)";
     }
-    for(const auto & p : programBlock->getConsumer()){
-        in << QString::fromLatin1(static_cast<Consumer*>(p.source.get())->getName()) + "(Consumer)";
+    for (const auto &p : programBlock->getConsumer()) {
+        in << QString::fromLatin1(static_cast<Consumer *>(p.source.get())->getName()) + "(Consumer)";
     }
     inputDataConsumerModel.setStringList(in);
     outputDataProducerModel.setStringList(out);
 }
 
-Modules::OutputDataProducer * getOutputDataProducer(Modules::ProgramBlock * pb, QString name_){
-    if(name_.endsWith("(Program)")){
+Modules::OutputDataProducer *getOutputDataProducer(Modules::ProgramBlock *pb, QString name_) {
+    if (name_.endsWith("(Program)")) {
         auto name = name_.left(name_.length() - 9).toStdString();
-        for(const auto &p : pb->getPrograms()){
-            if(p->getName() == name)
-                return p.get();
+        for (const auto &p : pb->getPrograms()) {
+            if (p->getName() == name) return p.get();
         }
     }
-    if(name_.endsWith("(Filter)")){
+    if (name_.endsWith("(Filter)")) {
         auto name = name_.left(name_.length() - 8).toStdString();
-        for(const auto &p : pb->getFilter()){
-            if(static_cast<Modules::Filter*>(p.second.source.get())->getName() == name)
-                return static_cast<Modules::Filter*>(p.second.source.get());
+        for (const auto &p : pb->getFilter()) {
+            if (static_cast<Modules::Filter *>(p.second.source.get())->getName() == name) return static_cast<Modules::Filter *>(p.second.source.get());
         }
     }
     return nullptr;
 }
 
-void ProgramBlockEditor::addConnection(int inputIndex, int length, int outputIndex, int startIndex){
-    if(inputIndex< 0 || inputIndex >= inputDataConsumerModel.rowCount()){
+void ProgramBlockEditor::addConnection(int inputIndex, int length, int outputIndex, int startIndex) {
+    if (inputIndex < 0 || inputIndex >= inputDataConsumerModel.rowCount()) {
         return;
     }
-    if(outputIndex< 0 || outputIndex >= outputDataProducerModel.rowCount()){
+    if (outputIndex < 0 || outputIndex >= outputDataProducerModel.rowCount()) {
         return;
     }
     using namespace Modules;
     auto inputName = inputDataConsumerModel.data(inputDataConsumerModel.index(inputIndex)).toString();
     auto outputName = outputDataProducerModel.data(outputDataProducerModel.index(outputIndex)).toString();
-    if(inputName.endsWith("(Filter)")){
+    if (inputName.endsWith("(Filter)")) {
         auto name = inputName.left(inputName.length() - 8).toStdString();
-        for(auto & f : programBlock->getFilter()){
-            if(static_cast<Filter*>(f.second.source.get())->getName() == name){
-                f.second.addTarget(length,getOutputDataProducer(programBlock,outputName),startIndex);
+        for (auto &f : programBlock->getFilter()) {
+            if (static_cast<Filter *>(f.second.source.get())->getName() == name) {
+                f.second.addTarget(length, getOutputDataProducer(programBlock, outputName), startIndex);
             }
         }
-    }else{/*"(Consumer)"*/
+    } else { /*"(Consumer)"*/
         auto name = inputName.left(inputName.length() - 10).toStdString();
-        for(auto & f : programBlock->getConsumer()){
-            if(static_cast<Filter*>(f.source.get())->getName() == name){
-                f.addTarget(length,getOutputDataProducer(programBlock,outputName),startIndex);
+        for (auto &f : programBlock->getConsumer()) {
+            if (static_cast<Filter *>(f.source.get())->getName() == name) {
+                f.addTarget(length, getOutputDataProducer(programBlock, outputName), startIndex);
             }
         }
     }
     recreateView();
 }
 
-void ProgramBlockEditor::addConnection(int length, int startIndex){
-    if(dragEndItem == nullptr || length < 0 || startIndex < 0 )
-        return;
+void ProgramBlockEditor::addConnection(int length, int startIndex) {
+    if (dragEndItem == nullptr || length < 0 || startIndex < 0) return;
     using namespace Modules;
-    OutputDataProducer * output = dynamic_cast<OutputDataProducer*>(dragStartItem->property("propertyBase").value<PropertyBase*>());
-    InputDataConsumer  * input  = dynamic_cast<InputDataConsumer*>(dragEndItem->property("propertyBase").value<PropertyBase*>());
-    if(!input||!output)
-        return;
-    for(auto & i : programBlock->getFilter()){
-        if(i.second.source.get() == input){
-            i.second.addTarget(length,output,startIndex);
+    OutputDataProducer *output = dynamic_cast<OutputDataProducer *>(dragStartItem->property("propertyBase").value<PropertyBase *>());
+    InputDataConsumer *input = dynamic_cast<InputDataConsumer *>(dragEndItem->property("propertyBase").value<PropertyBase *>());
+    if (!input || !output) return;
+    for (auto &i : programBlock->getFilter()) {
+        if (i.second.source.get() == input) {
+            i.second.addTarget(length, output, startIndex);
             recreateView();
             return;
         }
     }
-    for(auto & i : programBlock->getConsumer()){
-        if(i.source.get() == input){
-            i.addTarget(length,output,startIndex);
+    for (auto &i : programBlock->getConsumer()) {
+        if (i.source.get() == input) {
+            i.addTarget(length, output, startIndex);
             recreateView();
             return;
         }
     }
 }
 
-void ProgramBlockEditor::removeEntry(){
-    if(dragStartItem){
+void ProgramBlockEditor::removeEntry() {
+    if (dragStartItem) {
         using namespace Modules;
-        auto pb = dragStartItem->property("propertyBase").value<PropertyBase*>();
-        auto p = dynamic_cast<Program*>(pb);
-        auto f = dynamic_cast<Filter*>(pb);
-        auto c = dynamic_cast<Consumer*>(pb);
-        if(p){
+        auto pb = dragStartItem->property("propertyBase").value<PropertyBase *>();
+        auto p = dynamic_cast<Program *>(pb);
+        auto f = dynamic_cast<Filter *>(pb);
+        auto c = dynamic_cast<Consumer *>(pb);
+        if (p) {
             programBlock->removeProgram(p);
-        }else if(f){
+        } else if (f) {
             programBlock->removeFilter(f);
-        }else if(c){
+        } else if (c) {
             programBlock->removeConsumer(c);
         }
         dragStartItem = nullptr;
@@ -190,20 +188,19 @@ void ProgramBlockEditor::removeEntry(){
     }
 }
 
-void ProgramBlockEditor::removeIncomingConnections(){
-    if(!dragStartItem)
-        return;
+void ProgramBlockEditor::removeIncomingConnections() {
+    if (!dragStartItem) return;
     using namespace Modules;
-    auto pb = dragStartItem->property("propertyBase").value<PropertyBase*>();
-    for(auto & i : programBlock->getFilter()){
-        if(static_cast<Filter*>(i.second.source.get())==pb){
+    auto pb = dragStartItem->property("propertyBase").value<PropertyBase *>();
+    for (auto &i : programBlock->getFilter()) {
+        if (static_cast<Filter *>(i.second.source.get()) == pb) {
             i.second.targeds.clear();
             recreateView();
             return;
         }
     }
-    for( auto & i : programBlock->getConsumer()){
-        if(static_cast<Consumer*>(i.source.get())==pb){
+    for (auto &i : programBlock->getConsumer()) {
+        if (static_cast<Consumer *>(i.source.get()) == pb) {
             i.targeds.clear();
             recreateView();
             return;
@@ -211,246 +208,223 @@ void ProgramBlockEditor::removeIncomingConnections(){
     }
 }
 
-void ProgramBlockEditor::addEntry(int index, int size){
-    if(index < 0 || index >= possibleEntryModel.rowCount()){
+void ProgramBlockEditor::addEntry(int index, int size) {
+    if (index < 0 || index >= possibleEntryModel.rowCount()) {
         return;
     }
     using namespace Modules;
     QString name = possibleEntryModel.data(possibleEntryModel.index(index)).toString();
-    if(name.endsWith("(Program)")){
-        auto p = ModuleManager::singletone()->createProgramm(name.left(name.length()-9).toStdString());
-        if(p){
+    if (name.endsWith("(Program)")) {
+        auto p = ModuleManager::singletone()->createProgramm(name.left(name.length() - 9).toStdString());
+        if (p) {
             p->setOutputLength(size);
             programBlock->addProgramm(p);
             qDebug() << "added";
             recreateView();
-        }else{
-            qDebug()<<"Invalid pointer for : "  << name;
+        } else {
+            qDebug() << "Invalid pointer for : " << name;
         }
-    } else if(name.endsWith("(Filter)")){
-        auto p = ModuleManager::singletone()->createFilter(name.left(name.length()-8).toStdString());
-        if(p){
-           p->setInputLength(size);
-           programBlock->addFilter(Modules::detail::Connection(p),1);
-           qDebug() << "added";
-           recreateView();
-        }else{
-           qDebug()<<"Invalid pointer for : "  << name;
+    } else if (name.endsWith("(Filter)")) {
+        auto p = ModuleManager::singletone()->createFilter(name.left(name.length() - 8).toStdString());
+        if (p) {
+            p->setInputLength(size);
+            programBlock->addFilter(Modules::detail::Connection(p), 1);
+            qDebug() << "added";
+            recreateView();
+        } else {
+            qDebug() << "Invalid pointer for : " << name;
         }
-    } else if(name.endsWith("(Consumer)")){
-        auto p = ModuleManager::singletone()->createConsumer(name.left(name.length()-10).toStdString());
-        if(p){
+    } else if (name.endsWith("(Consumer)")) {
+        auto p = ModuleManager::singletone()->createConsumer(name.left(name.length() - 10).toStdString());
+        if (p) {
             p->setInputLength(size);
             programBlock->addConsumer(Modules::detail::Connection(p));
             recreateView();
             qDebug() << "added";
-        }else{
-            qDebug()<<"Invalid pointer for : "  << name;
+        } else {
+            qDebug() << "Invalid pointer for : " << name;
         }
-    }else{
+    } else {
         qDebug() << "ERROR : " << name;
     }
 }
 
-void ProgramBlockEditor::recreateView(){
-    for(auto i : this->childItems()){
-        if(i->objectName()=="removeable")
-        i->setParentItem(nullptr);
+void ProgramBlockEditor::recreateView() {
+    for (auto i : this->childItems()) {
+        if (i->objectName() == "removeable") i->setParentItem(nullptr);
     }
-    if(programBlockEntry.isError()){
+    if (programBlockEntry.isError()) {
         qDebug() << programBlockEntry.errorString();
         ErrorNotifier::showError(programBlockEntry.errorString());
-        for(const auto & e : programBlockEntry.errors()){
-            qDebug() << e;
-        }
-    }if(programBlockConnection.isError()){
-        qDebug() << programBlockConnection.errorString();
-        ErrorNotifier::showError(programBlockConnection.errorString());
-        for(const auto & e : programBlockConnection.errors()){
+        for (const auto &e : programBlockEntry.errors()) {
             qDebug() << e;
         }
     }
-    if(!programBlock||!programBlockEntry.isReady()||!programBlockConnection.isReady())
-        return;
+    if (programBlockConnection.isError()) {
+        qDebug() << programBlockConnection.errorString();
+        ErrorNotifier::showError(programBlockConnection.errorString());
+        for (const auto &e : programBlockConnection.errors()) {
+            qDebug() << e;
+        }
+    }
+    if (!programBlock || !programBlockEntry.isReady() || !programBlockConnection.isReady()) return;
     using namespace Modules;
-    std::map<Named*,QQuickItem*> components;
+    std::map<Named *, QQuickItem *> components;
     int y = 0;
     int x = 0;
     const int LAYER_OFFSET = 15;
     const int GAP_BETWEEN_BLOCKS = 10;
     int layerOffsetX = 0;
-    for(const auto & p : programBlock->getPrograms()){
-        QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
-        component->setProperty("text",p.get()->getName());
+    for (const auto &p : programBlock->getPrograms()) {
+        QQuickItem *component = qobject_cast<QQuickItem *>(programBlockEntry.create());
+        component->setProperty("text", p.get()->getName());
         component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.get()->getOutputLength() * scale);
-        component->setProperty("propertyBase",QVariant::fromValue(static_cast<PropertyBase*>(p.get())));
+        component->setProperty("propertyBase", QVariant::fromValue(static_cast<PropertyBase *>(p.get())));
         component->setObjectName("removeable");
         x += component->width() + GAP_BETWEEN_BLOCKS;
         components[p.get()] = component;
     }
-    x=0;
+    x = 0;
     int lastLayer = -1;
-    for(const auto & p : programBlock->getFilter()){
-        if(lastLayer!=p.first){
+    for (const auto &p : programBlock->getFilter()) {
+        if (lastLayer != p.first) {
             x = 0;
             y += spaceBetweenLayers;
             layerOffsetX += LAYER_OFFSET;
         }
-        QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
-        component->setProperty("text",dynamic_cast<Named*>(p.second.source.get())->getName());
+        QQuickItem *component = qobject_cast<QQuickItem *>(programBlockEntry.create());
+        component->setProperty("text", dynamic_cast<Named *>(p.second.source.get())->getName());
         component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.second.source.get()->getInputLength() * scale);
-        component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.second.source.get())));
+        component->setProperty("propertyBase", QVariant::fromValue(dynamic_cast<PropertyBase *>(p.second.source.get())));
         component->setObjectName("removeable");
-        components[dynamic_cast<Named*>(p.second.source.get())] = component;
-        x+= component->width() + GAP_BETWEEN_BLOCKS;
+        components[dynamic_cast<Named *>(p.second.source.get())] = component;
+        x += component->width() + GAP_BETWEEN_BLOCKS;
         lastLayer = p.first;
     }
-    y+=spaceBetweenLayers;
+    y += spaceBetweenLayers;
     layerOffsetX += LAYER_OFFSET;
     x = 0;
-    for(const auto & p : programBlock->getConsumer()){
-        QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockEntry.create());
-        component->setProperty("text",dynamic_cast<Named*>(p.source.get())->getName());
+    for (const auto &p : programBlock->getConsumer()) {
+        QQuickItem *component = qobject_cast<QQuickItem *>(programBlockEntry.create());
+        component->setProperty("text", dynamic_cast<Named *>(p.source.get())->getName());
         component->setX(x + layerOffsetX);
         component->setY(y);
         component->setWidth(p.source.get()->getInputLength() * scale);
-        component->setProperty("propertyBase",QVariant::fromValue(dynamic_cast<PropertyBase*>(p.source.get())));
+        component->setProperty("propertyBase", QVariant::fromValue(dynamic_cast<PropertyBase *>(p.source.get())));
         component->setObjectName("removeable");
         x += component->width() + GAP_BETWEEN_BLOCKS;
-        components[dynamic_cast<Named*>(p.source.get())] = component;
+        components[dynamic_cast<Named *>(p.source.get())] = component;
     }
 
-
-    for(const auto & p : programBlock->getFilter()){
+    for (const auto &p : programBlock->getFilter()) {
         int index = 0;
-        for(const auto & c : p.second.targeds){
-            QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockConnection.create());
+        for (const auto &c : p.second.targeds) {
+            QQuickItem *component = qobject_cast<QQuickItem *>(programBlockConnection.create());
             component->setParentItem(this);
-            QQmlEngine::setObjectOwnership(component,QQmlEngine::JavaScriptOwnership);            
-            component->setProperty("targetLength",c.first*scale);
-            component->setProperty("sourceStartIndex",index*scale);
-            component->setProperty("sourceLength",c.first*scale);
-            const auto elem1 = components[dynamic_cast<Named*>(c.second.targed)];
-            component->setProperty("targetBaseline",elem1->y() + elem1->height());
-            component->setProperty("targetStartIndex",elem1->x() + c.second.startIndex*scale);
-            const auto elem2 = components[dynamic_cast<Named*>(p.second.source.get())];
-            component->setProperty("sourceStartIndex",index*scale + elem2->x());
-            component->setProperty("sourceBaseline",elem2->y());
-            component->setProperty("color",QColor(23,255,23,50));
+            QQmlEngine::setObjectOwnership(component, QQmlEngine::JavaScriptOwnership);
+            component->setProperty("targetLength", c.first * scale);
+            component->setProperty("sourceStartIndex", index * scale);
+            component->setProperty("sourceLength", c.first * scale);
+            const auto elem1 = components[dynamic_cast<Named *>(c.second.targed)];
+            component->setProperty("targetBaseline", elem1->y() + elem1->height());
+            component->setProperty("targetStartIndex", elem1->x() + c.second.startIndex * scale);
+            const auto elem2 = components[dynamic_cast<Named *>(p.second.source.get())];
+            component->setProperty("sourceStartIndex", index * scale + elem2->x());
+            component->setProperty("sourceBaseline", elem2->y());
+            component->setProperty("color", QColor(23, 255, 23, 50));
             component->setObjectName("removeable");
 
-            QObject::connect(elem1,&QQuickItem::xChanged,[=](){
-                component->setProperty("targetStartIndex",elem1->x());
-            });
-            QObject::connect(elem1,&QQuickItem::yChanged,[=](){
-                component->setProperty("targetBaseline",elem1->y()+elem1->height());
-            });
+            QObject::connect(elem1, &QQuickItem::xChanged, [=]() { component->setProperty("targetStartIndex", elem1->x()); });
+            QObject::connect(elem1, &QQuickItem::yChanged, [=]() { component->setProperty("targetBaseline", elem1->y() + elem1->height()); });
 
-            QObject::connect(elem2,&QQuickItem::xChanged,[=](){
-                component->setProperty("sourceStartIndex",elem2->x() + index*scale);
-            });
-            QObject::connect(elem2,&QQuickItem::yChanged,[=](){
-                component->setProperty("sourceBaseline",elem2->y());
-            });
+            QObject::connect(elem2, &QQuickItem::xChanged, [=]() { component->setProperty("sourceStartIndex", elem2->x() + index * scale); });
+            QObject::connect(elem2, &QQuickItem::yChanged, [=]() { component->setProperty("sourceBaseline", elem2->y()); });
             index += c.first;
         }
     }
 
-    for(const auto & p : programBlock->getConsumer()){
+    for (const auto &p : programBlock->getConsumer()) {
         int index = 0;
-        for(const auto & c : p.targeds){
-            QQuickItem*  component = qobject_cast<QQuickItem*>(programBlockConnection.create());
+        for (const auto &c : p.targeds) {
+            QQuickItem *component = qobject_cast<QQuickItem *>(programBlockConnection.create());
             component->setParentItem(this);
-            QQmlEngine::setObjectOwnership(component,QQmlEngine::JavaScriptOwnership);
-            component->setProperty("targetLength",c.first*scale);
-            component->setProperty("sourceStartIndex",index*scale);
-            component->setProperty("sourceLength",c.first*scale);
-            const auto elem1 = components[dynamic_cast<Named*>(c.second.targed)];
-            component->setProperty("targetBaseline",elem1->y() + elem1->height());
-            component->setProperty("targetStartIndex",elem1->x() + c.second.startIndex*scale);
-            const auto elem2 = components[dynamic_cast<Named*>(p.source.get())];
-            component->setProperty("sourceStartIndex",elem2->x()+index*scale);
-            component->setProperty("sourceBaseline",elem2->y());
-            component->setProperty("color",QColor(23,255,23,50));
+            QQmlEngine::setObjectOwnership(component, QQmlEngine::JavaScriptOwnership);
+            component->setProperty("targetLength", c.first * scale);
+            component->setProperty("sourceStartIndex", index * scale);
+            component->setProperty("sourceLength", c.first * scale);
+            const auto elem1 = components[dynamic_cast<Named *>(c.second.targed)];
+            component->setProperty("targetBaseline", elem1->y() + elem1->height());
+            component->setProperty("targetStartIndex", elem1->x() + c.second.startIndex * scale);
+            const auto elem2 = components[dynamic_cast<Named *>(p.source.get())];
+            component->setProperty("sourceStartIndex", elem2->x() + index * scale);
+            component->setProperty("sourceBaseline", elem2->y());
+            component->setProperty("color", QColor(23, 255, 23, 50));
             component->setObjectName("removeable");
 
-            QObject::connect(elem1,&QQuickItem::xChanged,[=](){
-                component->setProperty("targetStartIndex",elem1->x()+c.second.startIndex*scale);
-            });
-            QObject::connect(elem1,&QQuickItem::yChanged,[=](){
-                component->setProperty("targetBaseline",elem1->y()+elem1->height());
-            });
+            QObject::connect(elem1, &QQuickItem::xChanged, [=]() { component->setProperty("targetStartIndex", elem1->x() + c.second.startIndex * scale); });
+            QObject::connect(elem1, &QQuickItem::yChanged, [=]() { component->setProperty("targetBaseline", elem1->y() + elem1->height()); });
 
-            QObject::connect(elem2,&QQuickItem::xChanged,[=](){
-                component->setProperty("sourceStartIndex",elem2->x() + index*scale);
-            });
-            QObject::connect(elem2,&QQuickItem::yChanged,[=](){
-                component->setProperty("sourceBaseline",elem2->y());
-            });
+            QObject::connect(elem2, &QQuickItem::xChanged, [=]() { component->setProperty("sourceStartIndex", elem2->x() + index * scale); });
+            QObject::connect(elem2, &QQuickItem::yChanged, [=]() { component->setProperty("sourceBaseline", elem2->y()); });
 
             index += c.first;
         }
     }
 
     // add components after the shapes, so that the childAt finds the components and not the shapes
-    for(const auto & p : components){
+    for (const auto &p : components) {
         p.second->setParentItem(this);
-        QQmlEngine::setObjectOwnership(p.second,QQmlEngine::JavaScriptOwnership);
+        QQmlEngine::setObjectOwnership(p.second, QQmlEngine::JavaScriptOwnership);
     }
 }
 
-void print(PropertyInformationModel * p){
-    for(const auto &o:*p){
-        qDebug()<<o->getName() << o->getValue();
+void print(PropertyInformationModel *p) {
+    for (const auto &o : *p) {
+        qDebug() << o->getName() << o->getValue();
     }
 }
 
-template<typename TargetType>
-void transferData(GUI::detail::PropertyInformation *pi,Modules::Property * p){
+template <typename TargetType>
+void transferData(GUI::detail::PropertyInformation *pi, Modules::Property *p) {
     p->asNumeric<TargetType>()->setValue(pi->getValue().value<TargetType>());
 }
 
-
-void detail::PropertyInformation::updateValue(){
+void detail::PropertyInformation::updateValue() {
     using namespace Modules;
-    if(named){
-        auto p = dynamic_cast<Program*>(named);
-        auto f = dynamic_cast<Filter*>(named);
-        auto c = dynamic_cast<Consumer*>(named);
-        if(p){
+    if (named) {
+        auto p = dynamic_cast<Program *>(named);
+        auto f = dynamic_cast<Filter *>(named);
+        auto c = dynamic_cast<Consumer *>(named);
+        if (p) {
             p->setOutputLength(value.toInt());
-        }else if(f){
+        } else if (f) {
             f->setInputLength(value.toInt());
-        }else if(c){
+        } else if (c) {
             c->setInputLength(value.toInt());
         }
-        if(updateCallback)
-            updateCallback();
+        if (updateCallback) updateCallback();
         return;
     }
     switch (getType()) {
-        case Property::Double: transferData<double>(this,property);
-            break;
-        case Property::Float: transferData<float>(this,property);
-            break;
-        case Property::Int: transferData<int>(this,property);
-            break;
-        case Property::Long: transferData<int64_t>(this, property); break;
-        case Property::Bool: property->asBool()->setValue(getValue().toBool()); break;
-        case Property::String: property->asString()->setValue(getValue().toString().toStdString()); break;
-        case Property::RGB:
-            auto c = getValue().value<QColor>();
-            property->asRGB()->setRGB(rgb_t{c.red(), c.green(), c.blue()});
-            break;
+    case Property::Double: transferData<double>(this, property); break;
+    case Property::Float: transferData<float>(this, property); break;
+    case Property::Int: transferData<int>(this, property); break;
+    case Property::Long: transferData<int64_t>(this, property); break;
+    case Property::Bool: property->asBool()->setValue(getValue().toBool()); break;
+    case Property::String: property->asString()->setValue(getValue().toString().toStdString()); break;
+    case Property::RGB:
+        auto c = getValue().value<QColor>();
+        property->asRGB()->setRGB(rgb_t{c.red(), c.green(), c.blue()});
+        break;
     }
 }
 
-template<typename SourceType>
-void transferData(Modules::Property & p, GUI::detail::PropertyInformation &pi){
+template <typename SourceType>
+void transferData(Modules::Property &p, GUI::detail::PropertyInformation &pi) {
     pi.setValue(p.asNumeric<SourceType>()->getValue());
     pi.setMinValue(p.asNumeric<SourceType>()->getMin());
     pi.setMaxValue(p.asNumeric<SourceType>()->getMax());
@@ -465,110 +439,109 @@ void transferData<int64_t>(Modules::Property &p, GUI::detail::PropertyInformatio
     pi.setMaxValue(static_cast<qint64>(p.asNumeric<int64_t>()->getMax()));
 }
 
-QQuickItem * ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event){
+QQuickItem *ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event) {
     auto comp = childAt(event->position().x(), event->position().y());
-    if(!comp){
+    if (!comp) {
         return nullptr;
     }
 
     while (comp != this && !comp->property("propertyBase").isValid()) {
         comp = comp->parentItem();
     }
-    if(comp->property("propertyBase").isValid())
-        return comp;
+    if (comp->property("propertyBase").isValid()) return comp;
     return nullptr;
 }
 
-void ProgramBlockEditor::mousePressEvent(QMouseEvent *event){
+void ProgramBlockEditor::mousePressEvent(QMouseEvent *event) {
     dragStartItem = getItemWithPropertyBase(event);
-    if(dragStartItem){
-        if(event->modifiers().testFlag(Qt::ShiftModifier)){
+    if (dragStartItem) {
+        if (event->modifiers().testFlag(Qt::ShiftModifier)) {
             // only filter can be moved
-            if(dynamic_cast<Modules::Filter*>(dragStartItem->property("propertyBase").value<Modules::PropertyBase*>())!= nullptr){
+            if (dynamic_cast<Modules::Filter *>(dragStartItem->property("propertyBase").value<Modules::PropertyBase *>()) != nullptr) {
                 dragType = MovePermanent;
             }
-        }else if(event->modifiers().testFlag(Qt::AltModifier)){
+        } else if (event->modifiers().testFlag(Qt::AltModifier)) {
             dragType = AddReverseConnection;
 #ifdef Q_OS_MAC
-        }else if(event->modifiers().testFlag(Qt::MetaModifier)){
+        } else if (event->modifiers().testFlag(Qt::MetaModifier)) {
 #else
-        }else if(event->modifiers().testFlag(Qt::ControlModifier)){
+        } else if (event->modifiers().testFlag(Qt::ControlModifier)) {
 #endif
             dragType = MoveTemporarily;
             dragOffsetInItem = event->pos() - dragStartItem->position();
-        }else{
+        } else {
             dragType = AddConnection;
         }
-    }else{
+    } else {
         dragType = None;
     }
-    qDebug() << "pressed "<<event->pos();
+    qDebug() << "pressed " << event->pos();
     qDebug() << "Type : " << dragType;
 }
 
-void ProgramBlockEditor::mouseMoveEvent(QMouseEvent *event){
-    //qDebug() << "moved "<<event->pos();
+void ProgramBlockEditor::mouseMoveEvent(QMouseEvent *event) {
+    // qDebug() << "moved "<<event->pos();
     using namespace Modules;
-    if(dragType==MoveTemporarily){
-        dragStartItem->setPosition(event->pos()-dragOffsetInItem);
-    }else if(dragType == MovePermanent){
+    if (dragType == MoveTemporarily) {
+        dragStartItem->setPosition(event->pos() - dragOffsetInItem);
+    } else if (dragType == MovePermanent) {
         bool larger;
         if ((larger = event->position().y() - dragStartItem->y() > spaceBetweenLayers / 2) || dragStartItem->y() - event->position().y() > spaceBetweenLayers / 2) {
-            //move element to the next layer
-            PropertyBase * pb = dragStartItem->property("propertyBase").value<PropertyBase*>();
-            if(larger){
-                for(auto i = programBlock->getFilter().cbegin();i!=programBlock->getFilter().cend();++i){
-                    if(static_cast<Filter*>(i->second.source.get())==static_cast<Filter*>(pb)){
+            // move element to the next layer
+            PropertyBase *pb = dragStartItem->property("propertyBase").value<PropertyBase *>();
+            if (larger) {
+                for (auto i = programBlock->getFilter().cbegin(); i != programBlock->getFilter().cend(); ++i) {
+                    if (static_cast<Filter *>(i->second.source.get()) == static_cast<Filter *>(pb)) {
                         const auto saveI = i;
                         Modules::detail::Connection c = i->second;
                         int layer = i->first;
                         ++i;
                         // check if ne should move the component:
-                        if(i==programBlock->getFilter().cend() && dragStartItem->x()<=0.5) // we are the last component and alone in a row
+                        if (i == programBlock->getFilter().cend() && dragStartItem->x() <= 0.5) // we are the last component and alone in a row
                             break;
-                        while (i!=programBlock->getFilter().cend() && i->first == layer) { // find the next component in a other layer
+                        while (i != programBlock->getFilter().cend() && i->first == layer) { // find the next component in a other layer
                             ++i;
                         }
-                        if(i==programBlock->getFilter().cend()){ // we was in the last row with another component
+                        if (i == programBlock->getFilter().cend()) { // we was in the last row with another component
                             layer++;
-                        }else{ // we go to the next layer
+                        } else { // we go to the next layer
                             layer = i->first;
                         }
                         programBlock->getFilter().erase(saveI);
-                        programBlock->addFilter(std::move(c),layer);
+                        programBlock->addFilter(std::move(c), layer);
                         break;
                     }
                 }
-            }else{
+            } else {
                 // smaller: same as larger with reserve iterators
-                for(auto i = programBlock->getFilter().crbegin();i!=programBlock->getFilter().crend();++i){
-                    if(static_cast<Filter*>(i->second.source.get())==static_cast<Filter*>(pb)){
+                for (auto i = programBlock->getFilter().crbegin(); i != programBlock->getFilter().crend(); ++i) {
+                    if (static_cast<Filter *>(i->second.source.get()) == static_cast<Filter *>(pb)) {
                         Modules::detail::Connection c = i->second;
                         int layer = i->first;
                         ++i;
                         const auto saveI = i;
                         // check if ne should move the component:
-                        if(i==programBlock->getFilter().crend() && dragStartItem->x()<=0.5) // we are the last component and alone in a row
+                        if (i == programBlock->getFilter().crend() && dragStartItem->x() <= 0.5) // we are the last component and alone in a row
                             break;
-                        while (i!=programBlock->getFilter().crend() && i->first == layer) { // find the next component in a other layer
+                        while (i != programBlock->getFilter().crend() && i->first == layer) { // find the next component in a other layer
                             ++i;
                         }
-                        if(i==programBlock->getFilter().crend()){ // we was in the last row with another component
+                        if (i == programBlock->getFilter().crend()) { // we was in the last row with another component
                             layer--;
-                        }else{ // we go to the next layer
+                        } else { // we go to the next layer
                             layer = i->first;
                         }
                         programBlock->getFilter().erase(saveI.base());
-                        programBlock->addFilter(std::move(c),layer);
+                        programBlock->addFilter(std::move(c), layer);
                         break;
                     }
                 }
             }
             dragStartItem = nullptr;
             recreateView();
-            for(const auto & c : childItems()){
-                if(c->property("propertyBase").isValid()){
-                    if(c->property("propertyBase").value<PropertyBase*>()==pb){
+            for (const auto &c : childItems()) {
+                if (c->property("propertyBase").isValid()) {
+                    if (c->property("propertyBase").value<PropertyBase *>() == pb) {
                         dragStartItem = c;
                         break;
                     }
@@ -579,54 +552,49 @@ void ProgramBlockEditor::mouseMoveEvent(QMouseEvent *event){
     }
 }
 
-
-void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
+void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event) {
     auto comp = getItemWithPropertyBase(event);
-    if(dragStartItem == comp && event->button() == Qt::LeftButton){
+    if (dragStartItem == comp && event->button() == Qt::LeftButton) {
         // find the item with the right property if exists
         using namespace Modules;
-        if(comp){
+        if (comp) {
             print(getPropertyInformationModel());
-            Modules::PropertyBase * pb = comp->property("propertyBase").value<Modules::PropertyBase*>();
-            if(propertyInformationModel.size()>pb->getProperties().size()){
-                for(auto i = propertyInformationModel.cbegin()+pb->getProperties().size();i!=propertyInformationModel.cend();++i){
+            Modules::PropertyBase *pb = comp->property("propertyBase").value<Modules::PropertyBase *>();
+            if (propertyInformationModel.size() > pb->getProperties().size()) {
+                for (auto i = propertyInformationModel.cbegin() + pb->getProperties().size(); i != propertyInformationModel.cend(); ++i) {
                     delete *i;
                 }
-                propertyInformationModel.erase(propertyInformationModel.cbegin()+pb->getProperties().size(),propertyInformationModel.cend());
-            }else{
-                while(propertyInformationModel.size() < pb->getProperties().size()){
+                propertyInformationModel.erase(propertyInformationModel.cbegin() + pb->getProperties().size(), propertyInformationModel.cend());
+            } else {
+                while (propertyInformationModel.size() < pb->getProperties().size()) {
                     propertyInformationModel.push_back(new GUI::detail::PropertyInformation);
                 }
             }
             propertyInformationModel.push_back(new GUI::detail::PropertyInformation);
             auto s = pb->getProperties().cbegin();
-            for(auto t = propertyInformationModel.cbegin() + 1;t!=propertyInformationModel.cend();++t,++s){
-                auto & tp = **t;
-                auto & sp = **s;
+            for (auto t = propertyInformationModel.cbegin() + 1; t != propertyInformationModel.cend(); ++t, ++s) {
+                auto &tp = **t;
+                auto &sp = **s;
                 tp.property = *s;
                 tp.setDescription(QString::fromStdString(sp.getDescription()));
                 tp.setName(QString::fromStdString(sp.getName()));
                 tp.setType(sp.type);
                 switch (sp.type) {
-                    case Property::Double: transferData<double>(sp,tp);
-                        break;
-                    case Property::Float: transferData<float>(sp,tp);
-                        break;
-                    case Property::Int: transferData<int>(sp,tp);
-                        break;
-                    case Property::Long: transferData<int64_t>(sp, tp); break;
-                    case Property::Bool:
-                        tp.setMinValue(0);
-                        tp.setMaxValue(1);
-                        tp.setValue(sp.asBool()->getValue());
-                        break;
-                    case Property::String: tp.setValue(QString::fromStdString(sp.asString()->getString())); break;
-                    case Property::RGB:
-                        const auto rgb = sp.asRGB()->getRGB();
-                        tp.setValue(QColor(rgb.r, rgb.g, rgb.b));
-                        break;
+                case Property::Double: transferData<double>(sp, tp); break;
+                case Property::Float: transferData<float>(sp, tp); break;
+                case Property::Int: transferData<int>(sp, tp); break;
+                case Property::Long: transferData<int64_t>(sp, tp); break;
+                case Property::Bool:
+                    tp.setMinValue(0);
+                    tp.setMaxValue(1);
+                    tp.setValue(sp.asBool()->getValue());
+                    break;
+                case Property::String: tp.setValue(QString::fromStdString(sp.asString()->getString())); break;
+                case Property::RGB:
+                    const auto rgb = sp.asRGB()->getRGB();
+                    tp.setValue(QColor(rgb.r, rgb.g, rgb.b));
+                    break;
                 }
-
             }
             auto prop = *propertyInformationModel.begin();
             prop->setType(GUI::detail::PropertyInformation::Type::Int);
@@ -634,91 +602,88 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event){
             prop->setMaxValue(1000);
             prop->setForwardProperty(false);
             prop->named = pb;
-            if(dynamic_cast<InputDataConsumer*>(pb)){
+            if (dynamic_cast<InputDataConsumer *>(pb)) {
                 prop->setName("InputLength");
                 prop->setDescription("The legth of the array that the entry consumes");
-                prop->setValue(static_cast<int>(dynamic_cast<InputDataConsumer*>(pb)->getInputLength()));
-            }else{
+                prop->setValue(static_cast<int>(dynamic_cast<InputDataConsumer *>(pb)->getInputLength()));
+            } else {
                 prop->setName("OutputLength");
                 prop->setDescription("The legth of the array that the program emits");
-                prop->setValue(static_cast<int>(dynamic_cast<OutputDataProducer*>(pb)->getOutputLength()));
+                prop->setValue(static_cast<int>(dynamic_cast<OutputDataProducer *>(pb)->getOutputLength()));
             }
-            prop->updateCallback = [this,prop](){
-                dragStartItem->setWidth(prop->getValue().value<int>()*this->scale);
-            };
+            prop->updateCallback = [this, prop]() { dragStartItem->setWidth(prop->getValue().value<int>() * this->scale); };
 
             print(getPropertyInformationModel());
             setShowProperties(true);
 
-        }else{
+        } else {
             setShowProperties(false);
         }
-    }else if(dragStartItem == comp && event->button() == Qt::RightButton && comp && !event->modifiers() && dragType == AddConnection){
+    } else if (dragStartItem == comp && event->button() == Qt::RightButton && comp && !event->modifiers() && dragType == AddConnection) {
         emit openRightClickEntry(event->position().x(), event->position().y());
     }
     using namespace Modules;
-    if(dragType == AddConnection && comp){
-        if(comp->y()>dragStartItem->y()){
+    if (dragType == AddConnection && comp) {
+        if (comp->y() > dragStartItem->y()) {
             dragEndItem = comp;
             // prüfe, ob überhaupt noch eine Connection hinzugefügt werden kann
-            auto pb = dragEndItem->property("propertyBase").value<PropertyBase*>();
-            for(const auto & i : programBlock->getFilter()){
-                if(static_cast<Filter*>(i.second.source.get())==pb){
-                    const auto sum = std::accumulate(i.second.targeds.cbegin(),i.second.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= static_cast<int>(i.second.source->getInputLength())){
+            auto pb = dragEndItem->property("propertyBase").value<PropertyBase *>();
+            for (const auto &i : programBlock->getFilter()) {
+                if (static_cast<Filter *>(i.second.source.get()) == pb) {
+                    const auto sum = std::accumulate(i.second.targeds.cbegin(), i.second.targeds.cend(), 0, [](int sum, const auto &i) { return sum + i.first; });
+                    if (sum >= static_cast<int>(i.second.source->getInputLength())) {
                         dragType = None;
                         return;
                     }
                 }
             }
-            for(const auto & i : programBlock->getConsumer()){
-                if(static_cast<Consumer*>(i.source.get())==pb){
-                    const auto sum = std::accumulate(i.targeds.cbegin(),i.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= static_cast<int>(i.source->getInputLength())){
+            for (const auto &i : programBlock->getConsumer()) {
+                if (static_cast<Consumer *>(i.source.get()) == pb) {
+                    const auto sum = std::accumulate(i.targeds.cbegin(), i.targeds.cend(), 0, [](int sum, const auto &i) { return sum + i.first; });
+                    if (sum >= static_cast<int>(i.source->getInputLength())) {
                         dragType = None;
                         return;
                     }
                 }
             }
-            askToAddConnection(dragStartItem->property("text").toString(),dragEndItem->property("text").toString());
+            askToAddConnection(dragStartItem->property("text").toString(), dragEndItem->property("text").toString());
         }
-    }else if(dragType == AddReverseConnection && comp){
-        if(comp->y()<dragStartItem->y()){
+    } else if (dragType == AddReverseConnection && comp) {
+        if (comp->y() < dragStartItem->y()) {
             dragEndItem = comp;
             // prüfe, ob überhaupt noch eine Connection hinzugefügt werden kann
-            auto pb = dragEndItem->property("propertyBase").value<PropertyBase*>();
-            for(const auto & i : programBlock->getFilter()){
-                if(static_cast<Filter*>(i.second.source.get())==pb){
-                    const auto sum = std::accumulate(i.second.targeds.cbegin(),i.second.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= static_cast<int>(i.second.source->getInputLength())){
+            auto pb = dragEndItem->property("propertyBase").value<PropertyBase *>();
+            for (const auto &i : programBlock->getFilter()) {
+                if (static_cast<Filter *>(i.second.source.get()) == pb) {
+                    const auto sum = std::accumulate(i.second.targeds.cbegin(), i.second.targeds.cend(), 0, [](int sum, const auto &i) { return sum + i.first; });
+                    if (sum >= static_cast<int>(i.second.source->getInputLength())) {
                         dragType = None;
                         return;
                     }
                 }
             }
-            for(const auto & i : programBlock->getConsumer()){
-                if(static_cast<Consumer*>(i.source.get())==pb){
-                    const auto sum = std::accumulate(i.targeds.cbegin(),i.targeds.cend(),0,[](int sum,const auto & i){ return sum + i.first;});
-                    if(sum >= static_cast<int>(i.source->getInputLength())){
+            for (const auto &i : programBlock->getConsumer()) {
+                if (static_cast<Consumer *>(i.source.get()) == pb) {
+                    const auto sum = std::accumulate(i.targeds.cbegin(), i.targeds.cend(), 0, [](int sum, const auto &i) { return sum + i.first; });
+                    if (sum >= static_cast<int>(i.source->getInputLength())) {
                         dragType = None;
                         return;
                     }
                 }
             }
-            askToAddConnection(dragStartItem->property("text").toString(),dragEndItem->property("text").toString());
+            askToAddConnection(dragStartItem->property("text").toString(), dragEndItem->property("text").toString());
         }
     }
     dragType = None;
-
 }
 
-void ProgramBlockEditor::propertyBaseChanged(Modules::PropertyBase * oldPB, Modules::PropertyBase * newPB){
-    for(const auto & child : childItems()){
+void ProgramBlockEditor::propertyBaseChanged(Modules::PropertyBase *oldPB, Modules::PropertyBase *newPB) {
+    for (const auto &child : childItems()) {
         auto prop = child->property("propertyBase");
-        if(prop.isValid()){
-            if(prop.value<Modules::PropertyBase*>() == oldPB){
-                child->setProperty("propertyBase",QVariant::fromValue(newPB));
-                child->setProperty("text",dynamic_cast<Modules::Named*>(newPB)->getName());
+        if (prop.isValid()) {
+            if (prop.value<Modules::PropertyBase *>() == oldPB) {
+                child->setProperty("propertyBase", QVariant::fromValue(newPB));
+                child->setProperty("text", dynamic_cast<Modules::Named *>(newPB)->getName());
             }
         }
     }

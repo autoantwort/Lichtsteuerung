@@ -8,8 +8,7 @@ namespace Spotify::Objects {
 /**
  * @brief The TimeIntervalObject class https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-analysis/#time-interval-object
  */
-class TimeIntervalObject
-{
+class TimeIntervalObject {
 public:
     /**
      * @brief start The starting point (in seconds) of the time interval.
@@ -23,10 +22,11 @@ public:
      * @brief confidence The confidence, from 0.0 to 1.0, of the reliability of the interval.
      */
     const float confidence;
+
 public:
     TimeIntervalObject(const QJsonObject &object);
 };
 
-}
+} // namespace Spotify::Objects
 
 #endif // TIMEINTERVALOBJECT_H

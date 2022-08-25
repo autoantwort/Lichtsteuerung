@@ -61,13 +61,21 @@ void AudioEventDataView::enableDetectionFor(OnsetDetectionFunction f, AudioEvent
     }
 }
 
-bool AudioEventDataView::isDetectionEnabledFor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType type) { return colors[to_integral(onsetDetectionFunction)][type].first; }
+bool AudioEventDataView::isDetectionEnabledFor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType type) {
+    return colors[to_integral(onsetDetectionFunction)][type].first;
+}
 
-void AudioEventDataView::setColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage, const QColor &color) { colors[to_integral(onsetDetectionFunction)][usage].second = color; }
+void AudioEventDataView::setColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage, const QColor &color) {
+    colors[to_integral(onsetDetectionFunction)][usage].second = color;
+}
 
-QColor AudioEventDataView::getColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage) const { return colors[to_integral(onsetDetectionFunction)][usage].second; }
+QColor AudioEventDataView::getColor(OnsetDetectionFunction onsetDetectionFunction, AudioEventDataView::DataType usage) const {
+    return colors[to_integral(onsetDetectionFunction)][usage].second;
+}
 
-void AudioEventDataView::ownTick() { ownEvents.addEvent(duration_cast<milliseconds>(steady_clock::now() - start).count()); }
+void AudioEventDataView::ownTick() {
+    ownEvents.addEvent(duration_cast<milliseconds>(steady_clock::now() - start).count());
+}
 
 void AudioEventDataView::setOwnColor(QColor ownColor) {
     if (this->ownColor == ownColor) return;

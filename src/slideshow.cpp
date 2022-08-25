@@ -167,8 +167,9 @@ void SlideShow::removeImage(int index) {
 
 void SlideShow::scanDirectory(const QString &path, bool recursive) {
     std::unique_lock lock(imageMutex);
-    QDirIterator it(path, QStringList() << QStringLiteral("*.jpg") << QStringLiteral("*.jpeg") << QStringLiteral("*.png") << QStringLiteral("*.gif") << QStringLiteral("*.bmp") << QStringLiteral("*.webp"), QDir::Files | QDir::Readable | QDir::AllDirs | QDir::NoDotAndDotDot,
-                    recursive ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
+    QDirIterator it(path,
+                    QStringList() << QStringLiteral("*.jpg") << QStringLiteral("*.jpeg") << QStringLiteral("*.png") << QStringLiteral("*.gif") << QStringLiteral("*.bmp") << QStringLiteral("*.webp"),
+                    QDir::Files | QDir::Readable | QDir::AllDirs | QDir::NoDotAndDotDot, recursive ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags);
     while (it.hasNext()) {
         auto p = it.next();
         auto [_, newInserted] = alreadyScanned.insert(p);

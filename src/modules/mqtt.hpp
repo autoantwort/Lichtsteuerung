@@ -3,8 +3,8 @@
 
 #include <functional>
 #include <memory>
-#include <string>
 #include <stdexcept>
+#include <string>
 
 namespace Modules {
 

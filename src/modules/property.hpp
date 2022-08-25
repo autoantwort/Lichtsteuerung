@@ -8,7 +8,8 @@
 
 namespace Modules {
 
-template <typename ValueType> class NumericProperty;
+template <typename ValueType>
+class NumericProperty;
 
 class StringProperty;
 class BoolProperty;
@@ -36,7 +37,8 @@ public:
     void setDescription(const std::string &_description) { description = _description; }
     [[nodiscard]] std::string getDescription() const { return description; }
 
-    template <typename T> NumericProperty<T> *asNumeric();
+    template <typename T>
+    NumericProperty<T> *asNumeric();
 
     StringProperty *asString() {
         if (type == String) {
@@ -62,9 +64,11 @@ public:
 
 namespace defail {
 
-    template <typename...> constexpr std::false_type always_false{};
+    template <typename...>
+    constexpr std::false_type always_false{};
 
-    template <typename t> Property::Type toEnum() {
+    template <typename t>
+    Property::Type toEnum() {
 
         if constexpr (std::is_same_v<t, int>) {
             return Property::Int;
@@ -86,16 +90,17 @@ namespace defail {
     }
 } // namespace defail
 
-template <typename T> NumericProperty<T> *Property::asNumeric() {
+template <typename T>
+NumericProperty<T> *Property::asNumeric() {
     if (type == defail::toEnum<T>()) {
         return reinterpret_cast<NumericProperty<T> *>(this);
     }
     return nullptr;
 }
 
-template <typename Type_t> class NumericProperty : public Property {
-    static_assert(std::is_same<Type_t, float>::value || std::is_same<Type_t, int>::value || std::is_same<Type_t, int64_t>::value ||
-                      std::is_same<Type_t, double>::value,
+template <typename Type_t>
+class NumericProperty : public Property {
+    static_assert(std::is_same<Type_t, float>::value || std::is_same<Type_t, int>::value || std::is_same<Type_t, int64_t>::value || std::is_same<Type_t, double>::value,
                   "Wrong Type. Con only be signed numeric");
     Type_t min;
     Type_t max;

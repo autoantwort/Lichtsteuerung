@@ -1,13 +1,13 @@
 #include "settings.h"
 
 Settings::Settings(QObject *parent) : QObject(parent), settings(OrganisationName, ApplicationName) {
-    if(localSettingsFile.exists()){
-        localSettings.emplace(localSettingsFile.filePath(),QSettings::IniFormat);
+    if (localSettingsFile.exists()) {
+        localSettings.emplace(localSettingsFile.filePath(), QSettings::IniFormat);
     }
-    Modules::Compiler::compilerCmd = value(QStringLiteral("compilerCmd"),Modules::Compiler::compilerCmd).toString();
-    Modules::Compiler::compilerFlags = value(QStringLiteral("compilerFlags"),Modules::Compiler::compilerFlags).toString();
-    Modules::Compiler::compilerLibraryFlags = value(QStringLiteral("compilerLibraryFlags"),Modules::Compiler::compilerLibraryFlags).toString();
-    Modules::Compiler::includePath = value(QStringLiteral("includePath"),Modules::Compiler::includePath).toString();
+    Modules::Compiler::compilerCmd = value(QStringLiteral("compilerCmd"), Modules::Compiler::compilerCmd).toString();
+    Modules::Compiler::compilerFlags = value(QStringLiteral("compilerFlags"), Modules::Compiler::compilerFlags).toString();
+    Modules::Compiler::compilerLibraryFlags = value(QStringLiteral("compilerLibraryFlags"), Modules::Compiler::compilerLibraryFlags).toString();
+    Modules::Compiler::includePath = value(QStringLiteral("includePath"), Modules::Compiler::includePath).toString();
     jsonSettingsFileSavePath = getJsonSettingsFilePath();
     lastSettings = this;
 }
@@ -71,7 +71,7 @@ void Settings::setStartupVolume(double volume) {
     }
 }
 
-void Settings::setValue(const QString &key, const QVariant &value){
+void Settings::setValue(const QString &key, const QVariant &value) {
     if (localSettings) {
         if (localSettings->contains(key)) {
             localSettings->setValue(key, value);
@@ -79,7 +79,7 @@ void Settings::setValue(const QString &key, const QVariant &value){
     }
     settings.setValue(key, value);
 }
-QVariant Settings::value(const QString &key, const QVariant &defaultValue) const{
+QVariant Settings::value(const QString &key, const QVariant &defaultValue) const {
     if (localSettings) {
         if (localSettings->contains(key)) {
             return localSettings->value(key, defaultValue);

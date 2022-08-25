@@ -5,17 +5,14 @@
 
 namespace Modules {
 
-    DMXProgram::DMXProgram()
-    {
+DMXProgram::DMXProgram() {}
 
-    }
-
-    ProgramState DMXProgram::doStep(time_diff_t diff) {
-        time += diff;
-        std::memset(output,0,getOutputLength());
-        DMX::DMXChannelFilter::initValues(output,getOutputLength());
-        DMX::Programm::fill(output,getOutputLength(),time/1000.);
-        DMX::DMXChannelFilter::filterValues(output,getOutputLength());
-        return {false,true};
-    }
+ProgramState DMXProgram::doStep(time_diff_t diff) {
+    time += diff;
+    std::memset(output, 0, getOutputLength());
+    DMX::DMXChannelFilter::initValues(output, getOutputLength());
+    DMX::Programm::fill(output, getOutputLength(), time / 1000.);
+    DMX::DMXChannelFilter::filterValues(output, getOutputLength());
+    return {false, true};
 }
+} // namespace Modules

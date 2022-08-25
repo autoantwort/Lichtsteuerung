@@ -3,20 +3,20 @@
 
 #include "mapview.h"
 
-namespace GUI{
+namespace GUI {
 
-class MapEditor : public MapView
-{
+class MapEditor : public MapView {
 private:
-    GUI::Polygon::Point * currentPressedPoint = nullptr;
+    GUI::Polygon::Point *currentPressedPoint = nullptr;
+
 public:
     MapEditor();
 
 protected:
-    virtual void mouseMoveEvent(QMouseEvent *event)override;
-    virtual void mousePressEvent(QMouseEvent *event)override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
 };
 
-}
+} // namespace GUI
 
 #endif // MAPEDITOR_H

@@ -92,7 +92,10 @@ QSGNode *ChannelProgrammEditor::updatePaintNode(QSGNode *oldNode, UpdatePaintNod
     QSGGeometry *pointGeometry = nullptr;
     const int segments = 128;
     // effective version: const int count = channelProgramm?channelProgramm->timeline.empty()?0:channelProgramm->timeline.crbegin()->time*16:0;
-    const int count = channelProgramm ? channelProgramm->timeline.empty() ? 0 : channelProgramm->timeline.begin()->time < 0.01 ? (channelProgramm->timeline.size() - 1) * segments : channelProgramm->timeline.size() * segments : 0;
+    const int count = channelProgramm ? channelProgramm->timeline.empty()                ? 0
+                                        : channelProgramm->timeline.begin()->time < 0.01 ? (channelProgramm->timeline.size() - 1) * segments
+                                                                                         : channelProgramm->timeline.size() * segments
+                                      : 0;
     const int pointCount = channelProgramm ? channelProgramm->timeline.size() * 6 : 0;
 
     if (!oldNode) {
@@ -319,7 +322,7 @@ decltype(DMX::ChannelProgramm::timeline)::iterator ChannelProgrammEditor::getTim
     for (auto i = begin; i != end; ++i) {
         const auto xDiff = (i->time - x) * (xScale);
         const auto yDiff = i->value - y;
-        auto dist = std::sqrt(xDiff * xDiff + yDiff * yDiff);        
+        auto dist = std::sqrt(xDiff * xDiff + yDiff * yDiff);
         if (dist < minDist) {
             minDist = dist;
             best = i;
@@ -354,7 +357,7 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event) {
     event->accept();
     mousePressTimestamp = event->timestamp();
 
-    if (!channelProgramm) return;    
+    if (!channelProgramm) return;
     if (channelProgramm->timeline.empty()) {
         if (modifier.testFlag(N_PRESSED)) {
             currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->position().x()), getScaledY(event->position().y()), QEasingCurve::Linear)).first;

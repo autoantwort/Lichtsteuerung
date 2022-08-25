@@ -28,10 +28,10 @@ class Controller : public QObject {
     std::vector<std::shared_ptr<ProgramBlock>> mustBeStartedPrograms;
     std::vector<std::function<void()>> runnables;
     std::mutex vectorLock;
-    ProgramBlock * deletingProgramBlock = nullptr;
+    ProgramBlock *deletingProgramBlock = nullptr;
     // Variables for Spotify:
     SpotifyState spotifyState;
-    Spotify::Spotify * spotify;
+    Spotify::Spotify *spotify;
     std::vector<QMetaObject::Connection> spotifyConnections;
     int lastIndexOfCurrentBeat = -1;
     int lastIndexOfCurrentBar = -1;
@@ -46,31 +46,32 @@ class Controller : public QObject {
 
     friend class ProgramBlock;
     void run() noexcept;
+
 public:
     Controller();
     /**
      * @brief getSpotifyState return the SpotifyState object managed by this controller
      */
-    const SpotifyState & getSpotifyState(){return spotifyState;}
+    const SpotifyState &getSpotifyState() { return spotifyState; }
     /**
      * @brief getControlPoint return the ControlPoint object managed by this controller
      */
-    const ControlPoint & getControlPoint(){return controlPoint;}
+    const ControlPoint &getControlPoint() { return controlPoint; }
     /**
      * @brief setSpotify sets the Spotify object for this controller that is used to fill the Spotify state object
      * @param spotify the Spotify object, or a nullptr to unset the Spotify object
      */
-    void setSpotify(Spotify::Spotify * spotify);
+    void setSpotify(Spotify::Spotify *spotify);
     /**
      * @brief updateControlPoint updates the control point used by the module programs
      * @param controlPointPosition The new control point position on the map
      */
-    void updateControlPoint(const QPointF & controlPointPosition){
+    void updateControlPoint(const QPointF &controlPointPosition) {
         controlPoint.x = controlPointPosition.x();
         controlPoint.y = controlPointPosition.y();
         controlPoint.positionChanged = true;
     }
-    void start(){
+    void start() {
         if (!thread.isRunning()) {
             shouldRun = true;
             thread.start();
@@ -93,7 +94,7 @@ public:
 private:
     void runProgramm(std::shared_ptr<ProgramBlock> pb);
     void stopProgramm(std::shared_ptr<ProgramBlock> pb);
-    void stopProgramm(ProgramBlock* pb);
+    void stopProgramm(ProgramBlock *pb);
     bool isProgramRunning(ProgramBlock *pb);
 
 protected:
@@ -104,12 +105,12 @@ private:
      * @brief haveAnalysis checks if currently a spotify analysis exists
      * @return true if exists, false otherwise
      */
-    bool haveAnalysis()const;
+    bool haveAnalysis() const;
     /**
      * @brief updateSpotifyState called per "tick" and updates the spotifyState object
      */
     void updateSpotifyState();
 };
-}
+} // namespace Modules
 
 #endif // CONTROLLER_H
