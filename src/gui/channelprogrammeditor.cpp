@@ -360,14 +360,14 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event) {
     if (!channelProgramm) return;
     if (channelProgramm->timeline.empty()) {
         if (modifier.testFlag(N_PRESSED)) {
-            currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->x()), getScaledY(event->y()), QEasingCurve::Linear)).first;
+            currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->position().x()), getScaledY(event->position().y()), QEasingCurve::Linear)).first;
             update();
             updateHoverSegment();
         }
         return;
     }
     if (modifier.testFlag(D_PRESSED)) {
-        auto iter = getTimePointForPosition(event->x(), event->y());
+        auto iter = getTimePointForPosition(event->position().x(), event->position().y());
         if (iter != channelProgramm->timeline.end()) {
             if (iter == currentSegment) {
                 currentSegment = channelProgramm->timeline.end();
@@ -382,16 +382,16 @@ void ChannelProgrammEditor::mousePressEvent(QMouseEvent *event) {
         emit currentTimePointWrapper.hasCurrentChanged();
     } else {
         if (modifier.testFlag(N_PRESSED)) {
-            if (getTimePointForPosition(event->x(), event->y()) == channelProgramm->timeline.end()) {
-                currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->x()), getScaledY(event->y()), QEasingCurve::Linear)).first;
+            if (getTimePointForPosition(event->position().x(), event->position().y()) == channelProgramm->timeline.end()) {
+                currentTimePoint = channelProgramm->timeline.insert(DMX::TimePoint(mapFromVisualX(event->position().x()), getScaledY(event->position().y()), QEasingCurve::Linear)).first;
                 update();
                 updateHoverSegment();
             }
         } else {
-            currentTimePoint = getTimePointForPosition(event->x(), event->y());
+            currentTimePoint = getTimePointForPosition(event->position().x(), event->position().y());
             if (currentTimePoint == channelProgramm->timeline.end()) {
                 // no timepoints gets selected, lets select a segment
-                auto i = channelProgramm->timeline.upper_bound(mapFromVisualX(event->localPos().x()));
+                auto i = channelProgramm->timeline.upper_bound(mapFromVisualX(event->position().x()));
                 // the timepoint for the segment before the first timepoint is the last timepoint
                 if (i == channelProgramm->timeline.begin()) {
                     i = channelProgramm->timeline.end();
@@ -527,7 +527,7 @@ void ChannelProgrammEditor::wheelEvent(QWheelEvent *event) {
 }
 
 void ChannelProgrammEditor::hoverMoveEvent(QHoverEvent *event) {
-    lastMousePosition = event->posF();
+    lastMousePosition = event->position();
     update();
     event->accept();
     // update hover segment
@@ -546,7 +546,7 @@ void ChannelProgrammEditor::hoverLeaveEvent(QHoverEvent *e) {
 }
 
 void ChannelProgrammEditor::mouseMoveEvent(QMouseEvent *event) {
-    lastMousePosition = event->localPos();
+    lastMousePosition = event->position();
     event->accept();
     if (haveCurrentTimePoint()) {
         const auto timeOffset = 0.05;
@@ -558,8 +558,8 @@ void ChannelProgrammEditor::mouseMoveEvent(QMouseEvent *event) {
         }
         --before;
         ++next;
-        auto newX = mapFromVisualX(event->x());
-        auto newY = std::max(0, std::min(255, getScaledY(event->y())));
+        auto newX = mapFromVisualX(event->position().x());
+        auto newY = std::max(0, std::min(255, getScaledY(event->position().y())));
 
         if (currentTimePoint == channelProgramm->timeline.cbegin()) {
             if (newX < 0) {
@@ -608,15 +608,15 @@ void ChannelProgrammEditor::mouseReleaseEvent(QMouseEvent *event) {
     emit mouseXChanged();
     if (event->timestamp() - mousePressTimestamp < 300) {
         if (event->button() == Qt::LeftButton) {
-            emit click(event->x(), event->y());
+            emit click(event->position().x(), event->position().y());
         } else if (event->button() == Qt::RightButton) {
-            emit rightClick(event->x(), event->y());
+            emit rightClick(event->position().x(), event->position().y());
         }
     }
 }
 
 void ChannelProgrammEditor::hoverEnterEvent(QHoverEvent *e) {
-    lastMousePosition = e->pos();
+    lastMousePosition = e->position();
     e->accept();
     forceActiveFocus(Qt::MouseFocusReason);
 }

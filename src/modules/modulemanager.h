@@ -133,10 +133,10 @@ public:
         return QVariant::fromValue(p);
     }
 
-    Q_INVOKABLE void removeProperty(QVariant v) {
-        assert(v.canConvert(qMetaTypeId<detail::PropertyInformation *>()));
-        for (auto i = properties.cbegin(); i != properties.cend(); ++i) {
-            if (*i == v.value<detail::PropertyInformation *>()) {
+    Q_INVOKABLE void removeProperty(QVariant v){
+        assert(QMetaType::canConvert(v.metaType(), QMetaType(qMetaTypeId<detail::PropertyInformation *>())));
+        for(auto i = properties.cbegin();i!=properties.cend();++i){
+            if(*i == v.value<detail::PropertyInformation*>()){
                 properties.erase(i);
                 delete v.value<detail::PropertyInformation *>();
                 return;
