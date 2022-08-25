@@ -4,7 +4,7 @@
 
 qt_add_resources(RESOURCES qml.qrc)
 
-qt_add_executable(lichtsteuerung MACOSX_BUNDLE
+set(SOURCES
     applicationdata.cpp applicationdata.h
     audio/aubio/aubiocapi.cpp audio/aubio/aubiocapi.h
     audio/aubio/onsetanalysis.cpp audio/aubio/onsetanalysis.h
@@ -98,6 +98,10 @@ qt_add_executable(lichtsteuerung MACOSX_BUNDLE
     test/testsampleclass.cpp test/testsampleclass.h
     updater.cpp updater.h
     usermanagment.cpp usermanagment.h
+)
+
+qt_add_executable(lichtsteuerung MACOSX_BUNDLE
+    ${SOURCES}
     ${RESOURCES}
 )
 
@@ -166,3 +170,11 @@ find_path(segvcatch_INCLUDE_DIR segvcatch.h)
 target_include_directories(lichtsteuerung PRIVATE ${segvcatch_INCLUDE_DIR})
 find_library(segvcatch_LIBRARY segvcatch)
 target_link_libraries(lichtsteuerung PRIVATE ${segvcatch_LIBRARY})
+
+find_program(CLANG_FORMAT clang-format PATHS "$ENV{PROGRAMFILES}/LLVM/bin")
+if(CLANG_FORMAT)
+    add_custom_target(format
+        COMMAND "${CLANG_FORMAT}" -i ${SOURCES}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    )
+endif()
