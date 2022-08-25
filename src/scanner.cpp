@@ -57,7 +57,7 @@ void Scanner::recomputeTransformation() {
     transformationMatrix = trans;
 }
 
-std::pair<float, float> Scanner::computeAngleForStepMotors(QVector3D positionInRoom){
+std::pair<float, float> Scanner::computeAngleForStepMotors(QVector3D positionInRoom) {
     auto vecFromScanner = transformationMatrix.map(positionInRoom);
     vecFromScanner.normalize();
     auto beta = std::asin(-std::sqrt((vecFromScanner.x() - 1) / -2.f));

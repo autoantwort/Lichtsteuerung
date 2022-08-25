@@ -1,8 +1,8 @@
 #include "settings.h"
 
 Settings::Settings(QObject *parent) : QObject(parent), settings(OrganisationName, ApplicationName) {
-    if(localSettingsFile.exists()){
-        localSettings.emplace(localSettingsFile.filePath(),QSettings::IniFormat);
+    if (localSettingsFile.exists()) {
+        localSettings.emplace(localSettingsFile.filePath(), QSettings::IniFormat);
     }
     Modules::Compiler::compilerCmd = value(QStringLiteral("compilerCmd"), Modules::Compiler::compilerCmd).toString();
     Modules::Compiler::compilerFlags = value(QStringLiteral("compilerFlags"), Modules::Compiler::compilerFlags).toString();

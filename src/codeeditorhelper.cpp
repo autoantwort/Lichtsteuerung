@@ -128,27 +128,14 @@ bool CodeCompletions::lessThan(const QModelIndex &left, const QModelIndex &right
     return leftData->completion < rightData->completion;
 }
 
-bool CodeCompletions::filterAcceptsRow(int sourceRow,
-          const QModelIndex &sourceParent) const
-  {
-      QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
-      CodeCompletionEntry* data = sourceModel()->data(index, ModelVector<CodeCompletions*>::ModelDataRole).value<CodeCompletionEntry*>();
-      if(data) {
-          return data->completion.contains(this->filterRegularExpression());
-      } else {
-          return false;
-      }
-  }
-
-
-void addBasicTypes(PossibleCodeCompletions & model){
-    model.push_back(new CodeCompletionEntry("int","int","Ganze Zahlen von -2^31 bis 2^31-1"));
-    model.push_back(new CodeCompletionEntry("unsigned int","unsigned int","Positive ganze Zahlen von 0 bis 2^32-1"));
-    model.push_back(new CodeCompletionEntry("double","double","Fließkommazahlen mit 64 Bit genauigkeit"));
-    model.push_back(new CodeCompletionEntry("float","float","Fließkommazahlen mit 32 Bit genauigkeit"));
-    model.push_back(new CodeCompletionEntry("bool","bool","Ein Boolischer Wert, der entweder 1 oder 0 ist"));
-    model.push_back(new CodeCompletionEntry("brightness_t","unsigned char","Ein Typ der Helligkeit representiert. Kann Werte von 0 bis 255 annehmen"));
-    model.push_back(new CodeCompletionEntry("rgb_t","struct","Eine Klasse mit den Eigenschaften red/r, green/g, blue/b die jeweils Werte von 0 bis 255 annehmen können. Alternativ kann über den Indexoperator auf die Farben zugegriffen werden, z.B. auf Grün mit var_name[1]"));
+bool CodeCompletions::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    CodeCompletionEntry *data = sourceModel()->data(index, ModelVector<CodeCompletions *>::ModelDataRole).value<CodeCompletionEntry *>();
+    if (data) {
+        return data->completion.contains(this->filterRegularExpression());
+    } else {
+        return false;
+    }
 }
 
 void addBasicTypes(PossibleCodeCompletions &model) {
@@ -706,12 +693,11 @@ QString CodeEditorHelper::getType(QString variable, int pos) {
     if (lower.contains("client") || lower.contains("mqtt")) return "MqttClient";
     {
         QString text = document->toPlainText();
-        auto index = text.lastIndexOf(QRegularExpression(variable + " *="),pos);
-        if(index < 0)
-            return "unknown";
+        auto index = text.lastIndexOf(QRegularExpression(variable + " *="), pos);
+        if (index < 0) return "unknown";
         auto start = std::max({}, text.lastIndexOf('\n', index));
-        start = std::max(start, text.lastIndexOf(';',index));
-        auto end = std::min(text.length(),text.indexOf(";",index));
+        start = std::max(start, text.lastIndexOf(';', index));
+        auto end = std::min(text.length(), text.indexOf(";", index));
         auto line = text.mid(start, end - start);
         // get line:
         if (line.contains("computeDmxValuesForPointTo")) {
@@ -1238,7 +1224,7 @@ void CodeEditorHelper::compile() {
 void CodeEditorHelper::extractErrors(const QString &compilerOutput, const QString &absoluteFilePath, int startLineNumer) {
     codeMarkups.clear();
     for (const auto &line : compilerOutput.split('\n')) {
-        if(line.startsWith(absoluteFilePath)){
+        if (line.startsWith(absoluteFilePath)) {
             auto error = line.mid(absoluteFilePath.length() + 1);
             if (!error.at(0).isNumber()) {
                 continue;

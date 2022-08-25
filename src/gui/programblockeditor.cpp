@@ -439,9 +439,9 @@ void transferData<int64_t>(Modules::Property &p, GUI::detail::PropertyInformatio
     pi.setMaxValue(static_cast<qint64>(p.asNumeric<int64_t>()->getMax()));
 }
 
-QQuickItem * ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event){
+QQuickItem *ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event) {
     auto comp = childAt(event->position().x(), event->position().y());
-    if(!comp){
+    if (!comp) {
         return nullptr;
     }
 
@@ -487,11 +487,11 @@ void ProgramBlockEditor::mouseMoveEvent(QMouseEvent *event) {
     } else if (dragType == MovePermanent) {
         bool larger;
         if ((larger = event->position().y() - dragStartItem->y() > spaceBetweenLayers / 2) || dragStartItem->y() - event->position().y() > spaceBetweenLayers / 2) {
-            //move element to the next layer
-            PropertyBase * pb = dragStartItem->property("propertyBase").value<PropertyBase*>();
-            if(larger){
-                for(auto i = programBlock->getFilter().cbegin();i!=programBlock->getFilter().cend();++i){
-                    if(static_cast<Filter*>(i->second.source.get())==static_cast<Filter*>(pb)){
+            // move element to the next layer
+            PropertyBase *pb = dragStartItem->property("propertyBase").value<PropertyBase *>();
+            if (larger) {
+                for (auto i = programBlock->getFilter().cbegin(); i != programBlock->getFilter().cend(); ++i) {
+                    if (static_cast<Filter *>(i->second.source.get()) == static_cast<Filter *>(pb)) {
                         const auto saveI = i;
                         Modules::detail::Connection c = i->second;
                         int layer = i->first;
@@ -619,7 +619,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event) {
         } else {
             setShowProperties(false);
         }
-    }else if(dragStartItem == comp && event->button() == Qt::RightButton && comp && !event->modifiers() && dragType == AddConnection){
+    } else if (dragStartItem == comp && event->button() == Qt::RightButton && comp && !event->modifiers() && dragType == AddConnection) {
         emit openRightClickEntry(event->position().x(), event->position().y());
     }
     using namespace Modules;

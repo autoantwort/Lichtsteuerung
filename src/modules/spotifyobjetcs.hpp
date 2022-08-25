@@ -237,7 +237,9 @@ public:
         , time_signature(af.time_signature)
         , valence(af.valence)
         , name(t.name.toStdString()) {}
-    void updateProgressInMs(const Spotify::Objects::CurrentPlayingObject &o) { progress_ms = o.getProgressInMs(); }
+    void updateProgressInMs(const Spotify::Objects::CurrentPlayingObject &o) {
+        progress_ms = o.getProgressInMs();
+    }
 #endif
 };
 

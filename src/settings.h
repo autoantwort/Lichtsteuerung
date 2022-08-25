@@ -40,7 +40,9 @@ public:                                                                         
             emit name##Changed();                                                                                                                                                                      \
         }                                                                                                                                                                                              \
     }                                                                                                                                                                                                  \
-    void reset##name() { set##name(getTheme() == 0 ? (defaultLight) : (defaultDark)); }                                                                                                                \
+    void reset##name() {                                                                                                                                                                               \
+        set##name(getTheme() == 0 ? (defaultLight) : (defaultDark));                                                                                                                                   \
+    }                                                                                                                                                                                                  \
 Q_SIGNALS:                                                                                                                                                                                             \
     void name##Changed();
 
