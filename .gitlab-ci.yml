@@ -13,7 +13,7 @@ build:
     - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
     - mkdir -p build
     - cd build
-    # - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    - ln -s /usr/bin/ninja /usr/bin/ninja-build
     - cmake -G Ninja .. 
     - ninja
     - cd ..
