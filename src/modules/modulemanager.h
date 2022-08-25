@@ -136,7 +136,7 @@ public:
     }
 
     Q_INVOKABLE void removeProperty(QVariant v){
-        assert(v.canConvert(qMetaTypeId<detail::PropertyInformation*>()));
+        assert(QMetaType::canConvert(v.metaType(), QMetaType(qMetaTypeId<detail::PropertyInformation *>())));
         for(auto i = properties.cbegin();i!=properties.cend();++i){
             if(*i == v.value<detail::PropertyInformation*>()){
                 properties.erase(i);

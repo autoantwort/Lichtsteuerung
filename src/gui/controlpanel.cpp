@@ -104,8 +104,7 @@ void ControlPanel::hoverEnterEvent(QHoverEvent *event){
 void ControlPanel::hoverMoveEvent(QHoverEvent *event){
     if(event->oldPos().x()>=width()-menuWidth&&
             event->oldPos().y()>=height()-menuHeight){
-        if(event->pos().x()<width()-menuWidth||
-                event->pos().y()<height()-menuHeight){
+        if (event->position().x() < width() - menuWidth || event->position().y() < height() - menuHeight) {
             emit exitMenuArea();
         }
     }

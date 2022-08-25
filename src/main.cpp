@@ -246,7 +246,6 @@ int main(int argc, char *argv[]) {
 //    QSurfaceFormat::setDefaultFormat(defaultFormat);
     QCoreApplication::setOrganizationName(QStringLiteral("Turmstraße 1 e.V."));
     QCoreApplication::setOrganizationDomain(QStringLiteral("hilton.rwth-aachen.de"));
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     CatchingErrorApplication app(argc, argv);
     QQmlApplicationEngine engine;
 #ifdef WITH_FELGO
