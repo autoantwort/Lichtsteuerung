@@ -1,20 +1,17 @@
-import QtQuick 2.12
-import QtQuick.Dialogs 1.3
+import QtQuick
+import QtQuick.Dialogs
+import "path_utils.js" as PathUtils
 
 FileDialog{
     property var callback;
-    selectExisting: false
-    function openAt(path, isFolder, selectExisting_ = true){
-        selectFolder = isFolder;
-        folder = pathToUrl(path);
-        selectExisting = selectExisting_;
+    function openAt(path, mode = FileDialog.OpenFile){
+        currentFile = PathUtils.path_to_file_prot(path);
+        fileMode = mode;
         open();
     }
-    id: fileDialog
-    title: "Please choose a " + (selectFolder ? "folder" : "file")
     onAccepted: {
         if(callback){
-            callback(urlToPath(fileDialog.fileUrl));
+            callback(PathUtils.file_prot_to_path(selectedFile));
         }else{
             console.error("Error in File Dialog in SystemFileDialog: No callback provided!")
         }

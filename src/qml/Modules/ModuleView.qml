@@ -1,10 +1,10 @@
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Layouts 1.12
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import custom.licht 1.0
-import QtQuick.Controls.Material 2.12
-import QtQml 2.12
-import QtQuick.Window 2.12
+import QtQuick.Controls.Material
+import QtQml
+import QtQuick.Window
 import "../components"
 
 Item{
@@ -186,8 +186,8 @@ Item{
             enabled: listView.currentModelData
             text: listView.currentModelData ? listView.currentModelData.name : "Select one Module"
             onTextChanged: if(listView.currentModelData)listView.currentModelData.name = text;
-            validator: RegExpValidator{
-                regExp: /[^\s]+/
+            validator: RegularExpressionValidator{
+               regularExpression: /[^\s]+/
             }
         }
 
@@ -347,7 +347,7 @@ Item{
             TextArea{
                 z: 2
                 property real lineHeight: contentHeight/lineCount
-                font.family: "Courier"
+                font.family: "Courier New"
                 font.pointSize: 12
                 tabStopDistance: 16
                 hoverEnabled: false
@@ -653,8 +653,8 @@ Item{
                 id:name
                 Layout.fillWidth: true
                 text: dialog.prop ? dialog.prop.name : "Error"
-                validator: RegExpValidator{
-                    regExp: /[a-z][a-z_0-9]*$/i
+                validator: RegularExpressionValidator{
+                   regularExpression: /[a-z][a-z_0-9]*$/i
                 }
             }
             Label{

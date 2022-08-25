@@ -2,11 +2,9 @@
 #set(QAPPLICATION_CLASS QGuiApplication CACHE STRING "Inheritance class for SingleApplication")
 #add_subdirectory(lib/SingleApplication/git)
 
-# QtQuick compiler. See https://doc.qt.io/QtQuickCompiler/qquickcompiler-building-with-cmake.html
-find_package(Qt5QuickCompiler)
-qtquick_compiler_add_resources(RESOURCES qml.qrc)
+qt_add_resources(RESOURCES qml.qrc)
 
-add_executable(lichtsteuerung
+qt_add_executable(lichtsteuerung MACOSX_BUNDLE
     applicationdata.cpp applicationdata.h
     audio/aubio/aubiocapi.cpp audio/aubio/aubiocapi.h
     audio/aubio/onsetanalysis.cpp audio/aubio/onsetanalysis.h
@@ -110,29 +108,20 @@ target_compile_definitions(lichtsteuerung PRIVATE
     QT_MESSAGELOGCONTEXT
     _USE_MATH_DEFINES
 )
-target_link_libraries(lichtsteuerung Qt5::Qml Qt5::Quick Qt5::Network Qt5::Widgets Qt5::NetworkAuth Qt5::WebSockets)
+target_link_libraries(lichtsteuerung PRIVATE Qt::Qml Qt::Quick Qt::Network Qt::Widgets Qt::NetworkAuth Qt::WebSockets Qt6::Mqtt Qt6::Core5Compat Qt6::Svg)
+
 
 # Aubio
-find_path(AUBIO_INCLUDE_DIR aubio/aubio.h)
-find_library(AUBIO_LIBRARY aubio)
-target_include_directories(lichtsteuerung PRIVATE ${AUBIO_INCLUDE_DIR})
-target_link_libraries(lichtsteuerung ${AUBIO_LIBRARY})
+find_package(Aubio CONFIG REQUIRED)
+target_link_libraries(lichtsteuerung PRIVATE Aubio::aubio)
 
 # RtAudio
-find_path(RtAudio_INCLUDE_DIR rtaudio/RtAudio.h)
-target_include_directories(lichtsteuerung PRIVATE ${RtAudio_INCLUDE_DIR})
-find_library(RtAudio_LIBRARY rtaudio)
-target_link_libraries(lichtsteuerung ${RtAudio_LIBRARY})
-if(APPLE)
-    target_link_libraries(lichtsteuerung "-framework CoreAudio")
-    target_link_libraries(lichtsteuerung "-framework CoreFoundation")
-elseif(WIN32)
-    target_link_libraries(lichtsteuerung ole32 winmm ksuser mfplat mfuuid wmcodecdspuuid)
-endif()
+find_package(RtAudio CONFIG REQUIRED)
+target_link_libraries(lichtsteuerung PRIVATE RtAudio::rtaudio)
 
 # boost
-find_package(Boost 1.75.0 REQUIRED COMPONENTS thread context coroutine)
-target_link_libraries(lichtsteuerung ${Boost_LIBRARIES})
+find_package(Boost 1.75.0 REQUIRED COMPONENTS context coroutine)
+target_link_libraries(lichtsteuerung PRIVATE ${Boost_LIBRARIES})
 target_include_directories(lichtsteuerung PRIVATE ${Boost_INCLUDE_DIRS})
 
 if(APPLE)
@@ -147,17 +136,17 @@ if(WIN32)
     target_compile_definitions(lichtsteuerung PRIVATE DrMinGW)
     target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/include)
     target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/bin)
-    target_link_libraries(lichtsteuerung exchndl)
+    target_link_libraries(lichtsteuerung PRIVATE exchndl)
 endif()
 
 # Needed by the SystemVolume class
 if(APPLE)
-    target_link_libraries(lichtsteuerung "-framework CoreAudio")
+    target_link_libraries(lichtsteuerung PRIVATE "-framework CoreAudio")
 elseif(CMAKE_SYSTEM_NAME MATCHES Linux)
     # needed for dynamic libs
-    target_link_libraries(lichtsteuerung dl)
+    target_link_libraries(lichtsteuerung PRIVATE dl)
     # needed for the SystemVolume class
-    target_link_libraries(lichtsteuerung asound)
+    target_link_libraries(lichtsteuerung PRIVATE asound)
 endif()
 
 # SpanLite
@@ -170,17 +159,7 @@ target_compile_definitions(lichtsteuerung PRIVATE USE_SPAN_LITE)
 
 # kubazip
 find_package(kubazip REQUIRED)
-target_link_libraries(lichtsteuerung kubazip::kubazip)
-
-# Qt MQTT
-target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/include)
-if(APPLE)
-    set_target_properties(lichtsteuerung PROPERTIES LINK_FLAGS "-Wl,-F${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/lib")
-    target_link_libraries(lichtsteuerung "-framework QtMqtt")
-else()
-    target_link_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/qtmqtt/lib)
-    target_link_libraries(lichtsteuerung Qt5Mqtt)
-endif()
+target_link_libraries(lichtsteuerung PRIVATE kubazip::kubazip)
 
 # Segvcatch
 find_path(segvcatch_INCLUDE_DIR segvcatch.h)

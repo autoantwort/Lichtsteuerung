@@ -95,7 +95,7 @@ std::pair<int, QString> Compiler::compileToLibrary(const QString &code, const QS
         out << code;
     }
     file.close();
-    return compileToLibrary(file, newLibraryFile);
+    return compileToLibrary(QFileInfo(file), newLibraryFile);
 }
 
 } // namespace Modules

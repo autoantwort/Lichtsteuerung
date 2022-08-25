@@ -87,5 +87,7 @@
         <file>qml/SlideShowWindow.qml</file>
         <file>qml/components/SystemFileDialog.qml</file>
         <file>qml/DMX/DMXChannelUsage.qml</file>
+        <file>qml/components/SystemFolderDialog.qml</file>
+        <file>qml/components/path_utils.js</file>
     </qresource>
 </RCC>

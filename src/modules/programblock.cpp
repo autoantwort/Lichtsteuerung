@@ -82,49 +82,75 @@ ProgramBlock::ProgramBlock(const QJsonObject &o) : name(o["name"].toString()), i
             if (iter == filter.cend()) {
                 throw std::runtime_error("Connection has invalid source.");
             }
-            detail::Connection c(iter->second);
-            const auto targets = i["targets"].toArray();
-            for (const auto &t : targets) {
-                OutputDataProducer *outputDataProducer;
-                const auto targetName = t["target"].toString();
-                const auto pIter = programs.find(targetName);
-                if (pIter != programs.cend()) {
-                    outputDataProducer = pIter->second.get();
-                } else {
-                    const auto fIter = filter.find(targetName);
-                    if (fIter != filter.cend()) {
-                        outputDataProducer = fIter->second.get();
-                    } else {
-                        throw std::runtime_error("Connection target not found :" + targetName.toStdString());
-                    }
+        }
+        {
+            const auto progs = o["consumer"].toArray();
+            for(const auto & v_ : progs){
+                QJsonObject obj = v_.toObject();
+                const auto qstr = obj["typename"].toString();
+                const auto str = qstr.toStdString();
+                auto p = ModuleManager::singletone()->createConsumer(str);
+                if(!p){
+                    throw std::runtime_error(std::string("Consumer with name '") + str + "' does not exist.");
                 }
-                c.addTarget(t["length"].toInt(), outputDataProducer, t["targetStartIndex"].toInt());
+                loadProperties(obj,p.get());
+                consumer.insert(std::make_pair(obj["id"].toString(),p));
+            }
+        }
+        // Wir haben schon alle benötogten Objecte erstellt und wissen zu welcher ID welches Object gehört.
+        {
+            const auto filterCon = o["filterConnections"].toArray();
+            for(const auto & i : filterCon){
+                const auto iter = filter.find(i[QLatin1String("source")].toString());
+                if(iter == filter.cend()){
+                    throw std::runtime_error("Connection has invalid source.");
+                }
+                detail::Connection c(iter->second);
+                const auto targets = i[QLatin1String("targets")].toArray();
+                for(const auto & t : targets){
+                    OutputDataProducer * outputDataProducer;
+                    const auto targetName = t[QLatin1String("target")].toString();
+                    const auto pIter = programs.find(targetName);
+                    if(pIter != programs.cend()){
+                        outputDataProducer = pIter->second.get();
+                    }else{
+                        const auto fIter = filter.find(targetName);
+                        if(fIter != filter.cend()){
+                            outputDataProducer = fIter->second.get();
+                        }else{
+                            throw std::runtime_error("Connection target not found :" + targetName.toStdString());
+                        }
+                    }
+                    c.addTarget(t[QLatin1String("length")].toInt(), outputDataProducer, t[QLatin1String("targetStartIndex")].toInt());
+                }
+                this->filter.insert(std::make_pair(i[QLatin1String("level")].toInt(), c));
             }
             this->filter.insert(std::make_pair(i["level"].toInt(), c));
         }
-    }
-    {
-        const auto consumerCon = o["consumerConnections"].toArray();
-        for (const auto &i : consumerCon) {
-            const auto iter = consumer.find(i["source"].toString());
-            if (iter == consumer.cend()) {
-                throw std::runtime_error("Connection has invalid source.");
-            }
-            detail::Connection c(iter->second);
-            const auto targets = i["targets"].toArray();
-            for (const auto &t : targets) {
-                OutputDataProducer *outputDataProducer;
-                const auto targetName = t["target"].toString();
-                const auto pIter = programs.find(targetName);
-                if (pIter != programs.cend()) {
-                    outputDataProducer = pIter->second.get();
-                } else {
-                    const auto fIter = filter.find(targetName);
-                    if (fIter != filter.cend()) {
-                        outputDataProducer = fIter->second.get();
-                    } else {
-                        throw std::runtime_error("Connection target not found :" + targetName.toStdString());
+        {
+            const auto consumerCon = o["consumerConnections"].toArray();
+            for(const auto & i : consumerCon){
+                const auto iter = consumer.find(i[QLatin1String("source")].toString());
+                if(iter == consumer.cend()){
+                    throw std::runtime_error("Connection has invalid source.");
+                }
+                detail::Connection c(iter->second);
+                const auto targets = i[QLatin1String("targets")].toArray();
+                for(const auto & t : targets){
+                    OutputDataProducer * outputDataProducer;
+                    const auto targetName = t[QLatin1String("target")].toString();
+                    const auto pIter = programs.find(targetName);
+                    if(pIter != programs.cend()){
+                        outputDataProducer = pIter->second.get();
+                    }else{
+                        const auto fIter = filter.find(targetName);
+                        if(fIter != filter.cend()){
+                            outputDataProducer = fIter->second.get();
+                        }else{
+                            throw std::runtime_error("Connection target not found :" + targetName.toStdString());
+                        }
                     }
+                    c.addTarget(t[QLatin1String("length")].toInt(), outputDataProducer, t[QLatin1String("targetStartIndex")].toInt());
                 }
                 c.addTarget(t["length"].toInt(), outputDataProducer, t["targetStartIndex"].toInt());
             }

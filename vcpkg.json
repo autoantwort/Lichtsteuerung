@@ -16,12 +16,9 @@
         "qtquickcontrols2",
         "qtmqtt",
         "qtnetworkauth",
-        {
-            "name": "qtbase",
-            "host": true,
-            "default-features": false,
-            "features": ["doubleconversion"]
-        },
+        "qtwebsockets",
+        "qt5compat",
+        "qtsvg",
         "segvcatch"
     ]
 }

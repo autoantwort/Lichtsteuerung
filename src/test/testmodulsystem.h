@@ -22,8 +22,17 @@ public:
         for (const auto &i : ModuleManager::singletone()->getFilterModules()) {
             std::cout << i.name() << " , " << i.description();
         }
-        auto blurFilter = ModuleManager::singletone()->createFilter("Blur");
-        qDebug() << blurFilter.get();
+        void runTest(){
+             auto t1 = high_resolution_clock::now();
+             Compiler::compileToLibrary(QFileInfo("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.cpp"), "/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
+             auto t2 = high_resolution_clock::now();
+             ModuleManager::singletone()->loadModule("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
+             auto t3 = high_resolution_clock::now();
+             for (const auto &i : ModuleManager::singletone()->getFilterModules()) {
+                 std::cout << i.name() << " , " << i.description();
+            }
+            auto blurFilter = ModuleManager::singletone()->createFilter("Blur");
+            qDebug()<<blurFilter.get();
 
         std::cout << "compile time : " << duration_cast<milliseconds>(t2 - t1).count() << " load time : " << duration_cast<milliseconds>(t3 - t2).count();
     }
