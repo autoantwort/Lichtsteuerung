@@ -9,7 +9,7 @@ build:
   stage: build
   timeout: 3h
   script:
-    - apt update -y && apt install -y ninja-build curl zip unzip tar autoconf-archive bison xcb
+    - apt update -y && apt install -y ninja-build curl zip unzip tar autoconf-archive bison xcb libxcb-xkb-dev
     - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
     - mkdir -p build
     - cd build
