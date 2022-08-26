@@ -27,7 +27,7 @@ build:
     paths:
       - vcpkg_cache/
   artifacts:
-    # when: always
+    when: always
     paths:
       - _deps/vcpkg-src/buildtrees/*/*.log
       - _deps/vcpkg-src/buildtrees/*/*/*.log
