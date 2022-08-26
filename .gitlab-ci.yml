@@ -29,14 +29,14 @@ build:
   artifacts:
     # when: always
     paths:
-      - vcpkg/buildtrees/*/*.log
-      - vcpkg/buildtrees/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*.log
-      - vcpkg/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*/*.log
+      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
