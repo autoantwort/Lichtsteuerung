@@ -9,11 +9,15 @@ build:
   stage: build
   timeout: 3h
   script:
-    - apt update -y && apt install -y cmake ninja-build
-    - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite"
+    - apt update -y && apt install -y ninja-build curl zip unzip tar
+    - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
     - mkdir -p build
     - cd build
-    - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    # - ln -s /usr/bin/ninja /usr/bin/ninja-build
+    - export VCPKG_FORCE_SYSTEM_BINARIES=1
+    - wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-linux-aarch64.tar.gz
+    - tar -xf cmake-3.24.1-linux-aarch64.tar.gz
+    - export PATH=$PATH:$(pwd)/cmake-3.24.1-linux-aarch64/bin
     - cmake -G Ninja .. 
     - ninja
     - cd ..
