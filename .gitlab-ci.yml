@@ -29,14 +29,14 @@ build:
   artifacts:
     when: always
     paths:
-      - _deps/vcpkg-src/buildtrees/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*/*.log
-      - _deps/vcpkg-src/buildtrees/*/*/*/*/*/*/*/*/*/*/*.log
+      - build/*/*.log
+      - build/*/*/*.log
+      - build/*/*/*/*.log
+      - build/*/*/*/*/*.log
+      - build/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
