@@ -15,9 +15,9 @@ build:
     - cd build
     # - ln -s /usr/bin/ninja /usr/bin/ninja-build
     - export VCPKG_FORCE_SYSTEM_BINARIES=1
-    - wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-linux-aarch64.tar.gz
-    - tar -xf cmake-3.24.1-linux-aarch64.tar.gz
-    - export PATH=$PATH:$(pwd)/cmake-3.24.1-linux-aarch64/bin
+    - wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-linux-x86_64.tar.gz
+    - tar -xf cmake-3.24.1-linux-x86_64.tar.gz
+    - export PATH=$PATH:$(pwd)/cmake-3.24.1-linux-x86_64/bin
     - cmake -G Ninja .. 
     - ninja
     - cd ..
