@@ -41,7 +41,7 @@ build:
       - build/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
 windows-image:
-  state: build
+  stage: build
   image: docker:20.10.16
   tags: 
     - windows
