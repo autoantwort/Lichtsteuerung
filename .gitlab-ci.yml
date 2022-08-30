@@ -50,5 +50,5 @@ windows-image:
   services:
     - docker:20.10.16-dind  
   script:
-    - docker build -t my-docker-image --file Dockerfile-windows-ci
+    - docker build -t my-docker-image --file Dockerfile-windows-ci .
     # - docker run my-docker-image /script/to/run/tests
