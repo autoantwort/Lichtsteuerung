@@ -42,14 +42,14 @@ build:
       # - build/vcpkg_installed/
 windows-image:
   stage: build
-  image: docker:20.10.16
+  image: docker:windowsservercore
   tags: 
     - windows
   variables:  
     DOCKER_HOST: tcp://docker:2375
     DOCKER_TLS_CERTDIR: ""
   services:
-    - docker:20.10.16-dind  
+    - docker:windowsservercore
   script:
     - docker build -t my-docker-image --file Dockerfile-windows-ci .
     # - docker run my-docker-image /script/to/run/tests
