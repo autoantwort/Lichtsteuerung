@@ -1,7 +1,7 @@
 # escape=`
 
 # Use the latest Windows Server Core 2019 image.
-FROM mcr.microsoft.com/windows
+FROM mcr.microsoft.com/windows:20H2
 
 # Restore the default Windows shell for correct batch processing.
 SHELL ["cmd", "/S", "/C"]
