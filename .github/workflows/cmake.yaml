@@ -13,7 +13,7 @@ jobs:
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
     env:
-      VCPKG_BINARY_SOURCES: "clear;readwrite;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
+      VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
 
     steps:
     - uses: actions/checkout@v3
