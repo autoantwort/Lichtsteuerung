@@ -40,16 +40,13 @@ build:
       - build/*/*/*/*/*/*/*/*/*/*.log
       - build/*/*/*/*/*/*/*/*/*/*/*.log
       # - build/vcpkg_installed/
-windows-image:
+windows-build:
   stage: build
-  image: docker:windowsservercore
   tags: 
-    - windows
+    - windows-shell
   variables:  
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-  services:
-    - docker:windowsservercore
+    VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
   script:
-    - docker build -t my-docker-image --file Dockerfile-windows-ci .
+    - cmake -B build
+    - cmake --build build
     # - docker run my-docker-image /script/to/run/tests
