@@ -52,15 +52,15 @@ windows-build:
 
   artifacts:
     when: always
-  paths:
-    - build/*/*.log
-    - build/*/*/*.log
-    - build/*/*/*/*.log
-    - build/*/*/*/*/*.log
-    - build/*/*/*/*/*/*.log
-    - build/*/*/*/*/*/*/*.log
-    - build/*/*/*/*/*/*/*/*.log
-    - build/*/*/*/*/*/*/*/*/*.log
-    - build/*/*/*/*/*/*/*/*/*/*.log
-    - build/*/*/*/*/*/*/*/*/*/*/*.log
+    paths:
+      - build/*/*.log
+      - build/*/*/*.log
+      - build/*/*/*/*.log
+      - build/*/*/*/*/*.log
+      - build/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*/*.log
+      - build/*/*/*/*/*/*/*/*/*/*/*.log
     # - docker run my-docker-image /script/to/run/tests
