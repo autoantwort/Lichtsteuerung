@@ -5,7 +5,10 @@
         "boost-coroutine",
         "boost-coroutine2",
         "boost-stacktrace",
-        "libbacktrace",
+        {
+          "name": "libbacktrace",
+          "platform": "!(windows & !mingw)"
+        },
         "span-lite",
         "rtaudio",
         "kubazip",
