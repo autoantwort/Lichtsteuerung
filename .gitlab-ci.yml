@@ -42,6 +42,7 @@ build:
       # - build/vcpkg_installed/
 windows-build:
   stage: build
+  timeout: 4h
   tags: 
     - windows-shell
   variables:  
