@@ -39,6 +39,16 @@ build:
       - build/*/*/*/*/*/*/*/*/*.log
       - build/*/*/*/*/*/*/*/*/*/*.log
       - build/*/*/*/*/*/*/*/*/*/*/*.log
+      - build/*/*.md
+      - build/*/*/*.md
+      - build/*/*/*/*.md
+      - build/*/*/*/*/*.md
+      - build/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*/*/*.md
       # - build/vcpkg_installed/
 windows-build:
   stage: build
@@ -64,4 +74,14 @@ windows-build:
       - build/*/*/*/*/*/*/*/*/*.log
       - build/*/*/*/*/*/*/*/*/*/*.log
       - build/*/*/*/*/*/*/*/*/*/*/*.log
+      - build/*/*.md
+      - build/*/*/*.md
+      - build/*/*/*/*.md
+      - build/*/*/*/*/*.md
+      - build/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*/*.md
+      - build/*/*/*/*/*/*/*/*/*/*/*.md
     # - docker run my-docker-image /script/to/run/tests
