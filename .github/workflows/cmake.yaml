@@ -28,7 +28,9 @@ jobs:
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=${{github.workspace}}/bdr" -DVCPKG_TARGET_TRIPLET=x64-windows-release -DVCPKG_HOST_TRIPLET=x64-windows-release
+      run: mkdir ${{github.workspace}}/buildtree
+      run: subst z: ${{github.workspace}}/buildtree
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=z:/ --allow-unsupported" -DVCPKG_TARGET_TRIPLET=x64-windows-release -DVCPKG_HOST_TRIPLET=x64-windows-release
 
     - name: Build
       # Build your program with the given configuration

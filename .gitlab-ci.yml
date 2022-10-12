@@ -29,26 +29,8 @@ build:
   artifacts:
     when: always
     paths:
-      - build/*/*.log
-      - build/*/*/*.log
-      - build/*/*/*/*.log
-      - build/*/*/*/*/*.log
-      - build/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*/*/*.log
-      - build/*/*.md
-      - build/*/*/*.md
-      - build/*/*/*/*.md
-      - build/*/*/*/*/*.md
-      - build/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*/*/*.md
+      - "build/**/*.log"
+      - "build/**/*.md"
       # - build/vcpkg_installed/
 windows-build:
   stage: build
@@ -58,30 +40,14 @@ windows-build:
   variables:  
     VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
   script:
-    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=bdr"
+    - mkdir buildtree
+    - subst z: buildtree
+    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=z:/ --allow-unsupported"
     - cmake --build build
 
   artifacts:
     when: always
     paths:
-      - build/*/*.log
-      - build/*/*/*.log
-      - build/*/*/*/*.log
-      - build/*/*/*/*/*.log
-      - build/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*/*.log
-      - build/*/*/*/*/*/*/*/*/*/*/*.log
-      - build/*/*.md
-      - build/*/*/*.md
-      - build/*/*/*/*.md
-      - build/*/*/*/*/*.md
-      - build/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*/*.md
-      - build/*/*/*/*/*/*/*/*/*/*/*.md
+      - "build/**/*.log"
+      - "build/**/*.md"
     # - docker run my-docker-image /script/to/run/tests
