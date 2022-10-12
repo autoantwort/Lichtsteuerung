@@ -42,7 +42,7 @@ windows-build:
   script:
     - mkdir buildtree
     - 'subst z: buildtree'
-    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=z:/ --allow-unsupported"
+    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build '--x-buildtrees-root=z:/' --allow-unsupported"
     - cmake --build build
 
   artifacts:
