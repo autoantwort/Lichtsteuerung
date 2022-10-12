@@ -25,7 +25,7 @@ FetchContent_Declare(
 #  message(STATUS "VCPKG_CHAINLOAD_TOOLCHAIN_FILE is already set to '${VCPKG_CHAINLOAD_TOOLCHAIN_FILE}'")
 #endif()
 
-set(VCPKG_INSTALL_OPTIONS --allow-unsupported --clean-after-build)
+set(VCPKG_INSTALL_OPTIONS ${VCPKG_INSTALL_OPTIONS} --allow-unsupported --clean-after-build)
 if(APPLE)
     set(VCPKG_APPLOCAL_DEPS OFF)
 endif()
