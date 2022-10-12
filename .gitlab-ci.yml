@@ -41,7 +41,7 @@ windows-build:
     VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
   script:
     - mkdir buildtree
-    - subst z: buildtree
+    - 'subst z: buildtree'
     - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build --x-buildtrees-root=z:/ --allow-unsupported"
     - cmake --build build
 
