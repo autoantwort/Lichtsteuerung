@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
     vcpkg
     GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-    GIT_TAG 42cc830d874f8e24eb4eb05bd5bb28496e3d498c # 2022-10-11
+    GIT_TAG e51afe4695ebf5e6c6f523dbd3bb518db1970531 # 2023-01-17
 )
 #if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
     FetchContent_Populate(vcpkg)
@@ -29,7 +29,6 @@ message("VCPKG_INSTALL_OPTIONS: ${VCPKG_INSTALL_OPTIONS}")
 if(APPLE)
     set(VCPKG_APPLOCAL_DEPS OFF)
 endif()
-set(VCPKG_OVERLAY_PORTS "${CMAKE_CURRENT_LIST_DIR}/overlay-ports")
 
 project(lichtsteuerung VERSION 2.0.0 LANGUAGES CXX)
 
