@@ -99,7 +99,9 @@ public:
     double getHoverSegmentLength() const { return hoverSegmentLength; }
     double getSelectedSegmentX() const { return selectedSegmentX; }
     double getSelectedSegmentLength() const { return selectedSegmentLength; }
-    QEasingCurve::Type getSelectedEasingCurve() const { return channelProgramm && currentSegment != channelProgramm->timeline.end() ? currentSegment->easingCurveToNextPoint.type() : static_cast<QEasingCurve::Type>(-1); }
+    QEasingCurve::Type getSelectedEasingCurve() const {
+        return channelProgramm && currentSegment != channelProgramm->timeline.end() ? currentSegment->easingCurveToNextPoint.type() : static_cast<QEasingCurve::Type>(-1);
+    }
     void setSelectedEasingCurve(QEasingCurve::Type type);
     double getMouseX() const { return lastMousePosition.x(); }
     Q_INVOKABLE double getTimeForVisualX(double x) const { return mapFromVisualX(x); }

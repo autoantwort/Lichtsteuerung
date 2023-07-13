@@ -1,11 +1,11 @@
 #include "testloopprogramm.h"
+#include "modules/boostloopprogramcontextswitcher.h"
 #include <qdebug.h>
 #include <chrono>
-#include "modules/boostloopprogramcontextswitcher.h"
 
 namespace Test {
 
-void testLoopProgramm(){
+void testLoopProgramm() {
     auto cs = std::make_unique<Modules::BoostLoopProgramContextSwitcher>();
     TestLoopProgramm p;
     p.setContextSwitcher(std::move(cs));
@@ -13,10 +13,10 @@ void testLoopProgramm(){
     p.start();
     auto t1 = std::chrono::high_resolution_clock::now();
     while (!p.doStep(2).finished) {
-        //qDebug() << "wait";
+        // qDebug() << "wait";
     }
-    auto tdiff = std::chrono::high_resolution_clock::now()-t1;
-    qDebug()<<(std::chrono::duration_cast<std::chrono::milliseconds>(tdiff)).count() <<" finished\n";
+    auto tdiff = std::chrono::high_resolution_clock::now() - t1;
+    qDebug() << (std::chrono::duration_cast<std::chrono::milliseconds>(tdiff)).count() << " finished\n";
 }
 
-}
+} // namespace Test

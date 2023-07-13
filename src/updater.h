@@ -6,7 +6,7 @@
 #include <QString>
 #include <memory>
 
-class Updater : public QObject{
+class Updater : public QObject {
     Q_OBJECT
     Q_PROPERTY(int progress READ getUpdateProgress NOTIFY updateProgressChanged)
     Q_PROPERTY(UpdaterState state READ getState NOTIFY stateChanged)
@@ -16,24 +16,37 @@ class Updater : public QObject{
     QString versionDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=version");
     QString deployDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=deploy");
     std::unique_ptr<QNetworkAccessManager> http = std::make_unique<QNetworkAccessManager>();
+
 public:
-    enum UpdaterState {IDE_ENV, NotChecked, NoUpdateAvailible, UpdateAvailible, DownloadingUpdate, UnzippingUpdate, UnzippingFailed, PreparationForInstallationFailed, ReadyToInstall, DownloadUpdateFailed};
+    enum UpdaterState {
+        IDE_ENV,
+        NotChecked,
+        NoUpdateAvailible,
+        UpdateAvailible,
+        DownloadingUpdate,
+        UnzippingUpdate,
+        UnzippingFailed,
+        PreparationForInstallationFailed,
+        ReadyToInstall,
+        DownloadUpdateFailed
+    };
     Q_ENUM(UpdaterState)
 private:
     UpdaterState state = UpdaterState::NotChecked;
     int progress = -1;
     QString deployPath;
+
 public:
     Updater();
     void checkForUpdate();
-    UpdaterState getState()const {return state;}
+    UpdaterState getState() const { return state; }
     void update();
     /**
      * @brief runUpdateInstaller starts the installer script, call when the application is closing
      */
     void runUpdateInstaller();
-    int getUpdateProgress()const{return progress;}
-    QNetworkAccessManager * getQNetworkAccessManager(){return http.get();}
+    int getUpdateProgress() const { return progress; }
+    QNetworkAccessManager *getQNetworkAccessManager() { return http.get(); }
 signals:
     void needUpdate();
     void updateProgressChanged();

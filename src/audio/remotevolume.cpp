@@ -24,7 +24,8 @@ RemoteVolume::RemoteVolume(Settings &settings) : settings(settings) {
         }
     });
 
-    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error), [this](const auto error) { qWarning() << "Remote Volume: WebSocket connection error: " << error << " : " << webSocket.errorString(); });
+    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error),
+                     [this](const auto error) { qWarning() << "Remote Volume: WebSocket connection error: " << error << " : " << webSocket.errorString(); });
     QObject::connect(&webSocket, &QWebSocket::disconnected, [this]() {
         emit isConnectedChanged();
         // if we lost the connection, but don't want that, wait some time and reconnect then

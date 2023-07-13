@@ -6,7 +6,9 @@ namespace GUI {
 
 Oscillogram *Oscillogram::lastCreated = nullptr;
 
-Oscillogram::Oscillogram(QQuickItem *parent) : LineGeometry(parent) { lastCreated = this; }
+Oscillogram::Oscillogram(QQuickItem *parent) : LineGeometry(parent) {
+    lastCreated = this;
+}
 
 Oscillogram::~Oscillogram() {
     if (lastCreated == this) {

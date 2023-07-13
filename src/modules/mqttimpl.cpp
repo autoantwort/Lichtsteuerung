@@ -53,9 +53,13 @@ void Modules::MqttImpl::connect(const std::string &host, int port) {
     }
 }
 
-void Modules::MqttImpl::publishMessage(const std::string &topic, const std::string &message) { publish(topic, message, false); }
+void Modules::MqttImpl::publishMessage(const std::string &topic, const std::string &message) {
+    publish(topic, message, false);
+}
 
-void Modules::MqttImpl::publishValue(const std::string &topic, const std::string &message) { publish(topic, message, true); }
+void Modules::MqttImpl::publishValue(const std::string &topic, const std::string &message) {
+    publish(topic, message, true);
+}
 
 void Modules::MqttImpl::subscribe(const std::string &topic, std::function<void(std::string)> callback) {
     if (!client || client->state() != QMqttClient::Connected) {
@@ -81,4 +85,6 @@ Modules::MqttClientStatus Modules::MqttImpl::status() {
     }
 }
 
-void Modules::MqttImpl::publish(const std::string &topic, const std::string &message, bool retain) { client->publish(QString::fromStdString(topic), QByteArray::fromStdString(message), 1, retain); }
+void Modules::MqttImpl::publish(const std::string &topic, const std::string &message, bool retain) {
+    client->publish(QString::fromStdString(topic), QByteArray::fromStdString(message), 1, retain);
+}

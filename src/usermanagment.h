@@ -174,7 +174,8 @@ signals:
 };
 
 /**
- * @brief The UserPermissionModel class provides an QAbstractListModel implementation and lists all Permissions that exists and to every permission an bool that is true if the user have the spezific permission
+ * @brief The UserPermissionModel class provides an QAbstractListModel implementation and lists all Permissions that exists and to every permission an bool that is true if the user have the spezific
+ * permission
  */
 class UserPermissionModel : public QAbstractListModel {
     Q_OBJECT

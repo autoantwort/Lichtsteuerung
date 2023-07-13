@@ -3,12 +3,9 @@
 
 namespace Test {
 
-TestProgrammBlock::TestProgrammBlock()
-{
+TestProgrammBlock::TestProgrammBlock() {}
 
-}
-
-void TestProgrammBlock::test(){
+void TestProgrammBlock::test() {
     using namespace Modules;
     using namespace std;
     using namespace std::chrono_literals;
@@ -21,18 +18,17 @@ void TestProgrammBlock::test(){
     cons->setInputLength(10);
     filt->setInputLength(10);
     Modules::detail::Connection c(filt);
-    c.addTarget(10,prog.get(),0);
+    c.addTarget(10, prog.get(), 0);
     pb->addProgramm(prog);
-    pb->addFilter(c,0);
+    pb->addFilter(c, 0);
     Modules::detail::Connection l(cons);
-    l.addTarget(10,filt.get(),0);
+    l.addTarget(10, filt.get(), 0);
     pb->addConsumer(l);
 
     controller.start();
     pb->start(&controller);
     this_thread::sleep_for(20ms);
     controller.stop();
-
 }
 
-}
+} // namespace Test

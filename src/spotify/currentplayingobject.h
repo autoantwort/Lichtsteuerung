@@ -1,17 +1,16 @@
 #ifndef CURRENTPLAYINGOBJECT_H
 #define CURRENTPLAYINGOBJECT_H
 
-#include <QObject>
-#include <optional>
 #include "trackobject.h"
 #include <QJsonObject>
+#include <QObject>
+#include <optional>
 
-namespace Spotify::Objects{
+namespace Spotify::Objects {
 
-//https://developer.spotify.com/documentation/web-api/reference/player/get-the-users-currently-playing-track/
-class CurrentPlayingObject
-{
-    //Q_GADGET
+// https://developer.spotify.com/documentation/web-api/reference/player/get-the-users-currently-playing-track/
+class CurrentPlayingObject {
+    // Q_GADGET
 public:
     /**
      * @brief timestamp Unix Millisecond Timestamp when data was updated at the spotify server
@@ -37,15 +36,16 @@ public:
      *  The object type of the currently playing item. Can be one of track, episode, ad or unknown.
      */
     const QString currently_playing_type;
+
 public:
     CurrentPlayingObject(const QJsonObject &object, const long receivedTimestamp);
     /**
      * @brief getProgressInMs return the progress in ms at the current timestamp
      * @return the progress in ms or -1, if the Track is not playing
      */
-    int getProgressInMs()const;
+    int getProgressInMs() const;
 };
 
-}
+} // namespace Spotify::Objects
 
 #endif // CURRENTPLAYINGOBJECT_H

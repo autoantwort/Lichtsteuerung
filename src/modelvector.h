@@ -222,7 +222,7 @@ public:
         }
     }
     template <typename... _Args>
-    void emplace_back(_Args &&... __args) {
+    void emplace_back(_Args &&...__args) {
         if (std::is_pointer<Type>()) {
             beginPushBack(1);
             model.emplace_back(std::forward<_Args>(__args)...);

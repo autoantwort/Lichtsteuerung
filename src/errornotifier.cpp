@@ -1,6 +1,3 @@
 #include "errornotifier.h"
 
-ErrorNotifier::ErrorNotifier(QObject *parent) : QObject(parent)
-{
-
-}
+ErrorNotifier::ErrorNotifier(QObject *parent) : QObject(parent) {}

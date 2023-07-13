@@ -7,7 +7,8 @@ namespace Audio::Aubio {
 
 using namespace C_API;
 
-OnsetAnalysis::OnsetAnalysis(OnsetDetectionFunction onsetDetectionFunction, uint_t fftSize, uint_t stepSize, uint_t sampleRate) : onset(new_aubio_onset(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_onset), inputData{stepSize, nullptr} {}
+OnsetAnalysis::OnsetAnalysis(OnsetDetectionFunction onsetDetectionFunction, uint_t fftSize, uint_t stepSize, uint_t sampleRate)
+    : onset(new_aubio_onset(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_onset), inputData{stepSize, nullptr} {}
 
 bool OnsetAnalysis::processNewSamples(float *newSamples) {
     // setup the data structures
@@ -20,10 +21,16 @@ bool OnsetAnalysis::processNewSamples(float *newSamples) {
     return wasOnset != 0;
 }
 
-unsigned OnsetAnalysis::getLastOnset() { return aubio_onset_get_last(onset.get()); }
+unsigned OnsetAnalysis::getLastOnset() {
+    return aubio_onset_get_last(onset.get());
+}
 
-float OnsetAnalysis::getOnsetValue() { return aubio_onset_get_descriptor(onset.get()); }
+float OnsetAnalysis::getOnsetValue() {
+    return aubio_onset_get_descriptor(onset.get());
+}
 
-float OnsetAnalysis::getCurrentThreshold() { return aubio_onset_get_thresholded_descriptor(onset.get()); }
+float OnsetAnalysis::getCurrentThreshold() {
+    return aubio_onset_get_thresholded_descriptor(onset.get());
+}
 
 } // namespace Audio::Aubio

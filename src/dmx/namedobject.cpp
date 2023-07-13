@@ -1,6 +1,3 @@
 #include "namedobject.h"
 
-namespace DMX{
-
-
-} // namespace DMX
+namespace DMX {} // namespace DMX

@@ -11,24 +11,24 @@
 #include <QtConcurrent/QtConcurrentRun>
 #include <quazip/JlCompress.h>
 
-QByteArray getFileContent(const QString & filename){
+QByteArray getFileContent(const QString &filename) {
     QFile file(filename);
-    if(!file.open(QIODevice::ReadOnly)){
-        qWarning() <<  "Failed to open file " << filename;
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "Failed to open file " << filename;
         return {"Failed to open file"};
     }
     return file.readAll();
 }
 
-Updater::Updater(){
-    if(!QFile::exists(QDir::currentPath() + "/Lichtsteuerung.exe")){
+Updater::Updater() {
+    if (!QFile::exists(QDir::currentPath() + "/Lichtsteuerung.exe")) {
         state = UpdaterState::IDE_ENV;
         emit stateChanged();
     }
 }
 
-void Updater::checkForUpdate(){
-    if(state == UpdaterState::IDE_ENV){
+void Updater::checkForUpdate() {
+    if (state == UpdaterState::IDE_ENV) {
         return;
     }
     if (!QFile::exists(VERSION_FILE_NAME)) {
@@ -85,8 +85,8 @@ void Updater::checkForUpdate(){
     });
 }
 
-void Updater::update(){
-    if(state != UpdaterState::UpdateAvailible) {
+void Updater::update() {
+    if (state != UpdaterState::UpdateAvailible) {
         qDebug() << "we are not in a state to make updates";
         return;
     }
@@ -170,8 +170,8 @@ void Updater::update(){
     });
 }
 
-void Updater::runUpdateInstaller(){
-    if(state != UpdaterState::ReadyToInstall){
+void Updater::runUpdateInstaller() {
+    if (state != UpdaterState::ReadyToInstall) {
         return;
     }
     QString from = deployPath;

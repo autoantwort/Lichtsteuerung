@@ -39,7 +39,9 @@ public:
     Q_INVOKABLE int getNumberOfOnsetDetectionFunctions() const { return static_cast<int>(Audio::Aubio::OnsetDetectionFunction::Last) + 1; }
     Q_INVOKABLE QString getNameOfOnsetDetectionFunctions(int f) const { return Audio::Aubio::toQString(Audio::Aubio::toOnsetDetectionFunction(f)); }
 
-    Q_INVOKABLE void enableDetectionFor(int onsetDetectionFunction, DataType type, bool enabled = true) { enableDetectionFor(Audio::Aubio::toOnsetDetectionFunction(onsetDetectionFunction), type, enabled); }
+    Q_INVOKABLE void enableDetectionFor(int onsetDetectionFunction, DataType type, bool enabled = true) {
+        enableDetectionFor(Audio::Aubio::toOnsetDetectionFunction(onsetDetectionFunction), type, enabled);
+    }
     void enableDetectionFor(Audio::Aubio::OnsetDetectionFunction onsetDetectionFunction, DataType type, bool enabled = true);
 
     Q_INVOKABLE bool isDetectionEnabledFor(int onsetDetectionFunction, DataType type) { return isDetectionEnabledFor(Audio::Aubio::toOnsetDetectionFunction(onsetDetectionFunction), type); }

@@ -9,8 +9,7 @@ namespace Modules {
 /**
  * @brief The SaveObject interface defines Methods to save Primitive data
  */
-class SaveObject
-{
+class SaveObject {
 public:
     virtual void saveInt(const char *name, int) = 0;
     virtual void saveFloat(const char *name, float) = 0;
@@ -23,8 +22,7 @@ public:
 /**
  * @brief The LoadObject interface defines methods to load Primitive data
  */
-class LoadObject
-{
+class LoadObject {
 public:
     virtual int loadInt(const char *name, int defaultValue) const = 0;
     virtual float loadFloat(const char *name, float defaultValue) const = 0;
@@ -43,7 +41,7 @@ public:
 /**
  * @brief A Superclass for objects that can be load and stored
  */
-class Serilerizeable{
+class Serilerizeable {
 public:
     virtual void save(SaveObject &s) const = 0;
     virtual void load(const LoadObject &l) = 0;

@@ -12,36 +12,36 @@
 
 #define MAKE_STRING(s) #s
 
-#define ThemeColorProperty(type, paramType, name, defaultLight, defaultDark)                                                                                                                                                                                                                               \
-private:                                                                                                                                                                                                                                                                                                   \
-    Q_PROPERTY(type name READ get##name WRITE set##name NOTIFY name##Changed RESET reset##name)                                                                                                                                                                                                            \
-public:                                                                                                                                                                                                                                                                                                    \
-    type get##name() {                                                                                                                                                                                                                                                                                     \
-        if (getTheme() == 0) {                                                                                                                                                                                                                                                                             \
-            if (auto v = value(QStringLiteral(MAKE_STRING(light##name))); !v.isNull()) {                                                                                                                                                                                                                   \
-                return v.value<type>();                                                                                                                                                                                                                                                                    \
-            }                                                                                                                                                                                                                                                                                              \
-            return defaultLight;                                                                                                                                                                                                                                                                           \
-        }                                                                                                                                                                                                                                                                                                  \
-        if (auto v = value(QStringLiteral(MAKE_STRING(dark##name))); !v.isNull()) {                                                                                                                                                                                                                        \
-            return v.value<type>();                                                                                                                                                                                                                                                                        \
-        }                                                                                                                                                                                                                                                                                                  \
-        return defaultDark;                                                                                                                                                                                                                                                                                \
-    }                                                                                                                                                                                                                                                                                                      \
-    void set##name(paramType c) {                                                                                                                                                                                                                                                                          \
-        if (getTheme() == 0) {                                                                                                                                                                                                                                                                             \
-            if (c != get##name()) {                                                                                                                                                                                                                                                                        \
-                setValue(QStringLiteral(MAKE_STRING(light##name)), c);                                                                                                                                                                                                                                     \
-                emit name##Changed();                                                                                                                                                                                                                                                                      \
-            }                                                                                                                                                                                                                                                                                              \
-        }                                                                                                                                                                                                                                                                                                  \
-        if (c != get##name()) {                                                                                                                                                                                                                                                                            \
-            setValue(QStringLiteral(MAKE_STRING(dark##name)), c);                                                                                                                                                                                                                                          \
-            emit name##Changed();                                                                                                                                                                                                                                                                          \
-        }                                                                                                                                                                                                                                                                                                  \
-    }                                                                                                                                                                                                                                                                                                      \
-    void reset##name() { set##name(getTheme() == 0 ? (defaultLight) : (defaultDark)); }                                                                                                                                                                                                                    \
-Q_SIGNALS:                                                                                                                                                                                                                                                                                                 \
+#define ThemeColorProperty(type, paramType, name, defaultLight, defaultDark)                                                                                                                           \
+private:                                                                                                                                                                                               \
+    Q_PROPERTY(type name READ get##name WRITE set##name NOTIFY name##Changed RESET reset##name)                                                                                                        \
+public:                                                                                                                                                                                                \
+    type get##name() {                                                                                                                                                                                 \
+        if (getTheme() == 0) {                                                                                                                                                                         \
+            if (auto v = value(QStringLiteral(MAKE_STRING(light##name))); !v.isNull()) {                                                                                                               \
+                return v.value<type>();                                                                                                                                                                \
+            }                                                                                                                                                                                          \
+            return defaultLight;                                                                                                                                                                       \
+        }                                                                                                                                                                                              \
+        if (auto v = value(QStringLiteral(MAKE_STRING(dark##name))); !v.isNull()) {                                                                                                                    \
+            return v.value<type>();                                                                                                                                                                    \
+        }                                                                                                                                                                                              \
+        return defaultDark;                                                                                                                                                                            \
+    }                                                                                                                                                                                                  \
+    void set##name(paramType c) {                                                                                                                                                                      \
+        if (getTheme() == 0) {                                                                                                                                                                         \
+            if (c != get##name()) {                                                                                                                                                                    \
+                setValue(QStringLiteral(MAKE_STRING(light##name)), c);                                                                                                                                 \
+                emit name##Changed();                                                                                                                                                                  \
+            }                                                                                                                                                                                          \
+        }                                                                                                                                                                                              \
+        if (c != get##name()) {                                                                                                                                                                        \
+            setValue(QStringLiteral(MAKE_STRING(dark##name)), c);                                                                                                                                      \
+            emit name##Changed();                                                                                                                                                                      \
+        }                                                                                                                                                                                              \
+    }                                                                                                                                                                                                  \
+    void reset##name() { set##name(getTheme() == 0 ? (defaultLight) : (defaultDark)); }                                                                                                                \
+Q_SIGNALS:                                                                                                                                                                                             \
     void name##Changed();
 
 class Settings : public QObject {
@@ -73,12 +73,12 @@ public:
      * @brief setLocalSettingFile sets a localSetting file that is loaded and preferred everytime a Settings object is created
      * @param settingFile the filePath to the local setting file in utf8 ini format
      */
-    static void setLocalSettingFile(const QFileInfo & settingFile){
-        localSettingsFile = settingFile;
-    }
+    static void setLocalSettingFile(const QFileInfo &settingFile) { localSettingsFile = settingFile; }
+
 protected:
     void setValue(const QString &key, const QVariant &value);
-    QVariant value(const QString &key, const QVariant &defaultValue = QVariant())const;
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+
 public:
     explicit Settings(QObject *parent = nullptr);
     static Settings *getLastCreated() { return lastSettings; }
@@ -113,74 +113,68 @@ public:
      * @brief shouldLoadFromSettingsPath indicates, if the settings should be loaded and not saved to the json settings path
      * @return true if the settings should be loaded from the path, false if the settings should be saved to the path
      */
-    [[nodiscard]] bool shouldLoadFromSettingsPath() const {
-        return loadFromJsonSettingsFilePath;
-    }
+    [[nodiscard]] bool shouldLoadFromSettingsPath() const { return loadFromJsonSettingsFilePath; }
 
-    void setDriverFilePath(const QString& file){
-        if(file == getDriverFilePath()) {
+    void setDriverFilePath(const QString &file) {
+        if (file == getDriverFilePath()) {
             return;
         }
-        if(QFile::exists(file)){
-            setValue(QStringLiteral("driverFilePath"),file);
+        if (QFile::exists(file)) {
+            setValue(QStringLiteral("driverFilePath"), file);
             emit driverFilePathChanged();
         }
     }
-    QString getDriverFilePath()const{return value(QStringLiteral("driverFilePath")).toString();}
+    QString getDriverFilePath() const { return value(QStringLiteral("driverFilePath")).toString(); }
 
-    void setUpdatePauseInMs(unsigned int pause){setValue(QStringLiteral("updatePauseInMs"),pause);emit updatePauseInMsChanged();}
-    unsigned int getUpdatePauseInMs()const{return value(QStringLiteral("updatePauseInMs")).toUInt();}
-    void setModuleDirPath( const QString &_moduleDirPath){
-        if(_moduleDirPath == getModuleDirPath()) {
+    void setUpdatePauseInMs(unsigned int pause) {
+        setValue(QStringLiteral("updatePauseInMs"), pause);
+        emit updatePauseInMsChanged();
+    }
+    unsigned int getUpdatePauseInMs() const { return value(QStringLiteral("updatePauseInMs")).toUInt(); }
+    void setModuleDirPath(const QString &_moduleDirPath) {
+        if (_moduleDirPath == getModuleDirPath()) {
             return;
         }
-        if(!QDir(_moduleDirPath).exists()) {
+        if (!QDir(_moduleDirPath).exists()) {
             return;
         }
-        setValue(QStringLiteral("moduleDirPath"),_moduleDirPath);
+        setValue(QStringLiteral("moduleDirPath"), _moduleDirPath);
         emit moduleDirPathChanged();
     }
 
-    QString getModuleDirPath() const {
-        return value(QStringLiteral("moduleDirPath")).toString();
-    }
+    QString getModuleDirPath() const { return value(QStringLiteral("moduleDirPath")).toString(); }
 
-    void setCompilerPath( const QString &_compilerPath){
-        if(_compilerPath != Modules::Compiler::compilerCmd){
-            setValue(QStringLiteral("compilerCmd"),_compilerPath);
+    void setCompilerPath(const QString &_compilerPath) {
+        if (_compilerPath != Modules::Compiler::compilerCmd) {
+            setValue(QStringLiteral("compilerCmd"), _compilerPath);
             Modules::Compiler::compilerCmd = _compilerPath;
             emit compilerPathChanged();
         }
     }
-    QString getCompilerPath() const {
-        return Modules::Compiler::compilerCmd;
+    QString getCompilerPath() const { return Modules::Compiler::compilerCmd; }
+    void setIncludePath(const QString &_includePath) {
+        if (_includePath != Modules::Compiler::includePath) {
+            Modules::Compiler::includePath = _includePath;
+            setValue(QStringLiteral("includePath"), _includePath);
+            emit includePathChanged();
+        }
     }
-    void setIncludePath( const QString &_includePath){
-            if(_includePath != Modules::Compiler::includePath){
-                    Modules::Compiler::includePath = _includePath;
-                    setValue(QStringLiteral("includePath"),_includePath);
-                    emit includePathChanged();
-            }
-    }
-    QString getIncludePath() const {
-            return Modules::Compiler::includePath;
-    }
+    QString getIncludePath() const { return Modules::Compiler::includePath; }
 
-    void setCompilerFlags( const QString &_compilerFlags){
-      if(_compilerFlags != Modules::Compiler::compilerFlags){
-          setValue(QStringLiteral("compilerFlags"),_compilerFlags);
-        Modules::Compiler::compilerFlags = _compilerFlags;
-        emit compilerFlagsChanged();
-      }
+    void setCompilerFlags(const QString &_compilerFlags) {
+        if (_compilerFlags != Modules::Compiler::compilerFlags) {
+            setValue(QStringLiteral("compilerFlags"), _compilerFlags);
+            Modules::Compiler::compilerFlags = _compilerFlags;
+            emit compilerFlagsChanged();
+        }
     }
-    QString getCompilerFlags() const {
-        return Modules::Compiler::compilerFlags;
-    }
+    QString getCompilerFlags() const { return Modules::Compiler::compilerFlags; }
 
-    void setCompilerLibraryFlags( const QString &_compilerLibraryFlags){
-        if(_compilerLibraryFlags != Modules::Compiler::compilerLibraryFlags){
-            setValue(QStringLiteral("compilerLibraryFlags"),_compilerLibraryFlags);
-            Modules::Compiler::compilerLibraryFlags = _compilerLibraryFlags; emit compilerLibraryFlagsChanged();
+    void setCompilerLibraryFlags(const QString &_compilerLibraryFlags) {
+        if (_compilerLibraryFlags != Modules::Compiler::compilerLibraryFlags) {
+            setValue(QStringLiteral("compilerLibraryFlags"), _compilerLibraryFlags);
+            Modules::Compiler::compilerLibraryFlags = _compilerLibraryFlags;
+            emit compilerLibraryFlagsChanged();
         }
     }
     QString getCompilerLibraryFlags() const { return Modules::Compiler::compilerLibraryFlags; }
@@ -232,25 +226,21 @@ public:
     }
     int getTheme() { return value(QStringLiteral("theme")).toInt(); }
 
-    ThemeColorProperty(QColor, const QColor &, foregroundColor, QColor(Qt::black), QColor(0xfa, 0xfa, 0xfa))
-    ThemeColorProperty(int, int, foregroundMaterial, -1, -1)
-    ThemeColorProperty(int, int, foregroundShade, -1, -1)
-    ThemeColorProperty(QColor, const QColor &, backgroundColor, QColor(0xfa, 0xfa, 0xfa), QColor(0x30, 0x30, 0x30))
-    ThemeColorProperty(int, int, backgroundMaterial, -1, -1)
-    ThemeColorProperty(int, int, backgroundShade, -1, -1)
-    ThemeColorProperty(QColor, const QColor &, accentColor, QColor(0xE9, 0x1E, 0x63), QColor(0xF4, 0x8F, 0xB1))
-    ThemeColorProperty(int, int, accentMaterial, 1, 1)
-    ThemeColorProperty(int, int, accentShade, -1, -1)
-public:
-    enum PopupBackgroundEffect { Dim, Blur };
+    ThemeColorProperty(QColor, const QColor &, foregroundColor, QColor(Qt::black), QColor(0xfa, 0xfa, 0xfa)) ThemeColorProperty(int, int, foregroundMaterial, -1, -1)
+        ThemeColorProperty(int, int, foregroundShade, -1, -1) ThemeColorProperty(QColor, const QColor &, backgroundColor, QColor(0xfa, 0xfa, 0xfa), QColor(0x30, 0x30, 0x30))
+            ThemeColorProperty(int, int, backgroundMaterial, -1, -1) ThemeColorProperty(int, int, backgroundShade, -1, -1)
+                ThemeColorProperty(QColor, const QColor &, accentColor, QColor(0xE9, 0x1E, 0x63), QColor(0xF4, 0x8F, 0xB1)) ThemeColorProperty(int, int, accentMaterial, 1, 1)
+                    ThemeColorProperty(int, int, accentShade, -1, -1) public : enum PopupBackgroundEffect {
+                        Dim,
+                        Blur
+                    };
     Q_ENUM(PopupBackgroundEffect)
     enum PopupBackgroundEffectIntensity { Weak, Normal, Strong };
     Q_ENUM(PopupBackgroundEffectIntensity)
     ThemeColorProperty(PopupBackgroundEffect, PopupBackgroundEffect, popupBackgroundEffect, Dim, Blur)
-    ThemeColorProperty(PopupBackgroundEffectIntensity, PopupBackgroundEffectIntensity, popupBackgroundEffectIntensity, Normal, Normal)
+        ThemeColorProperty(PopupBackgroundEffectIntensity, PopupBackgroundEffectIntensity, popupBackgroundEffectIntensity, Normal, Normal)
 
-signals:
-    void jsonSettingsFilePathChanged();
+            signals : void jsonSettingsFilePathChanged();
     void driverFilePathChanged();
     void updatePauseInMsChanged();
     void moduleDirPathChanged();

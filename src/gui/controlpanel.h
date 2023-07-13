@@ -6,16 +6,15 @@
 #include "modules/programblock.h"
 #include <QQuickItem>
 
-namespace GUI{
+namespace GUI {
 
 /**
  * @brief The ControlPanel is the Component, that holds multiple ControlItems
  */
-class ControlPanel : public QQuickItem
-{
+class ControlPanel : public QQuickItem {
     Q_OBJECT
-    static ControlPanel * lastCreated;
-    static QQmlEngine * engine;
+    static ControlPanel *lastCreated;
+    static QQmlEngine *engine;
     Q_PROPERTY(int menuHeight READ getMenuHeight WRITE setMenuHeight NOTIFY menuHeightChanged)
     Q_PROPERTY(int menuWidth READ getMenuWidth WRITE setMenuWidth NOTIFY menuWidthChanged)
     QQmlComponent programm;
@@ -24,20 +23,22 @@ class ControlPanel : public QQuickItem
     QQmlComponent programBlock;
     int menuHeight{};
     int menuWidth{};
+
 protected:
     /**
      * @brief createControlItem creates an ControlItem defined by component and set the ControlItemData field of the ControlData to data
      * @param component The component that should be defined, must be a subclass of "qrc:/ControlPane/ControlItem.qml"
      * @param data The DataObject that holds the information, this object is owned by the instance created from the component
      */
-    void createControlItem(QQmlComponent & component, ControlItemData * data);
+    void createControlItem(QQmlComponent &component, ControlItemData *data);
+
 public:
     ControlPanel();
-    static ControlPanel * getLastCreated(){return lastCreated;}
-    static void setQmlEngine(QQmlEngine * e){engine=e;}
+    static ControlPanel *getLastCreated() { return lastCreated; }
+    static void setQmlEngine(QQmlEngine *e) { engine = e; }
     void loadFromJsonObject(const QJsonObject &o);
     void writeJsonObject(QJsonObject &o);
-    Q_INVOKABLE void addProgrammControl(DMX::Programm * programm);
+    Q_INVOKABLE void addProgrammControl(DMX::Programm *programm);
     /**
      * @brief addSwitchGroupControl add a SwitchControlItem to enable and disable Devices to the panel
      */
@@ -50,19 +51,30 @@ public:
      * @brief addProgramBlockControl adds a ProgramBlockControlItem to the panel to start and stop Programblocks
      * @param programBlock the ProgramBlock that the controlItem should control
      */
-    Q_INVOKABLE void addProgramBlockControl(Modules::ProgramBlock * programBlock);
-    int getMenuHeight()const{return menuHeight;}
-    int getMenuWidth ()const{return menuWidth;}
-    void setMenuHeight(int i){if(i!=menuHeight){menuHeight=i;emit menuHeightChanged();}}
-    void setMenuWidth (int i){if(i!=menuWidth ){menuWidth =i;emit menuWidthChanged ();}}
+    Q_INVOKABLE void addProgramBlockControl(Modules::ProgramBlock *programBlock);
+    int getMenuHeight() const { return menuHeight; }
+    int getMenuWidth() const { return menuWidth; }
+    void setMenuHeight(int i) {
+        if (i != menuHeight) {
+            menuHeight = i;
+            emit menuHeightChanged();
+        }
+    }
+    void setMenuWidth(int i) {
+        if (i != menuWidth) {
+            menuWidth = i;
+            emit menuWidthChanged();
+        }
+    }
 signals:
     void menuHeightChanged();
     void menuWidthChanged();
     void exitMenuArea();
+
 protected:
-    void hoverEnterEvent(QHoverEvent * event)override;
-    void hoverMoveEvent(QHoverEvent * event)override;
-    void hoverLeaveEvent(QHoverEvent * event)override;
+    void hoverEnterEvent(QHoverEvent *event) override;
+    void hoverMoveEvent(QHoverEvent *event) override;
+    void hoverLeaveEvent(QHoverEvent *event) override;
 
 public slots:
 };

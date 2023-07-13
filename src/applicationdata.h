@@ -4,7 +4,7 @@
 #include <QFile>
 #include <functional>
 
-namespace ApplicationData{
+namespace ApplicationData {
 
 /**
  * @brief saveData saves all application data into the given file
