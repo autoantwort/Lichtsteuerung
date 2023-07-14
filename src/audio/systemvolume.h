@@ -85,9 +85,7 @@ public:
         return sv;
     }
     ~SystemVolume() override;
-    [[nodiscard]] double getVolume() const {
-        return volume;
-    }
+    [[nodiscard]] double getVolume() const { return volume; }
     void setVolume(double volume);
 signals:
     void volumeChanged();
