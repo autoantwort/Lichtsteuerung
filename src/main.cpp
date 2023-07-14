@@ -321,7 +321,7 @@ int main(int argc, char *argv[]) {
     // nachdem die Benutzer geladen wurden, auto login durchführen
     UserManagment::get()->autoLoginUser();
 
-    //#warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
+    // #warning Dont use IDBase<xxxxx>::getAllIDBases() in this file. It will crash the aplication when its closing
 
     std::thread t(Test::testLoopProgramm);
     t.join();

@@ -52,7 +52,7 @@
 #include <string>
 
 // disable Warning for char * as return type in extern "C" Block with clang
-//#pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
+// #pragma GCC diagnostic ignored "-Wreturn-type-c-linkage"
 
 #if defined(__APPLE__) || defined(__linux__)
 #define MODULE_EXPORT
