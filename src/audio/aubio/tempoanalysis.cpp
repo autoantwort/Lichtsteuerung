@@ -7,7 +7,8 @@ namespace Audio::Aubio {
 using namespace C_API;
 
 TempoAnalysis::TempoAnalysis(OnsetDetectionFunction onsetDetectionFunction, uint_t fftSize, uint_t stepSize, uint_t sampleRate)
-    : tempo(new_aubio_tempo(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_tempo), inputData{stepSize, nullptr} {}
+    : tempo(new_aubio_tempo(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_tempo)
+    , inputData{stepSize, nullptr} {}
 
 bool TempoAnalysis::processNewSamples(float *newSamples) {
     // setup the data structures

@@ -1,7 +1,9 @@
 #include "scanner.h"
 
 Scanner::Scanner(QVector3D scannerPosition, float scannerRotationInRoomInDegree, float scannerTiltInDegree)
-    : scannerPosition(scannerPosition), scannerRotationInRoom(scannerRotationInRoomInDegree), scannerTilt(scannerTiltInDegree) {
+    : scannerPosition(scannerPosition)
+    , scannerRotationInRoom(scannerRotationInRoomInDegree)
+    , scannerTilt(scannerTiltInDegree) {
     recomputeTransformation();
 }
 

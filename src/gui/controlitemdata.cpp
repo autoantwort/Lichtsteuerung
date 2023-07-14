@@ -81,8 +81,13 @@ ControlItemData::ControlItemData(Type t, QObject *parent) : QObject(parent), typ
 }
 
 ControlItemData::ControlItemData(const QJsonObject &o, QObject *parent)
-    : QObject(parent), startXBlock(o["startXBlock"].toInt()), startYBlock(o["startYBlock"].toInt()), mobileStartXBlock(o["mobileStartXBlock"].toInt(startXBlock)),
-      mobileStartYBlock(o["mobileStartYBlock"].toInt(startYBlock)), userVisibilityModel(o), type(static_cast<Type>(o["type"].toInt())) {
+    : QObject(parent)
+    , startXBlock(o["startXBlock"].toInt())
+    , startYBlock(o["startYBlock"].toInt())
+    , mobileStartXBlock(o["mobileStartXBlock"].toInt(startXBlock))
+    , mobileStartYBlock(o["mobileStartYBlock"].toInt(startYBlock))
+    , userVisibilityModel(o)
+    , type(static_cast<Type>(o["type"].toInt())) {
     userChangedConnection = QObject::connect(UserManagment::get(), &UserManagment::currentUserChanged, [this]() {
         emit isVisibleForUserChanged();
         propertyChangedForRemote("isVisibleForUser", isVisibleForUser() ? "true" : "false");
@@ -323,7 +328,10 @@ void SwitchGroupControlItemData::setInitialValuesForRemote(std::function<void(QS
 }
 
 SwitchGroupControlItemData::SwitchGroupControlItemData(const QJsonObject &o, QObject *parent)
-    : GroupControlItemData(o, parent), activated(o["activated"].toBool()), activateCooldown(o["activateCooldown"].toInt()), deactivateCooldown(o["deactivateCooldown"].toInt()) {
+    : GroupControlItemData(o, parent)
+    , activated(o["activated"].toBool())
+    , activateCooldown(o["activateCooldown"].toInt())
+    , deactivateCooldown(o["deactivateCooldown"].toInt()) {
     initRemoteProperties();
 }
 
@@ -437,8 +445,13 @@ void DimmerGroupControlItemData::setInitialValuesForRemote(std::function<void(QS
 }
 
 DimmerGroupControlItemData::DimmerGroupControlItemData(const QJsonObject &o)
-    : GroupControlItemData(o), maxOperation(static_cast<Operation>(o["maxOperation"].toInt())), minOperation(static_cast<Operation>(o["minOperation"].toInt())), maxValue(o["maxValue"].toInt()),
-      minValue(o["minValue"].toInt()), value(o["value"].toInt()), shouldOverrideValue_(o["shouldOverride"].toBool()) {
+    : GroupControlItemData(o)
+    , maxOperation(static_cast<Operation>(o["maxOperation"].toInt()))
+    , minOperation(static_cast<Operation>(o["minOperation"].toInt()))
+    , maxValue(o["maxValue"].toInt())
+    , minValue(o["minValue"].toInt())
+    , value(o["value"].toInt())
+    , shouldOverrideValue_(o["shouldOverride"].toBool()) {
     initRemoteProperties();
 }
 

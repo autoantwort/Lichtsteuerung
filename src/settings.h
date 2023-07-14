@@ -226,21 +226,25 @@ public:
     }
     int getTheme() { return value(QStringLiteral("theme")).toInt(); }
 
-    ThemeColorProperty(QColor, const QColor &, foregroundColor, QColor(Qt::black), QColor(0xfa, 0xfa, 0xfa)) ThemeColorProperty(int, int, foregroundMaterial, -1, -1)
-        ThemeColorProperty(int, int, foregroundShade, -1, -1) ThemeColorProperty(QColor, const QColor &, backgroundColor, QColor(0xfa, 0xfa, 0xfa), QColor(0x30, 0x30, 0x30))
-            ThemeColorProperty(int, int, backgroundMaterial, -1, -1) ThemeColorProperty(int, int, backgroundShade, -1, -1)
-                ThemeColorProperty(QColor, const QColor &, accentColor, QColor(0xE9, 0x1E, 0x63), QColor(0xF4, 0x8F, 0xB1)) ThemeColorProperty(int, int, accentMaterial, 1, 1)
-                    ThemeColorProperty(int, int, accentShade, -1, -1) public : enum PopupBackgroundEffect {
-                        Dim,
-                        Blur
-                    };
+    ThemeColorProperty(QColor, const QColor &, foregroundColor, QColor(Qt::black), QColor(0xfa, 0xfa, 0xfa))
+    ThemeColorProperty(int, int, foregroundMaterial, -1, -1)
+    ThemeColorProperty(int, int, foregroundShade, -1, -1)
+    ThemeColorProperty(QColor, const QColor &, backgroundColor, QColor(0xfa, 0xfa, 0xfa), QColor(0x30, 0x30, 0x30))
+    ThemeColorProperty(int, int, backgroundMaterial, -1, -1)
+    ThemeColorProperty(int, int, backgroundShade, -1, -1)
+    ThemeColorProperty(QColor, const QColor &, accentColor, QColor(0xE9, 0x1E, 0x63), QColor(0xF4, 0x8F, 0xB1))
+    ThemeColorProperty(int, int, accentMaterial, 1, 1)
+    ThemeColorProperty(int, int, accentShade, -1, -1)
+public:
+    enum PopupBackgroundEffect { Dim, Blur };
     Q_ENUM(PopupBackgroundEffect)
     enum PopupBackgroundEffectIntensity { Weak, Normal, Strong };
     Q_ENUM(PopupBackgroundEffectIntensity)
     ThemeColorProperty(PopupBackgroundEffect, PopupBackgroundEffect, popupBackgroundEffect, Dim, Blur)
-        ThemeColorProperty(PopupBackgroundEffectIntensity, PopupBackgroundEffectIntensity, popupBackgroundEffectIntensity, Normal, Normal)
+    ThemeColorProperty(PopupBackgroundEffectIntensity, PopupBackgroundEffectIntensity, popupBackgroundEffectIntensity, Normal, Normal)
 
-            signals : void jsonSettingsFilePathChanged();
+signals:
+    void jsonSettingsFilePathChanged();
     void driverFilePathChanged();
     void updatePauseInMsChanged();
     void moduleDirPathChanged();

@@ -49,7 +49,10 @@ public:
     Q_PROPERTY(bool closeAfterCompletion MEMBER closeAfterCompletion CONSTANT)
 public:
     CodeCompletionEntry(QString completion, QString type, QString description, bool closeAfterCompletion = true)
-        : type(type.trimmed()), description(description), completion(completion.trimmed()), closeAfterCompletion(closeAfterCompletion) {}
+        : type(type.trimmed())
+        , description(description)
+        , completion(completion.trimmed())
+        , closeAfterCompletion(closeAfterCompletion) {}
 };
 
 class PossibleCodeCompletions : public ModelVector<CodeCompletionEntry *> {

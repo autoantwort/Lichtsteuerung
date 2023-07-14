@@ -13,7 +13,10 @@ std::vector<T> createVector(const QJsonValue &value) {
 }
 
 AudioAnalysisObject::AudioAnalysisObject(const QJsonObject &object)
-    : bars(createVector<TimeIntervalObject>(object["bars"])), beats(createVector<TimeIntervalObject>(object["beats"])), sections(createVector<SectionObject>(object["sections"])),
-      segments(createVector<SegmentObject>(object["segments"])), tatums(createVector<TimeIntervalObject>(object["tatums"])) {}
+    : bars(createVector<TimeIntervalObject>(object["bars"]))
+    , beats(createVector<TimeIntervalObject>(object["beats"]))
+    , sections(createVector<SectionObject>(object["sections"]))
+    , segments(createVector<SegmentObject>(object["segments"]))
+    , tatums(createVector<TimeIntervalObject>(object["tatums"])) {}
 
 } // namespace Spotify::Objects

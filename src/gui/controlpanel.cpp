@@ -12,8 +12,10 @@ ControlPanel *ControlPanel::lastCreated = nullptr;
 QQmlEngine *ControlPanel::engine = nullptr;
 
 ControlPanel::ControlPanel()
-    : programm(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/ProgrammControl.qml"))), switchGroup(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/SwitchGroupControl.qml"))),
-      dimmerGroup(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/DimmerGroupControl.qml"))), programBlock(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/ProgramBlockControl.qml"))) {
+    : programm(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/ProgrammControl.qml")))
+    , switchGroup(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/SwitchGroupControl.qml")))
+    , dimmerGroup(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/DimmerGroupControl.qml")))
+    , programBlock(engine, QUrl(QStringLiteral("qrc:/qml/ControlPane/ProgramBlockControl.qml"))) {
     lastCreated = this;
     if (engine == nullptr) {
         throw std::runtime_error("Kein Kontext gesetzt!");

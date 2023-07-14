@@ -60,7 +60,9 @@ class AudioCaptureManager : public QObject {
         EventSeries events;
         float currentConfidence;
         TempoAnalysis(Aubio::OnsetDetectionFunction onsetDetectionFunction, int fftSize, int stepSize, int sampleRate)
-            : tempoAnalysis(onsetDetectionFunction, fftSize, stepSize, sampleRate), events(sampleRate), currentConfidence(0) {}
+            : tempoAnalysis(onsetDetectionFunction, fftSize, stepSize, sampleRate)
+            , events(sampleRate)
+            , currentConfidence(0) {}
         operator TempoAnalysisData() { return {&events, &currentConfidence}; }
     };
     /**

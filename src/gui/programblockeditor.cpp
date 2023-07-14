@@ -9,7 +9,8 @@ QQmlEngine *GUI::ProgramBlockEditor::engine = nullptr;
 namespace GUI {
 
 ProgramBlockEditor::ProgramBlockEditor()
-    : programBlockEntry(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockEntry.qml"))), programBlockConnection(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockConnection.qml"))) {
+    : programBlockEntry(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockEntry.qml")))
+    , programBlockConnection(engine, QUrl(QStringLiteral("qrc:/qml/Modules/ProgramBlockConnection.qml"))) {
     setAcceptedMouseButtons(Qt::AllButtons);
     /*QQuickItem *c1 ;
     if(programBlockEntry.isReady()){

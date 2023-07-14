@@ -61,7 +61,9 @@ public:
         @param container The container to construct from
     */
     template <class ContiguousContainer>
-    explicit FFTOutputView(ContiguousContainer &&container, int sampleRate) : data_(container.data()), size_(container.size()), sampleRate_(sampleRate) {}
+    explicit FFTOutputView(ContiguousContainer &&container, int sampleRate) : data_(container.data())
+                                                                            , size_(container.size())
+                                                                            , sampleRate_(sampleRate) {}
 
     /// Assignment
     template <class ContiguousContainer>

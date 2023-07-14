@@ -6,8 +6,11 @@
 namespace DMX {
 
 Device::Device(const QJsonObject &o)
-    : NamedObject(o), IDBase<Device>(o), prototype(ModelManager::get().getDevicePrototypeById(o["prototype"])), startDMXChannel(o["startDMXChannel"].toInt()),
-      position(o["position"].toObject()["x"].toInt(), o["position"].toObject()["y"].toInt()) {
+    : NamedObject(o)
+    , IDBase<Device>(o)
+    , prototype(ModelManager::get().getDevicePrototypeById(o["prototype"]))
+    , startDMXChannel(o["startDMXChannel"].toInt())
+    , position(o["position"].toObject()["x"].toInt(), o["position"].toObject()["y"].toInt()) {
     if (prototype == nullptr) {
         std::cerr << "Availible Device Prototypes : ";
         for (const auto &r : ModelManager::get().getDevicePrototypes()) {

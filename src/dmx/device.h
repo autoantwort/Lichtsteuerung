@@ -44,7 +44,10 @@ public:
     Device(const QJsonObject &o);
 
     Device(DevicePrototype *prototype, int startDMXChannel, QString name, QString desciption = "", QPoint position = QPoint(-1, -1))
-        : NamedObject(name, desciption), prototype(prototype), startDMXChannel(startDMXChannel), position(position) {
+        : NamedObject(name, desciption)
+        , prototype(prototype)
+        , startDMXChannel(startDMXChannel)
+        , position(position) {
         connect(prototype, &DevicePrototype::channelAdded, this, &Device::channelAdded);
         for (auto i = prototype->getChannels().cbegin(); i != prototype->getChannels().cend(); ++i) {
             filter.emplace_back(i->get(), std::make_unique<DMXChannelFilter>());

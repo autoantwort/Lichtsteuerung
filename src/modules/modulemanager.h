@@ -224,7 +224,10 @@ namespace detail {
     public:
         int libraryIdentifier = -1;
         Entry(const std::string &name, const std::string &description, int libraryIdentifier = -1, CreateFunction func = nullptr)
-            : createFunc(func), name_(name), description_(description), libraryIdentifier(libraryIdentifier) {}
+            : createFunc(func)
+            , name_(name)
+            , description_(description)
+            , libraryIdentifier(libraryIdentifier) {}
         const std::string &name() const { return name_; }
         const std::string &description() const { return description_; }
         T *create() const {

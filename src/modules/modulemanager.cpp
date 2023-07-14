@@ -18,8 +18,12 @@ namespace Modules {
 namespace detail {
 
     PropertyInformation::PropertyInformation(const QJsonObject &o)
-        : name(o["name"].toString("no name")), description(o["description"].toString()), type(static_cast<Type>(o["type"].toInt())), max(o["maxValue"].toInt()), min(o["minValue"].toInt()),
-          defaultValue(o["defaultValue"].toInt()) {}
+        : name(o["name"].toString("no name"))
+        , description(o["description"].toString())
+        , type(static_cast<Type>(o["type"].toInt()))
+        , max(o["maxValue"].toInt())
+        , min(o["minValue"].toInt())
+        , defaultValue(o["defaultValue"].toInt()) {}
 
     void PropertyInformation::writeJsonObject(QJsonObject &o) const {
         o["type"] = type;
@@ -33,9 +37,14 @@ namespace detail {
 } // namespace detail
 
 Module::Module(const QJsonObject &o)
-    : name(o["name"].toString("no name")), compiledName(o["compiledName"].toString()), description(o["description"].toString()), code(o["code"].toString()),
-      inputType(static_cast<ValueType>(o["inputType"].toInt())), outputType(static_cast<ValueType>(o["outputType"].toInt())), spotifyResponder(o["spotifyResponder"].toBool()),
-      type(static_cast<Type>(o["type"].toInt())) {
+    : name(o["name"].toString("no name"))
+    , compiledName(o["compiledName"].toString())
+    , description(o["description"].toString())
+    , code(o["code"].toString())
+    , inputType(static_cast<ValueType>(o["inputType"].toInt()))
+    , outputType(static_cast<ValueType>(o["outputType"].toInt()))
+    , spotifyResponder(o["spotifyResponder"].toBool())
+    , type(static_cast<Type>(o["type"].toInt())) {
     QJsonArray a = o["properties"].toArray();
     for (const auto i : a) {
         QJsonObject ob = i.toObject();

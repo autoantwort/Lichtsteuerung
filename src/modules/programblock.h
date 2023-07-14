@@ -31,7 +31,8 @@ namespace detail {
          * @brief Connection Verbindet den Input eines InputDataConsumers mit dem Output von OutputDataProducern
          * @param source Der InputConsumer
          */
-        explicit Connection(std::shared_ptr<Type> source) : sourceType(Filter), source(source) {
+        explicit Connection(std::shared_ptr<Type> source) : sourceType(Filter)
+                                                          , source(source) {
             static_assert(std::is_base_of<InputDataConsumer, Type>::value, "Der Typ ist keine Subklasse eines InputDataConsumer.");
             static_assert(std::is_base_of<Modules::Filter, Type>::value || std::is_base_of<Modules::Consumer, Type>::value, "Der Typ ist Filter oder Consumer.");
             if (std::is_base_of<Modules::Filter, Type>::value) {

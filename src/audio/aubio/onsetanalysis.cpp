@@ -8,7 +8,8 @@ namespace Audio::Aubio {
 using namespace C_API;
 
 OnsetAnalysis::OnsetAnalysis(OnsetDetectionFunction onsetDetectionFunction, uint_t fftSize, uint_t stepSize, uint_t sampleRate)
-    : onset(new_aubio_onset(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_onset), inputData{stepSize, nullptr} {}
+    : onset(new_aubio_onset(toName(onsetDetectionFunction), fftSize, stepSize, sampleRate), del_aubio_onset)
+    , inputData{stepSize, nullptr} {}
 
 bool OnsetAnalysis::processNewSamples(float *newSamples) {
     // setup the data structures

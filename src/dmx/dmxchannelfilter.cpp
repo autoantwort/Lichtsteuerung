@@ -6,8 +6,12 @@
 namespace DMX {
 
 DMXChannelFilter::DMXChannelFilter(const QJsonObject &o)
-    : maxOperation(static_cast<Operation>(o["maxOperation"].toInt())), minOperation(static_cast<Operation>(o["minOperation"].toInt())), maxValue(o["maxValue"].toInt()),
-      minValue(o["minValue"].toInt()), value(o["value"].toInt()), shouldOverrideValue_(o["shouldOverride"].toBool()) {}
+    : maxOperation(static_cast<Operation>(o["maxOperation"].toInt()))
+    , minOperation(static_cast<Operation>(o["minOperation"].toInt()))
+    , maxValue(o["maxValue"].toInt())
+    , minValue(o["minValue"].toInt())
+    , value(o["value"].toInt())
+    , shouldOverrideValue_(o["shouldOverride"].toBool()) {}
 
 void DMXChannelFilter::writeJsonData(QJsonObject &o) {
 

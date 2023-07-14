@@ -413,7 +413,10 @@ public:
     const int min, max, index;
     std::string message;
     IndexOutOfBoundsException(int min, int max, int index)
-        : min(min), max(max), index(index), message("IndexOutOfBoundsException min: "s + std::to_string(min) + " max: " + std::to_string(max) + " your index: " + std::to_string(index)) {}
+        : min(min)
+        , max(max)
+        , index(index)
+        , message("IndexOutOfBoundsException min: "s + std::to_string(min) + " max: " + std::to_string(max) + " your index: " + std::to_string(index)) {}
     virtual const char *what() const noexcept override { return message.c_str(); }
 };
 

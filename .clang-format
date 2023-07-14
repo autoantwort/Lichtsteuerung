@@ -22,4 +22,8 @@ PenaltyBreakBeforeFirstCallParameter: 100
 PenaltyBreakComment: 160
 PenaltyBreakFirstLessLess: 160
 PenaltyReturnTypeOnItsOwnLine: 180
+PackConstructorInitializers: CurrentLine
+BreakConstructorInitializers: BeforeComma
+StatementMacros:
+  - ThemeColorProperty
 ...

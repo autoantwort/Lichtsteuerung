@@ -132,7 +132,8 @@ TimePoint::TimePoint(const QJsonObject &o) : time(o["time"].toDouble()), value(o
 }
 
 ChannelProgramm::ChannelProgramm(const DevicePrototype *devicePrototype, const QJsonObject &o)
-    : repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt())), channel(devicePrototype->getChannelById(o["channel"].toString().toLongLong())) {
+    : repeatPolicy(RepeatPolicy(o["repeatPolicy"].toInt()))
+    , channel(devicePrototype->getChannelById(o["channel"].toString().toLongLong())) {
     setParent(getChannel());
     for (const auto p : o["timeline"].toArray()) {
         timeline.insert(p.toObject());

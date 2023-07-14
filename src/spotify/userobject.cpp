@@ -6,9 +6,15 @@
 namespace Spotify::Objects {
 
 UserObject::UserObject(const QJsonObject &object)
-    : display_name(getOptional<QString>(object, "display_name")), email(object["email"].toString()), refreshToken(object["refreshToken"].toString()), id(object["id"].toString()) {}
+    : display_name(getOptional<QString>(object, "display_name"))
+    , email(object["email"].toString())
+    , refreshToken(object["refreshToken"].toString())
+    , id(object["id"].toString()) {}
 UserObject::UserObject(const QJsonObject &object, const QString &refreshToken)
-    : display_name(getOptional<QString>(object, "display_name")), email(object["email"].toString()), refreshToken(refreshToken), id(object["id"].toString()) {}
+    : display_name(getOptional<QString>(object, "display_name"))
+    , email(object["email"].toString())
+    , refreshToken(refreshToken)
+    , id(object["id"].toString()) {}
 
 void UserObject::writeToJsonObject(QJsonObject &object) const {
     if (display_name) {

@@ -6,8 +6,12 @@
 namespace Spotify::Objects {
 
 CurrentPlayingObject::CurrentPlayingObject(const QJsonObject &object, const long receivedTimestamp)
-    : timestamp(static_cast<long>(object["timestamp"].toDouble())), receivedTimestamp(receivedTimestamp), progress_ms(getOptional<int>(object, "progress_ms")),
-      is_playing(object["is_playing"].toBool()), item(getOptional<TrackObject_full>(object, "item")), currently_playing_type(object["currently_playing_type"].toString()) {}
+    : timestamp(static_cast<long>(object["timestamp"].toDouble()))
+    , receivedTimestamp(receivedTimestamp)
+    , progress_ms(getOptional<int>(object, "progress_ms"))
+    , is_playing(object["is_playing"].toBool())
+    , item(getOptional<TrackObject_full>(object, "item"))
+    , currently_playing_type(object["currently_playing_type"].toString()) {}
 
 int CurrentPlayingObject::getProgressInMs() const {
     if (progress_ms) {

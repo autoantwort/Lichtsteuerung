@@ -35,7 +35,9 @@ public:
     TimeIntervalObject() = default;
 #ifdef CONVERT_FROM_SPOTIFY_OBJECTS
     template <typename T>
-    TimeIntervalObject(const T &o) : start(static_cast<int>(o.start * 1000)), duration(static_cast<int>(o.start * 1000)), confidence(o.confidence) {}
+    TimeIntervalObject(const T &o) : start(static_cast<int>(o.start * 1000))
+                                   , duration(static_cast<int>(o.start * 1000))
+                                   , confidence(o.confidence) {}
 #endif
 };
 
@@ -90,8 +92,16 @@ public:
     SectionObject() = default;
 #ifdef CONVERT_FROM_SPOTIFY_OBJECTS
     SectionObject(const Spotify::Objects::SectionObject &o)
-        : TimeIntervalObject(o), loudness(o.loudness), tempo(o.tempo), tempo_confidence(o.tempo_confidence), key(o.key), key_confidence(o.key_confidence), mode(o.mode),
-          mode_confidence(o.mode_confidence), time_signature(o.time_signature), time_signature_confidence(o.time_signature_confidence) {}
+        : TimeIntervalObject(o)
+        , loudness(o.loudness)
+        , tempo(o.tempo)
+        , tempo_confidence(o.tempo_confidence)
+        , key(o.key)
+        , key_confidence(o.key_confidence)
+        , mode(o.mode)
+        , mode_confidence(o.mode_confidence)
+        , time_signature(o.time_signature)
+        , time_signature_confidence(o.time_signature_confidence) {}
 #endif
 };
 /**
@@ -131,8 +141,13 @@ public:
     SegmentObject() = default;
 #ifdef CONVERT_FROM_SPOTIFY_OBJECTS
     SegmentObject(const Spotify::Objects::SegmentObject &o)
-        : TimeIntervalObject(o), loudness_start(o.loudness_start), loudness_max(o.loudness_max), loudness_max_time(static_cast<int>(o.loudness_max_time * 1000)), loudness_end(o.loudness_end),
-          pitches(o.pitches), timbre(o.timbre) {}
+        : TimeIntervalObject(o)
+        , loudness_start(o.loudness_start)
+        , loudness_max(o.loudness_max)
+        , loudness_max_time(static_cast<int>(o.loudness_max_time * 1000))
+        , loudness_end(o.loudness_end)
+        , pitches(o.pitches)
+        , timbre(o.timbre) {}
 #endif
 };
 
@@ -209,8 +224,19 @@ public:
     int progress_ms = 0;
 #ifdef CONVERT_FROM_SPOTIFY_OBJECTS
     TrackObject(const Spotify::Objects::AudioFeaturesObject &af, const Spotify::Objects::TrackObject_full &t)
-        : duration_ms(af.duration_ms), acousticness(af.acousticness), energy(af.energy), instrumentalness(af.instrumentalness), key(af.key), liveness(af.liveness), loudness(af.loudness),
-          mode(af.mode), speechiness(af.speechiness), tempo(af.tempo), time_signature(af.time_signature), valence(af.valence), name(t.name.toStdString()) {}
+        : duration_ms(af.duration_ms)
+        , acousticness(af.acousticness)
+        , energy(af.energy)
+        , instrumentalness(af.instrumentalness)
+        , key(af.key)
+        , liveness(af.liveness)
+        , loudness(af.loudness)
+        , mode(af.mode)
+        , speechiness(af.speechiness)
+        , tempo(af.tempo)
+        , time_signature(af.time_signature)
+        , valence(af.valence)
+        , name(t.name.toStdString()) {}
     void updateProgressInMs(const Spotify::Objects::CurrentPlayingObject &o) { progress_ms = o.getProgressInMs(); }
 #endif
 };
