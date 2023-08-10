@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+<svg height="1024" width="1024" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="gray" filter="url(#f3)" />
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#paint0_radial_87_7153)" />
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#paint1_radial_87_7153)" />
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="url(#paint2_radial_87_7153)" />
+    <defs>
+        <filter id="f3">
+            <!-- <feOffset result="offOut" in="SourceAlpha" dx="0" dy="0.5" />
+            <feGaussianBlur result="blurOut" in="offOut" stdDeviation=".5" />
+            <feBlend in="SourceGraphic" in2="blurOut" mode="normal"  /> -->
+            <feDropShadow dx="0" dy=".51" stdDeviation=".1" flood-opacity="0.1" />
+        </filter>
+        <filter id="test">
+            <!-- From https://css-tricks.com/adding-shadows-to-svg-icons-with-css-and-svg-filters/#aa-inset-shadows -->
+            <!-- Shadow offset -->
+            <feOffset dx='1' dy='-4' />
+
+            <!-- Shadow blur -->
+            <feGaussianBlur stdDeviation='1' result='offset-blur' />
+
+            <!-- Invert drop shadow to make an inset shadow -->
+            <feComposite operator='out' in='SourceGraphic' in2='offset-blur' result='inverse' />
+
+            <!-- Cut color inside shadow -->
+            <feFlood flood-color='black' flood-opacity='.95' result='color' />
+            <feComposite operator='in' in='color' in2='inverse' result='shadow' />
+
+            <!-- Placing shadow over element -->
+            <feComposite operator='over' in='shadow' in2='SourceGraphic' />
+        </filter>
+    </defs>
+    <g transform="scale(.034),translate(130,110)">
+        <g clip-path="url(#a)" transform="matrix(1.33333 0 0 -1.33333 0 682.667)" style="stroke-width: 26px;" stroke-width="18" >
+            <path d="m0 0-28.098 11.262c-11.137 4.464-16.548 17.111-12.084 28.249l23.636 58.975c4.464 11.138 17.111 16.548 28.249 12.084l28.098-11.26"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(49.747 260.469)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path
+                d="m0 0-36.585-91.284c-4.624-11.538-20.196-13.362-27.36-3.203l-65.466 92.824 74.338 185.483L56.38 205.739c12.196 2.399 22.199-9.674 17.575-21.212L11.161 27.848"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(364.794 137.725)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="M0 0c30.288 5.483 59.543 30.312 74.131 66.71 14.588 36.398 10.577 74.56-7.54 99.442"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(350.184 101.27)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0 39.175-15.7"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(460.63 153.425)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0 13.094-40.121"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(429.018 111.356)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="M0 0a8.038 8.038 0 1 1-16.076-.002A8.038 8.038 0 0 1 0 0" style="fill-opacity: 1; fill-rule: nonzero; stroke: none; stroke-width: 26px;"
+                transform="translate(194.002 305.086)" fill="#ffffff" data-original="#000000" stroke-width="18" class="" opacity="1"></path>
+            <path d="M0 0a8.038 8.038 0 1 1-16.076-.002A8.038 8.038 0 0 1 0 0Z"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(194.002 305.086)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="M0 0v-108.108c0-23.095-18.722-41.817-41.817-41.817s-41.817 18.722-41.817 41.817V76.128H0V30"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(227.781 399.278)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0 37.178 19.974"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(466.822 205.682)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0-81.939 32.84"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(309.72 321.545)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0 97.613-39.122"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(137.769 175.184)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+            <path d="m0 0-17.164 6.879c-11.138 4.464-23.785-.947-28.249-12.085l-58.174-145.15c-4.463-11.138.946-23.786 12.085-28.249l57.282-22.957"
+                style="stroke-width: 26px; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 10; stroke-dasharray: none; stroke-opacity: 1;"
+                transform="translate(144.148 387.904)" fill="none" stroke="#ffffff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"
+                stroke-miterlimit="10" stroke-dasharray="none" stroke-opacity="" data-original="#000000" opacity="1" class=""></path>
+        </g>
+    </g>
+
+    <defs>
+        <radialGradient id="paint0_radial_87_7153" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(12 23) rotate(-55.3758) scale(25.5196)">
+            <stop stop-color="#B13589" />
+            <stop offset="0.79309" stop-color="#C62F94" />
+            <stop offset="1" stop-color="#8A3AC8" />
+        </radialGradient>
+        <radialGradient id="paint1_radial_87_7153" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(11 31) rotate(-65.1363) scale(22.5942)">
+            <stop stop-color="#E0E8B7" />
+            <stop offset="0.444662" stop-color="#FB8A2E" />
+            <stop offset="0.71474" stop-color="#E2425C" />
+            <stop offset="1" stop-color="#E2425C" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="paint2_radial_87_7153" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+            gradientTransform="translate(0.500002 3) rotate(-8.1301) scale(38.8909 8.31836)">
+            <stop offset="0.156701" stop-color="#406ADC" />
+            <stop offset="0.467799" stop-color="#6A45BE" />
+            <stop offset="1" stop-color="#6A45BE" stop-opacity="0" />
+        </radialGradient>
+    </defs>
+</svg>
