@@ -119,6 +119,8 @@ if (APPLE)
     target_sources(lichtsteuerung PRIVATE ${app_icon_macos})
 endif()
 
+target_compile_features(lichtsteuerung PUBLIC cxx_std_17)
+
 target_compile_definitions(lichtsteuerung PRIVATE
 #    BOOST_STACKTRACE_USE_BACKTRACE
     CONVERT_FROM_SPOTIFY_OBJECTS
