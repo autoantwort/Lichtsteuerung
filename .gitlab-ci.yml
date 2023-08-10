@@ -34,7 +34,7 @@ windows-build:
   script:
     - mkdir buildtree
     - 'if(-not(Test-Path -Path z:)) {subst z: buildtree}'
-    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build;--x-buildtrees-root=C:/build;--allow-unsupported"
+    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build;--x-buildtrees-root=C:/build;--allow-unsupported" -DVCPKG_TARGET_TRIPLET=x64-windows-release -DVCPKG_HOST_TRIPLET=x64-windows-release
     - cmake --build build
 
   artifacts:
