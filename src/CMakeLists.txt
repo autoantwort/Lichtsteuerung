@@ -173,7 +173,8 @@ elseif(CMAKE_SYSTEM_NAME MATCHES Linux)
     # needed for dynamic libs
     target_link_libraries(lichtsteuerung PRIVATE dl)
     # needed for the SystemVolume class
-    target_link_libraries(lichtsteuerung PRIVATE asound)
+    find_package(ALSA REQUIRED)
+    target_link_libraries(lichtsteuerung PRIVATE ALSA::ALSA)
 endif()
 
 # SpanLite

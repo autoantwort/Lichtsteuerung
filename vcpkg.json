@@ -2,6 +2,7 @@
     "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
     "name": "lichtsteuerung",
     "version-string": "2.0.0",
+    "builtin-baseline": "c9fa965c2a1b1334469b4539063f3ce95383653c",
     "dependencies": [
         "boost-coroutine",
         "boost-coroutine2",
@@ -17,7 +18,11 @@
             "name": "aubio",
             "default-features": false
         },
-        "segvcatch"
+        "segvcatch",
+        {
+            "name": "alsa",
+            "platform": "linux"
+        }
     ],
     "features": {
         "qt": {
