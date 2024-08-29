@@ -159,7 +159,7 @@ endif()
 
 
 
-if(WIN32)
+if(MINGW)
     # DrMinGW
     target_compile_definitions(lichtsteuerung PRIVATE DrMinGW)
     target_include_directories(lichtsteuerung PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/lib/DrMinGW/include)
