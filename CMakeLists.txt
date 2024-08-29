@@ -42,11 +42,16 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
+option(WITH_QtMqtt "Build with MQTT support. QtMqtt must be installed" OFF)
 
 find_package(Qt6
-  COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets Mqtt Core5Compat Svg
+  COMPONENTS Qml Quick Network Widgets NetworkAuth WebSockets Core5Compat Svg
   REQUIRED
 )
+
+if (WITH_QtMqtt)
+    find_package(Qt6 COMPONENTS Mqtt REQUIRED)
+endif()
 
 
 add_subdirectory(src)

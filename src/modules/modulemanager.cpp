@@ -2,7 +2,9 @@
 #include "dmxconsumer.h"
 #include "ledconsumer.h"
 #include "module.h"
+#ifdef WITH_MQTT
 #include "mqttimpl.h"
+#endif
 #include "scanner.h"
 #include "scanner.hpp"
 #include "settings.h"
@@ -237,6 +239,7 @@ void ModuleManager::loadModule(QString name, std::function<std::string(const std
             }
         }
         if (f(MODUL_TYPE::Mqtt)) {
+#if WITH_MQTT
             using SetCreateMqttClientCallback = void (*)(std::function<detail::IMqttClientImpl *()>);
             SetCreateMqttClientCallback getFunc = reinterpret_cast<SetCreateMqttClientCallback>(lib.resolve("_setCreateMqttClientCallback"));
             if (getFunc) {
@@ -245,6 +248,7 @@ void ModuleManager::loadModule(QString name, std::function<std::string(const std
                 qWarning() << "Modules MqttClient: getFunc is null";
                 return;
             }
+#endif
         }
         if (f(MODUL_TYPE::Program)) {
             loadType(lib, programms, "Program", lastLibraryIdentifier, [&](const auto p) {

@@ -60,8 +60,6 @@ set(SOURCES
     modules/loopprogram.hpp
     modules/module.h
     modules/modulemanager.cpp modules/modulemanager.h
-    modules/mqtt.hpp
-    modules/mqttimpl.cpp modules/mqttimpl.h
     modules/program.hpp
     modules/programblock.cpp modules/programblock.h
     modules/property.hpp
@@ -128,8 +126,17 @@ target_compile_definitions(lichtsteuerung PRIVATE
     QT_MESSAGELOGCONTEXT
     _USE_MATH_DEFINES
 )
-target_link_libraries(lichtsteuerung PRIVATE Qt::Qml Qt::Quick Qt::Network Qt::Widgets Qt::NetworkAuth Qt::WebSockets Qt6::Mqtt Qt6::Core5Compat Qt6::Svg)
+target_link_libraries(lichtsteuerung PRIVATE Qt::Qml Qt::Quick Qt::Network Qt::Widgets Qt::NetworkAuth Qt::WebSockets Qt6::Core5Compat Qt6::Svg)
 
+if (WITH_QtMqtt)
+    target_link_libraries(lichtsteuerung PRIVATE Qt::Mqtt)
+    target_compile_definitions(lichtsteuerung PRIVATE WITH_MQTT)
+    target_sources(lichtsteuerung PRIVATE
+        modules/mqtt.hpp
+        modules/mqttimpl.cpp
+        modules/mqttimpl.h
+    )
+endif()
 
 # Aubio
 find_package(Aubio CONFIG REQUIRED)
