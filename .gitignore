@@ -1,3 +1,6 @@
+# Ignore Lichtsteuerung settings file
+QTJSONFile.json*
+
 #vcpkg
 vcpkg_installed
 
