@@ -125,6 +125,7 @@ target_compile_definitions(lichtsteuerung PRIVATE
     QT_DEPRECATED_WARNINGS
     QT_MESSAGELOGCONTEXT
     _USE_MATH_DEFINES
+    NOMINMAX
 )
 target_link_libraries(lichtsteuerung PRIVATE Qt::Qml Qt::Quick Qt::Network Qt::Widgets Qt::NetworkAuth Qt::WebSockets Qt6::Core5Compat Qt6::Svg)
 
