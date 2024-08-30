@@ -7,6 +7,9 @@ vcpkg_installed
 #deploy dirs
 deploy-*
 
+# build dir
+build
+
 # Qt-es
 object_script.*.Release
 object_script.*.Debug
