@@ -1,6 +1,5 @@
 
-#set(QAPPLICATION_CLASS QGuiApplication CACHE STRING "Inheritance class for SingleApplication")
-#add_subdirectory(lib/SingleApplication/git)
+qt_standard_project_setup()
 
 qt_add_resources(RESOURCES qml.qrc)
 

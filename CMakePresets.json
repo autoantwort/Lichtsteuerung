@@ -12,7 +12,20 @@
             "description": "Configure with vcpkg toolchain and generate Ninja project files for all configurations",
             "binaryDir": "${sourceDir}/builds/${presetName}",
             "generator": "Ninja Multi-Config",
-            "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+            "toolchainFile": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            "cacheVariables": {
+                "USE_VCPKG_VIA_FETCH_CONTENT": "OFF"
+            }
+        },
+        {
+            "name": "ninja-multi-fetch-vcpkg",
+            "displayName": "Ninja Multi-Config Fetch vcpkg",
+            "description": "Fetch and configure vcpkg toolchain and generate Ninja project files for all configurations",
+            "binaryDir": "${sourceDir}/builds/${presetName}",
+            "generator": "Ninja Multi-Config",
+            "cacheVariables": {
+                "USE_VCPKG_VIA_FETCH_CONTENT": "ON"
+            }
         }
     ],
     "buildPresets": [
@@ -35,6 +48,26 @@
             "configurePreset": "ninja-multi-vcpkg",
             "displayName": "Build",
             "description": "Build with Ninja/vcpkg"
+        },
+        {
+            "name": "ninja-fetch-vcpkg-debug",
+            "configurePreset": "ninja-multi-fetch-vcpkg",
+            "displayName": "Build with fetched vcpkg (Debug)",
+            "description": "Build with Ninja and Fetch vcpkg (Debug)",
+            "configuration": "Debug"
+        },
+        {
+            "name": "ninja-fetch-vcpkg-release",
+            "configurePreset": "ninja-multi-fetch-vcpkg",
+            "displayName": "Build with fetched vcpkg (Release)",
+            "description": "Build with Ninja and Fetch vcpkg (Release)",
+            "configuration": "Release"
+        },
+        {
+            "name": "ninja-fetch-vcpkg",
+            "configurePreset": "ninja-multi-fetch-vcpkg",
+            "displayName": "Build with fetched vcpkg",
+            "description": "Build with Ninja and Fetch vcpkg"
         }
     ]
 }
