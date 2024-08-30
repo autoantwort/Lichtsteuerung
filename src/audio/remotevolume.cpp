@@ -24,7 +24,7 @@ RemoteVolume::RemoteVolume(Settings &settings) : settings(settings) {
         }
     });
 
-    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error),
+    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::errorOccurred),
                      [this](const auto error) { qWarning() << "Remote Volume: WebSocket connection error: " << error << " : " << webSocket.errorString(); });
     QObject::connect(&webSocket, &QWebSocket::disconnected, [this]() {
         emit isConnectedChanged();

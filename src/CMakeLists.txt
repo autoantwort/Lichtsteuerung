@@ -194,6 +194,7 @@ target_link_libraries(lichtsteuerung PRIVATE kubazip::kubazip)
 find_path(segvcatch_INCLUDE_DIR segvcatch.h)
 target_include_directories(lichtsteuerung PRIVATE ${segvcatch_INCLUDE_DIR})
 find_library(segvcatch_LIBRARY segvcatch)
+message(STATUS "segvcatch_LIBRARY: ${segvcatch_LIBRARY}")
 target_link_libraries(lichtsteuerung PRIVATE ${segvcatch_LIBRARY})
 
 find_program(CLANG_FORMAT clang-format PATHS "$ENV{PROGRAMFILES}/LLVM/bin")

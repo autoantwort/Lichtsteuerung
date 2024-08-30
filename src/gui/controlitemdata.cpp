@@ -607,7 +607,7 @@ void ProgramBlockControlItemData::setProgramBlock(Modules::ProgramBlock *p) {
 /////////////////////////////////////
 
 ControlItemSync::ControlItemSync() {
-    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error),
+    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::errorOccurred),
                      [this](const auto error) { qWarning() << "Remote ControlPane: WebSocket connection error: " << error << " : " << webSocket.errorString(); });
     QObject::connect(&webSocket, &QWebSocket::disconnected, [this]() {
         emit isConnectedChanged();
