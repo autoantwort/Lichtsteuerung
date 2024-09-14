@@ -97,7 +97,7 @@ set(SOURCES
     usermanagment.cpp usermanagment.h
 )
 
-qt_add_executable(lichtsteuerung MACOSX_BUNDLE
+qt_add_executable(lichtsteuerung MACOSX_BUNDLE WIN32
     ${SOURCES}
     ${RESOURCES}
 )
