@@ -25,7 +25,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: 6.6
-          modules: "qtnetworkauth qtwebsockets qt5compat"
+          modules: "qtnetworkauth qtwebsockets qt5compat qtshadertools"
 
       - uses: lukka/get-cmake@latest
 
