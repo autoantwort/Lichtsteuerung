@@ -25,7 +25,7 @@ jobs:
         uses: jurplel/install-qt-action@v4
         with:
           version: 6.6
-          modules: 'qtnetworkauth qtwebsockets qt5compat'
+          modules: "qtnetworkauth qtwebsockets qt5compat"
 
       - uses: lukka/get-cmake@latest
 
@@ -34,3 +34,14 @@ jobs:
         with:
           configurePreset: "ninja-multi-vcpkg"
           buildPreset: "ninja-vcpkg-release"
+
+      - name: Run windows deploy script
+        if: matrix.os == 'windows-latest'
+        run: bash ./deployWindows.sh builds/ninja-multi-vcpkg dest
+
+      - name: Upload build artifact
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build-artifact
+          path: dest
