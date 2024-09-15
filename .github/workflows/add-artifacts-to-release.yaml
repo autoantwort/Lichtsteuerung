@@ -1,0 +1,44 @@
+name: Add Artifacts to Release
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  add-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Wait for build workflow to complete
+        uses: fountainhead/action-wait-for-check@v1.1.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: cmake
+          ref: ${{ github.sha }}
+
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-build-artifact
+          path: windows-artifact
+
+      - name: Get tag and commit info
+        run: |
+          ${{ github.event.release.tag_name }} > version.txt
+          cp version.txt windows-artifact
+        shell: bash
+
+      - name: Zip Windows artifact
+        run: zip -r windows-artifact.zip windows-artifact
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./windows-artifact.zip
+          asset_name: Lichtsteuerung-windows-x64.zip
+          asset_content_type: application/zip
