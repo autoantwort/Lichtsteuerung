@@ -18,9 +18,12 @@ jobs:
           checkName: cmake
           ref: ${{ github.sha }}
 
-      - name: Download artifact
-        uses: actions/download-artifact@v3
+      - name: Download artifact from build workflow
+        uses: dawidd6/action-download-artifact@v2
         with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: cmake.yml
+          workflow_conclusion: success
           name: windows-build-artifact
           path: windows-artifact
 
