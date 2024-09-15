@@ -11,18 +11,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Wait for build workflow to complete
-        uses: fountainhead/action-wait-for-check@v1.1.0
+      - name: Wait for Build
+        uses: NathanFirmo/wait-for-other-action@v1.0.4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: cmake
-          ref: ${{ github.sha }}
+          workflow: cmake.yaml
 
       - name: Download artifact from build workflow
         uses: dawidd6/action-download-artifact@v2
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
-          workflow: cmake.yml
+          workflow: cmake.yaml
           workflow_conclusion: success
           name: windows-build-artifact
           path: windows-artifact
