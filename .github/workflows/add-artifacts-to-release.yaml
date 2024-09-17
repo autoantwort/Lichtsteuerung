@@ -26,6 +26,16 @@ jobs:
           name: windows-build-artifact
           path: windows-artifact
 
+      - name: Download artifact from build-windows-installer workflow
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          workflow: build-windows-installer.yaml
+          workflow_conclusion: success
+          name: windows-installer
+          path: windows-artifact
+
+
       - name: Get tag and commit info
         run: |
           echo "${{ github.event.release.tag_name }}" > version.txt
