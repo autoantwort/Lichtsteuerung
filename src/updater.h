@@ -11,10 +11,9 @@ class Updater : public QObject {
     Q_PROPERTY(int progress READ getUpdateProgress NOTIFY updateProgressChanged)
     Q_PROPERTY(UpdaterState state READ getState NOTIFY stateChanged)
     const inline static QString VERSION_FILE_NAME = QStringLiteral("version.txt");
-    const inline static QString NAME_OF_DEPLOY_FOLDER = QStringLiteral("windows-release");
+    const inline static QString NAME_OF_DEPLOY_FOLDER = QStringLiteral("windows-artifact");
     const inline static QString WINDOWS_INSTALLER_NAME = QStringLiteral("WindowsInstaller.exe");
-    QString versionDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=version");
-    QString deployDownloadURL = QStringLiteral("https://git.rwth-aachen.de/leander.schulten/Lichtsteuerung/-/jobs/artifacts/windows-release/download?job=deploy");
+    QString latestGithubReleaseURL = QStringLiteral("https://api.github.com/repos/autoantwort/Lichtsteuerung/releases/latest");
     std::unique_ptr<QNetworkAccessManager> http = std::make_unique<QNetworkAccessManager>();
 
 public:
@@ -35,6 +34,7 @@ private:
     UpdaterState state = UpdaterState::NotChecked;
     int progress = -1;
     QString deployPath;
+    QString assetDownloadUrl;
 
 public:
     Updater();

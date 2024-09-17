@@ -1,13 +1,23 @@
 #include "updater.h"
 
+#include <QCoreApplication>
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QProcess>
+#include <QSysInfo>
 #include <QTemporaryFile>
+#include <QUrl>
+#include <QVersionNumber>
 #include <QtConcurrent/QtConcurrentRun>
 #include <zip/zip.h>
 
@@ -18,6 +28,44 @@ QByteArray getFileContent(const QString &filename) {
         return {"Failed to open file"};
     }
     return file.readAll();
+}
+
+QVersionNumber stringToVersion(QAnyStringView version) {
+    while (version.length() > 0 && !version.front().isNumber()) {
+        version = version.mid(1);
+    }
+    return QVersionNumber::fromString(version);
+}
+
+QString getOSName() {
+
+#if defined(Q_OS_WIN)
+    return "windows";
+#elif defined(Q_OS_LINUX)
+    return "linux";
+#elif defined(Q_OS_MAC)
+    return "macos";
+#else
+    return "unknown";
+#endif
+}
+
+QString getArchName() {
+    QString arch = QSysInfo::buildCpuArchitecture();
+
+    // Map to conventional architecture namesÏ
+    if (arch == "x86_64" || arch == "amd64") {
+        arch = "x64";
+    } else if (arch == "i386" || arch == "i686") {
+        arch = "x86";
+    } else if (arch == "arm" || arch == "armv7l") {
+        arch = "arm32";
+    } else if (arch == "aarch64") {
+        arch = "arm64";
+    } else {
+        arch = "unknown";
+    }
+    return arch;
 }
 
 Updater::Updater() {
@@ -38,12 +86,12 @@ void Updater::checkForUpdate() {
     }
     if (!QFile::exists(VERSION_FILE_NAME)) {
         qDebug() << "version file does not exists in application folder";
-        state = UpdaterState::UpdateAvailible;
+        state = UpdaterState::NotChecked;
         emit stateChanged();
-        emit needUpdate();
         return;
     }
-    QNetworkRequest request{QUrl(versionDownloadURL)};
+    QNetworkRequest request{QUrl(latestGithubReleaseURL)};
+    request.setRawHeader("Accept", "application/vnd.github.v3+json");
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto response = http->get(request);
     QObject::connect(response, &QNetworkReply::finished, [this, response]() {
@@ -53,40 +101,56 @@ void Updater::checkForUpdate() {
             emit stateChanged();
             return;
         }
-        QFile version(QDir::tempPath() + QStringLiteral("/version.zip"));
-        version.open(QFile::WriteOnly);
-        version.write(response->readAll());
-        version.close();
 
-        auto watcher = new QFutureWatcher<bool>;
-        connect(watcher, &QFutureWatcher<bool>::finished, [this, version = QFileInfo(version), watcher]() {
-            watcher->deleteLater();
-            bool success = watcher->future().result();
-            if (!success) {
-                qDebug() << "not successful when unzipping version.zip";
-                state = UpdaterState::NoUpdateAvailible;
-                emit stateChanged();
-                return;
-            }
-            if (!QFile::exists(version.absolutePath() + "/" + VERSION_FILE_NAME)) {
-                qDebug() << "version file does not exists in version.zip";
-                state = UpdaterState::NoUpdateAvailible;
-                emit stateChanged();
-                return;
-            }
-            if (getFileContent(VERSION_FILE_NAME) != getFileContent(version.absolutePath() + "/" + VERSION_FILE_NAME)) {
-                state = UpdaterState::UpdateAvailible;
-                emit stateChanged();
-                emit needUpdate();
-            } else {
-                state = UpdaterState::NoUpdateAvailible;
-                emit stateChanged();
-            }
-        });
+        // Parse the JSON response
+        QJsonDocument jsonResponse = QJsonDocument::fromJson(response->readAll());
+        QJsonObject jsonObject = jsonResponse.object();
+        QJsonArray assets = jsonObject["assets"].toArray();
+        if (assets.isEmpty()) {
+            state = NoUpdateAvailible;
+            emit stateChanged();
+            qDebug() << "No assets found!";
+            return;
+        }
 
-        // Start the computation.
-        QFuture<bool> future = extractZip(version);
-        watcher->setFuture(future);
+        QVersionNumber ownVersion = stringToVersion(getFileContent(VERSION_FILE_NAME));
+        QVersionNumber githubVersion = stringToVersion(jsonObject["tag_name"].toString());
+        if (githubVersion.isNull() || ownVersion.isNull()) {
+            state = NoUpdateAvailible;
+            emit stateChanged();
+            qDebug() << "Failed to parse versions. Own: " << ownVersion << " github: " << githubVersion;
+            return;
+        }
+
+        if (githubVersion <= ownVersion) {
+            state = NoUpdateAvailible;
+            emit stateChanged();
+            return;
+        }
+
+        const auto os = getOSName();
+        const auto arch = getArchName();
+
+        assetDownloadUrl.clear();
+        for (const QJsonValue &assetV : assets) {
+            auto asset = assetV.toObject();
+            QString assetName = asset["name"].toString();
+            if (assetName.contains(os) && assetName.contains(arch)) {
+                assetDownloadUrl = asset["browser_download_url"].toString();
+                break;
+            }
+        }
+
+        if (assetDownloadUrl.isEmpty()) {
+            state = NoUpdateAvailible;
+            emit stateChanged();
+            qDebug() << "No Matching Asset Found for" << os << "-" << arch;
+            return;
+        }
+
+        state = UpdaterState::UpdateAvailible;
+        emit stateChanged();
+        emit needUpdate();
     });
 }
 
@@ -97,15 +161,9 @@ void Updater::update() {
     }
     state = UpdaterState::DownloadingUpdate;
     emit stateChanged();
-    QNetworkRequest request{QUrl(deployDownloadURL)};
+    QNetworkRequest request{QUrl(assetDownloadUrl)};
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto response = http->get(request);
-    QObject::connect(response, &QNetworkReply::errorOccurred, [this, response](auto error) {
-        qWarning() << "Error while redirecting to deploy.zip! " << error << response->errorString();
-        response->deleteLater();
-        state = UpdaterState::DownloadUpdateFailed;
-        emit stateChanged();
-    });
     QFile *deploy = new QFile(QDir::tempPath() + QStringLiteral("/deploy.zip"));
     deploy->open(QFile::WriteOnly);
     QObject::connect(response, &QNetworkReply::errorOccurred, [this, response, deploy](auto error) {
