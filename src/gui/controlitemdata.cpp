@@ -607,7 +607,7 @@ void ProgramBlockControlItemData::setProgramBlock(Modules::ProgramBlock *p) {
 /////////////////////////////////////
 
 ControlItemSync::ControlItemSync() {
-    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::error),
+    QObject::connect(&webSocket, qOverload<QAbstractSocket::SocketError>(&QWebSocket::errorOccurred),
                      [this](const auto error) { qWarning() << "Remote ControlPane: WebSocket connection error: " << error << " : " << webSocket.errorString(); });
     QObject::connect(&webSocket, &QWebSocket::disconnected, [this]() {
         emit isConnectedChanged();
@@ -639,7 +639,7 @@ ControlItemSync::ControlItemSync() {
     QObject::connect(&webSocket, &QWebSocket::textMessageReceived, [this](const QString &message) {
         auto dot = message.indexOf('.');
         bool ok;
-        auto id = message.leftRef(dot).toInt(&ok);
+        auto id = message.left(dot).toInt(&ok);
         if (!ok) {
             qWarning() << "Message for ControlPane has wrong format: " << message;
             return;

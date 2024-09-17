@@ -78,15 +78,15 @@ ProgramBlock::ProgramBlock(const QJsonObject &o) : name(o["name"].toString()), i
     {
         const auto filterCon = o["filterConnections"].toArray();
         for (const auto &i : filterCon) {
-            const auto iter = filter.find(i["source"].toString());
+            const auto iter = filter.find(i[QLatin1String("source")].toString());
             if (iter == filter.cend()) {
                 throw std::runtime_error("Connection has invalid source.");
             }
             detail::Connection c(iter->second);
-            const auto targets = i["targets"].toArray();
+            const auto targets = i[QLatin1String("targets")].toArray();
             for (const auto &t : targets) {
                 OutputDataProducer *outputDataProducer;
-                const auto targetName = t["target"].toString();
+                const auto targetName = t[QLatin1String("target")].toString();
                 const auto pIter = programs.find(targetName);
                 if (pIter != programs.cend()) {
                     outputDataProducer = pIter->second.get();
@@ -98,23 +98,23 @@ ProgramBlock::ProgramBlock(const QJsonObject &o) : name(o["name"].toString()), i
                         throw std::runtime_error("Connection target not found :" + targetName.toStdString());
                     }
                 }
-                c.addTarget(t["length"].toInt(), outputDataProducer, t["targetStartIndex"].toInt());
+                c.addTarget(t[QLatin1String("length")].toInt(), outputDataProducer, t[QLatin1String("targetStartIndex")].toInt());
             }
-            this->filter.insert(std::make_pair(i["level"].toInt(), c));
+            this->filter.insert(std::make_pair(i[QLatin1String("level")].toInt(), c));
         }
     }
     {
         const auto consumerCon = o["consumerConnections"].toArray();
         for (const auto &i : consumerCon) {
-            const auto iter = consumer.find(i["source"].toString());
+            const auto iter = consumer.find(i[QLatin1String("source")].toString());
             if (iter == consumer.cend()) {
                 throw std::runtime_error("Connection has invalid source.");
             }
             detail::Connection c(iter->second);
-            const auto targets = i["targets"].toArray();
+            const auto targets = i[QLatin1String("targets")].toArray();
             for (const auto &t : targets) {
                 OutputDataProducer *outputDataProducer;
-                const auto targetName = t["target"].toString();
+                const auto targetName = t[QLatin1String("target")].toString();
                 const auto pIter = programs.find(targetName);
                 if (pIter != programs.cend()) {
                     outputDataProducer = pIter->second.get();
@@ -126,7 +126,7 @@ ProgramBlock::ProgramBlock(const QJsonObject &o) : name(o["name"].toString()), i
                         throw std::runtime_error("Connection target not found :" + targetName.toStdString());
                     }
                 }
-                c.addTarget(t["length"].toInt(), outputDataProducer, t["targetStartIndex"].toInt());
+                c.addTarget(t[QLatin1String("length")].toInt(), outputDataProducer, t[QLatin1String("targetStartIndex")].toInt());
             }
             this->consumer.push_back(c);
         }

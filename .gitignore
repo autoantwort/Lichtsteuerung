@@ -1,5 +1,15 @@
+# Ignore Lichtsteuerung settings file
+QTJSONFile.json*
+
+#vcpkg
+vcpkg_installed
+
 #deploy dirs
 deploy-*
+dest
+
+# build dir
+build*/
 
 # Qt-es
 object_script.*.Release
@@ -19,7 +29,6 @@ ui_*.h
 *.qmlc
 *.jsc
 Makefile*
-*build-*
 
 # Qt unit tests
 target_wrapper.*

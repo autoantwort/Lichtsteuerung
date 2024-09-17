@@ -15,7 +15,7 @@ public:
     TestModulSystem() { Compiler::setCompilerCommand("g++-7"); }
     void runTest() {
         auto t1 = high_resolution_clock::now();
-        Compiler::compileToLibrary(QFile("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.cpp"), "/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
+        Compiler::compileToLibrary(QFileInfo("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.cpp"), "/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
         auto t2 = high_resolution_clock::now();
         ModuleManager::singletone()->loadModule("/Users/leanderSchulten/Lichtsteuerung/programms/testmodul.so");
         auto t3 = high_resolution_clock::now();

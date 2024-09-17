@@ -49,7 +49,7 @@ void ControlItem::setControlData(ControlItemData *c) {
 void ControlItem::mousePressEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton && moveable) {
         event->accept();
-        grabPos = event->globalPos();
+        grabPos = event->globalPosition().toPoint();
         startPos.setX(x());
         startPos.setY(y());
     }
@@ -58,7 +58,7 @@ void ControlItem::mousePressEvent(QMouseEvent *event) {
 void ControlItem::mouseMoveEvent(QMouseEvent *event) {
     if (event->buttons() & Qt::LeftButton && moveable) {
         event->accept();
-        const auto diffPos = grabPos - event->globalPos();
+        const auto diffPos = grabPos - event->globalPosition().toPoint();
         auto newPos = startPos - diffPos;
         newPos /= rasterSize;
         newPos *= rasterSize;
@@ -88,7 +88,7 @@ void ControlItem::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() & Qt::LeftButton) {
 
     } else if (event->button() & Qt::RightButton) {
-        emit openPopup(event->x(), event->y());
+        emit openPopup(event->position().x(), event->position().y());
     }
 }
 
@@ -109,13 +109,13 @@ void ControlItem::itemChange(ItemChange change, const ItemChangeData &value) {
 
 void ControlItem::hoverEnterEvent(QHoverEvent *event) {
     event->accept();
-    auto newManLength = std::sqrt(std::pow(width() - event->posF().x(), 2) + std::pow(event->posF().y(), 2));
+    auto newManLength = std::sqrt(std::pow(width() - event->position().x(), 2) + std::pow(event->position().y(), 2));
     if (newManLength < 40) emit settingVisibleChange(true);
 }
 void ControlItem::hoverMoveEvent(QHoverEvent *event) {
     event->accept();
     auto oldManLength = std::sqrt(std::pow(width() - event->oldPosF().x(), 2) + std::pow(event->oldPosF().y(), 2));
-    auto newManLength = std::sqrt(std::pow(width() - event->posF().x(), 2) + std::pow(event->posF().y(), 2));
+    auto newManLength = std::sqrt(std::pow(width() - event->position().x(), 2) + std::pow(event->position().y(), 2));
     if (oldManLength < 40 && newManLength >= 41)
         emit settingVisibleChange(false);
     else if (/*oldManLength>40&&*/ newManLength <= 40)

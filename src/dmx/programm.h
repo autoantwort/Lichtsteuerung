@@ -7,6 +7,7 @@
 #include "programmprototype.h"
 #include <cmath>
 #include <map>
+#include <stdexcept>
 
 namespace DMX {
 

@@ -1,0 +1,45 @@
+{
+    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+    "name": "lichtsteuerung",
+    "version-string": "2.0.0",
+    "builtin-baseline": "c9fa965c2a1b1334469b4539063f3ce95383653c",
+    "dependencies": [
+        "boost-coroutine",
+        "boost-coroutine2",
+        "boost-stacktrace",
+        {
+            "name": "libbacktrace",
+            "platform": "!(windows & !mingw)"
+        },
+        "span-lite",
+        "rtaudio",
+        "kubazip",
+        {
+            "name": "aubio",
+            "default-features": false
+        },
+        "segvcatch",
+        {
+            "name": "alsa",
+            "platform": "linux"
+        }
+    ],
+    "features": {
+        "qt": {
+            "description": "Used qt modules via vcpkg",
+            "dependencies": [
+                "qtquickcontrols2",
+                "qtmqtt",
+                "qtnetworkauth",
+                "qtwebsockets",
+                "qt5compat",
+                "qtsvg"
+            ]
+        }
+    },
+    "vcpkg-configuration": {
+        "overlay-ports": [
+            "overlay-ports"
+        ]
+    }
+}

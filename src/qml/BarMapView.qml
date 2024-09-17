@@ -2,7 +2,8 @@ import QtQuick 2.12
 import QtQuick.Layouts 1.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
-import QtGraphicalEffects 1.12
+import Qt5Compat.GraphicalEffects as GE
+import QtQuick.Shapes 1.3
 import custom.licht 1.0
 import "components"
 
@@ -134,7 +135,7 @@ ColumnLayout{
                                 color: "yellow"
                                 x: modelData.position.x - 2 * selectScale + map.translation.x
                                 y: modelData.position.y - 2 * selectScale + map.translation.y
-                                RadialGradient{
+                                GE.RadialGradient{
                                     anchors.fill: parent
                                     anchors.margins: -10
                                     gradient: Gradient {

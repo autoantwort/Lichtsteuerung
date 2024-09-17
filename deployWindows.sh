@@ -1,80 +1,56 @@
 #!/bin/bash
-if [ -z "$1" ]; then
-	echo "The first parameter must be the path to a build folder."
-	exit 1
+
+# Ensure the script exits if any command fails
+set -e
+
+# Check if the required parameters are provided
+if [ "$#" -ne 2 ]; then
+    echo "Usage: $0 <build_folder> <destination_folder>"
+    exit 1
 fi
-if [[ $1 == *"MinGW_32"* ]];then
-	mingw_folder="mingw53_32"
-	bit="32"
-elif [[ $1 == *"MinGW_64"* ]];then
-	mingw_folder="mingw81_64"
-	bit="64"
+
+# Assign parameters to variables
+BUILD_FOLDER=$1
+DESTINATION_FOLDER=$2
+SCRIPT_DIR=$(dirname "$0")  # Get the directory of the current script
+QML_DIR="$SCRIPT_DIR/src/qml"  # Set the QML directory
+MODULES_SRC_DIR="$SCRIPT_DIR/src/modules"  # Source modules folder
+MODULES_DEST_DIR="$DESTINATION_FOLDER/modules"  # Destination modules folder
+
+# Ensure build folder exists
+if [ ! -d "$BUILD_FOLDER" ]; then
+    echo "Error: Build folder does not exist: $BUILD_FOLDER"
+    exit 1
+fi
+
+# Clean and create the destination/output folder
+echo "Cleaning and creating destination folder: $DESTINATION_FOLDER"
+rm -rf "$DESTINATION_FOLDER"
+mkdir -p "$DESTINATION_FOLDER"
+
+# Copy all .exe and .dll files to the destination folder
+echo "Copying .exe and .dll files to $DESTINATION_FOLDER"
+find "$BUILD_FOLDER/src" -type f \( -name "*.exe" -o -name "*.dll" \) -exec cp {} "$DESTINATION_FOLDER" \;
+
+# Copy src/modules to dest/modules
+if [ -d "$MODULES_SRC_DIR" ]; then
+    echo "Copying $MODULES_SRC_DIR to $MODULES_DEST_DIR"
+    mkdir -p "$MODULES_DEST_DIR"
+    cp -r "$MODULES_SRC_DIR"/* "$MODULES_DEST_DIR"
 else
-	echo "Only MinGW builds are supported."
-	exit 2
+    echo "Warning: Source modules folder $MODULES_SRC_DIR does not exist. Skipping copy."
 fi
 
-if [[ $1 == *"Debug"* ]];then
-	build_type="debug"
-else
-	build_type="release"
-fi
+# Create settings.ini in the destination folder
+SETTINGS_FILE="$DESTINATION_FOLDER/settings.ini"
+echo "Creating settings.ini in $DESTINATION_FOLDER"
+cat <<EOL > "$SETTINGS_FILE"
+includePath=modules/include
+moduleDirPath=modules
+EOL
 
-version_with_underscore=$( echo "$1" | cut -d'_' -f3,4,5 )
-qt_version="${version_with_underscore//_/.}"
+# Run windeployqt with the QML directory
+echo "Running windeployqt with QML directory: $QML_DIR"
+windeployqt --qmldir "$QML_DIR" "$DESTINATION_FOLDER"
 
-#copy Lichtsteuerung to new folder
-target_folder="$1/../deploy-$qt_version-$build_type"
-rm -f -r "$target_folder"
-mkdir -p "$target_folder"
-settings_file="$target_folder/settings.ini"
-rm -f "$settings_file"
-cp "$1/$build_type/Lichtsteuerung.exe" "$target_folder/Lichtsteuerung.exe"
-
-#run windeployqt.exe
-qt_base_dir="C:/Qt/"
-exec_base_dir="$qt_base_dir/$qt_version/$mingw_folder"
-echo "Running windeployqt"
-result=$(eval "'$exec_base_dir/bin/windeployqt.exe' --qmldir 'src' '$target_folder/Lichtsteuerung.exe'")
-echo "Finish running windeployqt"
-
-#copy boost libs
-
-if [[ $bit == "32" ]]; then
-	echo "32-Bit boost build are no longer supported!"
-else
-	if [[ $biuld_type == "debug" ]]; then
-		debug_infix="d-"
-	else
-		debug_infix=''
-	fi
-	cp "src/lib/boost/lib/libboost_coroutine-mt-${debug_infix}x64.dll" "$target_folder/"
-	cp "src/lib/boost/lib/libboost_context-mt-${debug_infix}x64.dll" "$target_folder/"
-fi
-
-# copy aubio
-cp "src/lib/aubio/lib/aubio-5.dll" "$target_folder"
-
-# copy quazip dependency zlib
-cp "src/lib/quazip/zlib_windows/bin/zlib1.dll" "$target_folder"
-
-#copy DrMinGw
-if [[ $bit == "64" ]]; then
-    for file in src/lib/DrMinGW/bin/*; do cp "$file" "$target_folder";done
-fi
-
-#copy QTJSONFile
-cp "$1/QTJSONFile.json" "$target_folder"
-
-#copy header files for modules and update settings.ini
-mkdir -p "$target_folder/modules"
-cp -r "src/modules" "$target_folder/modules/include"
-echo "includePath=modules/include" >> "$settings_file"
-echo "moduleDirPath=modules" >> "$settings_file"
-
-#copy some files that are only needed by the minge53 32 Bit version, because windeployqt make a bad job
-if [[ $mingw_folder == "mingw53_32" ]]; then
-	cp "$exec_base_dir/bin/libgcc_s_dw2-1.dll" "$target_folder"
-	cp "$exec_base_dir/bin/libstdc++-6.dll" "$target_folder"
-	cp "$exec_base_dir/bin/libwinpthread-1.dll" "$target_folder"
-fi
+echo "Deployment completed successfully."

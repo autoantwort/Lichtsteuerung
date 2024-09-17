@@ -1,4 +1,4 @@
-image: registry.git.rwth-aachen.de/leander.schulten/lichtsteuerung/build_qt_5_15_0:latest
+image: gcc
 
 stages:
   - build
@@ -7,53 +7,40 @@ stages:
 
 build:
   stage: build
+  timeout: 3h
   script:
-    - cd src/lib
-    - ./build_libs.sh
-    - cd ../..
-    - mkdir -p build
-    - cd build
-    - /usr/src/mxe/usr/x86_64-w64-mingw32.shared.posix/qt5/bin/qmake ../src/Lichtsteuerung.pro
-    - make -j$(nproc)
-    - cd ..
+    - apt update -y && apt install -y cmake ninja-build curl zip unzip tar autoconf-archive bison xcb libxcb-xkb-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev  libgles2-mesa-dev libgl1-mesa-dev libglu1-mesa-dev libasound2-dev
+    - apt-get install -y '^libxcb.*-dev' libx11-xcb-dev libglu1-mesa-dev libxrender-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev
+    - export VCPKG_BINARY_SOURCES="clear;files,$CI_PROJECT_DIR/vcpkg_cache,readwrite;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
+    - cmake -S . -B build -G Ninja -DVCPKG_INSTALL_OPTIONS=--clean-after-build -DVCPKG_TARGET_TRIPLET=x64-linux-release -DVCPKG_HOST_TRIPLET=x64-linux-release
+    - cmake --build build
   cache:
-    key: build_boost
+    key: vcpkg_cache
+    when: 'always'
     paths:
-      - src/lib/boost/
+      - vcpkg_cache/
   artifacts:
+    when: always
     paths:
-      - build/release/Lichtsteuerung.exe
-      - src/lib/boost/lib/libboost_context-mt-x64.dll
-      - src/lib/boost/lib/libboost_coroutine-mt-x64.dll
-
-# we use this version file to check if a new version exists 
-version:
-  stage: version
-  only:
-    refs:
-      - windows-release
+      - "build/**/*.log"
+      - "build/**/*.md"
+      # - build/vcpkg_installed/
+windows-build:
+  stage: build
+  timeout: 4h
+  tags: 
+    - windows-shell
+  variables:  
+    VCPKG_BINARY_SOURCES: "clear;http,https://s3.hilton.rwth-aachen.de/binarycache/{triplet}/{name}/{version}/{sha},readwrite"
   script:
-    - echo $(git rev-parse --short HEAD) > version.txt
-  artifacts:
-    name: version
-    paths:
-      - version.txt
+    - mkdir buildtree
+    - 'if(-not(Test-Path -Path z:)) {subst z: buildtree}'
+    - cmake -B build "-DVCPKG_INSTALL_OPTIONS=--clean-after-build;--x-buildtrees-root=C:/build;--allow-unsupported" -DVCPKG_TARGET_TRIPLET=x64-windows-release -DVCPKG_HOST_TRIPLET=x64-windows-release
+    - cmake --build build
 
-
-deploy:
-  stage: deploy
-  only:
-    refs:
-      - windows-release
-  script: 
-    - cp build/release/Lichtsteuerung.exe windows-release
-    - cp src/lib/boost/lib/libboost_context-mt-x64.dll windows-release
-    - cp src/lib/boost/lib/libboost_coroutine-mt-x64.dll windows-release
-    - mkdir -p windows-release/modulesHeader
-    - cp -r src/modules windows-release/modulesHeader
-    - echo "includePath=modulesHeader" >> windows-release/settings.ini
-#   - echo "moduleDirPath=modules" >> windows-release/settings.ini
-    - cp version.txt windows-release
   artifacts:
+    when: always
     paths:
-      - windows-release
+      - "build/**/*.log"
+      - "build/**/*.md"
+    # - docker run my-docker-image /script/to/run/tests

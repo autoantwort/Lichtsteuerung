@@ -1,0 +1,51 @@
+name: Build CMake Project
+
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        cmake-generator: [Ninja]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up vcpkg and install dependencies
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: c9fa965c2a1b1334469b4539063f3ce95383653c
+
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.6
+          modules: "qtnetworkauth qtwebsockets qt5compat qtshadertools"
+
+      - uses: lukka/get-cmake@latest
+
+      - name: Run CMake+vcpkg+Ninja to build packages and generate/build the code.
+        uses: lukka/run-cmake@v10
+        with:
+          configurePreset: "ninja-multi-vcpkg"
+          buildPreset: "ninja-vcpkg-release"
+
+      - name: Run windows deploy script
+        if: matrix.os == 'windows-latest'
+        run: bash ./deployWindows.sh builds/ninja-multi-vcpkg dest
+
+      - name: Upload build artifact
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build-artifact
+          path: dest

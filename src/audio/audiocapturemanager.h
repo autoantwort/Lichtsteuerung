@@ -8,9 +8,9 @@
 #include "aubio/onsetanalysis.h"
 #include "aubio/spectrumanalysis.h"
 #include "aubio/tempoanalysis.h"
-#include <RtAudio.h>
 #include <map>
 #include <optional>
+#include <rtaudio/RtAudio.h>
 #include <thread>
 
 namespace Audio {

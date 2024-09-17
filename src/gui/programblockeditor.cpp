@@ -440,7 +440,7 @@ void transferData<int64_t>(Modules::Property &p, GUI::detail::PropertyInformatio
 }
 
 QQuickItem *ProgramBlockEditor::getItemWithPropertyBase(QMouseEvent *event) {
-    auto comp = childAt(event->x(), event->y());
+    auto comp = childAt(event->position().x(), event->position().y());
     if (!comp) {
         return nullptr;
     }
@@ -486,7 +486,7 @@ void ProgramBlockEditor::mouseMoveEvent(QMouseEvent *event) {
         dragStartItem->setPosition(event->pos() - dragOffsetInItem);
     } else if (dragType == MovePermanent) {
         bool larger;
-        if ((larger = event->y() - dragStartItem->y() > spaceBetweenLayers / 2) || dragStartItem->y() - event->y() > spaceBetweenLayers / 2) {
+        if ((larger = event->position().y() - dragStartItem->y() > spaceBetweenLayers / 2) || dragStartItem->y() - event->position().y() > spaceBetweenLayers / 2) {
             // move element to the next layer
             PropertyBase *pb = dragStartItem->property("propertyBase").value<PropertyBase *>();
             if (larger) {
@@ -620,7 +620,7 @@ void ProgramBlockEditor::mouseReleaseEvent(QMouseEvent *event) {
             setShowProperties(false);
         }
     } else if (dragStartItem == comp && event->button() == Qt::RightButton && comp && !event->modifiers() && dragType == AddConnection) {
-        emit openRightClickEntry(event->x(), event->y());
+        emit openRightClickEntry(event->position().x(), event->position().y());
     }
     using namespace Modules;
     if (dragType == AddConnection && comp) {

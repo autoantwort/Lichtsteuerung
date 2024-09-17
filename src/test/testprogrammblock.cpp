@@ -1,5 +1,6 @@
 #include "testprogrammblock.h"
 #include "modules/programblock.h"
+#include <thread>
 
 namespace Test {
 

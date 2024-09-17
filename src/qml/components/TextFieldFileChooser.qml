@@ -1,13 +1,12 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
-import QtQuick.Dialogs 1.2
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 import "../"
 
 RowLayout{
     id: root
     property string path
-    property bool folder: false
     property var fileChooser: null
     height: 20
 
@@ -29,7 +28,7 @@ RowLayout{
                 throw "fileChooser ist not set!";
             }
             const fileDialog = root.fileChooser;
-            fileDialog.openAt(parent.path, parent.folder);
+            fileDialog.openAt(parent.path);
             fileDialog.callback = function(file){
                 root.path = file;
             };

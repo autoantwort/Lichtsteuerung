@@ -1,0 +1,94 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index dc24ae1..eac3468 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,10 +1,10 @@
+ project(segvcatch)
+ 
+-cmake_minimum_required(VERSION 2.6)
++cmake_minimum_required(VERSION 3.21)
+ 
+ include_directories(lib)
+ 
+ add_subdirectory(lib)
+-add_subdirectory(test)
++#add_subdirectory(test)
+ 
+ 
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index cee7062..1f4f6d7 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -1,13 +1,9 @@
+-project(segvcatch)
+-
+-cmake_minimum_required(VERSION 2.6)
+-
+-if(NOT MSVC)
+-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fexceptions -fnon-call-exceptions")
+-endif()
++cmake_minimum_required(VERSION 3.21)
++project(segvcatch VERSION 1.0)
+ 
+ set(TARGET segvcatch)
+ 
++# List of sources
+ set(SOURCES
+   segvcatch.cpp 
+   segvcatch.h
+@@ -15,7 +11,43 @@ set(SOURCES
+   x86_64-signal.h
+ )
+ 
++# Create static library
+ add_library(${TARGET} STATIC ${SOURCES})
+ 
+-install(TARGETS ${TARGET} ARCHIVE DESTINATION lib)
+-install(FILES segvcatch.h DESTINATION include)
+\ No newline at end of file
++# Specify include directories if needed
++target_include_directories(${TARGET} PUBLIC $<INSTALL_INTERFACE:include>)
++
++# Install library and header
++install(TARGETS ${TARGET}
++    EXPORT ${TARGET}Targets
++    ARCHIVE DESTINATION lib
++    INCLUDES DESTINATION include
++)
++
++install(FILES segvcatch.h DESTINATION include)
++
++# Generate and install the CMake package config files
++install(EXPORT ${TARGET}Targets
++    FILE ${TARGET}Targets.cmake
++    NAMESPACE segvcatch::
++    DESTINATION share/${TARGET}
++)
++
++include(CMakePackageConfigHelpers)
++write_basic_package_version_file(
++    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}ConfigVersion.cmake"
++    VERSION ${PROJECT_VERSION}
++    COMPATIBILITY AnyNewerVersion
++)
++
++configure_package_config_file(
++    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/${TARGET}Config.cmake.in"
++    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Config.cmake"
++    INSTALL_DESTINATION share/${TARGET}
++)
++
++install(FILES
++    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}Config.cmake"
++    "${CMAKE_CURRENT_BINARY_DIR}/${TARGET}ConfigVersion.cmake"
++    DESTINATION share/${TARGET}
++)
+diff --git a/lib/cmake/segvcatchConfig.cmake.in b/lib/cmake/segvcatchConfig.cmake.in
+new file mode 100644
+index 0000000..d8538b9
+--- /dev/null
++++ b/lib/cmake/segvcatchConfig.cmake.in
+@@ -0,0 +1,3 @@
++@PACKAGE_INIT@
++
++include("${CMAKE_CURRENT_LIST_DIR}/segvcatchTargets.cmake")
