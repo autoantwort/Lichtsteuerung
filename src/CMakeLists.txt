@@ -102,6 +102,10 @@ qt_add_executable(lichtsteuerung MACOSX_BUNDLE WIN32
     ${RESOURCES}
 )
 
+if(WIN32)
+    target_sources(lichtsteuerung PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/icons/windows/ressources.rc")
+endif()
+
 if (APPLE)
     set(app_icon_macos "${CMAKE_CURRENT_SOURCE_DIR}/icons/app/myicon.icns")
 
