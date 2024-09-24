@@ -18,6 +18,7 @@
 #include <fstream>
 #endif
 #ifdef Q_OS_WIN
+#include "susbdmxdriver.h"
 #include <windows.h>
 #endif
 
@@ -90,16 +91,65 @@ namespace Driver {
         return values[static_cast<size_t>(index)].get();
     }
 
-    bool loadAndStartDriver(QString path) {
-        if (!loadDriver(path)) {
-            return false;
+    void initHardwareInterfaceCallbacks(DMX::HardwareInterface *inter) {
+        inter->setErrorCallback([](QString s) {
+            qDebug() << s;
+            ErrorNotifier::get()->newError(s);
+        });
+#ifdef LOG_DRIVER
+        debugOutput.open("driverOutput" + QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss").toStdString() + ".csv");
+        if (!debugOutput.is_open()) {
+            qDebug() << "Can not open "
+                     << "C:\\Program Files\\Lichtsteuerung\\data\\driverOutput" << QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss") << ".csv";
+        } else {
+            std::vector<std::string> names(512, "Not set");
+            for (int i = 0; i < names.size(); ++i) {
+                names[i] += std::to_string(i + 1);
+            }
+            for (const auto &i : IDBase<Device>::getAllIDBases()) {
+                if (i->getStartDMXChannel() > 1) names[i->getStartDMXChannel() - 1] = i->getName().toStdString();
+            }
+            debugOutput << ';';
+            std::for_each(std::begin(names), std::end(names), [&](const auto &v) { debugOutput << v << ';'; });
+            debugOutput << '\n';
         }
+#endif
+        inter->setSetValuesCallback([](unsigned char *values, int size, double time) {
+#ifdef LOG_DRIVER
+            oldData.resize(size);
+#endif
+            std::memset(values, 0, size);
+            DMXChannelFilter::initValues(values, size);
+            Programm::fill(values, size, time);
+            Modules::DMXConsumer::fillWithDMXConsumer(values, size);
+            DMXChannelFilter::filterValues(values, size);
+            Driver::dmxValueModel.setValues(values, static_cast<size_t>(size));
+            std::copy(values + 1, values + size, values);
+#ifdef LOG_DRIVER
+            if (debugOutput.is_open() && !std::equal(std::begin(oldData), std::end(oldData), values)) {
+                debugOutput << std::to_string(time) << ';';
+                std::for_each(values, values + size, [&](const auto &v) { debugOutput << static_cast<int>(v) << ';'; });
+                debugOutput << '\n';
+                std::copy(values, values + size, std::begin(oldData));
+            }
+#endif
+        });
+    }
+
+    bool startDriver(HardwareInterface *driver) {
         if (driver) {
             if (!driver->init()) return false;
             driver->start();
             return true;
         }
         return false;
+    }
+
+    bool loadAndStartDriver(QString path) {
+        if (!loadDriver(path)) {
+            return false;
+        }
+        return startDriver(driver);
     }
 
     bool loadDriver(QString path) {
@@ -131,54 +181,8 @@ namespace Driver {
         if (getDriver != nullptr) {
             HardwareInterface *inter = getDriver();
             if (inter != nullptr) {
-                inter->setErrorCallback([](QString s) {
-                    qDebug() << s;
-                    ErrorNotifier::get()->newError(s);
-                });
-#ifdef LOG_DRIVER
-                debugOutput.open("driverOutput" + QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss").toStdString() + ".csv");
-                if (!debugOutput.is_open()) {
-                    qDebug() << "Can not open "
-                             << "C:\\Program Files\\Lichtsteuerung\\data\\driverOutput" << QDateTime::currentDateTime().toString("dd.MM.yyyy HH.mm.ss") << ".csv";
-                } else {
-                    std::vector<std::string> names(512, "Not set");
-                    for (int i = 0; i < names.size(); ++i) {
-                        names[i] += std::to_string(i + 1);
-                    }
-                    for (const auto &i : IDBase<Device>::getAllIDBases()) {
-                        if (i->getStartDMXChannel() > 1) names[i->getStartDMXChannel() - 1] = i->getName().toStdString();
-                    }
-                    debugOutput << ';';
-                    std::for_each(std::begin(names), std::end(names), [&](const auto &v) { debugOutput << v << ';'; });
-                    debugOutput << '\n';
-                }
-#endif
-                inter->setSetValuesCallback([](unsigned char *values, int size, double time) {
-#ifdef LOG_DRIVER
-                    oldData.resize(size);
-#endif
-                    std::memset(values, 0, size);
-                    DMXChannelFilter::initValues(values, size);
-                    Programm::fill(values, size, time);
-                    Modules::DMXConsumer::fillWithDMXConsumer(values, size);
-                    DMXChannelFilter::filterValues(values, size);
-                    dmxValueModel.setValues(values, static_cast<size_t>(size));
-                    std::copy(values + 1, values + size, values);
-#ifdef LOG_DRIVER
-                    if (debugOutput.is_open() && !std::equal(std::begin(oldData), std::end(oldData), values)) {
-                        debugOutput << std::to_string(time) << ';';
-                        std::for_each(values, values + size, [&](const auto &v) { debugOutput << static_cast<int>(v) << ';'; });
-                        debugOutput << '\n';
-                        std::copy(values, values + size, std::begin(oldData));
-                    }
-#endif
-                });
-
-                if (driver) {
-                    driver->stop();
-                    delete driver;
-                    driver = nullptr;
-                }
+                initHardwareInterfaceCallbacks(inter);
+                stopAndUnloadDriver();
                 driver = inter;
                 return true;
             }
@@ -208,6 +212,16 @@ namespace Driver {
             driver = nullptr;
         }
     }
+
+#ifdef WIN32
+    bool startSUsbDMXDriver() {
+        stopAndUnloadDriver();
+        driver = new SUsbDMXDriver();
+        initHardwareInterfaceCallbacks(driver);
+        return startDriver(driver);
+    }
+#endif
+
 } // namespace Driver
 
 } // namespace DMX

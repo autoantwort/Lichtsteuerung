@@ -1,0 +1,7 @@
+{
+  "name": "susbdmx",
+  "version-date": "2024-09-24",
+  "license": null,
+  "homepage": "https://git.rwth-aachen.de/leander.schulten/SusbDMX-Driver",
+  "supports": "windows & (x64 | x86)"
+}
