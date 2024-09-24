@@ -22,6 +22,10 @@
         {
             "name": "alsa",
             "platform": "linux"
+        },
+        {
+            "name": "susbdmx",
+            "platform": "windows"
         }
     ],
     "features": {

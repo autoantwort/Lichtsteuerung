@@ -197,6 +197,14 @@ target_link_libraries(lichtsteuerung PRIVATE kubazip::kubazip)
 find_package(segvcatch CONFIG REQUIRED)
 target_link_libraries(lichtsteuerung PRIVATE segvcatch::segvcatch)
 
+# SusBDMX Driver
+if(WIN32)
+    find_package(susbdmx CONFIG REQUIRED)
+    target_link_libraries(lichtsteuerung PRIVATE susbdmx::susbdmx)
+
+    target_sources(lichtsteuerung PRIVATE dmx/susbdmxdriver.h dmx/susbdmxdriver.cpp)
+endif()
+
 find_program(CLANG_FORMAT clang-format PATHS "$ENV{PROGRAMFILES}/LLVM/bin")
 if(CLANG_FORMAT)
     add_custom_target(format

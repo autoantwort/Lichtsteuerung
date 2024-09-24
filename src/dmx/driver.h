@@ -76,6 +76,13 @@ namespace Driver {
      * @return true for success, false for failure
      */
     bool loadAndStartDriver(QString path);
+#ifdef WIN32
+    /**
+     * @brief startSUsbDMXDriver Starts the build in SUSBDMX Driver on windows
+     * @return true for success, false for failure
+     */
+    bool startSUsbDMXDriver();
+#endif
     /**
      * @brief loadDriver Loads the driver from a path and stop and delete the old driver
      * @param path The path to the dll where the driver can be loaded
