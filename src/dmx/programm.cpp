@@ -69,7 +69,7 @@ std::map<Programm *, std::map<Device *, std::vector<Channel *>>> Programm::run()
     std::unordered_set<int> newUsedChannels;
     for (const auto &p : this->programms) {
         for (const auto &cp : p->getProgrammPrototyp()->getChannelProgramms()) {
-            const auto channelNummer = p->device->getStartDMXChannel() + cp->channel->getIndex();
+            const auto channelNummer = p->device->getStartDMXChannel() - 1 /* address 1 base, array 0 based index */ + cp->channel->getIndex();
             newUsedChannels.insert(channelNummer);
         }
     }
@@ -81,7 +81,7 @@ std::map<Programm *, std::map<Device *, std::vector<Channel *>>> Programm::run()
                 auto &dp = *dp_;
                 // für jedes Channel Programm
                 for (const auto &cp : dp->getProgrammPrototyp()->getChannelProgramms()) {
-                    const auto channelNummer = dp->device->getStartDMXChannel() + cp->channel->getIndex();
+                    const auto channelNummer = dp->device->getStartDMXChannel() - 1 /* address 1 base, array 0 based index */ + cp->channel->getIndex();
                     if (newUsedChannels.find(channelNummer) != newUsedChannels.end()) {
                         map[p.get()][dp->getDevice()].push_back(cp->getChannel());
                     }
@@ -102,7 +102,7 @@ void Programm::fill(unsigned char *data, size_t length, double time) {
                 auto &dp = *dp_;
                 // für jedes Channel Programm
                 for (const auto &cp : dp->getProgrammPrototyp()->getChannelProgramms()) {
-                    const auto channelNummer = dp->device->getStartDMXChannel() + cp->channel->getIndex();
+                    const auto channelNummer = dp->device->getStartDMXChannel() - 1 /* address 1 base, array 0 based index */ + cp->channel->getIndex();
                     if (channelNummer < length) {
                         // #warning Fix distorstion:
                         //  original : cause NAN : cp->getValueForTime(p->getTimeDistortion()->distort(time * p->getSpeed()) * dp->getSpeed()+ dp->getOffset())

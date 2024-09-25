@@ -36,9 +36,10 @@ void DMXConsumer::show() {
 
 void DMXConsumer::fillWithDMXConsumer(unsigned char *data, size_t length) {
     for (const auto &i : consumers) {
-        if (i->running && i->startDMXChannel.getValue() < static_cast<int>(length)) {
-            const auto numElements = std::min(static_cast<int>(length) - i->startDMXChannel.getValue(), static_cast<int>(i->getInputLength()));
-            std::copy_n(i->input, numElements, data + i->startDMXChannel.getValue());
+        const auto index = i->startDMXChannel.getValue() - 1 /* address 1 base, array 0 based index */;
+        if (i->running && index < static_cast<int>(length)) {
+            const auto numElements = std::min(static_cast<int>(length) - index, static_cast<int>(i->getInputLength()));
+            std::copy_n(i->input, numElements, data + index);
         }
     }
 }

@@ -63,7 +63,7 @@ void DMXChannelFilter::initValue(unsigned char *value) {
 void DMXChannelFilter::initValues(unsigned char *values, unsigned int numberOfChannels) {
     for (const auto &d : ModelManager::get().getDevices()) {
         for (const auto &f : d->getChannelFilter()) {
-            const auto index = d->getStartDMXChannel() + f.first->getIndex();
+            const auto index = d->getStartDMXChannel() - 1 /* address 1 base, array 0 based index */ + f.first->getIndex();
             if (index < numberOfChannels) {
                 f.second->initValue(values + index);
             }
@@ -74,7 +74,7 @@ void DMXChannelFilter::initValues(unsigned char *values, unsigned int numberOfCh
 void DMXChannelFilter::filterValues(unsigned char *values, unsigned int numberOfChannels) {
     for (const auto &d : ModelManager::get().getDevices()) {
         for (const auto &f : d->getChannelFilter()) {
-            const auto index = d->getStartDMXChannel() + f.first->getIndex();
+            const auto index = d->getStartDMXChannel() - 1 /* address 1 base, array 0 based index */ + f.first->getIndex();
             if (index < numberOfChannels) {
                 f.second->filterValue(values + index);
             }

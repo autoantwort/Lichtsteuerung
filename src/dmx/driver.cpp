@@ -124,7 +124,6 @@ namespace Driver {
             Modules::DMXConsumer::fillWithDMXConsumer(values, size);
             DMXChannelFilter::filterValues(values, size);
             Driver::dmxValueModel.setValues(values, static_cast<size_t>(size));
-            std::copy(values + 1, values + size, values);
 #ifdef LOG_DRIVER
             if (debugOutput.is_open() && !std::equal(std::begin(oldData), std::end(oldData), values)) {
                 debugOutput << std::to_string(time) << ';';
