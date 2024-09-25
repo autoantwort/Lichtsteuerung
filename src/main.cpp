@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_WIN
                 MessageBoxA(nullptr, "The Lichtsteuerung is already running on this computer.", nullptr, MB_OK);
 #endif
+                qDebug() << "The Lichtsteuerung is already running.";
                 return 0;
             }
         }
