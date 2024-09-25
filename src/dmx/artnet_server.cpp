@@ -1,6 +1,6 @@
 #include "artnet_server.h"
 
-#include "ErrorNotifier.h"
+#include "errornotifier.h"
 #include <QNetworkDatagram>
 #include <QUdpSocket>
 #include <QtEndian>
