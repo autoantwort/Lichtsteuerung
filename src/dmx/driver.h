@@ -90,6 +90,12 @@ namespace Driver {
      */
     bool loadDriver(QString path);
     /**
+     * @brief startDriver Starts the driver and sets the nessesary callbacks. Stops the old driver before the new one is started
+     * @param driver The driver that should be started
+     * @return true is successfull
+     */
+    bool startDriver(HardwareInterface *driver);
+    /**
      * @brief getCurrentDriver return the current loaded driver
      * @return the driver or a nullptr, if no driver is loaded
      */

@@ -438,18 +438,9 @@ int main(int argc, char *argv[]) {
 #else
 #include "test/DriverDummy.h"
 
-    DriverDummy driver;
-    driver.setSetValuesCallback([](unsigned char *values, int size, double time) {
-        std::memset(values, 0, size);
-        DMXChannelFilter::initValues(values, size);
-        DMX::Programm::fill(values, size, time);
-        Modules::DMXConsumer::fillWithDMXConsumer(values, size);
-        DMXChannelFilter::filterValues(values, size);
-        Driver::dmxValueModel.setValues(values, size);
-    });
-    driver.setWaitTime(std::chrono::milliseconds(40));
-    driver.init();
-    driver.start();
+    auto driver = new DriverDummy();
+    driver->setWaitTime(std::chrono::milliseconds(40));
+    Driver::startDriver(driver);
 #endif
 
     auto &audioManager = Audio::AudioCaptureManager::get();

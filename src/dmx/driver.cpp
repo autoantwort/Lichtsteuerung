@@ -135,10 +135,13 @@ namespace Driver {
         });
     }
 
-    bool startDriver(HardwareInterface *driver) {
-        if (driver) {
-            if (!driver->init()) return false;
-            driver->start();
+    bool startDriver(HardwareInterface *newdriver) {
+        if (newdriver) {
+            initHardwareInterfaceCallbacks(newdriver);
+            if (!newdriver->init()) return false;
+            stopAndUnloadDriver();
+            newdriver->start();
+            driver = newdriver;
             return true;
         }
         return false;
@@ -180,7 +183,6 @@ namespace Driver {
         if (getDriver != nullptr) {
             HardwareInterface *inter = getDriver();
             if (inter != nullptr) {
-                initHardwareInterfaceCallbacks(inter);
                 stopAndUnloadDriver();
                 driver = inter;
                 return true;
@@ -216,7 +218,6 @@ namespace Driver {
     bool startSUsbDMXDriver() {
         stopAndUnloadDriver();
         driver = new SUsbDMXDriver();
-        initHardwareInterfaceCallbacks(driver);
         return startDriver(driver);
     }
 #endif
