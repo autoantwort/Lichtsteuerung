@@ -95,6 +95,7 @@ set(SOURCES
     test/testsampleclass.cpp test/testsampleclass.h
     updater.cpp updater.h
     usermanagment.cpp usermanagment.h
+    dmx/artnet_server.h dmx/artnet_server.cpp
 )
 
 qt_add_executable(lichtsteuerung MACOSX_BUNDLE WIN32

@@ -5,6 +5,8 @@
 #include "settings.h"
 #include <QAbstractListModel>
 
+class ArtNetReceiver;
+
 namespace DMX {
 
 namespace Driver {
@@ -104,6 +106,8 @@ namespace Driver {
      * @brief stopAndUnloadDriver stop and remove the driver, call this, when you close the application
      */
     void stopAndUnloadDriver();
+
+    void useDataFromArtNetReceiver(ArtNetReceiver *);
 } // namespace Driver
 
 } // namespace DMX

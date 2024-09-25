@@ -12,6 +12,7 @@
 #include "audio/remotevolume.h"
 #include "audio/systemvolume.h"
 #include "dmx/HardwareInterface.h"
+#include "dmx/artnet_server.h"
 #include "dmx/channel.h"
 #include "dmx/device.h"
 #include "dmx/dmxchannelfilter.h"
@@ -442,6 +443,9 @@ int main(int argc, char *argv[]) {
     driver->setWaitTime(std::chrono::milliseconds(40));
     Driver::startDriver(driver);
 #endif
+
+    ArtNetReceiver receiver;
+    Driver::useDataFromArtNetReceiver(&receiver);
 
     auto &audioManager = Audio::AudioCaptureManager::get();
     if (!audioManager.startCapturingFromDefaultInput()) {

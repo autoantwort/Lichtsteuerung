@@ -2,6 +2,8 @@
 #include "dmxchannelfilter.h"
 #include "errornotifier.h"
 #include "programm.h"
+#include "span.h"
+#include "dmx/artnet_server.h"
 #include "modules/dmxconsumer.h"
 #include <QDebug>
 #include <QDir>
@@ -23,6 +25,7 @@
 #endif
 
 DMX::HardwareInterface *driver = nullptr;
+ArtNetReceiver *artnet_receiver = nullptr;
 
 #ifdef LOG_DRIVER
 std::ofstream debugOutput;
@@ -119,10 +122,17 @@ namespace Driver {
             oldData.resize(size);
 #endif
             std::memset(values, 0, size);
+            if (artnet_receiver) {
+                artnet_receiver->writeDefaultValuesTo(span<unsigned char>(values, size));
+            }
             DMXChannelFilter::initValues(values, size);
             Programm::fill(values, size, time);
             Modules::DMXConsumer::fillWithDMXConsumer(values, size);
             DMXChannelFilter::filterValues(values, size);
+            if (artnet_receiver) {
+                artnet_receiver->writeKeepValues(span<unsigned char>(values, size));
+                artnet_receiver->writeOverrideValues(span<unsigned char>(values, size));
+            }
             Driver::dmxValueModel.setValues(values, static_cast<size_t>(size));
 #ifdef LOG_DRIVER
             if (debugOutput.is_open() && !std::equal(std::begin(oldData), std::end(oldData), values)) {
@@ -212,6 +222,10 @@ namespace Driver {
             delete driver;
             driver = nullptr;
         }
+    }
+
+    void useDataFromArtNetReceiver(ArtNetReceiver *receiver) {
+        artnet_receiver = receiver;
     }
 
 #ifdef WIN32
