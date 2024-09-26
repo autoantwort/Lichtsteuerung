@@ -5,9 +5,9 @@
 
 #include <windows.h>
 
-constexpr int MAX_CHANNEL = 512;
-
 class SUsbDMXDriver : public DMX::AbstractHardwareInterface {
+    constexpr static int MAX_CHANNEL = 512;
+
     HANDLE handle = nullptr;
     unsigned char dmxData[MAX_CHANNEL]{};
 
