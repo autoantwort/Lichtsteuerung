@@ -2,7 +2,6 @@
 #define DRIVER_H
 
 #include "HardwareInterface.h"
-#include "settings.h"
 #include <QAbstractListModel>
 
 class ArtNetReceiver;
@@ -90,13 +89,13 @@ namespace Driver {
      * @param path The path to the dll where the driver can be loaded
      * @return true for success, false for failure
      */
-    bool loadDriver(QString path);
+    std::unique_ptr<HardwareInterface> loadDriver(QString path);
     /**
      * @brief startDriver Starts the driver and sets the nessesary callbacks. Stops the old driver before the new one is started
      * @param driver The driver that should be started
      * @return true is successfull
      */
-    bool startDriver(HardwareInterface *driver);
+    bool startDriver(std::unique_ptr<HardwareInterface> driver);
     /**
      * @brief getCurrentDriver return the current loaded driver
      * @return the driver or a nullptr, if no driver is loaded

@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-DMX::HardwareInterface *driver = nullptr;
+std::unique_ptr<DMX::HardwareInterface> driver;
 ArtNetReceiver *artnet_receiver = nullptr;
 
 #ifdef LOG_DRIVER
@@ -94,8 +94,8 @@ namespace Driver {
         return values[static_cast<size_t>(index)].get();
     }
 
-    void initHardwareInterfaceCallbacks(DMX::HardwareInterface *inter) {
-        inter->setErrorCallback([](QString s) {
+    void initHardwareInterfaceCallbacks(DMX::HardwareInterface &inter) {
+        inter.setErrorCallback([](QString s) {
             qDebug() << s;
             ErrorNotifier::get()->newError(s);
         });
@@ -117,7 +117,7 @@ namespace Driver {
             debugOutput << '\n';
         }
 #endif
-        inter->setSetValuesCallback([](unsigned char *values, int size, double time) {
+        inter.setSetValuesCallback([](unsigned char *values, int size, double time) {
 #ifdef LOG_DRIVER
             oldData.resize(size);
 #endif
@@ -145,26 +145,27 @@ namespace Driver {
         });
     }
 
-    bool startDriver(HardwareInterface *newdriver) {
+    bool startDriver(std::unique_ptr<HardwareInterface> newdriver) {
         if (newdriver) {
-            initHardwareInterfaceCallbacks(newdriver);
+            initHardwareInterfaceCallbacks(*newdriver);
             if (!newdriver->init()) return false;
             stopAndUnloadDriver();
             newdriver->start();
-            driver = newdriver;
+            driver = std::move(newdriver);
             return true;
         }
         return false;
     }
 
     bool loadAndStartDriver(QString path) {
-        if (!loadDriver(path)) {
+        auto driver = loadDriver(path);
+        if (!driver) {
             return false;
         }
-        return startDriver(driver);
+        return startDriver(std::move(driver));
     }
 
-    bool loadDriver(QString path) {
+    std::unique_ptr<DMX::HardwareInterface> loadDriver(QString path) {
 #if defined(Q_OS_WIN)
         typedef HardwareInterface *(*getDriverFunc)();
         // we have to load the library with the Windows API to handle dependecies in the same folder, see https://bugreports.qt.io/projects/QTBUG/issues/QTBUG-74001
@@ -179,14 +180,14 @@ namespace Driver {
             else {
                 ErrorNotifier::get()->newError("Fehler beim laden der DLL. Error code: " + QString::number(errorCode));
             }
-            return false;
+            return nullptr;
         }
         auto func = GetProcAddress(handle, "getDriver");
         if (func == nullptr) {
             auto errorCode = GetLastError();
             qDebug() << "Loading of lib failed, error code: " << errorCode;
             ErrorNotifier::get()->newError("Fehler beim laden der Funktion \"getDriver\" aus der DLL, Fehlercode: " + QString::number(errorCode));
-            return false;
+            return nullptr;
         }
         getDriverFunc getDriver = reinterpret_cast<getDriverFunc>(func);
         // getDriverFunc getDriver =  reinterpret_cast<getDriverFunc>(QLibrary::resolve(path,"getDriver"));
@@ -194,8 +195,7 @@ namespace Driver {
             HardwareInterface *inter = getDriver();
             if (inter != nullptr) {
                 stopAndUnloadDriver();
-                driver = inter;
-                return true;
+                return std::unique_ptr<DMX::HardwareInterface>(inter);
             }
         } else {
             if (!QFile::exists(path)) {
@@ -209,17 +209,16 @@ namespace Driver {
         Q_UNUSED(path)
 #warning Driverloading is only supported for Windows
 #endif
-        return false;
+        return nullptr;
     }
 
     HardwareInterface *getCurrentDriver() {
-        return driver;
+        return driver.get();
     }
 
     void stopAndUnloadDriver() {
         if (driver) {
             driver->stop();
-            delete driver;
             driver = nullptr;
         }
     }
@@ -231,8 +230,7 @@ namespace Driver {
 #ifdef WIN32
     bool startSUsbDMXDriver() {
         stopAndUnloadDriver();
-        driver = new SUsbDMXDriver();
-        return startDriver(driver);
+        return startDriver(std::make_unique<SUsbDMXDriver>());
     }
 #endif
 
