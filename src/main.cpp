@@ -431,7 +431,7 @@ int main(int argc, char *argv[]) {
 #else
     bool usbDriverWorks = false;
 #endif
-    if (!Driver::loadAndStartDriver(settings.getDriverFilePath()) && !usbDriverWorks) {
+    if (!settings.getDriverFilePath().isEmpty() && !Driver::loadAndStartDriver(settings.getDriverFilePath()) && !usbDriverWorks) {
         ErrorNotifier::showError(QStringLiteral("Can`t start the DMX driver. The DMX output will not work. You can load a different driver in the Settings tab."));
     } else {
         Driver::getCurrentDriver()->setWaitTime(std::chrono::milliseconds(40));
