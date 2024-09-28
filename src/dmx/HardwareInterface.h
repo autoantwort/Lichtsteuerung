@@ -50,7 +50,7 @@ class AbstractHardwareInterface : public HardwareInterface {
 private:
     void loop() {
         std::this_thread::yield();
-        while (!stopThread.load() && isFunctioning()) {
+        while (!stopThread.load()) {
             auto lock = std::unique_lock<std::mutex>(mutex);
             while (run.load() && isFunctioning()) {
                 setValuesDeviceDriver();
