@@ -160,10 +160,6 @@ int main(int argc, char *argv[]) {
     ExcHndlSetLogFileNameA(path.toStdString().c_str());
 #endif
 
-    if (!QSslSocket::supportsSsl()) {
-        ErrorNotifier::showError(QStringLiteral("No OpenSSL library found!\nUpdates are not possible and the Spotify support does not work."));
-    }
-
     Updater updater;
     QObject::connect(&updater, &Updater::needUpdate, [&]() { updater.update(); });
 #ifdef DrMinGW
