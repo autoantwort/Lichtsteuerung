@@ -116,8 +116,16 @@ std::pair<std::function<void()>, QString> loadData(const QByteArray &data) {
         ModelManager::get().addNewProgram(e.toObject());
     }
     { // USERS
+        std::set<QString> ids;
         for (const auto e : o[QStringLiteral("Users")].toArray()) {
-            User::createUser(e.toObject());
+            auto obj = e.toObject();
+            const auto id = obj[QStringLiteral("id")].toString();
+            if (ids.find(id) != ids.end()) {
+                // Neue ID vergeben, die alte aktuelle wird schon verwendet
+                IDBase<User>{}.writeJsonObject(obj);
+            }
+            ids.emplace(id);
+            User::createUser(obj);
         }
     }
     {
