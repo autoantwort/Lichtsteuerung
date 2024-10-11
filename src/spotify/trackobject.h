@@ -3,8 +3,9 @@
 
 #include "albumobject.h"
 #include "artistobject.h"
-#include <QJsonObject>
-#include <QObject>
+#include <QString>
+
+class QJsonObject;
 
 namespace Spotify::Objects {
 

@@ -4,7 +4,6 @@
 #include "applicationdata.h"
 #include "modelvector.h"
 #include "settings.h"
-#include "usermanagment.h"
 #include "dmx/device.h"
 #include "dmx/programm.h"
 #include "dmx/programmprototype.h"

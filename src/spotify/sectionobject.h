@@ -1,7 +1,7 @@
 #ifndef SECTIONOBJECT_H
 #define SECTIONOBJECT_H
 
-#include <QJsonObject>
+class QJsonObject;
 
 namespace Spotify::Objects {
 

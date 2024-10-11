@@ -1,23 +1,25 @@
 #include "audiofeaturesobject.h"
 
+#include <QJsonObject>
+
 namespace Spotify::Objects {
 
 AudioFeaturesObject::AudioFeaturesObject(const QJsonObject &object)
-    : acousticness(object["acousticness"].toInt())
-    , analysis_url(object["analysis_url"].toString())
-    , danceability(object["danceability"].toDouble())
-    , duration_ms(object["duration_ms"].toInt())
-    , energy(object["energy"].toDouble())
-    , id(object["id"].toString())
-    , instrumentalness(object["instrumentalness"].toDouble())
-    , key(object["key"].toInt())
-    , liveness(object["liveness"].toDouble())
-    , loudness(object["loudness"].toDouble())
-    , mode(object["mode"].toInt())
-    , speechiness(object["speechiness"].toDouble())
-    , tempo(object["tempo"].toDouble())
-    , time_signature(object["time_signature"].toInt())
-    , track_href(object["track_href"].toString())
-    , valence(object["valence"].toDouble()) {}
+    : acousticness(object[QStringLiteral("acousticness")].toInt())
+    , analysis_url(object[QStringLiteral("analysis_url")].toString())
+    , danceability(object[QStringLiteral("danceability")].toDouble())
+    , duration_ms(object[QStringLiteral("duration_ms")].toInt())
+    , energy(object[QStringLiteral("energy")].toDouble())
+    , id(object[QStringLiteral("id")].toString())
+    , instrumentalness(object[QStringLiteral("instrumentalness")].toDouble())
+    , key(object[QStringLiteral("key")].toInt())
+    , liveness(object[QStringLiteral("liveness")].toDouble())
+    , loudness(object[QStringLiteral("loudness")].toDouble())
+    , mode(object[QStringLiteral("mode")].toInt())
+    , speechiness(object[QStringLiteral("speechiness")].toDouble())
+    , tempo(object[QStringLiteral("tempo")].toDouble())
+    , time_signature(object[QStringLiteral("time_signature")].toInt())
+    , track_href(object[QStringLiteral("track_href")].toString())
+    , valence(object[QStringLiteral("valence")].toDouble()) {}
 
 } // namespace Spotify::Objects

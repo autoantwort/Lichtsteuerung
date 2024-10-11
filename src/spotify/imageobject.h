@@ -2,10 +2,10 @@
 #define IMAGEOBJECT_H
 
 #include "modelvector.h"
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QObject>
+#include <QMetaType>
 #include <optional>
+
+class QJsonArray;
 
 namespace Spotify::Objects {
 

@@ -3,6 +3,7 @@
 
 #include "id.h"
 #include "modelmanager.h"
+#include "usermanagment.h"
 #include "dmx/device.h"
 #include "dmx/programm.h"
 #include "modules/programblock.h"

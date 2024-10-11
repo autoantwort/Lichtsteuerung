@@ -2,9 +2,9 @@
 #define CURRENTPLAYINGOBJECT_H
 
 #include "trackobject.h"
-#include <QJsonObject>
-#include <QObject>
 #include <optional>
+
+class QJsonObject;
 
 namespace Spotify::Objects {
 

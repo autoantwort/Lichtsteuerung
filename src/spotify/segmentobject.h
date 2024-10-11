@@ -1,8 +1,9 @@
 #ifndef SEGMENTOBJECT_H
 #define SEGMENTOBJECT_H
 
-#include <QJsonObject>
 #include <vector>
+
+class QJsonObject;
 
 namespace Spotify::Objects {
 

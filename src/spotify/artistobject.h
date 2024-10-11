@@ -2,9 +2,11 @@
 #define ARTISTOBJECT_H
 
 #include "modelvector.h"
-#include <QJsonArray>
-#include <QJsonObject>
-#include <QObject>
+#include <QMetaType>
+#include <QString>
+
+class QJsonObject;
+class QJsonArray;
 
 namespace Spotify::Objects {
 

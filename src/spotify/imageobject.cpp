@@ -1,12 +1,14 @@
 #include "imageobject.h"
 
+#include <QJsonArray>
+
 namespace Spotify::Objects {
 
-ImageObject::ImageObject(const QJsonObject &object) : url(object["url"].toString()) {
-    if (auto h = object.find("height"); h != object.end() && !h->isNull()) {
+ImageObject::ImageObject(const QJsonObject &object) : url(object[QStringLiteral("url")].toString()) {
+    if (auto h = object.find(QStringLiteral("height")); h != object.end() && !h->isNull()) {
         height = h->toInt();
     }
-    if (auto w = object.find("width"); w != object.end() && !w->isNull()) {
+    if (auto w = object.find(QStringLiteral("width")); w != object.end() && !w->isNull()) {
         width = w->toInt();
     }
 }

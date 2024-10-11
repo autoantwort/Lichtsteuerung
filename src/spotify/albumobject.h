@@ -3,10 +3,11 @@
 
 #include "artistobject.h"
 #include "imageobject.h"
-#include "modelvector.h"
-#include <QJsonObject>
-#include <QObject>
+#include <QString>
 #include <optional>
+
+class QJsonObject;
+
 namespace Spotify::Objects {
 
 /**

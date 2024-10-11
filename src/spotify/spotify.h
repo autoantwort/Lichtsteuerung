@@ -10,7 +10,6 @@
 #include <QOAuth2AuthorizationCodeFlow>
 #include <QObject>
 #include <optional>
-#include <set>
 
 namespace Spotify {
 

@@ -1,7 +1,7 @@
 #ifndef TIMEINTERVALOBJECT_H
 #define TIMEINTERVALOBJECT_H
 
-#include <QJsonObject>
+class QJsonObject;
 
 namespace Spotify::Objects {
 

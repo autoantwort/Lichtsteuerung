@@ -2,7 +2,6 @@
 #define SYSTEM_ERROR_HANDLER_H
 
 #include <boost/stacktrace.hpp>
-#include <stdexcept>
 #include <string>
 #include <string_view>
 

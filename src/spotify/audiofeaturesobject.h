@@ -1,7 +1,9 @@
 #ifndef AUDIOFEATURESOBJECT_H
 #define AUDIOFEATURESOBJECT_H
 
-#include <QJsonObject>
+#include <QString>
+
+class QJsonObject;
 
 namespace Spotify::Objects {
 

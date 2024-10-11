@@ -1,5 +1,7 @@
 #include "sectionobject.h"
 
+#include <QJsonObject>
+
 namespace Spotify::Objects {
 
 SectionObject::SectionObject(const QJsonObject &object)
