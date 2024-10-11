@@ -1,7 +1,7 @@
 #ifndef APPLICATIONDATA_H
 #define APPLICATIONDATA_H
 
-#include <QFile>
+#include <QByteArray>
 #include <functional>
 
 namespace ApplicationData {
