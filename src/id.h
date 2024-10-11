@@ -1,9 +1,9 @@
 #ifndef IDGENERATOR_H
 #define IDGENERATOR_H
 
-#include <QDateTime>
-#include <QJsonObject>
+#include <cstdint>
 
+class QJsonObject;
 /**
  * @brief Eine ID Klasse, die eindeutige IDs erstellt
  */
@@ -11,11 +11,10 @@ class ID {
     friend class UserManagment;
 
 public:
-    typedef long long value_type;
+    typedef int64_t value_type;
 
 private:
     static value_type lastID;
-    static_assert(sizeof(qint64) == sizeof(long long), "Falsche Groesse!");
 
 public:
     /**
