@@ -27,7 +27,7 @@ GridLayout{
     property alias listView : listView
     property var nameFunction: null
     // a filter function used for searching. The first parameter ist the search string, the second the modelData and the third the displayed string
-    property var searchFilter: (modelData, text) => text.indexOf(currentSearchText) !== -1
+    property var searchFilter: (modelData, text) => text.toLowerCase().indexOf(currentSearchText.toLowerCase()) !== -1
     property string searchHelpText;
     property string currentSearchText;
 

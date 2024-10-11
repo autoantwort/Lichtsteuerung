@@ -92,7 +92,7 @@ ModelView{
         if(checkChannels){
             return device.startDMXChannel + device.prototype.numberOfChannels > minDisplayedChannel && device.startDMXChannel <= maxDisplayedChannel && text.indexOf(additionalSearchString) !== -1
         }else{
-            return text.indexOf(additionalSearchString) !== -1;
+            return text.toLowerCase().indexOf(additionalSearchString.toLowerCase()) !== -1;
         }
     }
 
