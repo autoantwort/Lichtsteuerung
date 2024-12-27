@@ -23,7 +23,7 @@ jobs:
       - name: Set up vcpkg and install dependencies
         uses: lukka/run-vcpkg@v11
         with:
-          vcpkgGitCommitId: c9fa965c2a1b1334469b4539063f3ce95383653c
+          vcpkgGitCommitId: 80d54ff62d528339c626a6fbc3489a7f25956ade
 
       - name: Setup Qt
         uses: jurplel/install-qt-action@v4
