@@ -26,6 +26,13 @@
         {
             "name": "susbdmx",
             "platform": "windows"
+        },
+        {
+            "name": "awlib",
+            "default-features": false,
+            "features": [
+                "graphics"
+            ]
         }
     ],
     "features": {
