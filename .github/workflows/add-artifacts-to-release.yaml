@@ -18,7 +18,7 @@ jobs:
           workflow: cmake.yaml
 
       - name: Download artifact from build workflow
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: cmake.yaml
@@ -27,7 +27,7 @@ jobs:
           path: windows-artifact
 
       - name: Download artifact from build-windows-installer workflow
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@v6
         with:
           github_token: ${{secrets.GITHUB_TOKEN}}
           workflow: build-windows-installer.yaml
