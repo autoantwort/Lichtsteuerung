@@ -26,12 +26,14 @@ void ArtNetReceiver::writeDefaultValuesTo(span<unsigned char> output_data) const
 }
 
 void ArtNetReceiver::writeKeepValues(span<unsigned char> output_data) const {
-    if (system_clock::now() - last_keep_values > DURATION_IGNORE_ARTNET) {
-        return;
-    }
-    for (size_t i = 0; i < std::min(output_data.size(), MAX_CHANNEL); i++) {
-        if (keep_channels[i]) {
-            output_data[i] = static_cast<unsigned char>(keep_values[i]);
+    for (auto &iter : keep_channels) {
+        if (system_clock::now() - iter.second.last_keep_values > DURATION_IGNORE_ARTNET) {
+            continue;
+        }
+        for (size_t i = 0; i < std::min(output_data.size(), MAX_CHANNEL); i++) {
+            if (iter.second.keep_channels[i]) {
+                output_data[i] = static_cast<unsigned char>(iter.second.keep_values[i]);
+            }
         }
     }
 }
@@ -66,13 +68,14 @@ void ArtNetReceiver::processPendingDatagrams() {
                     std::copy(values.begin(), values.end(), default_values);
                     last_default_values = system_clock::now();
                 } else if (universe < 200) {
+                    auto &entry = keep_channels[universe];
                     for (size_t i = 0; i < values.size(); i++) {
                         if (values[i] > 0) {
-                            keep_channels[i] = true;
+                            entry.keep_channels[i] = true;
                         }
                     }
-                    std::copy(values.begin(), values.end(), keep_values);
-                    last_keep_values = system_clock::now();
+                    std::copy(values.begin(), values.end(), entry.keep_values);
+                    entry.last_keep_values = system_clock::now();
                 } else {
                     std::copy(values.begin(), values.end(), override_values);
                     last_override_values = system_clock::now();

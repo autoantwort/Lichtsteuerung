@@ -5,6 +5,7 @@
 #include <QObject>
 #include <bitset>
 #include <chrono>
+#include <map>
 
 class QUdpSocket;
 
@@ -33,9 +34,12 @@ private:
     unsigned char default_values[MAX_CHANNEL]{};
     std::chrono::system_clock::time_point last_default_values{};
 
-    std::bitset<MAX_CHANNEL> keep_channels{};
-    unsigned char keep_values[MAX_CHANNEL]{};
-    std::chrono::system_clock::time_point last_keep_values{};
+    struct Entry {
+        std::bitset<MAX_CHANNEL> keep_channels{};
+        unsigned char keep_values[MAX_CHANNEL]{};
+        std::chrono::system_clock::time_point last_keep_values{};
+    };
+    std::map<int, Entry> keep_channels;
 
     unsigned char override_values[MAX_CHANNEL]{};
     std::chrono::system_clock::time_point last_override_values{};
