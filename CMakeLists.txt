@@ -11,7 +11,7 @@ if (USE_VCPKG_VIA_FETCH_CONTENT)
         GIT_TAG 9b75e789ece3f942159b8500584e35aafe3979ff # 2025-04-04
     )
     if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
-        FetchContent_Populate(vcpkg)
+        FetchContent_MakeAvailable(vcpkg)
         set(CMAKE_TOOLCHAIN_FILE "${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
     endif()
 endif()
