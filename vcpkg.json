@@ -28,6 +28,12 @@
             "platform": "windows"
         }
     ],
+    "overrides": [
+        {
+            "name": "rtaudio",
+            "version": "2021-11-16#2"
+        }
+    ],
     "features": {
         "qt": {
             "description": "Used qt modules via vcpkg",
