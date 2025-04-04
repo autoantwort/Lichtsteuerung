@@ -33,6 +33,10 @@ jobs:
 
       - uses: lukka/get-cmake@latest
 
+      - name: Install autoreconf
+        if: matrix.os == 'macos-latest'
+        run: brew install autoconf automake autoconf-archive libtool
+
       - name: Run CMake+vcpkg+Ninja to build packages and generate/build the code.
         uses: lukka/run-cmake@v10
         with:
