@@ -8,7 +8,7 @@ if (USE_VCPKG_VIA_FETCH_CONTENT)
     FetchContent_Declare(
         vcpkg
         GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-        GIT_TAG c9fa965c2a1b1334469b4539063f3ce95383653c # 2023-07-10
+        GIT_TAG 9b75e789ece3f942159b8500584e35aafe3979ff # 2025-04-04
     )
     if(NOT DEFINED CMAKE_TOOLCHAIN_FILE)
         FetchContent_Populate(vcpkg)
