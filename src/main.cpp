@@ -313,8 +313,13 @@ int main(int argc, char *argv[]) {
         }
 
     } else {
-        ErrorNotifier::showError(QStringLiteral("No settings file found! The Lichtsteuerung starts wihout content."));
+        ErrorNotifier::showError(QStringLiteral("No settings file found! A new one was created."));
         settingsFileWrapper.setStatus(SettingsFileWrapper::NoFile);
+        // Give the default user all right so that the programm is usable
+        for (int i = 0; i < UserManagment::metaEnum.keyCount(); ++i) {
+            UserManagment::get()->getDefaultUser()->setPermission(static_cast<UserManagment::Permission>(UserManagment::metaEnum.value(i)), true);
+        }
+        settings.setJsonSettingsFilePath(file, false);
     }
     // nachdem die Benutzer geladen wurden, auto login durchführen
     UserManagment::get()->autoLoginUser();
@@ -421,6 +426,7 @@ int main(int argc, char *argv[]) {
     }
 
     // Treiber laden
+#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
 #ifdef WIN32
     bool usbDriverWorks = Driver::startSUsbDMXDriver();
@@ -436,9 +442,9 @@ int main(int argc, char *argv[]) {
 #else
 #include "test/DriverDummy.h"
 
-    auto driver = new DriverDummy();
+    auto driver = std::make_unique<DriverDummy>();
     driver->setWaitTime(std::chrono::milliseconds(40));
-    Driver::startDriver(driver);
+    Driver::startDriver(std::move(driver));
 #endif
 
     ArtNetReceiver receiver;

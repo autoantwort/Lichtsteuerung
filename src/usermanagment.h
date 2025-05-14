@@ -220,7 +220,6 @@ private:
     ModelVector<QString> autologinUsernames;
     UserPermissionModel permissionModel;
     void setUsername(const QString &u);
-    void setPermission(UserManagment::Permission p, bool get = true);
     void loadPermissions(const QJsonObject &o);
     User(QString name, QByteArray password) : username(std::move(name)), password(std::move(password)), permissionModel(this) {}
     /**
@@ -236,6 +235,7 @@ public:
     void writeJsonObject(QJsonObject &o) const;
     ~User() override { UserManagment::get()->logout(this); }
     [[nodiscard]] QString getUsername() const { return username; }
+    void setPermission(UserManagment::Permission p, bool get = true);
     /**
      * @brief getPermissions Returns an set that contains all Permission that this user has
      * @return A set containing all Permission that this user has
