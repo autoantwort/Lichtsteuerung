@@ -63,14 +63,14 @@ void ArtNetReceiver::processPendingDatagrams() {
                 quint16 length = qFromBigEndian<quint16>(reinterpret_cast<const uchar *>(data.constData() + 16));
                 // qDebug() << "Data length:" << length;
                 auto values = data.mid(18, std::min<size_t>(length, MAX_CHANNEL));
-                // qDebug() << "DMX Data:" << values.toHex();
+                qDebug() << "DMX Data:" << values.toHex();
                 if (universe < 100) {
                     std::copy(values.begin(), values.end(), default_values);
                     last_default_values = system_clock::now();
                 } else if (universe < 200) {
                     auto &entry = keep_channels[universe];
                     for (size_t i = 0; i < values.size(); i++) {
-                        if (values[i] > 0) {
+                        if (static_cast<uint8_t> (values[i]) > 0) {
                             entry.keep_channels[i] = true;
                         }
                     }
