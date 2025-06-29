@@ -426,7 +426,6 @@ int main(int argc, char *argv[]) {
     }
 
     // Treiber laden
-#define USE_DUMMY_DRIVER
 #ifndef USE_DUMMY_DRIVER
 #ifdef WIN32
     bool usbDriverWorks = Driver::startSUsbDMXDriver();
