@@ -203,12 +203,16 @@ ProgrammControlItemData::ProgrammControlItemData(DMX::Programm *p, QObject *pare
 }
 
 ProgrammControlItemData::ProgrammControlItemData(const QJsonObject &o, QObject *parent) : ControlItemData(o, parent), programm(ModelManager::get().getProgramById(o["programm"])) {
+    if (o["running"].toBool()) {
+        programm->setRunning(true);
+    }
     registerRemoteProperties();
 }
 
 void ProgrammControlItemData::writeJsonObject(QJsonObject &o) {
     ControlItemData::writeJsonObject(o);
     o.insert("programm", QString::number(programm->getID().value()));
+    o.insert("running", programm->isRunning());
 }
 void ProgrammControlItemData::setProgramm(DMX::Programm *p) {
     if (p != programm) {
